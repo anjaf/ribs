@@ -1,0 +1,79 @@
+/*
+    #####  Color Palette by Color Scheme Designer
+    #####  Palette URL: http://colorschemedesigner.com/[custom URL]
+    #####  Color Space: RGB;
+    *** Primary Color: 75C8EC	6E9DB1	267799	99D9F6	B1E1F6*/
+:root {
+    --P1 : #75C8EC;
+    --P2 : #6E9DB1;
+    --P3 : #267799;
+    --P4 : #99D9F6;
+    --P5 : #B1E1F6;
+    /*** Secondary Color A: 8190EF	757EB3	2A3A9B	A2AEF7	B8C1F7*/
+    --A1 : #8190EF;
+    --A2 : #757EB3;
+    --A3 : #2A3A9B;
+    --A4 : #A2AEF7;
+    --A5 : #B8C1F7;
+    /*** Secondary Color B: 72F1A5	6DB48A	259C55	96F8BD	B0F8CD*/
+    --B1 : #72F1A5;
+    --B2 : #6DB48A;
+    --B3 : #259C55;
+    --B4 : #96F8BD;
+    --B5 : #B0F8CD;
+    /*** Complementary Color: FFBF78	BF9C73	A66A27	FFCF9A	FFDCB5*/
+    --C1 : #FFBF78;
+    --C2 : #BF9C73;
+    --C3 : #A66A27;
+    --C4 : #FFCF9A;
+    --C5 : #FFDCB5;
+}
+
+a {
+    color: #222;
+}
+
+dl dt a,
+a.label,
+.label,
+a:hover,
+a:focus,
+a:active {
+    color: rgb(0,124,130);
+}
+
+h1 { color: #f7f7f7; }
+h2 { color: #267799; }
+h3 { color: #444444; }
+
+a.special { background-color: #7cd17c; }
+
+.menu .active > a,
+.tag,
+.tabs-title > a:hover
+.button,
+.button.primary {
+    background-color: rgb(0,124,130);
+}
+a.tag:hover { color: #fff; }
+
+.tabs-title > a:hover,
+.button.primary:hover,
+.button.primary:focus,
+.button.hover,
+.button:hover,
+.button:focus,
+.button:active { background: rgba(0,124,130,.9); }
+
+.tabs-title > a:focus,
+.tabs-title > a[aria-selected='true'] {
+    color: #fff;
+    background: #666; }
+
+div#local-masthead, #ebi_search .button, .pagination .current {
+    background-color: #75C8EC;
+}
+
+
+
+/* end */
