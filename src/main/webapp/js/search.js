@@ -31,19 +31,66 @@ function registerHelpers(params) {
     });
 
     Handlebars.registerHelper('pager', function(o) {
-        var ul = '<ul class="pagination" role="navigation" aria-label="Pagination">'
-        console.log($.param(params))
-        if (!o.data.root.page || o.data.root.page==1  ) {
-            ul += '<li class="pagination-previous disabled">Previous <span class="show-for-sr">page</span></li>';
-        } else {
+        if (!o.data.root.page || !o.data.root.pageSize || !o.data.root.totalHits ) {
+            return '';
+        }
+        var ul = '<ul class="pagination" role="navigation" aria-label="Pagination">';
+        var page = o.data.root.page, pageSize = o.data.root.pageSize, totalHits =o.data.root.totalHits;
+        var maxPage = Math.ceil(totalHits/pageSize*1.0);
+
+        if (page>1) {
             params.page = o.data.root.page-1;
             ul += '<li class="pagination-previous"><a href="search?'+$.param(params)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
         }
 
-        if (!o.data.root.page || !o.data.root.pageSize ||  o.data.root.page*o.data.root.pageSize > o.data.root.totalHits) {
-            ul += '<li class="pagination-next disabled">Next <span class="show-for-sr">page</span></li>';
+        if (maxPage<=10) {
+            for (var i = 1; i <= maxPage; i++) {
+                params.page = i;
+                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="search?' + $.param(params) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
+            }
         } else {
-            params.page = o.data.root.page+1;
+            var arr;
+            switch (page) {
+                case 1:
+                case 2:
+                case 3:
+                    arr = [1, 2, 3, -1, maxPage - 2, maxPage - 1, maxPage];
+                    break;
+                case 4:
+                    arr = [1, 2, 3, 4, -1, maxPage - 2, maxPage - 1, maxPage];
+                    break;
+                case 5:
+                    arr = [1, 2, 3, 4, 5, 6, -1, maxPage - 2, maxPage - 1, maxPage];
+                    break;
+                case maxPage - 4:
+                    arr = [1, 2, 3, -1 ,  maxPage - 4 , maxPage - 3, maxPage - 2, maxPage - 1, maxPage];
+                    break;
+                case maxPage - 3:
+                    arr = [1, 2, 3, -1 , maxPage - 3, maxPage - 2, maxPage - 1, maxPage];
+                    break;
+                case maxPage - 2: case maxPage - 1: case maxPage:
+                    arr = [1, 2, 3, -1 , maxPage - 2, maxPage - 1, maxPage];
+                    break;
+                default:
+                    arr = [1, 2, 3, -1, page - 1, page, page + 1, -1, maxPage - 2, maxPage - 1, maxPage];
+                    break;
+            }
+            for (var i=0; i<arr.length; i++) {
+                if (arr[i]==-1) {
+                    ul += '<li class="ellipsis" aria-hidden="true"></li>';
+                    continue;
+                }
+                params.page = arr[i];
+                if (arr[i]==page) {
+                    ul += '<li class="current">' + arr[i] + '</li>';
+                } else {
+                    ul += '<li><a href="search?' + $.param(params) + '" aria-label="Page ' + arr[i] + '">' + arr[i] + '</a></li>';
+                }
+            };
+        }
+
+        if (o.data.root.page && o.data.root.pageSize &&  o.data.root.page*o.data.root.pageSize < o.data.root.totalHits) {
+            params.page = page+1;
             ul += '<li class="pagination-next"><a href="search?'+$.param(params)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
         }
 

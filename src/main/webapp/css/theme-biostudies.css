@@ -39,7 +39,7 @@ a.label,
 a:hover,
 a:focus,
 a:active {
-    color: rgb(0,124,130);
+    color: #267799;
 }
 
 h1 { color: #f7f7f7; }
@@ -74,6 +74,16 @@ div#local-masthead, #ebi_search .button, .pagination .current {
     background-color: #75C8EC;
 }
 
+.pagination a, .pagination button{
+    margin: 0 0.5rem;
+}
 
+.pagination .current  a {
+    padding: inherit;
+    margin: 0;
+}
 
+.pagination a:visited {
+    color: #0a0a0a;
+}
 /* end */

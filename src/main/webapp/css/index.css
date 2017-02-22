@@ -1,6 +1,11 @@
+
 ul#search-results {
     list-style-type: none;
     width: 80%;
+}
+ul.pagination  {
+    width: 80%;
+    text-align: right;
 }
 
 ul#search-results li {
@@ -32,3 +37,4 @@ ul#search-results li {
     color: #6BA8C5;
     padding: 10px;
 }
+
