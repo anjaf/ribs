@@ -1,4 +1,4 @@
-package uk.com.ebi.biostudy.configuration;
+package uk.ac.ebi.biostudies.configuration;
 
 /**
  * Created by ehsan on 23/02/2017.
@@ -18,7 +18,7 @@ import org.springframework.web.servlet.view.JstlView;
 @Configuration
 @EnableWebMvc
 @EnableAsync
-@ComponentScan(basePackages = "uk.com.ebi.biostudy")
+@ComponentScan(basePackages = "uk.ac.ebi.biostudies")
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override

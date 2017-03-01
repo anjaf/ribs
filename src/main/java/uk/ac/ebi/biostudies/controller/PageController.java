@@ -1,4 +1,4 @@
-package uk.com.ebi.biostudy.controller;
+package uk.ac.ebi.biostudies.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

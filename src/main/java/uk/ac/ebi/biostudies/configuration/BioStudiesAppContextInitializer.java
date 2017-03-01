@@ -1,8 +1,8 @@
-package uk.com.ebi.biostudy.configuration;
+package uk.ac.ebi.biostudies.configuration;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-public class BioStudyAppContextInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+public class BioStudiesAppContextInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 	 
     @Override
     protected Class<?>[] getRootConfigClasses() {

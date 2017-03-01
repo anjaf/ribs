@@ -16,7 +16,7 @@
  */
 
 .bs-name {
-    color: #6E9DB1;
+    color: #267799;
     margin-top:10px;
 }
 
@@ -148,4 +148,28 @@ a.show-less:hover {
     color: #585858;
     font-size: 12pt;
     margin-bottom: 14px;
+}
+
+ul#bs-authors, ul#bs-orgs {
+    margin: 0;
+    display: table;
+    list-style-type: none;
+}
+ul#bs-authors li , ul#bs-orgs li{
+    display: inline;
+}
+
+ul#bs-authors li+li:before {
+    content: ', ';
+}
+
+ul#bs-orgs li{
+    padding-right:4px;
+}
+
+ul#bs-orgs {
+    font-size: 85%;
+    padding: 0.5em 0;
+    margin: 5px 0 0;
+    color: #888;
 }

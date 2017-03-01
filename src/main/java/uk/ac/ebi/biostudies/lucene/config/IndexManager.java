@@ -1,4 +1,4 @@
-package uk.com.ebi.biostudy.lucene.config;
+package uk.ac.ebi.biostudies.lucene.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +23,7 @@ import java.nio.file.Paths;
  */
 @Component
 @Scope("singleton")
-public class BioIndexManager {
+public class IndexManager {
 
     private IndexReader indexReader;
     private IndexSearcher indexSearcher;
@@ -31,7 +31,7 @@ public class BioIndexManager {
     private Directory indexDirectory;
     private IndexWriterConfig indexWriterConfig;
 
-    private Logger logger = LogManager.getLogger(BioIndexManager.class.getName());
+    private Logger logger = LogManager.getLogger(IndexManager.class.getName());
 
     @Autowired
     IndexConfig indexConfig;

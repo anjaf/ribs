@@ -1,16 +1,20 @@
 !function(d) {
 
+    var params = document.location.search.replace(/(^\?)/,'').split("&").map(
+        function(s) {
+            return s = s.split("="), this[s[0]] = s[1], this
+        }.bind({}))[0];
     registerHelpers();
 
     // Prepare template
     var templateSource = $('script#study-template').html();
     var template = Handlebars.compile(templateSource);
     var url = window.location.href;
-    url = url.replace('studies','api/biostudies');
-    console.log(url)
+    url = url.replace('studies','api/studies');
     // Data in json
-    $.getJSON(url, function (data) {
+    $.getJSON(url,params, function (data) {
         // Generate html using template and data
+        data.submissions[0].section.accno = data.submissions[0].accno;
         var html = template(data.submissions[0].section);
         // Add the result to the DOM
         d.getElementById('renderedContent').innerHTML = html;
@@ -30,7 +34,7 @@ function registerHelpers() {
     Handlebars.registerHelper('valueWithName', function(val, obj) {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
-        if (e!=undefined) return new Handlebars.SafeString(e['value']);
+        return (e!=undefined) ? new Handlebars.SafeString(e['value']) : '-';
     });
 
     Handlebars.registerHelper('section', function(o, shouldIndent) {
@@ -46,6 +50,16 @@ function registerHelpers() {
 
     Handlebars.registerHelper('ifArray', function(arr,options) {
         if(Array.isArray(arr)) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
+    });
+
+    Handlebars.registerHelper('ifRenderable', function(arr,options) {
+        var specialSections = ['publication', 'author', 'organization'];
+
+        if($.inArray(arr.type.toLowerCase(),specialSections) < 0) {
             return options.fn(this);
         } else {
             return options.inverse(this);
@@ -90,7 +104,7 @@ function registerHelpers() {
                     }
                 })
             });
-            this.headers = (names);
+            this.headers = names;
             this.type = this[0].type
         }
     });
@@ -105,6 +119,38 @@ function registerHelpers() {
         console.log(v)
         console.log(this)
         return this.name
+    });
+
+    Handlebars.registerHelper('eachAuthor', function(obj, options) {
+        var ret = '';
+        var orgs = {}
+        // make an org map
+        $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
+            orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
+        });
+
+        $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='author';}), function (i,o) {
+            var author = {}
+            $.each(o.attributes, function (i,v) {
+                author[v.name] = v.value;
+            });
+            author.affiliationNumber = Object.keys(orgs).indexOf(author.affiliation)+1
+            ret += options.fn(author);
+        });
+        return ret;
+    });
+    Handlebars.registerHelper('eachOrganization', function(obj, options) {
+        var ret = '';
+        var orgs = {}
+        // make an org map
+        $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
+            orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
+        });
+
+        $.each(Object.keys(orgs), function (i,v) {
+            ret += options.fn({name:orgs[v],affiliationNumber:i+1, affiliation:v});
+        });
+        return ret;
     });
 
 
@@ -133,6 +179,7 @@ function postRender() {
     createMainFileTable();
     handleSectionArtifacts();
     handleTableExpansion();
+    handleOrganisations();
 }
 
 
@@ -147,13 +194,14 @@ function createDataTables() {
 
 function createMainFileTable() {
     $("#file-list").DataTable({
+
         "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
-        //"columnDefs": [ {"targets": [0], "searchable": false, "orderable": false, "visible": true},
-        //    {"targets": [2], "searchable": true, "orderable": false, "visible": false}],
+        "columnDefs": [ {"targets": [0], "searchable": false, "orderable": false, "visible": true},
+         //   {"targets": [2], "searchable": true, "orderable": false, "visible": false}
+            ],
         "dom": "rlftpi",
-        "scrollX": "100%",
         "infoCallback": function( settings, start, end, max, total, out ) {
-            return (total== max) ? out : out +'<a class="section-button" id="clear-filter" onclick="clearFilter();return false;">' +
+            return (total== max) ? out : out +'<br/><a class="section-button" id="clear-filter" onclick="clearFilter();return false;">' +
                 '<span class="fa-stack bs-icon-fa-stack">' +
                 '<i class="fa fa-filter fa-stack-1x"></i>' +
                 '<i class="fa-stack-1x filter-cross">×</i>' +
@@ -238,5 +286,33 @@ function handleTableExpansion() {
         $('.table-wrapper').css('height', 'auto');
         $('.table-wrapper').css('height', 'auto');
         $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px').css('top', '45%');
+    });
+}
+
+function handleOrganisations() {
+    $('.org-link').each( function () {
+        $(this).attr('href','#'+$(this).data('affiliation'));
+    });
+    $('.org-link').click(function () {
+        var href = $(this).attr('href');
+        /*if (!$(href).is(':visible')) {
+            $('#hidden-orgs').find('a.show-more').click()
+        }*/
+        console.log(href)
+        $('html, body').animate({
+            scrollTop: $(href).offset().top
+        }, 200);
+
+        $(href).animate({opacity: 0.8}, 200, function () {
+            $(href).css('background-color', 'yellow');
+            $(href).css('color', 'black');
+            $(href).animate({opacity: 0.4}, 3000, function () {
+                $(href).css('background-color', 'lightgray');
+                $(href).animate({opacity: 1}, 600);
+                $(href).css('background-color', 'transparent');
+                $(href).css('color', '');
+            })
+        });
+
     });
 }

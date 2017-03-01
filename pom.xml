@@ -94,11 +94,6 @@
             <version>2.8</version>
             <scope>runtime</scope>
         </dependency>
-        <!-- dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-            <version>${jackson.library}</version>
-        </dependency-->
     </dependencies>
 
     <build>

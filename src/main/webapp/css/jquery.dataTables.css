@@ -15,12 +15,12 @@ table.dataTable {
    */
 }
 table.dataTable thead tr, table.dataTable thead tr:hover {
-  background-color: #c9e4f3;
+  background-color: #267799;
+  color: white;
 }
 table.dataTable thead th,
 table.dataTable tfoot th {
   font-weight: normal;
-  color: #333333;
 }
 table.dataTable thead th,
 table.dataTable thead td {

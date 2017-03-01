@@ -1,4 +1,4 @@
-package uk.com.ebi.biostudy.service;
+package uk.ac.ebi.biostudies.service;
 
 
 import java.io.IOException;

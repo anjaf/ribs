@@ -1,4 +1,4 @@
-package uk.com.ebi.biostudy.api.util;
+package uk.ac.ebi.biostudies.api.util;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;

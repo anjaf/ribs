@@ -1,4 +1,4 @@
-package uk.com.ebi.biostudy.service.impl;
+package uk.ac.ebi.biostudies.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -8,32 +8,26 @@ import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import uk.com.ebi.biostudy.api.BioStudiesField;
-import uk.com.ebi.biostudy.api.util.BioStudiesQueryParser;
-import uk.com.ebi.biostudy.api.util.StudyUtils;
-import uk.com.ebi.biostudy.lucene.config.BioIndexManager;
-import uk.com.ebi.biostudy.lucene.config.IndexConfig;
-import uk.com.ebi.biostudy.service.SearchService;
+import uk.ac.ebi.biostudies.api.BioStudiesField;
+import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
+import uk.ac.ebi.biostudies.api.util.StudyUtils;
+import uk.ac.ebi.biostudies.lucene.config.IndexConfig;
+import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.lucene.config.IndexManager;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Paths;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -49,13 +43,13 @@ public class SearchServiceImpl implements SearchService {
     IndexConfig indexConfig;
 
     @Autowired
-    BioIndexManager bioIndexManager;
+    IndexManager indexManager;
 
     @Override
     public String search(String queryString, int page, int pageSize) {
 
-        IndexReader reader = bioIndexManager.getIndexReader();
-        IndexSearcher searcher = bioIndexManager.getIndexSearcher();
+        IndexReader reader = indexManager.getIndexReader();
+        IndexSearcher searcher = indexManager.getIndexSearcher();
         String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode response = mapper.createObjectNode();

@@ -1,4 +1,4 @@
-package uk.com.ebi.biostudy.service.impl;
+package uk.ac.ebi.biostudies.service.impl;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -13,10 +13,10 @@ import org.apache.lucene.index.Term;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import uk.com.ebi.biostudy.api.BioStudiesField;
-import uk.com.ebi.biostudy.lucene.config.BioIndexManager;
-import uk.com.ebi.biostudy.lucene.config.IndexConfig;
-import uk.com.ebi.biostudy.service.IndexService;
+import uk.ac.ebi.biostudies.api.BioStudiesField;
+import uk.ac.ebi.biostudies.lucene.config.IndexConfig;
+import uk.ac.ebi.biostudies.service.IndexService;
+import uk.ac.ebi.biostudies.lucene.config.IndexManager;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
@@ -29,9 +29,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import static uk.com.ebi.biostudy.api.BioStudiesField.*;
-import static uk.com.ebi.biostudy.api.BioStudiesField.ACCESSION;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -47,7 +44,7 @@ public class IndexServiceImpl implements IndexService {
     IndexConfig indexConfig;
 
     @Autowired
-    BioIndexManager bioIndexManager;
+    IndexManager indexManager;
 
     @PostConstruct
     public void init(){
@@ -82,14 +79,14 @@ public class IndexServiceImpl implements IndexService {
                 }
 
                 JsonNode submission = mapper.readTree(parser);
-                executorService.execute(new JsonDocumentIndexer(submission, bioIndexManager.getIndexWriter()));
+                executorService.execute(new JsonDocumentIndexer(submission, indexManager.getIndexWriter()));
                 if(++counter%1000==0)
                     logger.info("{} number of docs are indexed", counter);
             }
 
             executorService.shutdown();
             executorService.awaitTermination(5, TimeUnit.HOURS);
-            bioIndexManager.getIndexWriter().commit();
+            indexManager.getIndexWriter().commit();
 
             logger.info("indexing last {} seconds", (System.currentTimeMillis()-startTime)/1000);
         }
@@ -131,20 +128,20 @@ public class IndexServiceImpl implements IndexService {
 
                 Map<BioStudiesField, Object> valueMap = new HashMap<>(BioStudiesField.values().length);
 
-                valueMap.put( ID, json.get("accno").textValue() );
-                valueMap.put( ACCESSION, valueMap.get(ID));
-                valueMap.put( TYPE, json.get("section").get("type").textValue().toLowerCase());
-                valueMap.put( TITLE, getTitle(json));
-                valueMap.put( CONTENT, String.join(" ", json.findValuesAsText("value")));
-                valueMap.put( FILES, json.findValues("files").stream().mapToLong(
+                valueMap.put( BioStudiesField.ID, json.get("accno").textValue() );
+                valueMap.put( BioStudiesField.ACCESSION, valueMap.get(BioStudiesField.ID));
+                valueMap.put( BioStudiesField.TYPE, json.get("section").get("type").textValue().toLowerCase());
+                valueMap.put( BioStudiesField.TITLE, getTitle(json));
+                valueMap.put( BioStudiesField.CONTENT, String.join(" ", json.findValuesAsText("value")));
+                valueMap.put( BioStudiesField.FILES, json.findValues("files").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("path").size()
                         ).sum()
                 );
-                valueMap.put( LINKS, json.findValues("links").stream().mapToLong(
+                valueMap.put( BioStudiesField.LINKS, json.findValues("links").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("url").size()
                         ).sum()
                 );
-                valueMap.put( AUTHORS, !json.get("section").has("subsections") ? "" :
+                valueMap.put( BioStudiesField.AUTHORS, !json.get("section").has("subsections") ? "" :
                         StreamSupport.stream(json.get("section").get("subsections").spliterator(),false)
                                 .filter(jsonNode ->
                                         jsonNode.has("type") && jsonNode.get("type").textValue().equalsIgnoreCase("Author"))
@@ -154,7 +151,7 @@ public class IndexServiceImpl implements IndexService {
                                 .collect(Collectors.joining(", "))
                 );
 
-                valueMap.put( ACCESS,  !json.has("accessTags") ? "" :
+                valueMap.put( BioStudiesField.ACCESS,  !json.has("accessTags") ? "" :
                         StreamSupport.stream(json.get("accessTags").spliterator(),false)
                                 .map( s-> s.textValue())
                                 .collect(Collectors.joining(" "))
@@ -187,7 +184,7 @@ public class IndexServiceImpl implements IndexService {
                 }
             }
 
-            writer.updateDocument(new Term(String.valueOf(ID), valueMap.get(ACCESSION).toString()), doc);
+            writer.updateDocument(new Term(String.valueOf(BioStudiesField.ID), valueMap.get(BioStudiesField.ACCESSION).toString()), doc);
         }
 
         private String getTitle(JsonNode json) {

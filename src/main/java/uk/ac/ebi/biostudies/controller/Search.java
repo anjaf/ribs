@@ -1,10 +1,10 @@
-package uk.com.ebi.biostudy.controller;
+package uk.ac.ebi.biostudies.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import uk.com.ebi.biostudy.service.SearchService;
+import uk.ac.ebi.biostudies.service.SearchService;
 
 /**
  * Created by awais on 14/02/2017.

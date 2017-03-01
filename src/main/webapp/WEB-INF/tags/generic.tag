@@ -41,7 +41,6 @@
     <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/css/ebi-global.css" type="text/css" media="all">
     <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/EBI-Icon-fonts/v1.1/fonts.css" type="text/css" media="all">
 
-    <link rel="stylesheet" href="../css/jquery.dataTables.css">
     <link rel="stylesheet" href="../css/font-awesome.min.css" type="text/css">
 
     <!-- Use this CSS file for any custom styling -->
@@ -70,12 +69,6 @@
     <!-- All JavaScript at the bottom, except for Modernizr -->
     <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/modernizr/modernizr.custom.49274.js"></script>
     <link rel="stylesheet" href="../css/index.css">
-    <c:if test="${param.isDetailPage}">
-        <link rel="stylesheet" href="../css/jquery.dataTables.css">
-        <link rel="stylesheet" href="../css/font-awesome.min.css" type="text/css">
-        <link rel="stylesheet" href="../css/biostudies-colours.css">
-        <link rel="stylesheet" href="../css/study.css" type="text/css">
-    </c:if>
 </head>
 <c:set var="query" value="${param.query}"/>
 <body class="level2"><!-- add any of your classes or IDs -->
@@ -261,8 +254,6 @@
 <script type="text/JavaScript">$(document).foundationExtendEBI();</script>
 
 <script src='../js/handlebars-v4.0.5.js'></script>
-<script src="../js/jquery.dataTables.min.js"></script>
-
 <!-- Google Analytics details... -->
 <!-- Change UA-XXXXX-X to be your site's ID -->
 <!--
