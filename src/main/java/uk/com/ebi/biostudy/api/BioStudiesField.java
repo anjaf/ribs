@@ -1,4 +1,4 @@
-package uk.ac.ebi.fg.biostudies.api;
+package uk.com.ebi.biostudy.api;
 
 /**
  * Created by awais on 17/02/2017.

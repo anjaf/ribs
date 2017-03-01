@@ -5,10 +5,11 @@
     // Prepare template
     var templateSource = $('script#study-template').html();
     var template = Handlebars.compile(templateSource);
-
-    console.log("../../api/studies/"+accession)
+    var url = window.location.href;
+    url = url.replace('studies','api/biostudies');
+    console.log(url)
     // Data in json
-    $.getJSON("../../api/studies/"+accession, function (data) {
+    $.getJSON(url, function (data) {
         // Generate html using template and data
         var html = template(data.submissions[0].section);
         // Add the result to the DOM
