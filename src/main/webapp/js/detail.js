@@ -1,5 +1,11 @@
 !function(d) {
 
+    linkMap = {'pmc':'http://europepmc.org/articles/',
+        'pmid':'http://europepmc.org/abstract/MED/',
+        'doi':'http://dx.doi.org/'
+    };
+    orgOrder= [];
+
     var params = document.location.search.replace(/(^\?)/,'').split("&").map(
         function(s) {
             return s = s.split("="), this[s[0]] = s[1], this
@@ -57,7 +63,7 @@ function registerHelpers() {
     });
 
     Handlebars.registerHelper('ifRenderable', function(arr,options) {
-        var specialSections = ['author', 'organization', 'funding'];
+        var specialSections = ['author', 'organization', 'funding', 'publication'];
 
         if($.inArray(arr.type.toLowerCase(),specialSections) < 0) {
             return options.fn(this);
@@ -124,17 +130,24 @@ function registerHelpers() {
     Handlebars.registerHelper('eachAuthor', function(obj, options) {
         var ret = '';
         var orgs = {}
+
         // make an org map
         $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
             orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
         });
 
-        $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='author';}), function (i,o) {
+        var orgNumber = 1;
+        var orgToNumberMap = {}
+         $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='author';}), function (i,o) {
             var author = {}
             $.each(o.attributes, function (i,v) {
                 author[v.name] = v.value;
             });
-            author.affiliationNumber = Object.keys(orgs).indexOf(author.affiliation)+1
+            if (!orgToNumberMap[author.affiliation]) {
+                orgToNumberMap[author.affiliation] = orgNumber++;
+                orgOrder.push(author.affiliation);
+            }
+            author.affiliationNumber = orgToNumberMap[author.affiliation]
             ret += options.fn(author);
         });
         return ret;
@@ -147,7 +160,7 @@ function registerHelpers() {
             orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
         });
 
-        $.each(Object.keys(orgs), function (i,v) {
+        $.each(orgOrder, function(i,v) {
             ret += options.fn({name:orgs[v],affiliationNumber:i+1, affiliation:v});
         });
         return ret;
@@ -171,6 +184,21 @@ function registerHelpers() {
             ret += options.fn({name:v,grants:orgs[v]});
         });
         return ret;
+    });
+
+    Handlebars.registerHelper('publication', function(obj, options) {
+        var publication = {}
+
+        var pubs = obj.subsections.filter( function(o) { return o.type.toLowerCase()=='publication';});
+        if (!pubs) return null;
+        $.each(pubs[0].attributes, function(i,v) {
+            publication[v.name.toLowerCase().replace(' ','_')] = v.value
+        });
+        publication.accno = pubs[0].accno;
+        var type = publication.accno.toLowerCase().substr(0,3);
+        publication.URL = linkMap[type];
+        var template = Handlebars.compile($('script#publication-template').html());
+        return new Handlebars.SafeString(template(publication));
     });
 
 
