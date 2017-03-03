@@ -57,7 +57,7 @@ function registerHelpers() {
     });
 
     Handlebars.registerHelper('ifRenderable', function(arr,options) {
-        var specialSections = ['publication', 'author', 'organization'];
+        var specialSections = ['author', 'organization', 'funding'];
 
         if($.inArray(arr.type.toLowerCase(),specialSections) < 0) {
             return options.fn(this);
@@ -149,6 +149,26 @@ function registerHelpers() {
 
         $.each(Object.keys(orgs), function (i,v) {
             ret += options.fn({name:orgs[v],affiliationNumber:i+1, affiliation:v});
+        });
+        return ret;
+    });
+    Handlebars.registerHelper('eachFunder', function(obj, options) {
+        var ret = '';
+        var orgs = {};
+        // make an org map
+        $.each(obj.subsections.filter( function(subsection) { return subsection.type.toLowerCase()=='funding';}), function (i,o) {
+            var org = null, grant = '';
+            $(o.attributes).each(function () {
+                if (this.name.toLowerCase()=='agency') org = this.value;
+                if (this.name.toLowerCase()=='grant_id') grant = this.value;
+            });
+            if (org) {
+                orgs[org] = (orgs[org]) ? orgs[org] + (", "+grant) : orgs[org] = grant;
+            }
+        });
+
+        $.each(Object.keys(orgs), function (i,v) {
+            ret += options.fn({name:v,grants:orgs[v]});
         });
         return ret;
     });

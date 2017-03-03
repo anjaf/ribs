@@ -37,6 +37,15 @@
                 {{/ifRenderable}}
             {{/each}}
         {{/if}}
+        <div class="bs-name">Funding</div>
+        <ul id="bs-funding">
+            {{#eachFunder this}}
+                <li>{{name}}{{#if grants}}:
+                        <span class="bs-grants">{{grants}}</span>
+                    {{/if}}
+                </li>
+            {{/eachFunder}}
+        </ul>
     </div>
     <div class="clearboth"></div>
 </script>

@@ -81,8 +81,8 @@
     </ul>
 </div>
 
-<div data-sticky-container>
-    <div id="local-masthead" data-sticky data-sticky-on="large" data-top-anchor="180" data-btm-anchor="300000">
+<div>
+    <div id="local-masthead"  data-top-anchor="180" data-btm-anchor="300000">
         <header>
 
             <div id="global-masthead" class="clearfix">

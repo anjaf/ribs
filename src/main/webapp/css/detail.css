@@ -17,7 +17,8 @@
 
 .bs-name {
     color: #267799;
-    margin-top:10px;
+    margin:20px 0px 5px 0px;
+    font-size: 120%;
 }
 
 
@@ -150,7 +151,7 @@ a.show-less:hover {
     margin-bottom: 14px;
 }
 
-ul#bs-authors, ul#bs-orgs {
+ul#bs-authors, ul#bs-orgs, ul#bs-funding {
     margin: 0;
     display: table;
     list-style-type: none;
@@ -171,5 +172,9 @@ ul#bs-orgs {
     font-size: 85%;
     padding: 0.5em 0;
     margin: 5px 0 0;
+    color: #888;
+}
+
+.bs-grants {
     color: #888;
 }
