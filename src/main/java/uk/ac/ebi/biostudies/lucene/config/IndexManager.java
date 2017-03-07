@@ -12,11 +12,14 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.util.LowercaseAnalyzer;
+import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.InputStream;
 import java.nio.file.Paths;
 
 /**
@@ -42,6 +45,9 @@ public class IndexManager {
     IndexConfig indexConfig;
     @Autowired
     EFOConfig eFOConfig;
+    @Autowired
+    Ontology
+    ontology;
 
     @PostConstruct
     public void init(){
@@ -57,18 +63,30 @@ public class IndexManager {
             indexWriter = new IndexWriter(getIndexDirectory(), getIndexWriterConfig());
             indexReader = DirectoryReader.open(indexWriter);
             indexSearcher = new IndexSearcher(getIndexReader());
-
-
             IndexWriterConfig efoIndexWriterConfig = new IndexWriterConfig(new LowercaseAnalyzer());
             efoIndexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             efoIndexDirectory = FSDirectory.open(Paths.get(eFOConfig.getEfoIndexLocation()));
-            efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
+            loadEFO(efoIndexWriterConfig);
+            if(efoIndexWriter==null)
+                efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
             efoIndexReader = DirectoryReader.open(efoIndexWriter);
             efoIndexSearcher = new IndexSearcher(getEfoIndexReader());
 
 
         }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);
+        }
+    }
+
+    private void loadEFO(IndexWriterConfig efoIndexWriterConfig) throws Exception{
+        if(!DirectoryReader.indexExists(efoIndexDirectory)){
+            try (InputStream resourceInputStream = (new ClassPathResource("efo.owl")).getInputStream()){
+                efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
+                ontology.update(resourceInputStream);
+                logger.info("EFO loading completed");
+            }catch (Exception ex){
+                logger.error("EFO file not found", ex);
+            }
         }
     }
 

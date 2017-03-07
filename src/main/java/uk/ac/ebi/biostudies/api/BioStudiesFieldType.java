@@ -6,5 +6,6 @@ package uk.ac.ebi.biostudies.api;
 public enum BioStudiesFieldType {
     STRING_TOKENIZED,
     STRING_UNTOKENIZED,
-    LONG
+    LONG,
+    FACET
 }

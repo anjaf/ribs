@@ -56,23 +56,12 @@ public class Ontology {
 
 
     @PostConstruct
+    /**
+     * This is temporary and will change soon
+     */
     private void init(){
         this.assayByMolecule = new EFOSubclassesOptions("All assays by molecule");
         this.assayByInstrument = new EFOSubclassesOptions("All technologies");
-        try (InputStream resourceInputStream = (new ClassPathResource("efo.owl")).getInputStream()){
-            update(resourceInputStream);
-            logger.info("EFO loading completed");
-        }catch (Exception ex){
-            logger.error("EFO file not found", ex);
-        }
-
-        String str1 = getAssayByMoleculeOptions();
-        String str2 = getAssayByInstrumentOptions();
-        String str3 = autocompletion.getKeywords("ca", "", 50);
-        String str4 = autocompletion.getEfoWords("ca", 50);
-
-//        autocompletion.getEfoChildren(efoId);
-        logger.debug("hi");
     }
 
     public void update(InputStream ontologyStream) throws IOException, InterruptedException {
@@ -88,7 +77,10 @@ public class Ontology {
         autocompletion.setEfo(getEfo());
         //Add the fields that you want autoComplete be Applied
         List<BioStudiesField> autoFields = new ArrayList();
-        autoFields.add(BioStudiesField.CONTENT);
+        for(BioStudiesField bsField:BioStudiesField.values()) {
+            if(bsField.isExpand())
+                autoFields.add(bsField);
+        }
         autocompletion.rebuild(autoFields);
 
 
