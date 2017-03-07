@@ -13,6 +13,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostudies.api.util.LowercaseAnalyzer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -30,11 +31,17 @@ public class IndexManager {
     private IndexWriter indexWriter;
     private Directory indexDirectory;
     private IndexWriterConfig indexWriterConfig;
+    private Directory efoIndexDirectory;
+    private IndexReader efoIndexReader;
+    private IndexSearcher efoIndexSearcher;
+    private IndexWriter efoIndexWriter;
 
     private Logger logger = LogManager.getLogger(IndexManager.class.getName());
 
     @Autowired
     IndexConfig indexConfig;
+    @Autowired
+    EFOConfig eFOConfig;
 
     @PostConstruct
     public void init(){
@@ -44,12 +51,21 @@ public class IndexManager {
         String facet = indexConfig.getFacetDirectory();
         try {
             indexDirectory = FSDirectory.open(Paths.get(indexDir));
-            indexReader = DirectoryReader.open(getIndexDirectory());
+//            indexReader = DirectoryReader.open(getIndexDirectory());
             indexWriterConfig = new IndexWriterConfig(new StandardAnalyzer());
             getIndexWriterConfig().setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             indexWriter = new IndexWriter(getIndexDirectory(), getIndexWriterConfig());
-            indexReader = DirectoryReader.open(getIndexDirectory());
+            indexReader = DirectoryReader.open(indexWriter);
             indexSearcher = new IndexSearcher(getIndexReader());
+
+
+            IndexWriterConfig efoIndexWriterConfig = new IndexWriterConfig(new LowercaseAnalyzer());
+            efoIndexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+            efoIndexDirectory = FSDirectory.open(Paths.get(eFOConfig.getEfoIndexLocation()));
+            efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
+            efoIndexReader = DirectoryReader.open(efoIndexWriter);
+            efoIndexSearcher = new IndexSearcher(getEfoIndexReader());
+
 
         }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);
@@ -79,5 +95,21 @@ public class IndexManager {
 
     public IndexWriterConfig getIndexWriterConfig() {
         return indexWriterConfig;
+    }
+
+    public Directory getEfoIndexDirectory() {
+        return efoIndexDirectory;
+    }
+
+    public IndexReader getEfoIndexReader() {
+        return efoIndexReader;
+    }
+
+    public IndexSearcher getEfoIndexSearcher() {
+        return efoIndexSearcher;
+    }
+
+    public IndexWriter getEfoIndexWriter() {
+        return efoIndexWriter;
     }
 }

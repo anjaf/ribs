@@ -30,7 +30,11 @@ public class IndexConfig {
     @ Value("${repository.path}")
     private String repositoryPath;
 
+    @ Value("${defaultField}")
+    private String defaultField;
 
+    @ Value("${searchSnippetFragmentSize}")
+    private int searchSnippetFragmentSize;
 
 
     public int getThreadCount() {
@@ -60,6 +64,15 @@ public class IndexConfig {
     public String getRepositoryPath() {
         return repositoryPath;
     }
+
+    public String getDefaultField() {
+        return defaultField;
+    }
+
+    public int getSearchSnippetFragmentSize() {
+        return searchSnippetFragmentSize;
+    }
+
 
 
     public void setStudiesInputFile(String studiesInputFile) {

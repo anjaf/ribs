@@ -10,6 +10,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
@@ -20,14 +21,19 @@ import org.springframework.util.StringUtils;
 import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
+import uk.ac.ebi.biostudies.efo.EFOExpandedHighlighter;
+import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
 import uk.ac.ebi.biostudies.lucene.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.lucene.config.IndexManager;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -44,6 +50,51 @@ public class SearchServiceImpl implements SearchService {
 
     @Autowired
     IndexManager indexManager;
+
+    @Autowired
+    EFOQueryExpander efoQueryExpander;
+    @Autowired
+    EFOExpandedHighlighter efoExpandedHighlighter;
+
+    @PostConstruct
+//    public void tempInit(){
+//        BooleanQuery.Builder synonymBooleanBuilder = new BooleanQuery.Builder();
+//        BooleanQuery.Builder efoBooleanBuilder = new BooleanQuery.Builder();
+//        Map<String, String> data = new HashMap<>();
+//        data.put("content","content");
+//        QueryParser parser = new QueryParser("content", new StandardAnalyzer());
+//        Query query = null;
+//        try {
+//            query = parser.parse("organisation");
+//            Query bquery = efoQueryExpander.expand(data, query, synonymBooleanBuilder, efoBooleanBuilder);
+//            logger.debug("hi");
+
+//            String result = efoExpandedHighlighter.highlightQuery(query, synonymBooleanBuilder.build(), efoBooleanBuilder.build(), "content", "the organisation text that should be highlight", false);
+//            logger.debug(result);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    @Override
+    public String highlightText(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly){
+        String result = efoExpandedHighlighter.highlightQuery(originalQuery, synonymQuery, efoQuery, fieldName, text, fragmentOnly);
+        return result;
+    }
+
+    @Override
+    public Query expandQuery(Map<String, String> queryInfo, Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder){
+        if(queryInfo==null) {
+            queryInfo = new HashMap<>();
+            queryInfo.put("content","content");
+        }
+        try {
+            originalQuery = efoQueryExpander.expand(queryInfo, originalQuery, synonymBooleanBuilder, efoBooleanBuilder);
+        }catch (Exception ex){
+            logger.error("problem in expanding query {}", originalQuery, ex);
+        }
+        return originalQuery;
+    }
 
     @Override
     public String search(String queryString, int page, int pageSize) {
