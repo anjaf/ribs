@@ -56,7 +56,6 @@ public class SearchServiceImpl implements SearchService {
     @Autowired
     EFOExpandedHighlighter efoExpandedHighlighter;
 
-    @PostConstruct
 //    public void tempInit(){
 //        BooleanQuery.Builder synonymBooleanBuilder = new BooleanQuery.Builder();
 //        BooleanQuery.Builder efoBooleanBuilder = new BooleanQuery.Builder();
