@@ -14,22 +14,30 @@
             {{&file-table}}
         </div>
         <h4>{{valueWithName 'Title' attributes}}</h4>
+        <!-- Authors -->
         <ul id="bs-authors">
             {{#eachAuthor this}}
                 <li>{{Name}} <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup></li>
             {{/eachAuthor}}
         </ul>
+        <!-- Affiliations -->
         <ul id="bs-orgs">
             {{#eachOrganization this}}
             <li id="{{affiliation}}"><sup>{{affiliationNumber}}</sup> {{name}}</li>
             {{/eachOrganization}}
         </ul>
+
+        <!-- Accession -->
         <div class="bs-name">Accession</div>
         <div>{{accno}}</div>
+
+        <!-- Study level attributes -->
         {{#eachGroup 'name' 'value' attributes}}
             <div class="bs-name">{{name}}</div>
             <div>{{value}}</div>
         {{/eachGroup}}
+
+        <!-- Subsections -->
         {{#if subsections}}
             {{#each subsections}}
                 {{#ifRenderable this}}
@@ -37,8 +45,40 @@
                 {{/ifRenderable}}
             {{/each}}
         {{/if}}
+
+        <!-- Publication -->
+        {{publication this}}
+
+        <!-- Funding -->
+        {{#eachFunder this}}
+            {{#unless @index}}
+                <div class="bs-name">Funding</div>
+                <ul id="bs-funding">
+            {{/unless}}
+                    <li>{{name}}{{#if grants}}:
+                            <span class="bs-grants">{{grants}}</span>
+                        {{/if}}
+                    </li>
+            {{#unless @index}}</ul>{{/unless}}
+        {{/eachFunder}}
     </div>
     <div class="clearboth"></div>
+</script>
+
+<script id='publication-template' type='text/x-handlebars-template'>
+{{#if this}}
+    <div class="bs-name">Published In</div>
+    <div>{{journal}}.
+        {{#if publication_date}}{{publication_date}};{{/if}}
+        {{volume}}{{#if pages}}: {{pages}}{{/if}}
+        {{#if URL}}
+            <a href="{{URL}}{{accno}}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> {{accno}}</a>
+        {{else}}
+            !{{accno}}
+        {{/if}}
+
+    </div>
+{{/if}}
 </script>
 
 <script id='section-template' type='text/x-handlebars-template'>
