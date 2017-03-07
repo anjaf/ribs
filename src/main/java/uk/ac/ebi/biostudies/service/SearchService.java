@@ -35,5 +35,9 @@ public interface SearchService {
      * @return
      */
     public String highlightText(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly);
+
+    public String getKeywords(String query, String field, Integer limit);
+
+    public String getEfoWords(String query, Integer limit);
 }
 

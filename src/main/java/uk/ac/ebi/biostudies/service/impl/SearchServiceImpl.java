@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
+import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.efo.EFOExpandedHighlighter;
 import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
 import uk.ac.ebi.biostudies.lucene.config.IndexConfig;
@@ -55,6 +56,8 @@ public class SearchServiceImpl implements SearchService {
     EFOQueryExpander efoQueryExpander;
     @Autowired
     EFOExpandedHighlighter efoExpandedHighlighter;
+    @Autowired
+    Autocompletion autocompletion;
 
 //    public void tempInit(){
 //        BooleanQuery.Builder synonymBooleanBuilder = new BooleanQuery.Builder();
@@ -79,6 +82,16 @@ public class SearchServiceImpl implements SearchService {
     public String highlightText(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly){
         String result = efoExpandedHighlighter.highlightQuery(originalQuery, synonymQuery, efoQuery, fieldName, text, fragmentOnly);
         return result;
+    }
+
+    @Override
+    public String getKeywords(String query, String field, Integer limit) {
+       return autocompletion.getKeywords(query, field, limit);
+    }
+
+    @Override
+    public String getEfoWords(String query, Integer limit) {
+        return autocompletion.getEfoWords(query, limit);
     }
 
     @Override
