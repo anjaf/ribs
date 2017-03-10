@@ -12,6 +12,7 @@
     <div id="left-column">
         <div id="right-column">
             {{&file-table}}
+            {{&main-link-table}}
         </div>
         <h4>{{valueWithName 'Title' attributes}}</h4>
         <!-- Authors -->
@@ -46,7 +47,7 @@
             {{/each}}
         {{/if}}
 
-        <!-- Publication -->
+         <!-- Publication -->
         {{publication this}}
 
         <!-- Funding -->
@@ -96,13 +97,13 @@
             {{#if subsections}}
             <div class="has-child-section">
                 {{#each subsections}}
-                {{#ifArray this}}
-                    {{&table this}}
-                {{else}}
-                    {{#ifRenderable this}}
-                        {{&section this 'true'}}
-                    {{/ifRenderable}}
-                {{/ifArray}}
+                    {{#ifArray this}}
+                        {{&table this}}
+                    {{else}}
+                        {{#ifRenderable this}}
+                            {{&section this 'true'}}
+                        {{/ifRenderable}}
+                    {{/ifArray}}
                 {{/each}}
             </div>
             {{/if}}
@@ -151,8 +152,7 @@
             <div class="table-caption">
                 <span class="widge-title"><i class="fa fa-download"></i> Download data files</span>
                 <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
-            </div>
-            <div class="table-wrapper">
+            </div> <div class="table-wrapper">
                 <table id ="file-list" class="stripe compact hover">
                     <thead>
                     <tr>
@@ -181,6 +181,59 @@
         </div>
     </section>
     {{/if}}
+</script>
+
+<script id='main-link-table' type='text/x-handlebars-template'>
+    {{#eachLinkTable}}
+    <section>
+        <div class="table-caption">
+            <span class="widge-title"><i class="fa fa-download"></i> Linked Information</span>
+            <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
+        </div>
+        {{&link-table this}}
+    </section>
+    {{/eachLinkTable}}
+</script>
+
+
+<script id='link-table-section' type='text/x-handlebars-template'>
+    {{#if links}}
+    <section>
+        <a class="show-more toggle-tables" data-total="1"><i class="fa fa-caret-right"></i> show link table</a>
+        <div class="bs-section-tables">
+            <div class="table-caption">
+                Link Table
+                <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
+            </div>
+        </div>
+        {{&link-table this}}
+    </section>
+    {{/if}}
+</script>
+
+
+<script id='link-table' type='text/x-handlebars-template'>
+    <div class="link-filters"></div>
+    <div class="table-wrapper">
+        <table class="link-list" class="stripe compact hover">
+            <thead>
+            <tr>
+                {{#each linkHeaders}}
+                <th>{{this}}</th>
+                {{/each}}
+            </tr>
+            </thead>
+            <tbody>
+            {{#each links}}
+            <tr>
+                {{#each ../linkHeaders}}
+                <td>{{valueWithName this ../attributes}}</td>
+                {{/each}}
+            </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
 </script>
 
 <script>

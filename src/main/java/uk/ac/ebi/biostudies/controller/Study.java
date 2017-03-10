@@ -25,7 +25,7 @@ public class Study {
     @Autowired
     SearchService searchService;
 
-    @RequestMapping(value = "/studies/{accession}", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
+    @RequestMapping(value = "/studies/{accession:.+}", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
     public ResponseEntity<String> search(@PathVariable("accession") String accession)  {
         //TODO: check access
         String result = null;

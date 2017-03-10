@@ -1,8 +1,19 @@
+String.format = function() {
+    var s = arguments[0];
+    for (var i = 0; i < arguments.length - 1; i++) {
+        var reg = new RegExp("\\{" + i + "\\}", "gm");
+        s = s.replace(reg, arguments[i + 1]);
+    }
+
+    return s;
+}
 !function(d) {
 
-    linkMap = {'pmc':'http://europepmc.org/articles/',
-        'pmid':'http://europepmc.org/abstract/MED/',
-        'doi':'http://dx.doi.org/'
+    linkMap = {'pmc':'http://europepmc.org/articles/{0}',
+        'pmid':'http://europepmc.org/abstract/MED/{0}',
+        'doi':'http://dx.doi.org/{0}',
+        'chembl':'https://www.ebi.ac.uk/chembldb/compound/inspect/{0}',
+        'ega':'http://www.ebi.ac.uk/ega/studies/{0}'
     };
     orgOrder= [];
 
@@ -121,8 +132,40 @@ function registerHelpers() {
         return template(o);
     });
 
-    Handlebars.registerHelper('asString', function(v) {
-        console.log(v)
+    Handlebars.registerHelper('link-table', function(o) {
+        if (!o.links && !o.links.length) return null;
+        var names = ['Name'];
+        var hsh = {'Name':1};
+        $.each(o.links, function (i, v) {
+            v.attributes = v.attributes || [];
+            v.attributes.push({"name": "Name", "value": v.url});
+            $.each(v.attributes, function (i, v) {
+                if (!(v.name in hsh)) {
+                    names.push(v.name);
+                    hsh[v.name] = 1;
+                }
+            })
+        });
+        o.linkHeaders = names;
+        var template = Handlebars.compile($('script#link-table').html());
+        return template(o);
+    });
+
+    Handlebars.registerHelper('eachLinkTable', function(options) {
+        var ret = '';
+        var links = findall(this,'links');
+        $.each(links, function(i,v) {
+            ret = ret + options.fn({links: ($.isArray(v) ? v : [v]) });
+        });
+        return ret;
+    });
+
+    Handlebars.registerHelper('main-link-table', function(o) {
+        var template = Handlebars.compile($('script#main-link-table').html());
+        return template(o.data.root);
+    });
+
+    Handlebars.registerHelper('asString', function() {
         console.log(this)
         return this.name
     });
@@ -132,9 +175,12 @@ function registerHelpers() {
         var orgs = {}
 
         // make an org map
+        if (!obj.subsections) return '';
+
         $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
             orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
         });
+
 
         var orgNumber = 1;
         var orgToNumberMap = {}
@@ -155,6 +201,9 @@ function registerHelpers() {
     Handlebars.registerHelper('eachOrganization', function(obj, options) {
         var ret = '';
         var orgs = {}
+
+        if (!obj.subsections) return '';
+
         // make an org map
         $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
             orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
@@ -165,9 +214,26 @@ function registerHelpers() {
         });
         return ret;
     });
+
+    Handlebars.registerHelper('eachOrganization', function(obj, options) {
+        var ret = '';
+        if (!obj.subsections) return '';
+
+        // make an org map
+        $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
+            orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
+        });
+
+        $.each(orgOrder, function(i,v) {
+            ret += options.fn({name:orgs[v],affiliationNumber:i+1, affiliation:v});
+        });
+        return ret;
+    });
+
     Handlebars.registerHelper('eachFunder', function(obj, options) {
         var ret = '';
         var orgs = {};
+        if (!obj.subsections) return '';
         // make an org map
         $.each(obj.subsections.filter( function(subsection) { return subsection.type.toLowerCase()=='funding';}), function (i,o) {
             var org = null, grant = '';
@@ -188,9 +254,9 @@ function registerHelpers() {
 
     Handlebars.registerHelper('publication', function(obj, options) {
         var publication = {}
-
+        if (!obj.subsections) return '';
         var pubs = obj.subsections.filter( function(o) { return o.type.toLowerCase()=='publication';});
-        if (!pubs) return null;
+        if (!pubs || pubs.length <1) return null;
         $.each(pubs[0].attributes, function(i,v) {
             publication[v.name.toLowerCase().replace(' ','_')] = v.value
         });
@@ -225,9 +291,11 @@ function postRender() {
     drawSubsections();
     createDataTables();
     createMainFileTable();
+    createMainLinkTables();
     handleSectionArtifacts();
     handleTableExpansion();
     handleOrganisations();
+
 }
 
 
@@ -242,7 +310,6 @@ function createDataTables() {
 
 function createMainFileTable() {
     $("#file-list").DataTable({
-
         "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
         "columnDefs": [ {"targets": [0], "searchable": false, "orderable": false, "visible": true},
          //   {"targets": [2], "searchable": true, "orderable": false, "visible": false}
@@ -257,6 +324,37 @@ function createMainFileTable() {
         }
     });
 }
+
+function getURL(type, accession) {
+   var url =  String.format(linkMap[type], accession) || '';
+   if (type=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
+       url = url.replace('/studies/','/datasets/');
+   }
+   return url;
+}
+function createMainLinkTables() {
+
+    //handle type checkboxes
+    $(".link-list").each(function () {
+
+        //create external links for known link types
+        $("tr",this).each( function (i,row) {
+            if (i==0) return;
+            var type =  $($('td',row)[1]).text().toLowerCase();
+            if (linkMap[type]) {
+                $($('td',row)[0]).wrapInner('<a href="'+ getURL( type, $($('td',row)[0]).text()) +'" target="_blank">');
+            }
+        });
+
+    });
+
+    //format the table!
+    $(".link-list").DataTable({
+        "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+        "dom": "rlftpi"
+    });
+}
+
 
 function drawSubsections() {
     // draw subsection and hide them
@@ -346,7 +444,6 @@ function handleOrganisations() {
         /*if (!$(href).is(':visible')) {
             $('#hidden-orgs').find('a.show-more').click()
         }*/
-        console.log(href)
         $('html, body').animate({
             scrollTop: $(href).offset().top
         }, 200);

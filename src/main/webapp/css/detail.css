@@ -56,8 +56,7 @@ a.show-less:hover {
 
 .table-wrapper {
     overflow: auto;
-    font-size: 9pt;
-    border: 1px solid #EEEEEE;
+    font-size: 10pt;
 }
 
 
@@ -133,16 +132,18 @@ a.show-less:hover {
     padding: inherit;
 }
 
-.dataTables_length *, #file-list_filter label {
+.dataTables_length *, .dataTables_filter label {
     font-size: 8pt;
     display: inline-block;
 }
-#file-list_filter input {
+.dataTables_filter input {
     width: 150px;
     margin: auto;
     padding: inherit;
     display: inline-block;
     height: inherit;
+    font-size: 100%;
+    padding: 2px;
 }
 
 .widge-title {
@@ -177,4 +178,10 @@ ul#bs-orgs {
 
 .bs-grants {
     color: #888;
+}
+
+#right-column > section:not(:first-child) {
+    border-top: 1px dotted #c9e4f3;
+    padding-top: 20px;
+    margin-top: 20px;
 }
