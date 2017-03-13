@@ -133,9 +133,9 @@ function registerHelpers() {
     });
 
     Handlebars.registerHelper('link-table', function(o) {
-        if (!o.links && !o.links.length) return null;
         var names = ['Name'];
         var hsh = {'Name':1};
+        console.log(o)
         $.each(o.links, function (i, v) {
             v.attributes = v.attributes || [];
             v.attributes.push({"name": "Name", "value": v.url});
@@ -153,9 +153,10 @@ function registerHelpers() {
 
     Handlebars.registerHelper('eachLinkTable', function(options) {
         var ret = '';
-        var links = findall(this,'links');
+        var links = findall(this,'links',false);
+        console.log(links)
         $.each(links, function(i,v) {
-            ret = ret + options.fn({links: ($.isArray(v) ? v : [v]) });
+            ret = ret + options.fn({links: $.isArray(v) ? v : [v] });
         });
         return ret;
     });
@@ -200,23 +201,8 @@ function registerHelpers() {
     });
     Handlebars.registerHelper('eachOrganization', function(obj, options) {
         var ret = '';
-        var orgs = {}
+        var orgs = {};
 
-        if (!obj.subsections) return '';
-
-        // make an org map
-        $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
-            orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
-        });
-
-        $.each(orgOrder, function(i,v) {
-            ret += options.fn({name:orgs[v],affiliationNumber:i+1, affiliation:v});
-        });
-        return ret;
-    });
-
-    Handlebars.registerHelper('eachOrganization', function(obj, options) {
-        var ret = '';
         if (!obj.subsections) return '';
 
         // make an org map
@@ -270,7 +256,23 @@ function registerHelpers() {
 
 }
 
-function findall(obj,k){
+function findAllAsList(obj,k){
+    var ret = [];
+    for(var key in obj)
+    {
+        if (key===k) {
+            ret.push(obj[k]);
+        } else if(typeof(obj[key]) == "object"){
+            $.each(findall(obj[key],k),function (i,v) {
+                ret.push(v);
+            })
+        }
+    }
+    return ret;
+}
+
+function findall(obj,k,unroll){
+    if (unroll==undefined) unroll =true
     var ret = [];
     for(var key in obj)
     {
@@ -281,9 +283,12 @@ function findall(obj,k){
         }
     }
     //unroll file tables
-    return $.map( ret, function(n){
-        return n;
-    });
+    if (unroll) {
+        return $.map( ret, function(n){
+            return n;
+        });
+    }
+    return  ret;
 }
 
 function postRender() {
