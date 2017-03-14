@@ -11,57 +11,59 @@
 <script id='study-template' type='text/x-handlebars-template'>
     <div id="left-column">
         <div id="right-column">
-            {{&file-table}}
+            {{&main-file-table}}
             {{&main-link-table}}
         </div>
-        <h4>{{valueWithName 'Title' attributes}}</h4>
-        <!-- Authors -->
-        <ul id="bs-authors">
-            {{#eachAuthor this}}
-                <li>{{Name}} <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup></li>
-            {{/eachAuthor}}
-        </ul>
-        <!-- Affiliations -->
-        <ul id="bs-orgs">
-            {{#eachOrganization this}}
-            <li id="{{affiliation}}"><sup>{{affiliationNumber}}</sup> {{name}}</li>
-            {{/eachOrganization}}
-        </ul>
+        <div id="bs-content">
+            <h4>{{valueWithName 'Title' attributes}}</h4>
+            <!-- Authors -->
+            <ul id="bs-authors">
+                {{#eachAuthor this}}
+                    <li>{{Name}} <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup></li>
+                {{/eachAuthor}}
+            </ul>
+            <!-- Affiliations -->
+            <ul id="bs-orgs">
+                {{#eachOrganization this}}
+                <li id="{{affiliation}}"><sup>{{affiliationNumber}}</sup> {{name}}</li>
+                {{/eachOrganization}}
+            </ul>
 
-        <!-- Accession -->
-        <div class="bs-name">Accession</div>
-        <div>{{accno}}</div>
+            <!-- Accession -->
+            <div class="bs-name">Accession</div>
+            <div>{{accno}}</div>
 
-        <!-- Study level attributes -->
-        {{#eachGroup 'name' 'value' attributes}}
-            <div class="bs-name">{{name}}</div>
-            <div>{{value}}</div>
-        {{/eachGroup}}
+            <!-- Study level attributes -->
+            {{#eachGroup 'name' 'value' attributes}}
+                <div class="bs-name">{{name}}</div>
+                <div>{{value}}</div>
+            {{/eachGroup}}
 
-        <!-- Subsections -->
-        {{#if subsections}}
-            {{#each subsections}}
-                {{#ifRenderable this}}
-                    {{&section this}}
-                {{/ifRenderable}}
-            {{/each}}
-        {{/if}}
+            <!-- Subsections -->
+            {{#if subsections}}
+                {{#each subsections}}
+                    {{#ifRenderable this}}
+                        {{&section this}}
+                    {{/ifRenderable}}
+                {{/each}}
+            {{/if}}
 
-         <!-- Publication -->
-        {{publication this}}
+             <!-- Publication -->
+            {{publication this}}
 
-        <!-- Funding -->
-        {{#eachFunder this}}
-            {{#unless @index}}
-                <div class="bs-name">Funding</div>
-                <ul id="bs-funding">
-            {{/unless}}
-                    <li>{{name}}{{#if grants}}:
-                            <span class="bs-grants">{{grants}}</span>
-                        {{/if}}
-                    </li>
-            {{#unless @index}}</ul>{{/unless}}
-        {{/eachFunder}}
+            <!-- Funding -->
+            {{#eachFunder this}}
+                {{#if @first}}
+                    <div class="bs-name">Funding</div>
+                    <ul id="bs-funding">
+                {{/if}}
+                        <li>{{name}}{{#if grants}}:
+                                <span class="bs-grants">{{grants}}</span>
+                            {{/if}}
+                        </li>
+                {{#if @last}}</ul>{{/if}}
+            {{/eachFunder}}
+        </div>
     </div>
     <div class="clearboth"></div>
 </script>
@@ -75,7 +77,7 @@
         {{#if URL}}
             <a href="{{URL}}{{accno}}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> {{accno}}</a>
         {{else}}
-            !{{accno}}
+            {{accno}}
         {{/if}}
 
     </div>
@@ -107,6 +109,7 @@
                 {{/each}}
             </div>
             {{/if}}
+            {{&section-link-tables}}
         </div>
     </section>
 </script>
@@ -144,7 +147,7 @@
     </section>
 </script>
 
-<script id='file-table' type='text/x-handlebars-template'>
+<script id='main-file-table' type='text/x-handlebars-template'>
     {{setFileTableHeaders}}
     {{#if this.headers}}
     <section>
@@ -196,17 +199,21 @@
 </script>
 
 
-<script id='link-table-section' type='text/x-handlebars-template'>
-    {{#if links}}
+<script id='section-link-tables' type='text/x-handlebars-template'>
+    {{#if this.links}}
     <section>
-        <a class="show-more toggle-tables" data-total="1"><i class="fa fa-caret-right"></i> show link table</a>
-        <div class="bs-section-tables">
-            <div class="table-caption">
-                Link Table
-                <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
-            </div>
+        <a class="show-more toggle-links" data-total="1"><i class="fa fa-caret-right"></i> show link table</a>
+        <div class="bs-section-links">
+            {{#eachLinkTable}}
+                <div class="bs-section-link-table">
+                    <div class="table-caption">
+                        Link Table {{@indexPlusOne}}
+                        <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
+                    </div>
+                    {{&link-table this}}
+                </div>
+            {{/eachLinkTable}}
         </div>
-        {{&link-table this}}
     </section>
     {{/if}}
 </script>
@@ -224,12 +231,12 @@
             </tr>
             </thead>
             <tbody>
-            {{#each links}}
-            <tr>
-                {{#each ../linkHeaders}}
-                <td>{{valueWithName this ../attributes}}</td>
-                {{/each}}
-            </tr>
+            {{#each this.links}}
+                <tr>
+                    {{#each ../linkHeaders}}
+                    <td>{{valueWithName this ../attributes}}</td>
+                    {{/each}}
+                </tr>
             {{/each}}
             </tbody>
         </table>

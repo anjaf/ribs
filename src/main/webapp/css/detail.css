@@ -38,7 +38,7 @@ a.show-more, a.show-less {
     padding: 0;
     cursor: pointer;
     white-space: nowrap;
-    font-size: 9pt;
+    font-size: 11pt;
 }
 
 a.show-more:hover,
@@ -61,8 +61,7 @@ a.show-less:hover {
 
 
 .table-caption {
-    font-size: 10pt;
-    color: #777777;
+    color: #555555;
     margin-bottom: 10px;
 }
 
@@ -184,4 +183,8 @@ ul#bs-orgs {
     border-top: 1px dotted #c9e4f3;
     padding-top: 20px;
     margin-top: 20px;
+}
+
+.bs-section-link-table:not(.fullscreen){
+    padding-top: 20px;
 }

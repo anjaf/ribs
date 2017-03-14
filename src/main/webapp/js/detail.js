@@ -7,13 +7,44 @@ String.format = function() {
 
     return s;
 }
+
+$.fn.groupBy = function(fn) {
+    var arr = $(this),grouped = {};
+    $.each(arr, function (i, o) {
+        key = fn(o);
+        if (typeof(grouped[key]) === "undefined") {
+            grouped[key] = [];
+        }
+        grouped[key].push(o);
+    });
+
+    return grouped;
+}
+
 !function(d) {
 
     linkMap = {'pmc':'http://europepmc.org/articles/{0}',
         'pmid':'http://europepmc.org/abstract/MED/{0}',
         'doi':'http://dx.doi.org/{0}',
         'chembl':'https://www.ebi.ac.uk/chembldb/compound/inspect/{0}',
-        'ega':'http://www.ebi.ac.uk/ega/studies/{0}'
+        'ega':'http://www.ebi.ac.uk/ega/studies/{0}',
+        'sprot':'http://www.uniprot.org/uniprot/{0}',
+        'gen':'http://www.ebi.ac.uk/ena/data/view/{0}',
+        'arrayexpress files':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
+        'arrayexpress':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}',
+        'refsnp':'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
+        'pdb':'http://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
+        'pfam':'http://pfam.xfam.org/family/{0}',
+        'omim':'http://omim.org/entry/{0}',
+        'interpro':'http://www.ebi.ac.uk/interpro/entry/{0}',
+        'refseq':'http://www.ncbi.nlm.nih.gov/nuccore/{0}',
+        'geo':'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={0}',
+        'doi':'http://dx.doi.org/{0}',
+        'intact':'http://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc={0}',
+        'biostudies':'https://www.ebi.ac.uk/biostudies/studies/{0}',
+        'biostudies search':'https://www.ebi.ac.uk/biostudies/studies/search.html?query={0}',
+        'go':'http://amigo.geneontology.org/amigo/term/{0}',
+        'chebi':'http://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}'
     };
     orgOrder= [];
 
@@ -51,7 +82,7 @@ function registerHelpers() {
     Handlebars.registerHelper('valueWithName', function(val, obj) {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
-        return (e!=undefined) ? new Handlebars.SafeString(e['value']) : '-';
+        return (e!=undefined) ? new Handlebars.SafeString(e['value']) : '';
     });
 
     Handlebars.registerHelper('section', function(o, shouldIndent) {
@@ -126,16 +157,20 @@ function registerHelpers() {
         }
     });
 
-    Handlebars.registerHelper('file-table', function() {
+    Handlebars.registerHelper('main-file-table', function() {
         var o = findall(this,'files');
-        var template = Handlebars.compile($('script#file-table').html());
+        var template = Handlebars.compile($('script#main-file-table').html());
         return template(o);
+    });
+
+    Handlebars.registerHelper('section-link-tables', function(o) {
+        var template = Handlebars.compile($('script#section-link-tables').html());
+        return template(o.data.root);
     });
 
     Handlebars.registerHelper('link-table', function(o) {
         var names = ['Name'];
         var hsh = {'Name':1};
-        console.log(o)
         $.each(o.links, function (i, v) {
             v.attributes = v.attributes || [];
             v.attributes.push({"name": "Name", "value": v.url});
@@ -153,10 +188,15 @@ function registerHelpers() {
 
     Handlebars.registerHelper('eachLinkTable', function(options) {
         var ret = '';
-        var links = findall(this,'links',false);
-        console.log(links)
-        $.each(links, function(i,v) {
-            ret = ret + options.fn({links: $.isArray(v) ? v : [v] });
+        var links = findall(this,'links');
+        var groupsByColumns = $(links).groupBy(function (obj) {
+            var att_fp = $.unique($.map(obj.attributes, function (attr) { return attr.name}).sort()).join('|')
+            return att_fp
+        });
+        var keys = Object.keys(groupsByColumns), data = Handlebars.createFrame(options.data);
+        $.each(keys, function(i,key) {
+            data.first = i==0, data.last = i==(keys.length-1), data.index = i, data.indexPlusOne = i+1;
+            ret = ret + options.fn({links: groupsByColumns[key]},{data:data});
         });
         return ret;
     });
@@ -231,9 +271,10 @@ function registerHelpers() {
                 orgs[org] = (orgs[org]) ? orgs[org] + (", "+grant) : orgs[org] = grant;
             }
         });
-
-        $.each(Object.keys(orgs), function (i,v) {
-            ret += options.fn({name:v,grants:orgs[v]});
+        var keys = Object.keys(orgs), data = Handlebars.createFrame(options.data);
+        $.each(keys, function (i,v) {
+            data.first = i==0, data.last = i==(keys.length-1), data.index = i;
+            ret += options.fn({name:v,grants:orgs[v]},{data:data});
         });
         return ret;
     });
@@ -279,7 +320,7 @@ function findall(obj,k,unroll){
         if (key===k) {
             $.merge(ret,obj[k]);
         } else if(typeof(obj[key]) == "object"){
-            $.merge(ret,findall(obj[key],k));
+            $.merge(ret,findall(obj[key],k,unroll));
         }
     }
     //unroll file tables
@@ -296,11 +337,11 @@ function postRender() {
     drawSubsections();
     createDataTables();
     createMainFileTable();
-    createMainLinkTables();
+    createLinkTables();
     handleSectionArtifacts();
     handleTableExpansion();
     handleOrganisations();
-
+    formatPageHtml();
 }
 
 
@@ -331,32 +372,42 @@ function createMainFileTable() {
 }
 
 function getURL(type, accession) {
-   var url =  String.format(linkMap[type], accession) || '';
+   var url =  linkMap[type] ? String.format(linkMap[type], accession) : null;
    if (type=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
        url = url.replace('/studies/','/datasets/');
    }
+   if (accession.indexOf('http:')==0 || accession.indexOf('https:')==0  || accession.indexOf('ftp:')==0 ) {
+       url = accession;
+   }
+
    return url;
 }
-function createMainLinkTables() {
+function createLinkTables() {
 
-    //handle type checkboxes
+    //handle links
     $(".link-list").each(function () {
-
         //create external links for known link types
         $("tr",this).each( function (i,row) {
             if (i==0) return;
             var type =  $($('td',row)[1]).text().toLowerCase();
-            if (linkMap[type]) {
-                $($('td',row)[0]).wrapInner('<a href="'+ getURL( type, $($('td',row)[0]).text()) +'" target="_blank">');
+            var url = getURL( type, $($('td',row)[0]).text());
+            if (url) {
+                $($('td',row)[0]).wrapInner('<a href="'+ url +'" target="_blank">');
             }
         });
 
     });
 
-    //format the table!
-    $(".link-list").DataTable({
+    //format the right column tables
+    $("#right-column .link-list").DataTable({
         "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
         "dom": "rlftpi"
+    });
+
+    //format section tables
+    $("#bs-content .link-list").DataTable({
+        "dom": "t",
+        paging: false
     });
 }
 
@@ -399,7 +450,7 @@ function handleSectionArtifacts() {
         }
     });
     $(".toggle-files, .toggle-links, .toggle-tables").each(function () {
-        var type = $(this).hasClass("toggle-files") ? "file" : $(this).hasClass("toggle-links") ? "link" : "table";
+        var type = $(this).hasClass("toggle-files") ? "file(s)" : $(this).hasClass("toggle-links") ? "link(s)" : "table";
         $(this).html('<i class="fa fa-caret-right"></i> show ' + type + ($(this).data('total') == '1' ? '' : 's'));
     });
 
@@ -464,5 +515,24 @@ function handleOrganisations() {
             })
         });
 
+    });
+}
+
+function formatPageHtml() {
+    //replace all newlines with html tags
+    $('#ae-detail > .value').each(function () {
+        var html = $(this).html();
+        if (html.indexOf('<') < 0) { // replace only if no tags are inside
+            $(this).html($(this).html().replace(/\n/g, '<br/>'))
+        }
+    });
+
+
+    //handle escape key on fullscreen
+    $(document).on('keydown',function ( e ) {
+        if ( e.keyCode === 27 ) {
+            $('.table-expander','.fullscreen').click();
+            $('#right-column-expander','.fullscreen').click();
+        }
     });
 }
