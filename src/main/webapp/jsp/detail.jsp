@@ -13,7 +13,7 @@
         <li><a href="../../">BioStudies</a></li>
         <li><a href="../studies">Studies</a></li>
         <li>
-            <span class="show-for-sr">Current: </span> Search
+            <span class="show-for-sr">Current: </span> <span id="accession">Loading</span>
         </li>
     </ul>
     </jsp:attribute>
@@ -261,7 +261,7 @@
         </script>
 
          <script id='error-template' type='text/x-handlebars-template'>
-             <section class="callout">
+             <section>
                  <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>{{title}}</h3>
                  <p>{{&message}}</p>
                  <p>If you require further assistance locating missing page or file, please <a href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it for you.</p>

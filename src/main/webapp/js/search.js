@@ -17,7 +17,7 @@
 
         // Add the result to the DOM
         d.getElementById('renderedContent').innerHTML = html;
-        //postRender();
+        postRender()
 
     });
 }(document);
@@ -39,13 +39,13 @@ function registerHelpers(params) {
 
         if (page>1) {
             params.page = o.data.root.page-1;
-            ul += '<li class="pagination-previous"><a href="search?'+$.param(params)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
+            ul += '<li class="pagination-previous"><a href="studies?'+$.param(params)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
         }
 
         if (maxPage<=10) {
             for (var i = 1; i <= maxPage; i++) {
                 params.page = i;
-                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="search?' + $.param(params) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
+                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="studies?' + $.param(params) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
             }
         } else {
             var arr;
@@ -83,7 +83,7 @@ function registerHelpers(params) {
                 if (arr[i]==page) {
                     ul += '<li class="current">' + arr[i] + '</li>';
                 } else {
-                    ul += '<li><a href="search?' + $.param(params) + '" aria-label="Page ' + arr[i] + '">' + arr[i] + '</a></li>';
+                    ul += '<li><a href="studies?' + $.param(params) + '" aria-label="Page ' + arr[i] + '">' + arr[i] + '</a></li>';
                 }
             };
         }
@@ -93,15 +93,6 @@ function registerHelpers(params) {
             ul += '<li class="pagination-next"><a href="search?'+$.param(params)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
         }
 
-        /*<li class="current"><span class="show-for-sr">You're on page</span> 1</li>
-        <li><a href="#" aria-label="Page 2">2</a></li>
-            <li><a href="#" aria-label="Page 3">3</a></li>
-            <li><a href="#" aria-label="Page 4">4</a></li>
-            <li class="ellipsis" aria-hidden="true"></li>
-            <li><a href="#" aria-label="Page 12">12</a></li>
-            <li><a href="#" aria-label="Page 13">13</a></li>
-            <li class="pagination-next"><a href="#" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>
-            */
         ul += '</ul>'
         return new Handlebars.SafeString(ul);
     });
@@ -143,6 +134,6 @@ function registerHelpers(params) {
 }
 
 function postRender() {
-
+    $('#left-column').slideDown();
 }
 

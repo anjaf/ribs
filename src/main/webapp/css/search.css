@@ -1,3 +1,6 @@
+#left-column {
+    display: none;
+}
 ul#search-results {
     list-style-type: none;
     width: 80%;

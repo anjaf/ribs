@@ -116,7 +116,9 @@ a.show-less:hover {
     width: 98%;
     float:left;
     padding: 0 1em;
+    display:none;
 }
+
 .clearboth {
     clear: both;
 }
@@ -206,7 +208,4 @@ ul#bs-orgs {
     color: #ff7777;
 }
 
-#loader {
-    height: 50%;
-    text-align: center;
-}
+

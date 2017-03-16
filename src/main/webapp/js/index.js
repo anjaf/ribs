@@ -9,7 +9,7 @@
          if (data) {
              var totalCount = data.totalHits + (data.totalHits == 1 ? ' study' : ' studies');
              $('#template').html(template(data));
-             $('#latest').fadeIn();
+             $('#latest').slideDown();
              $('#studyCountStats').fadeIn();
 
              $.getJSON( contextPath + "api/search",{query:'type:Project'}, function( data ) {
