@@ -39,13 +39,13 @@ function registerHelpers(params) {
 
         if (page>1) {
             params.page = o.data.root.page-1;
-            ul += '<li class="pagination-previous"><a href="studies?'+$.param(params)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
+            ul += '<li class="pagination-previous"><a href="'+contextPath+'/studies?'+$.param(params)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
         }
 
         if (maxPage<=10) {
             for (var i = 1; i <= maxPage; i++) {
                 params.page = i;
-                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="studies?' + $.param(params) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
+                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="'+contextPath+'/studies?' + $.param(params) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
             }
         } else {
             var arr;
@@ -83,14 +83,14 @@ function registerHelpers(params) {
                 if (arr[i]==page) {
                     ul += '<li class="current">' + arr[i] + '</li>';
                 } else {
-                    ul += '<li><a href="studies?' + $.param(params) + '" aria-label="Page ' + arr[i] + '">' + arr[i] + '</a></li>';
+                    ul += '<li><a href="'+contextPath+'/studies?' + $.param(params) + '" aria-label="Page ' + arr[i] + '">' + arr[i] + '</a></li>';
                 }
             };
         }
 
         if (o.data.root.page && o.data.root.pageSize &&  o.data.root.page*o.data.root.pageSize < o.data.root.totalHits) {
             params.page = page+1;
-            ul += '<li class="pagination-next"><a href="search?'+$.param(params)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
+            ul += '<li class="pagination-next"><a href="'+contextPath+'/studies?'+$.param(params)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
         }
 
         ul += '</ul>'
