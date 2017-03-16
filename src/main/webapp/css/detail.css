@@ -201,3 +201,7 @@ ul#bs-orgs {
     background-color: #FFCCAA;
     padding: 0px 1px;
 }
+
+.alert {
+    color: #ff7777;
+}

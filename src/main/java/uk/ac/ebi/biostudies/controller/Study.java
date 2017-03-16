@@ -20,7 +20,7 @@ import java.io.*;
 @RequestMapping(value="/api")
 public class Study {
 
-    private Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
+    private Logger logger = LogManager.getLogger(Study.class.getName());
 
     @Autowired
     SearchService searchService;

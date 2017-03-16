@@ -21,6 +21,7 @@
     <jsp:attribute name="postBody">
         <script src="../js/jquery.dataTables.min.js"></script>
         <script src="../js/jquery.highlight.js"></script>
+
         <!-- Handlebars templates-->
         <script id='study-template' type='text/x-handlebars-template'>
             <div id="left-column">
@@ -258,6 +259,14 @@
                 </table>
             </div>
         </script>
+
+         <script id='error-template' type='text/x-handlebars-template'>
+             <section class="callout">
+                 <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>{{title}}</h3>
+                 <p>{{&message}}</p>
+                 <p>If you require further assistance locating missing page or file, please <a href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it for you.</p>
+             </section>
+         </script>
 
         <script src="../js/detail.js"></script>
     </jsp:attribute>
