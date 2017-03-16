@@ -2,29 +2,22 @@ package uk.ac.ebi.biostudies.service.impl.efo;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.arrayexpress.utils.efo.EFOLoader;
 import uk.ac.ebi.arrayexpress.utils.efo.EFONode;
 import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
 import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.efo.*;
-import uk.ac.ebi.biostudies.lucene.config.EFOConfig;
+import uk.ac.ebi.biostudies.config.EFOConfig;
 
 import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**

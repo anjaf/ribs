@@ -22,7 +22,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostudies.lucene.config.IndexConfig;
+import uk.ac.ebi.biostudies.config.IndexConfig;
 @Component
 public class EFOExpandedHighlighter {
     // logging machinery

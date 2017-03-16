@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostudies.service;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 
@@ -11,8 +12,8 @@ import java.util.Map;
  * Created by ehsan on 27/02/2017.
  */
 public interface SearchService {
-    public String search(String query, int page, int pagesize);
-    public String getDetailFile(String accessionNumber) throws IOException;
+    String search(String query, int page, int pagesize);
+    String getDetailFile(String accessionNumber) throws IOException;
 
     /**
      *
@@ -22,7 +23,7 @@ public interface SearchService {
      * @param efoBooleanBuilder list of EFOs that are added to the original query
      * @return
      */
-    public Query expandQuery(Map<String, String> queryInfo, Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder);
+    Query expandQuery(Map<String, String> queryInfo, Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder);
 
     /**
      *
@@ -34,10 +35,14 @@ public interface SearchService {
      * @param fragmentOnly true:breaks text up into same-size fragments false:This is useful for highlighting the entire content of a document or field
      * @return
      */
-    public String highlightText(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly);
+    String highlightText(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly);
 
-    public String getKeywords(String query, String field, Integer limit);
+    String getKeywords(String query, String field, Integer limit);
 
-    public String getEfoWords(String query, Integer limit);
+    String getEfoWords(String query, Integer limit);
+
+    Query applyFacets(Query query, JsonNode facets);
+
+    String applySearchOnQuery(Query query, int page, int pageSize);
 }
 

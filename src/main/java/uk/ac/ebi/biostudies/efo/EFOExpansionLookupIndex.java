@@ -1,6 +1,6 @@
 package uk.ac.ebi.biostudies.efo;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.arrayexpress.utils.efo.EFONode;
 import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
-import uk.ac.ebi.biostudies.lucene.config.EFOConfig;
-import uk.ac.ebi.biostudies.lucene.config.IndexManager;
+import uk.ac.ebi.biostudies.config.EFOConfig;
+import uk.ac.ebi.biostudies.config.IndexManager;
 
 import java.io.IOException;
 import java.util.*;

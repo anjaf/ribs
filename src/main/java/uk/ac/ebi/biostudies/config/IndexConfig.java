@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostudies.lucene.config;
+package uk.ac.ebi.biostudies.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
