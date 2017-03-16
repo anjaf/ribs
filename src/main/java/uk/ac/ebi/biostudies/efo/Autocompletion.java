@@ -30,14 +30,12 @@ import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
 import uk.ac.ebi.biostudies.efo.autocompletion.AutocompleteData;
 import uk.ac.ebi.biostudies.efo.autocompletion.AutocompleteStore;
-import uk.ac.ebi.biostudies.lucene.config.IndexManager;
-import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
+import uk.ac.ebi.biostudies.config.IndexManager;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Component

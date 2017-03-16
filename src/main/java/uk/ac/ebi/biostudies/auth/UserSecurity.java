@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostudies.config.SecurityConfig;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -37,6 +39,8 @@ public class UserSecurity {
 
     @Autowired
     private AuthenticationHelper authHelper;
+    @Autowired
+    private SecurityConfig securityConfig;
 
     public UserSecurity() {
         // TODO: move password cache timeout to config file
@@ -73,7 +77,7 @@ public class UserSecurity {
         logger.debug("Trying to authenticate user [{}] remotely",username);
         String response = this.authHelper.sendAuthenticationRequest(username
                                     , passwordHash
-                                    , "http://biostudy-dev.ebi.ac.uk:10180/biostd-beta/checkAccess"  );
+                                    , securityConfig.getAuthUrl()  );
         String [] lines = response.split("\n");
         if (lines.length<4 || !"Status: OK".equalsIgnoreCase(lines[0])) {
             return null;

@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostudies.lucene.config;
+package uk.ac.ebi.biostudies.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

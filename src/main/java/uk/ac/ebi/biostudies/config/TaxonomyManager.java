@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostudies.lucene.config;
+package uk.ac.ebi.biostudies.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,10 +15,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
-import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 

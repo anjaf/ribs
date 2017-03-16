@@ -16,11 +16,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
-import uk.ac.ebi.biostudies.lucene.config.IndexConfig;
-import uk.ac.ebi.biostudies.lucene.config.TaxonomyManager;
+import uk.ac.ebi.biostudies.config.IndexConfig;
+import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.IndexService;
-import uk.ac.ebi.biostudies.lucene.config.IndexManager;
+import uk.ac.ebi.biostudies.config.IndexManager;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
