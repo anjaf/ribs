@@ -205,3 +205,8 @@ ul#bs-orgs {
 .alert {
     color: #ff7777;
 }
+
+#loader {
+    height: 50%;
+    text-align: center;
+}
