@@ -1,8 +1,11 @@
 package uk.ac.ebi.biostudies.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
@@ -10,10 +13,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -23,8 +23,10 @@ import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.efo.EFOExpandedHighlighter;
+import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
 import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
 import uk.ac.ebi.biostudies.lucene.config.IndexConfig;
+import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.lucene.config.IndexManager;
 
@@ -33,8 +35,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -58,6 +59,8 @@ public class SearchServiceImpl implements SearchService {
     EFOExpandedHighlighter efoExpandedHighlighter;
     @Autowired
     Autocompletion autocompletion;
+    @Autowired
+    FacetService facetService;
 
 //    public void tempInit(){
 //        BooleanQuery.Builder synonymBooleanBuilder = new BooleanQuery.Builder();
@@ -109,6 +112,91 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
+    public Query applyFacets(Query query, JsonNode facets){
+        Map<BioStudiesField, List<String>> selectedFacets = new HashMap<>();
+        if(facets!=null){
+            Iterator<String> fieldNamesIterator = facets.fieldNames();
+            String dim="";
+            while(fieldNamesIterator.hasNext()){
+                try {
+                    dim = fieldNamesIterator.next();
+                    if(dim==null)
+                        continue;
+                    BioStudiesField field = BioStudiesField.valueOf(dim.toUpperCase());
+                    JsonNode arrNode = facets.get(dim);
+                    List<String> facetNames = new ArrayList<>();
+                    if(arrNode==null)
+                        continue;
+                    selectedFacets.put(field, facetNames);
+                    if(arrNode.isArray())
+                        for (final JsonNode objNode : arrNode)
+                        {
+                            facetNames.add(objNode.textValue());
+                        }
+                }catch (Throwable ex){
+                    logger.debug("ui sent invalid facet: {}", dim, ex);
+                }
+            }
+        }
+        return  facetService.addFacetDrillDownFilters(query, selectedFacets);
+    }
+
+    @Override
+    public String applySearchOnQuery(Query query, int page, int pageSize){
+        IndexReader reader = indexManager.getIndexReader();
+        IndexSearcher searcher = indexManager.getIndexSearcher();
+        String[] fields = indexConfig.getIndexFields();
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode response = mapper.createObjectNode();
+
+        if (StringUtils.isEmpty(query))  {
+            query = new MatchAllDocsQuery();
+        } else {
+            response.put("query", query.toString());
+        }
+        Analyzer analyzer = new StandardAnalyzer();
+        try {
+            logger.debug("User queryString: {}", query);
+            TopDocs hits = searcher.search(query, reader.numDocs());
+            int hitsPerPage = pageSize;
+            int to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
+            response.put("page", page);
+            response.put("pageSize", hitsPerPage);
+            response.put("totalHits", hits.totalHits);
+            if (hits.totalHits > 0) {
+                ArrayNode docs = mapper.createArrayNode();
+                for (int i = (page - 1) * hitsPerPage; i < to; i++) {
+                    ObjectNode docNode = mapper.createObjectNode();
+                    Document doc = reader.document(hits.scoreDocs[i].doc);
+                    for (BioStudiesField field : BioStudiesField.values()) {
+                        if (!field.isRetrieved()) continue;
+                        switch (field.getType()) {
+                            case LONG:
+                                docNode.put(String.valueOf(field), Long.parseLong(doc.get(field.toString())));
+                                break;
+                            default:
+                                docNode.put(String.valueOf(field), doc.get(field.toString()));
+                                break;
+                        }
+                    }
+
+                    docNode.put("isPublic",
+                            (" " + doc.get(String.valueOf(BioStudiesField.ACCESS) + " ")).toLowerCase().contains(" public ")
+                    );
+                    docs.add(docNode);
+                }
+                response.set("hits", docs);
+                logger.debug(hits.totalHits + " hits");
+            }
+        }
+        catch(Throwable error){
+            logger.error("problem in searching this query {}", query, error);
+        }
+
+        return  response.toString();
+    }
+
+    @Override
     public String search(String queryString, int page, int pageSize) {
 
         IndexReader reader = indexManager.getIndexReader();
@@ -135,6 +223,9 @@ public class SearchServiceImpl implements SearchService {
             response.put("page", page);
             response.put("pageSize", hitsPerPage);
             response.put("totalHits", hits.totalHits);
+            response.set("expandedEfoTerms", mapper.createArrayNode() );
+            response.set("expandedSynonyms", mapper.createArrayNode() );
+
             if (hits.totalHits > 0) {
                 ArrayNode docs = mapper.createArrayNode();
                 for (int i = (page - 1) * hitsPerPage; i < to; i++) {

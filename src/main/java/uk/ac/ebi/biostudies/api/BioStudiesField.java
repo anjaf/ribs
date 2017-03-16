@@ -11,9 +11,15 @@ public enum BioStudiesField {
     TITLE("title", "", BioStudiesFieldType.STRING_TOKENIZED, true, false),
     AUTHORS("authors", "", BioStudiesFieldType.STRING_TOKENIZED, true, false),
     CONTENT("content", "", BioStudiesFieldType.STRING_TOKENIZED, true, true),
+    PROJECT("project", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false),
     LINKS("links", "", BioStudiesFieldType.LONG, true, false),
     FILES("files", "", BioStudiesFieldType.LONG, true, false),
-    ID("id", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false)
+    ID("id", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false),
+    ORGAN("organ", "Organ", BioStudiesFieldType.FACET, false, false),
+    TECHNOLOGY("tech", "Assay Technology Type", BioStudiesFieldType.FACET, false, true),
+    DATATYPE("dataType", "Data Type", BioStudiesFieldType.FACET, false, false),
+    COMPOUND("compound", "Compound", BioStudiesFieldType.FACET, false, true),
+    RAWPROCESSED("rawProcessed", "Raw/Processed", BioStudiesFieldType.FACET, false, false),
     ;
 
     private final String name;
@@ -50,6 +56,10 @@ public enum BioStudiesField {
         return title;
     }
 
+    /**
+     * expand for textual fields means query expansion and for facet fields means multivalue facet
+     * @return
+     */
     public boolean isExpand() {
         return expand;
     }

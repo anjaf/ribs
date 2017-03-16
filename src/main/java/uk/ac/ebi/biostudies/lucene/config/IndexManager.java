@@ -46,8 +46,10 @@ public class IndexManager {
     @Autowired
     EFOConfig eFOConfig;
     @Autowired
-    Ontology
-    ontology;
+    Ontology ontology;
+    @Autowired
+    TaxonomyManager taxonomyManager;
+
 
     @PostConstruct
     public void init(){
@@ -71,7 +73,7 @@ public class IndexManager {
                 efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
             efoIndexReader = DirectoryReader.open(efoIndexWriter);
             efoIndexSearcher = new IndexSearcher(getEfoIndexReader());
-
+            taxonomyManager.init();
 
         }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);
@@ -93,6 +95,18 @@ public class IndexManager {
     @PreDestroy
     public void destroy(){
 
+    }
+
+    public void refreshIndexSearcherAndReader(){
+
+        try {
+            indexReader.close();
+            indexReader = DirectoryReader.open(indexWriter);
+            indexSearcher = new IndexSearcher(indexReader);
+        }
+        catch (Exception ex){
+            logger.error("problem in refreshing index", ex);
+        }
     }
 
     public IndexReader getIndexReader() {

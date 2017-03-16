@@ -17,7 +17,7 @@
 
 package uk.ac.ebi.biostudies.efo;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class HTMLOptions {
         }
 
         public String getHtml() {
-            return "<option value=\"" + StringEscapeUtils.escapeHtml(value) + "\">" + label + "</option>";
+            return "<option value=\"" + StringEscapeUtils.escapeHtml3(value) + "\">" + label + "</option>";
         }
 
         @Override
