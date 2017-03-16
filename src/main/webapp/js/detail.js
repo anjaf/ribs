@@ -289,7 +289,7 @@ function registerHelpers() {
         });
         publication.accno = pubs[0].accno;
         var type = publication.accno.toLowerCase().substr(0,3);
-        publication.URL = linkMap[type];
+        publication.URL = getURL(type, publication.accno);
         var template = Handlebars.compile($('script#publication-template').html());
         return new Handlebars.SafeString(template(publication));
     });
@@ -535,4 +535,14 @@ function formatPageHtml() {
             $('#right-column-expander','.fullscreen').click();
         }
     });
+
+    // $("#renderedContent").highlight(['mice','crkl']);
+    // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
+    // $("#renderedContent").highlight(['mouse','gland '],{className:'efo'});
+    //
+    //
+    // $("#renderedContent .highlight").attr('title','This is exact string matched for input query terms');
+    // $("#renderedContent .efo").attr('title','This is matched child term from Experimental Factor Ontology e.g. brain and subparts of brain');
+    // $("#renderedContent .synonym").attr('title','This is synonym matched from Experimental Factor Ontology e.g. neoplasia for cancer');
+
 }

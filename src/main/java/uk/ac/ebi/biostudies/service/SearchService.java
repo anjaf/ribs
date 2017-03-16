@@ -11,7 +11,7 @@ import java.util.Map;
  * Created by ehsan on 27/02/2017.
  */
 public interface SearchService {
-    public String search(String query, int page, int pageSize);
+    public String search(String query, int page, int pagesize);
     public String getDetailFile(String accessionNumber) throws IOException;
 
     /**

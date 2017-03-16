@@ -109,7 +109,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public String search(String queryString, int page, int pageSize) {
+    public String search(String queryString, int page, int pagesize) {
 
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
@@ -130,7 +130,7 @@ public class SearchServiceImpl implements SearchService {
             Query query = parser.parse(queryString);
             logger.debug("Lucene query: {}",query.toString());
             TopDocs hits = searcher.search(query, reader.numDocs());
-            int hitsPerPage = pageSize;
+            int hitsPerPage = pagesize;
             int to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
             response.put("page", page);
             response.put("pageSize", hitsPerPage);

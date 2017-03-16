@@ -86,4 +86,23 @@ div#local-masthead, #ebi_search .button, .pagination .current {
 .pagination a:visited {
     color: #0a0a0a;
 }
+
+h1 a:link,
+h2 a:link,
+h3 a:link,
+h4 a:link,
+h5 a:link,
+h6 a:link,
+h1 a:visited,
+h2 a:visited,
+h3 a:visited,
+h4 a:visited,
+h5 a:visited,
+h6 a:visited {
+    /*border-bottom-color: var(--P1);*/
+    border-bottom-color: #75C8EC;
+    border-bottom-width: 0px;
+    border-bottom-style: none;
+}
+
 /* end */

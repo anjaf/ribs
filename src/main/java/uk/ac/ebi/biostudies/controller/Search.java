@@ -18,8 +18,8 @@ public class Search {
 
     @RequestMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public String search(@RequestParam(value="query", required=false) String queryString,
-                                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page, @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize){
-        return searchService.search(queryString, page, pageSize);
+                                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page, @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pagesize){
+        return searchService.search(queryString, page, pagesize);
 //        return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
     }
 }

@@ -11,13 +11,12 @@
     var template = Handlebars.compile(templateSource);
 
     // Data in json
-    $.getJSON("api/search", params,function (data) {
+    $.getJSON(contextPath+"/api/search", params,function (data) {
         // Generate html using template and data
         var html = template(data);
 
         // Add the result to the DOM
         d.getElementById('renderedContent').innerHTML = html;
-
         //postRender();
 
     });

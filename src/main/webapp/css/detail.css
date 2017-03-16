@@ -188,3 +188,16 @@ ul#bs-orgs {
 .bs-section-link-table:not(.fullscreen){
     padding-top: 20px;
 }
+
+.highlight {
+    background-color: #FFFF88;
+}
+
+.synonym {
+    background-color: #CCFFAA;
+}
+
+.efo {
+    background-color: #FFCCAA;
+    padding: 0px 1px;
+}

@@ -1,40 +1,137 @@
-
-ul#search-results {
-    list-style-type: none;
-    width: 80%;
+#bs-title-header {
+    position: relative;
+    min-height: 160px;
+    text-align: center;
+    display: table;
+    width: 100%;
 }
-ul.pagination  {
-    width: 80%;
+
+.ribbon, .molecule, .twist, .flask {
+    font-family: 'EBI-Conceptual';
+    color: #75c8ec;
+    opacity: 0.2;
+    font-size: 180px;
+    position: absolute;
+    line-height: 160px;
+    height: 160px;
+}
+
+.ribbon {
+
+}
+.molecule {
     text-align: right;
+    width: 72%;
+}
+.twist {
+    text-align: right;
+    font-size: 150pt;
+    opacity: 0.1;
+    color: #ee1c25;
+    width: 100%;
+    z-index: -1000;
+}
+.flask {
+    font-family: 'EBI-Functional';
+    font-size: 140px;
+    text-align: center;
+    width: 73%;
+    color: #58585a;
+    opacity: 0.1;
+}
+#tagline {
+    display: table-cell;
+    vertical-align: middle;
+    color: #58585a;
 }
 
-ul#search-results li {
-    padding: 15px 0;
-}
-.search-result span.accession:after {
-    content: ']';
-    margin-left: 2px;
+.home-icon:before {
+    color: #FFFFFF !important;
+    font-size: 22pt !important;
+    vertical-align: middle;
+    border: 1px solid #22AAE2;
+    border-radius: 50%;
+    background: #0378BB;
+    padding: 14px;
+    margin-right: 0px !important;
+    vertical-align: initial;
+    box-shadow: inset 0 0 0 2px white;
 }
 
-.search-result span.accession:before {
-    content: '[';
-    margin-right: 2px;
+.home-icon {
+    color: #0378BB !important;
+}
+.home-icon-small:before {
+    font-size: 12pt !important;
+    vertical-align: middle;
+    border-radius: 1000px;
+    padding: 8px;
 }
 
-.search-result span.accession {
-    font-size: 80%;
+#projectsIcon:before {
+    color: #7882CE;
+    border: 1px solid #7882CE;
+    background: #D2D6F6;
+}
+
+#studiesIcon:before {
+    color: #2BA35F;
+    border: 1px solid #2BA35F;
+    background: #CDF7DF;
+}
+
+
+#latestIcon:before {
+    color: #E4753D;
+    border: 1px solid #E4753D;
+    background: #FFEBD5;
+}
+
+#secondary {
+    padding-bottom:36px;
+}
+
+#studyCountStats, #projectCountStats, #latest {
+    display: none;
+}
+
+#stats h5, #latest h5 {
+    line-height: 36px;
+    color: #555;
+}
+
+#studyCountStats, #projectCountStats, #latest {
+    display: none;
+    margin-top:20px;
+}
+
+#latestList li:before {
+    /* content: "\25AA"; */
+    color: #466B7D;
+    padding-right: 10px;
+}
+#latestList{
+    padding-left: 20px;
+    color: #466B7D;
+}
+#latestList li {
+    list-style: square;
+    line-height: 24px;
+    margin-left: 19px;
+}
+.icon {
+    margin-right: 6px;
+}
+.browse-study-accession {
+    font-size: 70%;
+    padding: 5px;
     color: rgb(107, 168, 197);
     white-space: nowrap;
 }
 
-.search-result .meta-data {
-    color: #999;
-    font-size: 9pt;
+.browse-study-accession:before {
+    content: '[';
 }
-
-.search-result .meta-data span:not(:first-child):before {
-    content: ' \25AA';
-    color: #6BA8C5;
-    padding: 10px;
+.browse-study-accession:after {
+    content: ']';
 }
-
