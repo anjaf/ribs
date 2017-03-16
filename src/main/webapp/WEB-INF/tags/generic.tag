@@ -1,5 +1,8 @@
 <%@ tag description="Generic page" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@attribute name="postBody" fragment="true" %>
+<%@attribute name="head" fragment="true" %>
+<%@attribute name="breadcrumbs" fragment="true" %>
 <!doctype html>
 <html lang="en">
 <head>
@@ -68,7 +71,7 @@
 
     <!-- All JavaScript at the bottom, except for Modernizr -->
     <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/libraries/modernizr/modernizr.custom.49274.js"></script>
-    <link rel="stylesheet" href="../css/index.css">
+    <jsp:invoke fragment="head"/>
 </head>
 <c:set var="query" value="${param.query}"/>
 <body class="level2"><!-- add any of your classes or IDs -->
@@ -157,7 +160,7 @@
                 <nav >
                     <ul class="dropdown menu float-left" data-description="navigational">
                         <li class=""><a href="../../">Home</a></li>
-                        <li><a>Browse</a></li>
+                        <li><a href="${pageContext.request.contextPath}/studies/">Browse</a></li>
                         <li><a>Submit</a></li>
                         <li><a>Help</a></li>
                         <li><a>About BioStudies</a></li>
@@ -183,19 +186,15 @@
     <!-- Suggested layout containers -->
     <section>
 
-        <!-- Your menu structure should make a breadcrumb redundant, but if a breadcrump is needed uncomment the below -->
+        <!-- Your menu structure should make a breadcrumb redundant, but if a breadcrumb is needed uncomment the below -->
         <nav aria-label="You are here:" role="navigation">
-            <ul class="breadcrumbs">
-                <li><a href="../../">BioStudies</a></li>
-                <li><a href="../">Studies</a></li>
-                <li>
-                    <span class="show-for-sr">Current: </span> Search
-                </li>
-            </ul>
+           <jsp:invoke fragment="breadcrumbs"/>
         </nav>
 
         <div id="main-content-area">
-            <section id='renderedContent'></section>
+            <section id='renderedContent'>
+                <jsp:doBody/>
+            </section>
         </div>
 
     </section>
@@ -264,6 +263,9 @@
   });
 </script>
 -->
-<jsp:doBody/>
+<script>
+    var contextPath = '${pageContext.request.contextPath}';
+</script>
+<jsp:invoke fragment="postBody"/>
 </body>
 </html>

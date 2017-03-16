@@ -1,8 +1,49 @@
+String.format = function() {
+    var s = arguments[0];
+    for (var i = 0; i < arguments.length - 1; i++) {
+        var reg = new RegExp("\\{" + i + "\\}", "gm");
+        s = s.replace(reg, arguments[i + 1]);
+    }
+
+    return s;
+}
+
+$.fn.groupBy = function(fn) {
+    var arr = $(this),grouped = {};
+    $.each(arr, function (i, o) {
+        key = fn(o);
+        if (typeof(grouped[key]) === "undefined") {
+            grouped[key] = [];
+        }
+        grouped[key].push(o);
+    });
+
+    return grouped;
+}
 !function(d) {
 
-    linkMap = {'pmc':'http://europepmc.org/articles/',
-        'pmid':'http://europepmc.org/abstract/MED/',
-        'doi':'http://dx.doi.org/'
+    linkMap = {'pmc':'http://europepmc.org/articles/{0}',
+        'pmid':'http://europepmc.org/abstract/MED/{0}',
+        'doi':'http://dx.doi.org/{0}',
+        'chembl':'https://www.ebi.ac.uk/chembldb/compound/inspect/{0}',
+        'ega':'http://www.ebi.ac.uk/ega/studies/{0}',
+        'sprot':'http://www.uniprot.org/uniprot/{0}',
+        'gen':'http://www.ebi.ac.uk/ena/data/view/{0}',
+        'arrayexpress files':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
+        'arrayexpress':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}',
+        'refsnp':'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
+        'pdb':'http://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
+        'pfam':'http://pfam.xfam.org/family/{0}',
+        'omim':'http://omim.org/entry/{0}',
+        'interpro':'http://www.ebi.ac.uk/interpro/entry/{0}',
+        'refseq':'http://www.ncbi.nlm.nih.gov/nuccore/{0}',
+        'geo':'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={0}',
+        'doi':'http://dx.doi.org/{0}',
+        'intact':'http://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc={0}',
+        'biostudies':'https://www.ebi.ac.uk/biostudies/studies/{0}',
+        'biostudies search':'https://www.ebi.ac.uk/biostudies/studies/search.html?query={0}',
+        'go':'http://amigo.geneontology.org/amigo/term/{0}',
+        'chebi':'http://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}'
     };
     orgOrder= [];
 
@@ -17,16 +58,18 @@
     var template = Handlebars.compile(templateSource);
     var url = window.location.href;
     url = url.replace('studies','api/studies');
-    // Data in json
+
+
     $.getJSON(url,params, function (data) {
-        // Generate html using template and data
+        // set accession
+        $('#accession').text(data.submissions[0].accno);
         data.submissions[0].section.accno = data.submissions[0].accno;
         var html = template(data.submissions[0].section);
-        // Add the result to the DOM
         d.getElementById('renderedContent').innerHTML = html;
-
         postRender();
 
+    }).fail(function(error) {
+        showError(error);
     });
 }(document);
 
@@ -40,7 +83,7 @@ function registerHelpers() {
     Handlebars.registerHelper('valueWithName', function(val, obj) {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
-        return (e!=undefined) ? new Handlebars.SafeString(e['value']) : '-';
+        return (e!=undefined) ? new Handlebars.SafeString(e['value']) : '';
     });
 
     Handlebars.registerHelper('section', function(o, shouldIndent) {
@@ -115,14 +158,56 @@ function registerHelpers() {
         }
     });
 
-    Handlebars.registerHelper('file-table', function() {
+    Handlebars.registerHelper('main-file-table', function() {
         var o = findall(this,'files');
-        var template = Handlebars.compile($('script#file-table').html());
+        var template = Handlebars.compile($('script#main-file-table').html());
         return template(o);
     });
 
-    Handlebars.registerHelper('asString', function(v) {
-        console.log(v)
+    Handlebars.registerHelper('section-link-tables', function(o) {
+        var template = Handlebars.compile($('script#section-link-tables').html());
+        return template(o.data.root);
+    });
+
+    Handlebars.registerHelper('link-table', function(o) {
+        var names = ['Name'];
+        var hsh = {'Name':1};
+        $.each(o.links, function (i, v) {
+            v.attributes = v.attributes || [];
+            v.attributes.push({"name": "Name", "value": v.url});
+            $.each(v.attributes, function (i, v) {
+                if (!(v.name in hsh)) {
+                    names.push(v.name);
+                    hsh[v.name] = 1;
+                }
+            })
+        });
+        o.linkHeaders = names;
+        var template = Handlebars.compile($('script#link-table').html());
+        return template(o);
+    });
+
+    Handlebars.registerHelper('eachLinkTable', function(options) {
+        var ret = '';
+        var links = findall(this,'links');
+        var groupsByColumns = $(links).groupBy(function (obj) {
+            var att_fp = $.unique($.map(obj.attributes, function (attr) { return attr.name}).sort()).join('|')
+            return att_fp
+        });
+        var keys = Object.keys(groupsByColumns), data = Handlebars.createFrame(options.data);
+        $.each(keys, function(i,key) {
+            data.first = i==0, data.last = i==(keys.length-1), data.index = i, data.indexPlusOne = i+1;
+            ret = ret + options.fn({links: groupsByColumns[key]},{data:data});
+        });
+        return ret;
+    });
+
+    Handlebars.registerHelper('main-link-table', function(o) {
+        var template = Handlebars.compile($('script#main-link-table').html());
+        return template(o.data.root);
+    });
+
+    Handlebars.registerHelper('asString', function() {
         console.log(this)
         return this.name
     });
@@ -132,9 +217,12 @@ function registerHelpers() {
         var orgs = {}
 
         // make an org map
+        if (!obj.subsections) return '';
+
         $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
             orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
         });
+
 
         var orgNumber = 1;
         var orgToNumberMap = {}
@@ -154,7 +242,10 @@ function registerHelpers() {
     });
     Handlebars.registerHelper('eachOrganization', function(obj, options) {
         var ret = '';
-        var orgs = {}
+        var orgs = {};
+
+        if (!obj.subsections) return '';
+
         // make an org map
         $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
             orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
@@ -165,9 +256,11 @@ function registerHelpers() {
         });
         return ret;
     });
+
     Handlebars.registerHelper('eachFunder', function(obj, options) {
         var ret = '';
         var orgs = {};
+        if (!obj.subsections) return '';
         // make an org map
         $.each(obj.subsections.filter( function(subsection) { return subsection.type.toLowerCase()=='funding';}), function (i,o) {
             var org = null, grant = '';
@@ -179,24 +272,25 @@ function registerHelpers() {
                 orgs[org] = (orgs[org]) ? orgs[org] + (", "+grant) : orgs[org] = grant;
             }
         });
-
-        $.each(Object.keys(orgs), function (i,v) {
-            ret += options.fn({name:v,grants:orgs[v]});
+        var keys = Object.keys(orgs), data = Handlebars.createFrame(options.data);
+        $.each(keys, function (i,v) {
+            data.first = i==0, data.last = i==(keys.length-1), data.index = i;
+            ret += options.fn({name:v,grants:orgs[v]},{data:data});
         });
         return ret;
     });
 
     Handlebars.registerHelper('publication', function(obj, options) {
         var publication = {}
-
+        if (!obj.subsections) return '';
         var pubs = obj.subsections.filter( function(o) { return o.type.toLowerCase()=='publication';});
-        if (!pubs) return null;
+        if (!pubs || pubs.length <1) return null;
         $.each(pubs[0].attributes, function(i,v) {
             publication[v.name.toLowerCase().replace(' ','_')] = v.value
         });
         publication.accno = pubs[0].accno;
         var type = publication.accno.toLowerCase().substr(0,3);
-        publication.URL = linkMap[type];
+        publication.URL = getURL(type, publication.accno);
         var template = Handlebars.compile($('script#publication-template').html());
         return new Handlebars.SafeString(template(publication));
     });
@@ -204,20 +298,39 @@ function registerHelpers() {
 
 }
 
-function findall(obj,k){
+function findAllAsList(obj,k){
+    var ret = [];
+    for(var key in obj)
+    {
+        if (key===k) {
+            ret.push(obj[k]);
+        } else if(typeof(obj[key]) == "object"){
+            $.each(findall(obj[key],k),function (i,v) {
+                ret.push(v);
+            })
+        }
+    }
+    return ret;
+}
+
+function findall(obj,k,unroll){
+    if (unroll==undefined) unroll =true
     var ret = [];
     for(var key in obj)
     {
         if (key===k) {
             $.merge(ret,obj[k]);
         } else if(typeof(obj[key]) == "object"){
-            $.merge(ret,findall(obj[key],k));
+            $.merge(ret,findall(obj[key],k,unroll));
         }
     }
     //unroll file tables
-    return $.map( ret, function(n){
-        return n;
-    });
+    if (unroll) {
+        return $.map( ret, function(n){
+            return n;
+        });
+    }
+    return  ret;
 }
 
 function postRender() {
@@ -225,9 +338,12 @@ function postRender() {
     drawSubsections();
     createDataTables();
     createMainFileTable();
+    createLinkTables();
     handleSectionArtifacts();
     handleTableExpansion();
     handleOrganisations();
+    formatPageHtml();
+    $('#left-column').slideDown();
 }
 
 
@@ -242,7 +358,6 @@ function createDataTables() {
 
 function createMainFileTable() {
     $("#file-list").DataTable({
-
         "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
         "columnDefs": [ {"targets": [0], "searchable": false, "orderable": false, "visible": true},
          //   {"targets": [2], "searchable": true, "orderable": false, "visible": false}
@@ -257,6 +372,47 @@ function createMainFileTable() {
         }
     });
 }
+
+function getURL(type, accession) {
+   var url =  linkMap[type] ? String.format(linkMap[type], accession) : null;
+   if (type=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
+       url = url.replace('/studies/','/datasets/');
+   }
+   if (accession.indexOf('http:')==0 || accession.indexOf('https:')==0  || accession.indexOf('ftp:')==0 ) {
+       url = accession;
+   }
+
+   return url;
+}
+function createLinkTables() {
+
+    //handle links
+    $(".link-list").each(function () {
+        //create external links for known link types
+        $("tr",this).each( function (i,row) {
+            if (i==0) return;
+            var type =  $($('td',row)[1]).text().toLowerCase();
+            var url = getURL( type, $($('td',row)[0]).text());
+            if (url) {
+                $($('td',row)[0]).wrapInner('<a href="'+ url +'" target="_blank">');
+            }
+        });
+
+    });
+
+    //format the right column tables
+    $("#right-column .link-list").DataTable({
+        "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+        "dom": "rlftpi"
+    });
+
+    //format section tables
+    $("#bs-content .link-list").DataTable({
+        "dom": "t",
+        paging: false
+    });
+}
+
 
 function drawSubsections() {
     // draw subsection and hide them
@@ -296,7 +452,7 @@ function handleSectionArtifacts() {
         }
     });
     $(".toggle-files, .toggle-links, .toggle-tables").each(function () {
-        var type = $(this).hasClass("toggle-files") ? "file" : $(this).hasClass("toggle-links") ? "link" : "table";
+        var type = $(this).hasClass("toggle-files") ? "file(s)" : $(this).hasClass("toggle-links") ? "link(s)" : "table";
         $(this).html('<i class="fa fa-caret-right"></i> show ' + type + ($(this).data('total') == '1' ? '' : 's'));
     });
 
@@ -346,7 +502,6 @@ function handleOrganisations() {
         /*if (!$(href).is(':visible')) {
             $('#hidden-orgs').find('a.show-more').click()
         }*/
-        console.log(href)
         $('html, body').animate({
             scrollTop: $(href).offset().top
         }, 200);
@@ -363,4 +518,76 @@ function handleOrganisations() {
         });
 
     });
+}
+
+function formatPageHtml() {
+    //replace all newlines with html tags
+    $('#ae-detail > .value').each(function () {
+        var html = $(this).html();
+        if (html.indexOf('<') < 0) { // replace only if no tags are inside
+            $(this).html($(this).html().replace(/\n/g, '<br/>'))
+        }
+    });
+
+
+    //handle escape key on fullscreen
+    $(document).on('keydown',function ( e ) {
+        if ( e.keyCode === 27 ) {
+            $('.table-expander','.fullscreen').click();
+            $('#right-column-expander','.fullscreen').click();
+        }
+    });
+
+    // add highlights
+    // $("#renderedContent").highlight(['mice','crkl']);
+    // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
+    // $("#renderedContent").highlight(['mouse','gland '],{className:'efo'});
+    //
+    //
+    // $("#renderedContent .highlight").attr('title','This is exact string matched for input query terms');
+    // $("#renderedContent .efo").attr('title','This is matched child term from Experimental Factor Ontology e.g. brain and subparts of brain');
+    // $("#renderedContent .synonym").attr('title','This is synonym matched from Experimental Factor Ontology e.g. neoplasia for cancer');
+
+
+
+}
+
+
+function showError(error) {
+    var errorTemplateSource = $('script#error-template').html();
+    var errorTemplate = Handlebars.compile(errorTemplateSource);
+    var data;
+    switch (error.status) {
+        case 400:
+            data = {
+                title: 'We’re sorry that we cannot process your request',
+                message: 'There was a query syntax error in <span class="alert"><xsl:value-of select="$error-message"/></span>. Please try a different query or check our <a href="{$context-path}/help/index.html">query syntax help</a>.'
+            }
+            break;
+
+        case 403:
+            data = {
+                title: 'We’re sorry that you don’t have access to this page or file',
+                message: 'Please <a href="#" class="login">log in</a> to access <span class="alert"><xsl:value-of select="$error-request-uri"/></span>.'
+            }
+            break;
+
+        case 404:
+            data = {
+                title: 'We’re sorry that the page or file you’ve requested is not publicly available',
+                message: 'The resource may have been removed, had its name changed, or has restricted access.If you have been granted access, please <a href="#" class="login">log in</a> to proceed.'
+            }
+            break;
+
+        default:
+            data = {
+                title: 'Oops! Something has gone wrong with BioStudies',
+                message: 'The service you are trying to access is currently unavailable. We’re very sorry. Please try again later or use the feedback link to report if the problem persists.'
+            }
+            break;
+    }
+
+    var html = errorTemplate(data);
+    $('#renderedContent').html(html);
+    $('#accession').text("Error");
 }

@@ -12,7 +12,7 @@ import java.util.Map;
  * Created by ehsan on 27/02/2017.
  */
 public interface SearchService {
-    String search(String query, int page, int pageSize);
+    String search(String query, int page, int pagesize);
     String getDetailFile(String accessionNumber) throws IOException;
 
     /**

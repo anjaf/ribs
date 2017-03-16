@@ -27,9 +27,15 @@ public class Index {
      *
      * @return String that will be returned as a text/plain response.
      */
-    @RequestMapping(value = "/index", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.GET)
-    public ResponseEntity<String> createMyIndex() throws Exception {
+    @RequestMapping(value = "/index", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> indexAll() throws Exception {
         indexService.indexAll();
-        return new ResponseEntity<String>("Server received indexing request", HttpStatus.OK);
+        return new ResponseEntity<String>("{\"message\":\"Indexing started\"}", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/index/clear", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public ResponseEntity<String> clearIndex() throws Exception {
+        indexService.clearIndex();
+        return new ResponseEntity<String>("{\"message\":\"Index empty\"}", HttpStatus.OK);
     }
 }

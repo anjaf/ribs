@@ -3,65 +3,45 @@
     registerHelpers();
 
     // Prepare template
-    var templateSource = $('script#results-template').html();
-    var template = Handlebars.compile(templateSource);
+    var template = Handlebars.compile($('script#template').html());
 
+    $.getJSON( contextPath + "/api/search",{query:'type:Study',pagesize:5,sortby:'release_date'}, function( data ) {
+         if (data) {
+             var totalCount = data.totalHits + (data.totalHits == 1 ? ' study' : ' studies');
+             $('#template').html(template(data));
+             $('#latest').slideDown();
+             $('#studyCountStats').fadeIn();
 
-    // Data in json
-    $.getJSON("api/search", function (data) {
-        // Generate html using template and data
-        var html = template(data);
-
-        // Add the result to the DOM
-        d.getElementById('renderedContent').innerHTML = html;
-
-        //postRender();
+             $.getJSON( contextPath + "api/search",{query:'type:Project'}, function( data ) {
+                 if (data && data.totalHits && data.totalHits>0) {
+                     $('#projectCount').text(data.totalHits + (data.totalHits == 1 ? ' project' : ' projects'));
+                     $('#projectCountStats').fadeIn();
+                 }
+             });
+         }
 
     });
+
+
 }(document);
 
 function registerHelpers() {
 
-    Handlebars.registerHelper('result', function(o) {
-        var template = Handlebars.compile($('script#result-template').html());
-        return template(o);
-    });
-
-    Handlebars.registerHelper('asString', function(v) {
+    Handlebars.registerHelper('asString', function() {
+        console.log(this)
         return this.name
     });
 
-    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-
-        switch (operator) {
-            case '==':
-                return (v1 == v2) ? options.fn(this) : options.inverse(this);
-            case '===':
-                return (v1 === v2) ? options.fn(this) : options.inverse(this);
-            case '!=':
-                return (v1 != v2) ? options.fn(this) : options.inverse(this);
-            case '!==':
-                return (v1 !== v2) ? options.fn(this) : options.inverse(this);
-            case '<':
-                return (v1 < v2) ? options.fn(this) : options.inverse(this);
-            case '<=':
-                return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-            case '>':
-                return (v1 > v2) ? options.fn(this) : options.inverse(this);
-            case '>=':
-                return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-            case '&&':
-                return (v1 && v2) ? options.fn(this) : options.inverse(this);
-            case '||':
-                return (v1 || v2) ? options.fn(this) : options.inverse(this);
-            default:
-                return options.inverse(this);
+    Handlebars.registerHelper('eachStudy', function(key, val, arr, options) {
+        var mod = arr.reduce(function(r, i) {
+            r[i[key]] = r[i[key]] || [];
+            r[i[key]].push(i[val]);
+            return r;
+        }, {})
+        var ret = '';
+        for(var k in mod) {
+            ret = ret + options.fn({name:k,value:mod[k].join(',')});
         }
+        return ret;
     });
-
 }
-
-function postRender() {
-
-}
-

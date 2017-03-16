@@ -2,6 +2,8 @@ package uk.ac.ebi.biostudies.service;
 
 import org.springframework.scheduling.annotation.Async;
 
+import java.io.IOException;
+
 /**
  * Created by ehsan on 27/02/2017.
  */
@@ -13,5 +15,5 @@ public interface IndexService {
     @Async
     public void deleteDoc();
     @Async
-    public void clearIndex();
+    public void clearIndex() throws IOException;
 }

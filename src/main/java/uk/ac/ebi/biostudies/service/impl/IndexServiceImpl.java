@@ -120,7 +120,10 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public void clearIndex() {
+    public void clearIndex() throws IOException {
+        indexManager.getIndexWriter().deleteAll();
+        indexManager.getIndexWriter().forceMergeDeletes();
+        indexManager.getIndexWriter().commit();
 
     }
 
