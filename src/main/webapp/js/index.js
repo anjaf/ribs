@@ -3,7 +3,7 @@
     registerHelpers();
 
     // Prepare template
-    var template = Handlebars.compile($('script#template').html());
+    var template = Handlebars.compile($('script#stats-template').html());
 
     $.getJSON( contextPath + "/api/search",{query:'type:Study',pagesize:5,sortby:'release_date'}, function( data ) {
          if (data) {

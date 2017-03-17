@@ -15,13 +15,13 @@ import uk.ac.ebi.biostudies.auth.UserSecurity;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 
 /**
  * Created by ehsan on 15/03/2017.
  */
 
 @RestController
-@RequestMapping(value="/auth")
 public class Authentication {
 
     private Logger logger = LogManager.getLogger(Authentication.class.getName());
@@ -30,7 +30,7 @@ public class Authentication {
     @Autowired
     UserSecurity users;
 
-    @RequestMapping(value="/login")
+    @RequestMapping(value="/auth")
     public void login( HttpServletRequest request, HttpServletResponse response) throws Exception{
         String returnURL = request.getHeader(HttpTools.REFERER_HEADER);
         String username = request.getParameter("u");
@@ -39,8 +39,7 @@ public class Authentication {
         String email = request.getParameter("e");
         String accession = request.getParameter("a");
         String userAgent = request.getHeader("User-Agent");
-        if(username==null || username.isEmpty() || password==null || password.isEmpty())
-            throw new IllegalArgumentException("invalid username or password");
+
         boolean isLoginSuccessful = false;
         if (null != email) {
             String message = users.remindPassword(StringUtils.trimToEmpty(email), StringUtils.trimToEmpty(accession));
@@ -56,10 +55,14 @@ public class Authentication {
             if (isLoginSuccessful) {
                 logger.debug("Successfully authenticated user [{}]", username);
                 HttpTools.setCookie(response, HttpTools.AE_USERNAME_COOKIE, username, maxAge);
+                HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, username, maxAge);
                 HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, authenticatedUser.getHashedPassword(), maxAge);
+                HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE,null,0);
             } else {
+                HttpTools.setCookie(response, HttpTools.AE_USERNAME_COOKIE, null,1);
+                HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, null,1);
                 HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, username, null);
-                HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE, "Incorrect user name or password", null);
+                HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE,URLEncoder.encode("Invalid username or password", "UTF-8"), null);
             }
         }
 

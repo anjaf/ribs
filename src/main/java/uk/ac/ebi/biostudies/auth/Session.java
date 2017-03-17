@@ -10,7 +10,7 @@ public class Session {
         context.set(user);
     }
 
-    public static User getSession() {
+    public static User getCurrentUser() {
         return context.get();
     }
     public static void clear() {

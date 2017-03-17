@@ -1,8 +1,11 @@
+<%@ tag import="uk.ac.ebi.biostudies.auth.Session" %>
 <%@ tag description="Generic page" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@attribute name="postBody" fragment="true" %>
 <%@attribute name="head" fragment="true" %>
 <%@attribute name="breadcrumbs" fragment="true" %>
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
+<c:set var="currentUser" value="${Session.getCurrentUser()}"/>
 <!doctype html>
 <html lang="en">
 <head>
@@ -60,6 +63,7 @@
     <!-- you can replace this with theme-[projectname].css. See http://www.ebi.ac.uk/web/style/colour for details of how to do this -->
     <!-- also inform ES so we can host your colour palette file -->
     <link rel="stylesheet" href="../css/theme-biostudies.css" type="text/css" media="all">
+    <link rel="stylesheet" href="../css/common.css" type="text/css" media="all">
 
     <!-- for production the above can be replaced with -->
     <!--
@@ -138,7 +142,7 @@
                 </div>
                 <!-- /local-title -->
                 <div class="column medium-5">
-                    <form id="ebi_search" action="${pageContext.request.contextPath}/search">
+                    <form id="ebi_search" action="${contextPath}/studies">
                         <fieldset>
                             <div class="input-group margin-bottom-none margin-top-large">
                                 <input id="query" class="input-group-field" title="EB-eye Search" tabindex="1" type="text" name="query"  size="35" maxlength="2048" placeholder="Search BioStudies" value="${query}" />
@@ -148,33 +152,42 @@
                             </div>
                         </fieldset>
                         <p id="example" class="small">
-                            Examples: <a class="" href="${pageContext.request.contextPath}/search?query=hyperplasia">hyperplasia</a>, <a class="" href="${pageContext.request.contextPath}/search?query=PMC516016">PMC516016</a>
+                            Examples: <a class="" href="${contextPath}/studies?query=hyperplasia">hyperplasia</a>, <a class="" href="${contextPath}/studies?query=PMC516016">PMC516016</a>
                             <!--a class="float-right" href="#"><span class="icon icon-generic" data-icon="("></span> advanced search</a-->
                         </p>
                     </form>
 
                 </div>
 
-
                 <!-- local-nav -->
                 <nav >
                     <ul class="dropdown menu float-left" data-description="navigational">
-                        <li class=""><a href="../../">Home</a></li>
-                        <li><a href="${pageContext.request.contextPath}/studies/">Browse</a></li>
+                        <li class=""><a href="${contextPath}/">Home</a></li>
+                        <li><a href="${contextPath}/studies/">Browse</a></li>
                         <li><a>Submit</a></li>
                         <li><a>Help</a></li>
                         <li><a>About BioStudies</a></li>
                     </ul>
                     <ul class="dropdown menu float-right" data-description="tasks">
-                        <li class=""><a href="#"><span class="icon icon-functional" data-icon="n"></span> Feedback</a></li>
-                        <li class=""><a href="#"><span class="icon icon-functional" data-icon="l"></span> Login</a></li>
+                        <li class=""><a href="${contextPath}"><span class="icon icon-functional" data-icon="n"></span> Feedback</a></li>
+                        <li class="">
+                            <c:choose>
+                                <c:when test="${currentUser!=null}">
+                                    <a id="logout-button" href="#"><i class="fa fa-sign-out" aria-hidden="true"></i>
+                                        Logout ${currentUser.getUsername()}</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a id="login-button" href="#"><span class="icon icon-functional" data-icon="l"></span>
+                                        Login</a>
+                                </c:otherwise>
+                            </c:choose>
+                        </li>
                     </ul>
                 </nav>
 
                 <!-- /local-nav -->
 
             </div>
-
         </header>
 
     </div>
@@ -185,10 +198,32 @@
 
     <!-- Suggested layout containers -->
     <section>
+        <div id="menu-popup">
+            <div id="login-form" class="popup">
+                <div class="popup-header">
+                    <span class="popup-title">Login</span>
+                    <a class="popup-close" href="#"><i class="icon icon-functional" data-icon="x"></i></a>
+                    <div class="clearboth"></div>
+                </div>
+                <form method="post" class="popup-content" action="${pageContext.request.contextPath}/auth" >
+                    <input  type="hidden" name="t" value="${request.getHeader(HttpTools.REFERER_HEADER)}"/>
+                    <fieldset>
+                        <input id="user-field" type="text" name="u" maxlength="50" placeholder="Username"/>
+                        <input id="pass-field" type="password" name="p" maxlength="50" placeholder="Password"/>
+                    </fieldset>
+                    <fieldset>
+                        <input id="login-remember" name="r" type="checkbox"/>
+                        <label for="login-remember">Remember me</label>
+                        <input class="submit button" type="submit" value="Login"/>
+                    </fieldset>
+                    <div id="login-status" class="alert" style="display:none"></div>
+                </form>
+            </div>
+        </div>
 
         <!-- Your menu structure should make a breadcrumb redundant, but if a breadcrumb is needed uncomment the below -->
         <nav aria-label="You are here:" role="navigation">
-           <jsp:invoke fragment="breadcrumbs"/>
+            <jsp:invoke fragment="breadcrumbs"/>
         </nav>
 
         <div id="main-content-area">
@@ -236,7 +271,7 @@
 <!--
 <script>window.jQuery || document.write('<script src="../js/libs/jquery-1.10.2.min.js"><\/script>')</script>
 -->
-<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script src="../js/jquery-3.2.0.min.js"></script>
 <!-- Your custom JavaScript file scan go here... change names accordingly -->
 <!--
 <script defer="defer" src="//www.ebi.ac.uk/web_guidelines/js/plugins.js"></script>
@@ -253,6 +288,8 @@
 <script type="text/JavaScript">$(document).foundationExtendEBI();</script>
 
 <script src='../js/handlebars-v4.0.5.js'></script>
+<script src='../js/jquery.cookie.js'></script>
+<script src='../js/common.js'></script>
 <!-- Google Analytics details... -->
 <!-- Change UA-XXXXX-X to be your site's ID -->
 <!--
@@ -264,7 +301,7 @@
 </script>
 -->
 <script>
-    var contextPath = '${pageContext.request.contextPath}';
+    var contextPath = '${contextPath}';
 </script>
 <jsp:invoke fragment="postBody"/>
 </body>

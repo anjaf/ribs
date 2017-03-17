@@ -91,7 +91,7 @@ public class IndexServiceImpl implements IndexService {
                 JsonNode submission = mapper.readTree(parser);
                 executorService.execute(new JsonDocumentIndexer(submission, indexManager.getIndexWriter(), taxonomyManager));
                 if(++counter%1000==0)
-                    logger.info("{} number of docs are indexed", counter);
+                    logger.info("{} docs indexed", counter);
             }
 
             executorService.shutdown();
@@ -100,7 +100,7 @@ public class IndexServiceImpl implements IndexService {
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
             taxonomyManager.refreshTaxonomyReader();
-            logger.info("indexing last {} seconds", (System.currentTimeMillis()-startTime)/1000);
+            logger.info("indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
 //            jnode=facetService.getHecatosFacets();
 //            logger.debug(j JsonNodenode.toString());
         }

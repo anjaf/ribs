@@ -64,6 +64,7 @@ $.fn.groupBy = function(fn) {
         // set accession
         $('#accession').text(data.submissions[0].accno);
         data.submissions[0].section.accno = data.submissions[0].accno;
+        data.submissions[0].section.root = data.submissions[0].attributes.filter( function (v,i) { return    v.name=='RootPath';   })[0].value;
         var html = template(data.submissions[0].section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();

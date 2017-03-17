@@ -29,6 +29,19 @@
                     {{&main-file-table}}
                     {{&main-link-table}}
                 </div>
+                <div id="download-source">
+                    <a href="/biostudies/files/{{accno}}/{{accno}}.json" target="_blank"
+                                             title="Download Study as JSON" class="source-icon source-icon-json"
+                                             data-icon="=">{JSON}</a>
+                    <a href="/biostudies/files/{{accno}}/{{accno}}.xml" target="_blank"
+                        title="Download Study as XML" class="source-icon source-icon-xml" data-icon="=">
+                    &lt;XML&gt;</a><a href="/biostudies/files/{{accno}}/{{accno}}.pagetab.tsv" target="_blank"
+                                      title="Download Study as PageTab" class="source-icon source-icon-pagetab"
+                                      data-icon="=">→PageTab↲</a>
+                    <a href="ftp://ftp.biostudies.ebi.ac.uk/pub/{{root}}" target="_blank"
+                        title="Open FTP Folder" class="source-icon source-icon-ftp" data-icon="="><i
+                        class="fa fa-cloud-download"></i>FTP</a>
+                </div>
                 <div id="bs-content">
                     <h4>{{valueWithName 'Title' attributes}}</h4>
                     <!-- Authors -->

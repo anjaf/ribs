@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="../css/index.css" type="text/css">
     </jsp:attribute>
     <jsp:attribute name="postBody">
-        <script id='template' type='text/x-handlebars-template'>
+        <script id='stats-template' type='text/x-handlebars-template'>
             <div class="columns medium-3">
                 <h5 id="studyCountStats">
                     <a href="?query=type:Study" title="Browse BioStudies">

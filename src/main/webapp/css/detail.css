@@ -119,9 +119,6 @@ a.show-less:hover {
     display:none;
 }
 
-.clearboth {
-    clear: both;
-}
 
 .dataTables_length select {
     -moz-appearance: menulist;
@@ -204,8 +201,46 @@ ul#bs-orgs {
     padding: 0px 1px;
 }
 
-.alert {
-    color: #ff7777;
+.source-icon {
+    font-size: 80%;
+    padding: 0px 5px 1px 5px;
+    border-radius: 3px;
+    margin-left: 3px;
+    font-family: Consolas, monospace,'Courier New';
+    text-align: center;
+    display: inline-block;
 }
 
+.source-icon-json:before {
+    font-size: 5pt;
+}
+
+#download-source {
+    float: right;
+}
+
+.source-icon-json:before, .source-icon-json {
+    color: #FFFFFF !important;
+    background-color: #7882CE;
+    border: none !important;
+}
+
+.source-icon-xml:before, .source-icon-xml {
+    color: #FFFFFF !important;
+    background-color: #E4753D;
+    border: none !important;
+}
+.source-icon-pagetab:before, .source-icon-pagetab {
+    color: #FFFFFF !important;
+    background-color: #2BA35F;
+    border: none !important;
+}
+.source-icon-ftp:before, .source-icon-ftp {
+    color: #FFFFFF !important;
+    background-color: #9E5F5F;
+    border: none !important;
+}
+.source-icon-ftp .fa {
+    padding-right:2px;
+}
 
