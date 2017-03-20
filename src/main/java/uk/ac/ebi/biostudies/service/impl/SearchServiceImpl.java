@@ -148,7 +148,7 @@ public class SearchServiceImpl implements SearchService {
         if (StringUtils.isEmpty(query))  {
             query = new MatchAllDocsQuery();
         } else {
-            response.put("query", query.toString());
+            response.put("query", query.toString().equals("*:*") ? null : query.toString());
         }
         Analyzer analyzer = new StandardAnalyzer();
         try {
@@ -204,7 +204,7 @@ public class SearchServiceImpl implements SearchService {
         if (StringUtils.isEmpty(queryString))  {
             queryString = "*:*";
         } else {
-            response.put("query", queryString);
+            response.put("query",  queryString.equals("*:*") ? null : queryString);
         }
         Analyzer analyzer = new StandardAnalyzer();
         QueryParser parser = new BioStudiesQueryParser(fields, analyzer);

@@ -17,7 +17,7 @@
 
         // Add the result to the DOM
         d.getElementById('renderedContent').innerHTML = html;
-        postRender()
+        postRender(data)
 
     });
 }(document);
@@ -133,7 +133,12 @@ function registerHelpers(params) {
 
 }
 
-function postRender() {
+function postRender(data) {
     $('#left-column').slideDown();
+    // add highlights
+     $("#renderedContent").highlight(data.query.split(' '));
+    // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
+    // $("#renderedContent").highlight(['mouse','gland '],{className:'efo'});
+
 }
 

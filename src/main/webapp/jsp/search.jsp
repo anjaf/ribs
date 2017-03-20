@@ -14,6 +14,7 @@
     </ul>
     </jsp:attribute>
     <jsp:attribute name="postBody">
+        <script src="../js/jquery.highlight.js"></script>
         <!-- Handlebars templates-->
         <script id='results-template' type='text/x-handlebars-template'>
             <div id="left-column">

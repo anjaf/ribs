@@ -64,3 +64,17 @@
 .popup-content  {
     padding:1em;
 }
+
+
+.highlight {
+    background-color: #FFFF88;
+}
+
+.synonym {
+    background-color: #CCFFAA;
+}
+
+.efo {
+    background-color: #FFCCAA;
+    padding: 0px 1px;
+}
