@@ -1,10 +1,13 @@
 !function(d) {
     $('#login-button').click( function () {
         showLoginForm();
-    })
+    });
     $('.popup-close').click( function () {
         $(this).parent().parent().hide();
-    })
+    });
+    $('#logout-button').click( function () {
+        $('#logout-form').submit();
+    });
 
     var message = $.cookie("AeAuthMessage");
     if(message) {

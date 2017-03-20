@@ -15,6 +15,7 @@ import uk.ac.ebi.biostudies.auth.UserSecurity;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URLEncoder;
 
 /**
@@ -66,8 +67,12 @@ public class Authentication {
             }
         }
 
+        sendRedirect(response, returnURL, isLoginSuccessful);
+    }
+
+    private void sendRedirect(HttpServletResponse response, String returnURL, boolean isSuccessful) throws IOException {
         if (null != returnURL) {
-            if (isLoginSuccessful && returnURL.matches("^http[:]//www(dev)?[.]ebi[.]ac[.]uk/.+")) {
+            if (isSuccessful && returnURL.matches("^http[:]//www(dev)?[.]ebi[.]ac[.]uk/.+")) {
                 returnURL = returnURL.replaceFirst("^http[:]//", "https://");
             }
             logger.debug("Will redirect to [{}]", returnURL);
@@ -83,7 +88,7 @@ public class Authentication {
     }
 
     @RequestMapping(value="/logout")
-    public void logout(@CookieValue(HttpTools.AE_USERNAME_COOKIE) String  userName, @CookieValue(HttpTools.AE_TOKEN_COOKIE) String  token, HttpServletResponse response){
+    public void logout(@CookieValue(HttpTools.AE_USERNAME_COOKIE) String  userName, @CookieValue(HttpTools.AE_TOKEN_COOKIE) String  token,  HttpServletRequest request, HttpServletResponse response){
         try {
             User user = users.checkAccess(userName, token);
             String extractedUserName;
@@ -94,6 +99,9 @@ public class Authentication {
             HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE, null, 0);
             HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, null, 0);
             logger.debug("Logged out user [{}]", extractedUserName);
+            String returnURL = request.getHeader(HttpTools.REFERER_HEADER);
+            sendRedirect(response,returnURL,true);
+
         }catch (Exception ex){
             logger.error("logout exception", ex);
         }

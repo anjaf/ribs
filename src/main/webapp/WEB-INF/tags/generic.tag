@@ -218,6 +218,8 @@
                     </fieldset>
                     <div id="login-status" class="alert" style="display:none"></div>
                 </form>
+                <form id="logout-form" method="post" class="popup-content" action="${pageContext.request.contextPath}/logout" >
+                </form>
             </div>
         </div>
 
