@@ -136,7 +136,7 @@ function registerHelpers(params) {
 function postRender(data) {
     $('#left-column').slideDown();
     // add highlights
-     $("#renderedContent").highlight(data.query.split(' '));
+     $("#search-results").highlight(data.query.split(' '));
     // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
     // $("#renderedContent").highlight(['mouse','gland '],{className:'efo'});
 

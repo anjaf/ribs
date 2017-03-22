@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.codec.Charsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
@@ -19,6 +20,13 @@ import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Created by awais on 14/02/2017.
@@ -39,8 +47,8 @@ public class Search {
     public String search(@RequestParam(value="query", required=false, defaultValue = "*:*") String queryString,
                                          @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
                                         @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pagesize
-    ){
-        return searchService.search(queryString, page, pagesize);
+    ) throws UnsupportedEncodingException {
+        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), page, pagesize);
 //        return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
     }
 

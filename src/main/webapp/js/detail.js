@@ -64,7 +64,8 @@ $.fn.groupBy = function(fn) {
         // set accession
         $('#accession').text(data.submissions[0].accno);
         data.submissions[0].section.accno = data.submissions[0].accno;
-        data.submissions[0].section.root = data.submissions[0].attributes.filter( function (v,i) { return    v.name=='RootPath';   })[0].value;
+        var rootPath = data.submissions[0].attributes.filter( function (v,i) { return    v.name=='RootPath';   });
+        data.submissions[0].section.root = rootPath.length ? rootPath[0].value : '';
         var html = template(data.submissions[0].section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();
@@ -84,7 +85,8 @@ function registerHelpers() {
     Handlebars.registerHelper('valueWithName', function(val, obj) {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
-        return (e!=undefined) ? new Handlebars.SafeString(e['value']) : '';
+        if (e==undefined) return '' ;
+        return new Handlebars.SafeString( e.anchor ? '<a href="#'+e.anchor+'">'+e.value+'</a>' : e.value);
     });
 
     Handlebars.registerHelper('section', function(o, shouldIndent) {
@@ -106,6 +108,10 @@ function registerHelpers() {
         }
     });
 
+    Handlebars.registerHelper('replaceCharacter', function(val, a, b ) {
+        return val.replace(a,b);
+    });
+
     Handlebars.registerHelper('ifRenderable', function(arr,options) {
         var specialSections = ['author', 'organization', 'funding', 'publication'];
 
@@ -124,7 +130,7 @@ function registerHelpers() {
         }, {})
         var ret = '';
         for(var k in mod) {
-            ret = ret + options.fn({name:k,value:mod[k].join(',')});
+            ret = ret + options.fn({name:k,value:mod[k].join(', ')});
         }
         return ret;
     });
@@ -221,7 +227,7 @@ function registerHelpers() {
         if (!obj.subsections) return '';
 
         $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
-            orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
+            orgs[o.accno] = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value : '';
         });
 
 
@@ -249,7 +255,7 @@ function registerHelpers() {
 
         // make an org map
         $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
-            orgs[o.accno] = o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value;
+            orgs[o.accno] = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value : '';
         });
 
         $.each(orgOrder, function(i,v) {
@@ -299,27 +305,23 @@ function registerHelpers() {
 
 }
 
-function findAllAsList(obj,k){
-    var ret = [];
-    for(var key in obj)
-    {
-        if (key===k) {
-            ret.push(obj[k]);
-        } else if(typeof(obj[key]) == "object"){
-            $.each(findall(obj[key],k),function (i,v) {
-                ret.push(v);
-            })
-        }
-    }
-    return ret;
-}
-
-function findall(obj,k,unroll){
+function findall(obj,k,unroll){ // works only for files and links
     if (unroll==undefined) unroll =true
     var ret = [];
     for(var key in obj)
     {
         if (key===k) {
+            if (!obj.root) {
+                var accno = obj.accno, type = obj['type'];
+
+                $.each(obj[k], function () {
+                    $.each($.isArray(this) ? this : [this], function () {
+                        if (accno && this.attributes) {
+                            this.attributes.splice(0, 0, {'name': 'Section', 'value': type, 'anchor':accno.replace('/','-')});
+                        }
+                    });
+                });
+            }
             $.merge(ret,obj[k]);
         } else if(typeof(obj[key]) == "object"){
             $.merge(ret,findall(obj[key],k,unroll));

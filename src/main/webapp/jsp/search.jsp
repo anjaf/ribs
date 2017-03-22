@@ -15,19 +15,36 @@
     </jsp:attribute>
     <jsp:attribute name="postBody">
         <script src="../js/jquery.highlight.js"></script>
-        <!-- Handlebars templates-->
+
         <script id='results-template' type='text/x-handlebars-template'>
             <div id="left-column">
                 <div class="small-12 columns">
-                    {{#if query}}
-                    <h2>Search results for: {{query}}</h2>
-                    {{/if}}
                     {{&pager}}
-                    <ul id="search-results">
-                        {{#each this.hits}}
-                        <li>{{&result this}}</li>
-                        {{/each}}
-                    </ul>
+                    {{#if this.hits}}
+                        {{#if query}}
+                            <h2>Search results for: {{query}}</h2>
+                        {{/if}}
+                        <ul id="search-results">
+                            {{#each this.hits}}
+                            <li>{{&result this}}</li>
+                            {{/each}}
+                        </ul>
+                    {{else}}
+                        {{#if query}}
+                            <section>
+                                <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
+                                    Your search for {{query}} returned no results.</h3>
+                                <p></p>
+                            </section>
+                        {{else}}
+                            <section>
+                                <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
+                                    Your search returned no results.</h3>
+                                <p></p>
+                            </section>
+                        {{/if}}
+                    {{/if}}
+
                 </div>
             </div>
             <div class="clearboth"></div>

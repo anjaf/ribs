@@ -64,17 +64,17 @@
 
                     <!-- Study level attributes -->
                     {{#eachGroup 'name' 'value' attributes}}
-                    <div class="bs-name">{{name}}</div>
-                    <div>{{value}}</div>
+                        <div class="bs-name">{{name}}</div>
+                        <div>{{value}}</div>
                     {{/eachGroup}}
 
                     <!-- Subsections -->
                     {{#if subsections}}
-                    {{#each subsections}}
-                    {{#ifRenderable this}}
-                    {{&section this}}
-                    {{/ifRenderable}}
-                    {{/each}}
+                        {{#each subsections}}
+                            {{#ifRenderable this}}
+                                {{&section this}}
+                            {{/ifRenderable}}
+                        {{/each}}
                     {{/if}}
 
                     <!-- Publication -->
@@ -82,17 +82,17 @@
 
                     <!-- Funding -->
                     {{#eachFunder this}}
-                    {{#if @first}}
-                    <div class="bs-name">Funding</div>
-                    <ul id="bs-funding">
+                        {{#if @first}}
+                            <div class="bs-name">Funding</div>
+                            <ul id="bs-funding">
                         {{/if}}
                         <li>{{name}}{{#if grants}}:
                             <span class="bs-grants">{{grants}}</span>
                             {{/if}}
                         </li>
                         {{#if @last}}
-                    </ul>
-                    {{/if}}
+                            </ul>
+                        {{/if}}
                     {{/eachFunder}}
                 </div>
             </div>
@@ -116,31 +116,35 @@
         </script>
 
         <script id='section-template' type='text/x-handlebars-template'>
-            <section>
+            <section name="{{replaceCharacter this.accno '/' '-'}}">
                 <div class="bs-name {{this.indentClass}}">
                     {{type}}
                     <!--span class="section-title-bar"><span class="file-filter"><i class="fa fa-filter"></i>
                                 Files in: </span><a class="section-button" data-files-id="df1">This section</a></span-->
                 </div>
-                <div>
-                    {{#each attributes}}
-                    <div class="bs-name">{{this.name}}</div>
-                    <div>{{this.value}}</div>
-                    {{/each}}
+                <div class="has-child-section">
+
+                    {{&section-link-tables}}
+                    <!-- Study level attributes -->
+                    {{#eachGroup 'name' 'value' attributes}}
+                        <div class="bs-name">{{name}}</div>
+                        <div>{{value}}</div>
+                    {{/eachGroup}}
+
                     {{#if subsections}}
                     <div class="has-child-section">
-                        {{#each subsections}}
-                        {{#ifArray this}}
-                        {{&table this}}
-                        {{else}}
-                        {{#ifRenderable this}}
-                        {{&section this 'true'}}
-                        {{/ifRenderable}}
-                        {{/ifArray}}
-                        {{/each}}
+                            {{#each subsections}}
+                                {{#ifArray this}}
+                                    {{&table this}}
+                                {{else}}
+                                    {{#ifRenderable this}}
+                                        {{&section this 'true'}}
+                                    {{/ifRenderable}}
+                                {{/ifArray}}
+                            {{/each}}
                     </div>
                     {{/if}}
-                    {{&section-link-tables}}
+
                 </div>
             </section>
         </script>
@@ -167,7 +171,7 @@
                             {{#each this}}
                             <tr>
                                 {{#each ../headers}}
-                                <td>{{valueWithName this ../this.attributes}}</td>
+                                <td>{{valueWithName this ../this.attributes }}</td>
                                 {{/each}}
                             </tr>
                             {{/each}}
@@ -204,6 +208,7 @@
                             <tr>
                                 <td class="disable-select file-check-box">
                                     <input class="text-bottom" type="checkbox" data-name="{$vPath}"/>
+                                    {{asString ../../..}}
                                 </td>
                                 {{#each ../headers}}
                                 <td>{{valueWithName this ../this.attributes}}</td>
