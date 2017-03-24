@@ -62,11 +62,11 @@ $.fn.groupBy = function(fn) {
 
     $.getJSON(url,params, function (data) {
         // set accession
-        $('#accession').text(data.submissions[0].accno);
-        data.submissions[0].section.accno = data.submissions[0].accno;
-        var rootPath = data.submissions[0].attributes.filter( function (v,i) { return    v.name=='RootPath';   });
-        data.submissions[0].section.root = rootPath.length ? rootPath[0].value : '';
-        var html = template(data.submissions[0].section);
+        $('#accession').text(data.accno);
+        data.section.accno = data.accno;
+        var rootPath = data.attributes.filter( function (v,i) { return    v.name=='RootPath';   });
+        data.section.root = rootPath.length ? rootPath[0].value : '';
+        var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();
 
