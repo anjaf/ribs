@@ -36,6 +36,18 @@ public class IndexConfig {
     @ Value("${searchSnippetFragmentSize}")
     private int searchSnippetFragmentSize;
 
+    @Value("${bs.studies.thumbnails-location}")
+    private String thumbnailDir;
+
+    @Value("${bs.files.temp-zip.location}")
+    private String zipTempDir;
+
+    @Value("${bs.studies.files-root-location}")
+    private String fileRootDir;
+
+    @Value("${bs.files.ftp.url}")
+    private String ftpDir;
+
 
     public int getThreadCount() {
         return threadCount;
@@ -82,5 +94,21 @@ public class IndexConfig {
     public String[] getIndexFields(){
         String[] fields = indexFields.split(",");
         return fields;
+    }
+
+    public String getThumbnailDir() {
+        return thumbnailDir;
+    }
+
+    public String getZipTempDir() {
+        return zipTempDir;
+    }
+
+    public String getFileRootDir() {
+        return fileRootDir;
+    }
+
+    public String getFtpDir() {
+        return ftpDir;
     }
 }

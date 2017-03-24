@@ -49,10 +49,6 @@ public class UserSecurity {
                 .build();
     }
 
-//    public void initialize() throws Exception {
-//        this.authHelper = new AuthenticationHelper();
-//    }
-
 
     public User login(String username, String password) throws IOException {
         return checkAccess(username, this.authHelper.generateHash(password));
@@ -73,7 +69,6 @@ public class UserSecurity {
         }
 
         // send request to backend for authentication
-        //TODO correct this part ehsan
         logger.debug("Trying to authenticate user [{}] remotely",username);
         String response = this.authHelper.sendAuthenticationRequest(username
                                     , passwordHash

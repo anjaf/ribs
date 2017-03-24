@@ -1,4 +1,4 @@
-package uk.com.ebi.biostudy.filters;
+package uk.ac.ebi.biostudy.filters;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
