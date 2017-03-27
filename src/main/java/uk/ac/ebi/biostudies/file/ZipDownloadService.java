@@ -70,7 +70,7 @@ public class ZipDownloadService extends BaseDownloadServlet{
             boolean isLargeFile = isDirectory || fileSizeSum > 200* IDownloadFile.MB;
             String uuid = UUID.randomUUID().toString();
             try {
-                if (true) {
+                if (isLargeFile) {
                     Thread thread = new ZipperThread(filenames, relativePath, uuid, null, indexConfig.getZipTempDir(), indexConfig.getFileRootDir(), zipStatusService);
                     thread.start();
                     String datacentre = System.getProperty("datacentre") == null ? "lc" : System.getProperty("datacentre");
