@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostudy.filters;
+package uk.ac.ebi.biostudies.filters;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -27,7 +27,7 @@ public class SecurityFilter implements QueryFilter{
     @Override
     public void applyFilter(BooleanQuery.Builder queryBilder, Map<String, Object> parameters) throws Throwable {
         StringBuilder securityClause= new StringBuilder();
-        User currentUser = Session.getSession();
+        User currentUser = Session.getCurrentUser();
         int counter = 0;
         if(currentUser!=null && currentUser.getAllow()!=null)
             for(String allow:currentUser.getAllow()){

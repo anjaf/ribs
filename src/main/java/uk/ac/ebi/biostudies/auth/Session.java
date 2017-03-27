@@ -6,11 +6,11 @@ package uk.ac.ebi.biostudies.auth;
 public class Session {
     private static final ThreadLocal<User> context = new ThreadLocal<User>();
 
-    public static void setSession(User user) {
+    public static void setCurrentUser(User user) {
         context.set(user);
     }
 
-    public static User getSession() {
+    public static User getCurrentUser() {
         return context.get();
     }
     public static void clear() {

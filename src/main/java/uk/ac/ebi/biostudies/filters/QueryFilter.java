@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostudy.filters;
+package uk.ac.ebi.biostudies.filters;
 
 import org.apache.lucene.search.BooleanQuery;
 
