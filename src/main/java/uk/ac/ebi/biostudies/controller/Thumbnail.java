@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.file.Thumbnails;
+import uk.ac.ebi.biostudies.service.SearchService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,6 +27,8 @@ public class Thumbnail {
 
     @Autowired
     Thumbnails thumbnails;
+    @Autowired
+    SearchService searchService;
 
 
     /**
@@ -38,7 +41,12 @@ public class Thumbnail {
     public void getThumbnail(HttpServletResponse response, @PathVariable String accession, @PathVariable String name) {
         if(accession==null || accession.isEmpty() || name==null || name.isEmpty())
             return;
+
         try {//Maybe I need to apply some modification to change accession to relative path
+            if(!searchService.isAccessible(accession)){
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
             String relativePath = StudyUtils.getPartitionedPath(accession);
             thumbnails.sendThumbnail(response, relativePath, name);
         } catch (IOException e) {
