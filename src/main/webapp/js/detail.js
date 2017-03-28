@@ -115,7 +115,7 @@ function registerHelpers() {
     Handlebars.registerHelper('ifRenderable', function(arr,options) {
         var specialSections = ['author', 'organization', 'funding', 'publication'];
 
-        if($.inArray(arr.type.toLowerCase(),specialSections) < 0) {
+        if(arr.type &&  $.inArray(arr.type.toLowerCase(),specialSections) < 0) {
             return options.fn(this);
         } else {
             return options.inverse(this);
@@ -162,7 +162,6 @@ function registerHelpers() {
                     // make file link
                     if(attribute.name=='Name') {
                         attribute.url= contextPath+'/files/'+$('#accession').text()+'/'+ file.path
-                        console.log(o)
                     }
                 })
             });
@@ -232,14 +231,15 @@ function registerHelpers() {
         // make an org map
         if (!obj.subsections) return '';
 
-        $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
-            orgs[o.accno] = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value : '';
+        $.each(obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='organization';}), function (i,o) {
+            var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : null;
+            orgs[o.accno] = orgName ? orgName[0].value : 'NA';
         });
 
 
         var orgNumber = 1;
         var orgToNumberMap = {}
-         $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='author';}), function (i,o) {
+         $.each(obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='author';}), function (i,o) {
             var author = {}
             $.each(o.attributes, function (i,v) {
                 author[v.name] = v.value;
@@ -260,8 +260,9 @@ function registerHelpers() {
         if (!obj.subsections) return '';
 
         // make an org map
-        $.each(obj.subsections.filter( function(o) { return o.type.toLowerCase()=='organization';}), function (i,o) {
-            orgs[o.accno] = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'})[0].value : '';
+        $.each(obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='organization';}), function (i,o) {
+            var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : null;
+            orgs[o.accno] = orgName ? orgName[0].value : 'NA';
         });
 
         $.each(orgOrder, function(i,v) {
@@ -275,7 +276,7 @@ function registerHelpers() {
         var orgs = {};
         if (!obj.subsections) return '';
         // make an org map
-        $.each(obj.subsections.filter( function(subsection) { return subsection.type.toLowerCase()=='funding';}), function (i,o) {
+        $.each(obj.subsections.filter( function(subsection) { return subsection.type && subsection.type.toLowerCase()=='funding';}), function (i,o) {
             var org = null, grant = '';
             $(o.attributes).each(function () {
                 if (this.name.toLowerCase()=='agency') org = this.value;
@@ -296,7 +297,7 @@ function registerHelpers() {
     Handlebars.registerHelper('publication', function(obj, options) {
         var publication = {}
         if (!obj.subsections) return '';
-        var pubs = obj.subsections.filter( function(o) { return o.type.toLowerCase()=='publication';});
+        var pubs = obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='publication';});
         if (!pubs || pubs.length <1) return null;
         $.each(pubs[0].attributes, function(i,v) {
             publication[v.name.toLowerCase().replace(' ','_')] = v.value
@@ -381,8 +382,7 @@ function postRender() {
     handleTableExpansion();
     handleOrganisations();
     formatPageHtml();
-    $('#left-column').slideDown();
-
+    handleAnchors();
 }
 
 
@@ -634,7 +634,7 @@ function showError(error) {
 function openHREF(href) {
     var section = $(href);
     var o = section;
-    while (o.prop("tagName")!=='BODY') {
+    /*while (o.prop("tagName")!=='BODY') {
         var p =  o.parent().parent();
         if(o.parent().css('display')!='block') {
             p.prev().click();
@@ -643,7 +643,7 @@ function openHREF(href) {
     }
     if(section.next().children().first().css('display')=='none') {
         section.click();
-    }
+    }*/
 
     $('html, body').animate({
         scrollTop: $(section).offset().top -10
@@ -652,8 +652,16 @@ function openHREF(href) {
 
 
 function handleAnchors() {
+    // scroll to main anchor
+    if (location.hash) {
+        $('#left-column').show();
+        openHREF(location.hash);
+    } else {
+        $('#left-column').slideDown();
+    }
+
     // handle clicks on section links in main file table
-    $("a[href^='#']", "#file-list" ).filter(function(){ return $(this).attr('href').length>1 }).click( function(){
+   /* $("a[href^='#']", "#file-list" ).filter(function(){ return $(this).attr('href').length>1 }).click( function(){
         var subsec = $(this).attr('href');
         closeFullScreen();
         openHREF(subsec);
@@ -665,17 +673,14 @@ function handleAnchors() {
         filesTable.column(2).search('^'+$(this).data('files-id')+'$',true,false).draw();
     });
 
-    // scroll to main anchor
-    if (location.hash) {
-        openHREF(location.hash);
-    }
+
 
     // add file search filter
     if (params['fs']) {
         $('#right-column-expander').click();
         filesTable.search(params['fs']).draw();
     }
-
+*/
 
 
 }
