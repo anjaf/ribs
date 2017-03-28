@@ -67,8 +67,10 @@ public abstract class BaseDownloadServlet {
         try {
             String[] requestArgs = request.getRequestURI().replaceFirst("/files/", "").split("/");
             String accession = requestArgs[0];
-            //TODO security check
-            //String relativePath = studies.getRelativePath(accession, authenticatedUser);
+            if(searchService.securityHit(accession)==0) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
             String relativePath = StudyUtils.getPartitionedPath(accession);
             if (relativePath==null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);

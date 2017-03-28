@@ -53,13 +53,16 @@ public class Search {
     }
 
     @RequestMapping(value = "/{project}/search", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public String getHecatosSelectedFacets(@RequestParam(value="query", required=false, defaultValue = "content:hecatos") String queryString,
+    public String getHecatosSelectedFacets(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
                                            @RequestParam(value="facets", required=false) String facets,
-                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page, @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize){
+                                           @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
+                                           @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pageSize,
+                                           @PathVariable String project){
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode objectContainer = null;
+        JsonNode selectedFacets = null;
+        String prjSearch = "(content:+"+project+")";
         try {
-            objectContainer = mapper.readTree(facets);
+            selectedFacets = mapper.readTree(facets);
         } catch (IOException e) {
            logger.debug(e);
         }
@@ -71,7 +74,7 @@ public class Search {
 //        raw.add("raw");
 //        raw.add("processed");
 //        objectContainer.set("rawprocessed",raw);
-        QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), new SimpleAnalyzer());
+        QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), BioStudiesField.PROJECT.getAnalyzer());
         Query fq = null;
         try {
             fq = qp.parse(queryString);
@@ -79,14 +82,13 @@ public class Search {
             logger.debug(e);
         }
 
-        fq = searchService.applyFacets(fq, objectContainer);
-        String result = searchService.applySearchOnQuery(fq, page, pageSize);
-        return result;
+        fq = searchService.applyFacets(fq, selectedFacets);
+        JsonNode result = searchService.applySearchOnQuery(fq, page, pageSize);
+        return result.toString();
     }
 
-    @RequestMapping(value = "/heca/default", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public String getHecatosDefaultFacets() {
-        return facetService.getHecatosFacets().toString();
+    @RequestMapping(value = "/{prjname}/default", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
+    public String getHecatosDefaultFacets(@PathVariable String prjname) {
+        return facetService.getDefaultFacetTemplate(prjname).toString();
     }
-
 }

@@ -15,6 +15,6 @@ public interface FacetService {
 
     List<FacetResult> getFacetsForQuery(Query query);
     JsonNode getFacetsForQueryAsJson(Query query);
-    JsonNode getHecatosFacets();
+    JsonNode getDefaultFacetTemplate(String prjName);
     Query addFacetDrillDownFilters(Query primaryQuery, Map<BioStudiesField, List<String>> userSelectedDimValues);
 }

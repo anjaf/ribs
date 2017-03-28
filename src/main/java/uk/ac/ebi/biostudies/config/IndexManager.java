@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.util.LowercaseAnalyzer;
+import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
 import javax.annotation.PostConstruct;
@@ -49,6 +50,8 @@ public class IndexManager {
     Ontology ontology;
     @Autowired
     TaxonomyManager taxonomyManager;
+    @Autowired
+    AnalyzerManager analyzerManager;
 
 
     @PostConstruct
@@ -59,8 +62,7 @@ public class IndexManager {
         String facet = indexConfig.getFacetDirectory();
         try {
             indexDirectory = FSDirectory.open(Paths.get(indexDir));
-//            indexReader = DirectoryReader.open(getIndexDirectory());
-            indexWriterConfig = new IndexWriterConfig(new StandardAnalyzer());
+            indexWriterConfig = new IndexWriterConfig(analyzerManager.getPerFieldAnalyzerWrapper());
             getIndexWriterConfig().setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             indexWriter = new IndexWriter(getIndexDirectory(), getIndexWriterConfig());
             indexReader = DirectoryReader.open(indexWriter);

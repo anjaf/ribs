@@ -27,7 +27,9 @@ public class Study {
 
     @RequestMapping(value = "/studies/{accession:.+}", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
     public ResponseEntity<String> search(@PathVariable("accession") String accession)  {
-        //TODO: check access
+        if(searchService.securityHit(accession)==0)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
         String result = null;
         try {
             result = searchService.getDetailFile(accession);
