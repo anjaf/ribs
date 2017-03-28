@@ -26,7 +26,6 @@ function registerHelpers(params) {
 
     Handlebars.registerHelper('result', function(o) {
         var template = Handlebars.compile($('script#result-template').html());
-        o.queryString = params["query"] ? ("?query="+params["query"]) : '';
         return template(o);
     });
 
@@ -137,7 +136,7 @@ function registerHelpers(params) {
 function postRender(data) {
     $('#left-column').slideDown();
     // add highlights
-    if(data.query) $("#search-results").highlight(data.query.split(' '));
+     $("#search-results").highlight(data.query.split(' '));
     // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
     // $("#renderedContent").highlight(['mouse','gland '],{className:'efo'});
 

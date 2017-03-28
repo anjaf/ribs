@@ -2,6 +2,7 @@ package uk.ac.ebi.biostudies.service;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 
@@ -17,13 +18,12 @@ public interface SearchService {
 
     /**
      *
-     * @param queryInfo the field's names in the query that you want to be expand, if you do not add the field's name, It will not be expand
      * @param originalQuery the original user query
      * @param synonymBooleanBuilder list of synonyms that are added to the original query
      * @param efoBooleanBuilder list of EFOs that are added to the original query
-     * @return
+     * @return the expanded query
      */
-    Query expandQuery(Map<String, String> queryInfo, Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder);
+    Query expandQuery(Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder);
 
     /**
      *
@@ -43,6 +43,8 @@ public interface SearchService {
 
     Query applyFacets(Query query, JsonNode facets);
 
-    String applySearchOnQuery(Query query, int page, int pageSize);
+    ObjectNode applySearchOnQuery(Query query, int page, int pageSize);
+
+    boolean isAccessible(String accession);
 }
 

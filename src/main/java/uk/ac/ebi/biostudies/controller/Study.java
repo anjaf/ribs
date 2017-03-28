@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.biostudies.service.SearchService;
-import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
 
 import java.io.*;
 
@@ -28,7 +27,10 @@ public class Study {
     @RequestMapping(value = "/studies/{accession:.+}", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
     //TODO: stream file directly
     public ResponseEntity<String> search(@PathVariable("accession") String accession)  {
-        //TODO: check access
+        if(!searchService.isAccessible(accession)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
+        }
         String result = null;
         try {
             result = searchService.getDetailFile(accession.replace("..",""));

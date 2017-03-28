@@ -232,8 +232,8 @@ function registerHelpers() {
         if (!obj.subsections) return '';
 
         $.each(obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='organization';}), function (i,o) {
-            var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : null;
-            orgs[o.accno] = orgName ? orgName[0].value : 'NA';
+            var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
+            orgs[o.accno] = orgName[0].value ;
         });
 
 
@@ -261,8 +261,8 @@ function registerHelpers() {
 
         // make an org map
         $.each(obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='organization';}), function (i,o) {
-            var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : null;
-            orgs[o.accno] = orgName ? orgName[0].value : 'NA';
+            var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
+            orgs[o.accno] = orgName[0].value ;
         });
 
         $.each(orgOrder, function(i,v) {

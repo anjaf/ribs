@@ -1,25 +1,30 @@
 package uk.ac.ebi.biostudies.api;
 
+import org.apache.lucene.analysis.Analyzer;
+import uk.ac.ebi.biostudies.api.util.analyzer.AccessFieldAnalyzer;
+import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
+import uk.ac.ebi.biostudies.api.util.analyzer.ExperimentTextAnalyzer;
+
 /**
  * Created by awais on 17/02/2017.
  */
 public enum BioStudiesField {
 
-    ACCESS("access", "", BioStudiesFieldType.STRING_TOKENIZED , false, false),
-    ACCESSION("accession", "", BioStudiesFieldType.STRING_TOKENIZED, true, false),
-    TYPE("type", "", BioStudiesFieldType.STRING_UNTOKENIZED, true, false),
-    TITLE("title", "", BioStudiesFieldType.STRING_TOKENIZED, true, false),
-    AUTHORS("authors", "", BioStudiesFieldType.STRING_TOKENIZED, true, false),
-    CONTENT("content", "", BioStudiesFieldType.STRING_TOKENIZED, true, true),
-    PROJECT("project", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false),
-    LINKS("links", "", BioStudiesFieldType.LONG, true, false),
-    FILES("files", "", BioStudiesFieldType.LONG, true, false),
-    ID("id", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false),
-    ORGAN("organ", "Organ", BioStudiesFieldType.FACET, false, false),
-    TECHNOLOGY("tech", "Assay Technology Type", BioStudiesFieldType.FACET, false, true),
-    DATATYPE("dataType", "Data Type", BioStudiesFieldType.FACET, false, false),
-    COMPOUND("compound", "Compound", BioStudiesFieldType.FACET, false, true),
-    RAWPROCESSED("rawProcessed", "Raw/Processed", BioStudiesFieldType.FACET, false, false),
+    ACCESS("access", "", BioStudiesFieldType.STRING_TOKENIZED , false, false, new AccessFieldAnalyzer()),
+    ACCESSION("accession", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, new AttributeFieldAnalyzer()),
+    TYPE("type", "", BioStudiesFieldType.STRING_UNTOKENIZED, true, false,  new AttributeFieldAnalyzer()),
+    TITLE("title", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, new ExperimentTextAnalyzer()),
+    AUTHORS("authors", "", BioStudiesFieldType.STRING_TOKENIZED, true, false,  new AttributeFieldAnalyzer()),
+    CONTENT("content", "", BioStudiesFieldType.STRING_TOKENIZED, true, true, new ExperimentTextAnalyzer()),
+    PROJECT("project", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false, new AttributeFieldAnalyzer()),
+    LINKS("links", "", BioStudiesFieldType.LONG, true, false, null),
+    FILES("files", "", BioStudiesFieldType.LONG, true, false, null),
+    ID("id", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false, null),
+    ORGAN("organ", "Organ", BioStudiesFieldType.FACET, false, false, null),
+    TECHNOLOGY("tech", "Assay Technology Type", BioStudiesFieldType.FACET, false, true, null),
+    DATATYPE("dataType", "Data Type", BioStudiesFieldType.FACET, false, false, null),
+    COMPOUND("compound", "Compound", BioStudiesFieldType.FACET, false, true, null),
+    RAWPROCESSED("rawProcessed", "Raw/Processed", BioStudiesFieldType.FACET, false, false, null),
     ;
 
     private final String name;
@@ -28,15 +33,17 @@ public enum BioStudiesField {
     private final BioStudiesFieldType type;
     private final boolean isRetrieved;
     private final boolean expand;
+    private Analyzer analyzer;
 
 
 
-    private BioStudiesField(final String name, String title,BioStudiesFieldType type , boolean isRetrieved, boolean expand) {
+    private BioStudiesField(final String name, String title, BioStudiesFieldType type , boolean isRetrieved, boolean expand, Analyzer analayzer) {
         this.name = name;
         this.type = type;
         this.isRetrieved = isRetrieved;
         this.title = title;
         this.expand = expand;
+        this.analyzer = analayzer;
     }
 
     @Override
@@ -55,6 +62,8 @@ public enum BioStudiesField {
     public String getTitle() {
         return title;
     }
+
+    public Analyzer getAnalyzer(){return analyzer;}
 
     /**
      * expand for textual fields means query expansion and for facet fields means multivalue facet

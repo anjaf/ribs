@@ -192,38 +192,16 @@ public class IndexServiceImpl implements IndexService {
                             .collect(Collectors.joining(","));
                         valueMap.put(bsField, value);
                     }
-
-                    String project = json.get("accno").asText("");
-                    valueMap.put(BioStudiesField.PROJECT, project);
-//                    organ = StreamSupport.stream(attNodes.spliterator(), false)
-//                            .filter(jsonNode ->
-//                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("organ"))
-//                            .map(s->s.get("value").textValue() )
-//                            .collect(Collectors.joining(","));
-//                    compound = StreamSupport.stream(attNodes.spliterator(), false)
-//                            .filter(jsonNode ->
-//                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("compound"))
-//                            .map(s->s.get("value").textValue() )
-//                            .collect(Collectors.joining(","));
-//                    dataType = StreamSupport.stream(attNodes.spliterator(), false)
-//                            .filter(jsonNode ->
-//                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("Data Type"))
-//                            .map(s->s.get("value").textValue() )
-//                            .collect(Collectors.joining(","));
-//                    tech = StreamSupport.stream(attNodes.spliterator(), false)
-//                            .filter(jsonNode ->
-//                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("Assay Technology Type"))
-//                            .map(s->s.get("value").textValue() )
-//                            .collect(Collectors.joining(","));
-//                    raw = StreamSupport.stream(attNodes.spliterator(), false)
-//                            .filter(jsonNode ->
-//                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("Raw/Processed"))
-//                            .map(s->s.get("value").textValue() )
-//                            .collect(Collectors.joining(","));
-
                 }
-                if(value!=null && !value.isEmpty())
-                    logger.debug(value);
+
+                String project = "";
+                if(json.has("attributes"))
+                    project = StreamSupport.stream(json.get("attributes").spliterator(), false)
+                            .filter(jsonNode ->
+                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("attachto"))
+                            .map(s->s.get("value").textValue() )
+                            .collect(Collectors.joining(","));
+                valueMap.put(BioStudiesField.PROJECT, project);
 
 
 

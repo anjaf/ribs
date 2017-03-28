@@ -76,13 +76,13 @@ public class FacetServiceImpl implements FacetService {
     }
 
     @Override
-    public synchronized  JsonNode getHecatosFacets() {
+    public synchronized  JsonNode getDefaultFacetTemplate(String prjName) {
         if(hecatosFacets!=null)
             return  hecatosFacets;
         QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), new SimpleAnalyzer());
         Query fq = null;
         try {
-            fq = qp.parse("content:hecatos");
+            fq = qp.parse("content:"+prjName);
         } catch (ParseException e) {
             e.printStackTrace();
         }

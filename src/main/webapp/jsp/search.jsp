@@ -68,7 +68,7 @@
                     {{/ifCond}}
 
                 </div>
-                <div class="title"><a href="../studies/{{accession}}{{queryString}}">{{title}}</a> <span class="accession">{{accession}}</span>
+                <div class="title"><a href="../studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
                 </div>
             </div>
         </script>

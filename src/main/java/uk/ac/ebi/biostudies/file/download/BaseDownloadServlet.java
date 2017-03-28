@@ -20,7 +20,6 @@ package uk.ac.ebi.biostudies.file.download;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.efo.StringTools;
 import uk.ac.ebi.biostudies.service.SearchService;
@@ -67,8 +66,10 @@ public abstract class BaseDownloadServlet {
         try {
             String[] requestArgs = request.getRequestURI().replaceFirst("/files/", "").split("/");
             String accession = requestArgs[0];
-            //TODO security check
-            //String relativePath = studies.getRelativePath(accession, authenticatedUser);
+            if(!searchService.isAccessible(accession)) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
             String relativePath = StudyUtils.getPartitionedPath(accession);
             if (relativePath==null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);

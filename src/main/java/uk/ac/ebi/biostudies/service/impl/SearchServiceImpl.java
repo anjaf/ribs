@@ -7,18 +7,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
+import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.efo.EFOExpandedHighlighter;
 import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
@@ -27,6 +27,7 @@ import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.config.IndexManager;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,17 +39,14 @@ import java.util.*;
  */
 
 @Service
-@Scope("singleton")
 public class SearchServiceImpl implements SearchService {
 
     private Logger logger = LogManager.getLogger(SearchServiceImpl.class.getName());
 
     @Autowired
     IndexConfig indexConfig;
-
     @Autowired
     IndexManager indexManager;
-
     @Autowired
     EFOQueryExpander efoQueryExpander;
     @Autowired
@@ -57,25 +55,22 @@ public class SearchServiceImpl implements SearchService {
     Autocompletion autocompletion;
     @Autowired
     FacetService facetService;
+    @Autowired
+    AnalyzerManager analyzerManager;
+    @Autowired
+    SecurityQueryBuilder securityQueryBuilder;
 
-//    public void tempInit(){
-//        BooleanQuery.Builder synonymBooleanBuilder = new BooleanQuery.Builder();
-//        BooleanQuery.Builder efoBooleanBuilder = new BooleanQuery.Builder();
-//        Map<String, String> data = new HashMap<>();
-//        data.put("content","content");
-//        QueryParser parser = new QueryParser("content", new StandardAnalyzer());
-//        Query query = null;
-//        try {
-//            query = parser.parse("organisation");
-//            Query bquery = efoQueryExpander.expand(data, query, synonymBooleanBuilder, efoBooleanBuilder);
-//            logger.debug("hi");
+    private static Query excludeCompound;
 
-//            String result = efoExpandedHighlighter.highlightQuery(query, synonymBooleanBuilder.build(), efoBooleanBuilder.build(), "content", "the organisation text that should be highlight", false);
-//            logger.debug(result);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @PostConstruct
+    void init(){
+        QueryParser parser = new QueryParser(BioStudiesField.TYPE.toString(), BioStudiesField.TYPE.getAnalyzer());
+        try {
+            excludeCompound = parser.parse("type:compound");
+        } catch (ParseException e) {
+            logger.error(e);
+        }
+    }
 
     @Override
     public String highlightText(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly){
@@ -94,17 +89,23 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public Query expandQuery(Map<String, String> queryInfo, Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder){
-        if(queryInfo==null) {
-            queryInfo = new HashMap<>();
-            queryInfo.put("content","content");
-        }
+    public Query expandQuery(Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder){
+        Map<String, String> queryInfo = analyzerManager.getExpandableFields();
+        Query modifiedQuery = null;
         try {
-            originalQuery = efoQueryExpander.expand(queryInfo, originalQuery, synonymBooleanBuilder, efoBooleanBuilder);
+            modifiedQuery = efoQueryExpander.expand(queryInfo, originalQuery, synonymBooleanBuilder, efoBooleanBuilder);
         }catch (Exception ex){
             logger.error("problem in expanding query {}", originalQuery, ex);
+            return originalQuery;
         }
-        return originalQuery;
+        return modifiedQuery;
+    }
+
+    private Query excludeCompoundStudies(Query originalQuery){
+        BooleanQuery.Builder excludeBuilder = new BooleanQuery.Builder();
+        excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
+        excludeBuilder.add(excludeCompound, BooleanClause.Occur.MUST_NOT);
+        return  excludeBuilder.build();
     }
 
     @Override
@@ -138,21 +139,13 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public String applySearchOnQuery(Query query, int page, int pageSize){
+    public ObjectNode applySearchOnQuery(Query query, int page, int pageSize){
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
         String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode response = mapper.createObjectNode();
-
-        if (StringUtils.isEmpty(query))  {
-            query = new MatchAllDocsQuery();
-        } else {
-            response.put("query", query.toString().equals("*:*") ? null : query.toString());
-        }
-        Analyzer analyzer = new StandardAnalyzer();
         try {
-            logger.debug("User queryString: {}", query);
             TopDocs hits = searcher.search(query, reader.numDocs());
             int hitsPerPage = pageSize;
             int to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
@@ -175,7 +168,6 @@ public class SearchServiceImpl implements SearchService {
                                 break;
                         }
                     }
-
                     docNode.put("isPublic",
                             (" " + doc.get(String.valueOf(BioStudiesField.ACCESS) + " ")).toLowerCase().contains(" public ")
                     );
@@ -188,68 +180,51 @@ public class SearchServiceImpl implements SearchService {
         catch(Throwable error){
             logger.error("problem in searching this query {}", query, error);
         }
+        return  response;
+    }
 
-        return  response.toString();
+    @Override
+    public boolean isAccessible(String accession) {
+        QueryParser parser = new QueryParser(BioStudiesField.ACCESSION.toString(), BioStudiesField.ACCESSION.getAnalyzer());
+        Query query = null;
+        try {
+            query = parser.parse(BioStudiesField.ACCESSION.toString()+":"+accession);
+            Query result = securityQueryBuilder.applySecurity(query);
+            return indexManager.getIndexSearcher().count(result)>0;
+        } catch (Throwable ex){
+            logger.error("Problem in checking security", ex);
+            return false;
+        }
     }
 
     @Override
     public String search(String queryString, int page, int pagesize) {
-
-        IndexReader reader = indexManager.getIndexReader();
-        IndexSearcher searcher = indexManager.getIndexSearcher();
         String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
-        ObjectNode response = mapper.createObjectNode();
 
-        if (StringUtils.isEmpty(queryString))  {
+        if (StringUtils.isEmpty(queryString))
             queryString = "*:*";
-        } else {
-            response.put("query",  queryString.equals("*:*") ? null : queryString);
-        }
-        Analyzer analyzer = new StandardAnalyzer();
+        Analyzer analyzer = analyzerManager.getPerFieldAnalyzerWrapper();
         QueryParser parser = new BioStudiesQueryParser(fields, analyzer);
-
+        ObjectNode response = mapper.createObjectNode();
         try {
             logger.debug("User queryString: {}",queryString);
             Query query = parser.parse(queryString);
-            logger.debug("Lucene query: {}",query.toString());
-            TopDocs hits = searcher.search(query, reader.numDocs());
-            int hitsPerPage = pagesize;
-            int to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
-            response.put("page", page);
-            response.put("pageSize", hitsPerPage);
-            response.put("totalHits", hits.totalHits);
+            BooleanQuery.Builder syn, efo;
+            syn = new BooleanQuery.Builder();
+            efo = new BooleanQuery.Builder();
+            Query expandedQuery = expandQuery(query, syn, efo);
+            expandedQuery = excludeCompoundStudies(expandedQuery);
+            Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
+            logger.debug("Lucene query: {}",queryAfterSecurity.toString());
+            response = applySearchOnQuery(queryAfterSecurity, page, pagesize);
             response.set("expandedEfoTerms", mapper.createArrayNode() );
             response.set("expandedSynonyms", mapper.createArrayNode() );
-
-            if (hits.totalHits > 0) {
-                ArrayNode docs = mapper.createArrayNode();
-                for (int i = (page - 1) * hitsPerPage; i < to; i++) {
-                    ObjectNode docNode = mapper.createObjectNode();
-                    Document doc = reader.document(hits.scoreDocs[i].doc);
-                    for (BioStudiesField field : BioStudiesField.values()) {
-                        if (!field.isRetrieved()) continue;
-                        switch (field.getType()) {
-                            case LONG:
-                                docNode.put(String.valueOf(field), Long.parseLong(doc.get(field.toString())));
-                                break;
-                            default:
-                                docNode.put(String.valueOf(field), doc.get(field.toString()));
-                                break;
-                        }
-                    }
-
-                    docNode.put("isPublic",
-                            (" " + doc.get(String.valueOf(BioStudiesField.ACCESS) + " ")).toLowerCase().contains(" public ")
-                    );
-                    docs.add(docNode);
-                }
-                response.set("hits", docs);
-                logger.debug(hits.totalHits + " hits");
-            }
+            response.put("query",  queryString.equals("*:*") ? null : queryString);
         }
         catch(Throwable error){
             logger.error("problem in searching this query {}", queryString, error);
+            response.put("query",  queryString.equals("*:*") ? null : queryString);
         }
 
         return  response.toString();
