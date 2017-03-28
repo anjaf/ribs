@@ -42,7 +42,7 @@ public class SecurityFilter implements Filter {
             String token = cookies.getCookieValue(HttpTools.AE_TOKEN_COOKIE);
             User user = users.checkAccess(userName, token);
             if (user != null)
-                Session.setSession(user);
+                Session.setCurrentUser(user);
             else
                 Session.clear();
         } catch (Throwable x) {
