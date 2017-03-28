@@ -23,7 +23,7 @@ public class SecurityQueryBuilder {
         QueryParser queryParser = new QueryParser(BioStudiesField.ACCESS.toString(), BioStudiesField.ACCESS.getAnalyzer());
         BooleanQuery.Builder queryBilder = new BooleanQuery.Builder();
         StringBuilder securityClause= new StringBuilder();
-        User currentUser = Session.getSession();
+        User currentUser = Session.getCurrentUser();
         if(currentUser!=null && currentUser.isSuperUser())
             return originalQuery;
         int counter = 0;
