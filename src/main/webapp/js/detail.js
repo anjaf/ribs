@@ -86,7 +86,7 @@ function registerHelpers() {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) return '' ;
-        return new Handlebars.SafeString( e.anchor ? '<a href="#'+e.anchor+'">'+e.value+'</a>' : e.value);
+        return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+e.value+'</a>' : e.value);
     });
 
     Handlebars.registerHelper('section', function(o, shouldIndent) {
@@ -123,6 +123,7 @@ function registerHelpers() {
     });
 
     Handlebars.registerHelper('eachGroup', function(key, val, arr, options) {
+        if (!arr) return;
         var mod = arr.reduce(function(r, i) {
             r[i[key]] = r[i[key]] || [];
             r[i[key]].push(i[val]);
@@ -146,17 +147,22 @@ function registerHelpers() {
         this.type = this[0].type
     });
 
-    Handlebars.registerHelper('setFileTableHeaders', function() {
+    Handlebars.registerHelper('setFileTableHeaders', function(o) {
         if (this && this.length) {
             var names = ['Name', 'Size'];
             var hsh = {'Name': 1, 'Size': 1};
-            $.each(this, function (i, v) {
-                v.attributes = v.attributes || [];
-                v.attributes.push({"name": "Name", "value": v.path});
-                $.each(v.attributes, function (i, v) {
-                    if (!(v.name in hsh)) {
-                        names.push(v.name);
-                        hsh[v.name] = 1;
+            $.each(this, function (i, file) {
+                file.attributes = file.attributes || [];
+                file.attributes.push({"name": "Name", "value": file.path});
+                $.each(file.attributes, function (i, attribute) {
+                    if (!(attribute.name in hsh)) {
+                        names.push(attribute.name);
+                        hsh[attribute.name] = 1;
+                    }
+                    // make file link
+                    if(attribute.name=='Name') {
+                        attribute.url= contextPath+'/files/'+$('#accession').text()+'/'+ file.path
+                        console.log(o)
                     }
                 })
             });
@@ -303,6 +309,35 @@ function registerHelpers() {
     });
 
 
+    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+
+        switch (operator) {
+            case '==':
+                return (v1 == v2) ? options.fn(this) : options.inverse(this);
+            case '===':
+                return (v1 === v2) ? options.fn(this) : options.inverse(this);
+            case '!=':
+                return (v1 != v2) ? options.fn(this) : options.inverse(this);
+            case '!==':
+                return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+            case '<':
+                return (v1 < v2) ? options.fn(this) : options.inverse(this);
+            case '<=':
+                return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+            case '>':
+                return (v1 > v2) ? options.fn(this) : options.inverse(this);
+            case '>=':
+                return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+            case '&&':
+                return (v1 && v2) ? options.fn(this) : options.inverse(this);
+            case '||':
+                return (v1 || v2) ? options.fn(this) : options.inverse(this);
+            default:
+                return options.inverse(this);
+        }
+    });
+
+
 }
 
 function findall(obj,k,unroll){ // works only for files and links
@@ -317,7 +352,7 @@ function findall(obj,k,unroll){ // works only for files and links
                 $.each(obj[k], function () {
                     $.each($.isArray(this) ? this : [this], function () {
                         if (accno && this.attributes) {
-                            this.attributes.splice(0, 0, {'name': 'Section', 'value': type, 'anchor':accno.replace('/','-')});
+                            this.attributes.splice(0, 0, {'name': 'Section', 'value': type, 'url':'#'+accno.replace('/','-')});
                         }
                     });
                 });
@@ -347,6 +382,7 @@ function postRender() {
     handleOrganisations();
     formatPageHtml();
     $('#left-column').slideDown();
+
 }
 
 
@@ -593,4 +629,53 @@ function showError(error) {
     var html = errorTemplate(data);
     $('#renderedContent').html(html);
     $('#accession').text("Error");
+}
+
+function openHREF(href) {
+    var section = $(href);
+    var o = section;
+    while (o.prop("tagName")!=='BODY') {
+        var p =  o.parent().parent();
+        if(o.parent().css('display')!='block') {
+            p.prev().click();
+        }
+        o = p;
+    }
+    if(section.next().children().first().css('display')=='none') {
+        section.click();
+    }
+
+    $('html, body').animate({
+        scrollTop: $(section).offset().top -10
+    }, 200);
+}
+
+
+function handleAnchors() {
+    // handle clicks on section links in main file table
+    $("a[href^='#']", "#file-list" ).filter(function(){ return $(this).attr('href').length>1 }).click( function(){
+        var subsec = $(this).attr('href');
+        closeFullScreen();
+        openHREF(subsec);
+    });
+
+    // handle clicks on file filters in section
+    $("a[data-files-id]").click( function() {
+        $('#right-column-expander').click();
+        filesTable.column(2).search('^'+$(this).data('files-id')+'$',true,false).draw();
+    });
+
+    // scroll to main anchor
+    if (location.hash) {
+        openHREF(location.hash);
+    }
+
+    // add file search filter
+    if (params['fs']) {
+        $('#right-column-expander').click();
+        filesTable.search(params['fs']).draw();
+    }
+
+
+
 }

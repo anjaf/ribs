@@ -26,11 +26,12 @@ public class Study {
     SearchService searchService;
 
     @RequestMapping(value = "/studies/{accession:.+}", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
+    //TODO: stream file directly
     public ResponseEntity<String> search(@PathVariable("accession") String accession)  {
         //TODO: check access
         String result = null;
         try {
-            result = searchService.getDetailFile(accession);
+            result = searchService.getDetailFile(accession.replace("..",""));
         } catch (IOException e) {
             logger.error(e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

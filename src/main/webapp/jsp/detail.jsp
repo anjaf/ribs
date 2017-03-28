@@ -30,12 +30,12 @@
                     {{&main-link-table}}
                 </div>
                 <div id="download-source">
-                    <a href="/biostudies/files/{{accno}}/{{accno}}.json" target="_blank"
+                    <a href="/files/{{accno}}/{{accno}}.json" target="_blank"
                                              title="Download Study as JSON" class="source-icon source-icon-json"
                                              data-icon="=">{JSON}</a>
-                    <a href="/biostudies/files/{{accno}}/{{accno}}.xml" target="_blank"
+                    <a href="/files/{{accno}}/{{accno}}.xml" target="_blank"
                         title="Download Study as XML" class="source-icon source-icon-xml" data-icon="=">
-                    &lt;XML&gt;</a><a href="/biostudies/files/{{accno}}/{{accno}}.pagetab.tsv" target="_blank"
+                    &lt;XML&gt;</a><a href="/files/{{accno}}/{{accno}}.pagetab.tsv" target="_blank"
                                       title="Download Study as PageTab" class="source-icon source-icon-pagetab"
                                       data-icon="=">→PageTab↲</a>
                     <a href="ftp://ftp.biostudies.ebi.ac.uk/pub/{{root}}" target="_blank"
@@ -116,7 +116,7 @@
         </script>
 
         <script id='section-template' type='text/x-handlebars-template'>
-            <section name="{{replaceCharacter this.accno '/' '-'}}">
+            <section name="{{replaceCharacter this.accno '/' '-'}}" id="{{replaceCharacter this.accno '/' '-'}}">
                 <div class="bs-name {{this.indentClass}}">
                     {{type}}
                     <!--span class="section-title-bar"><span class="file-filter"><i class="fa fa-filter"></i>
@@ -205,15 +205,16 @@
                             </thead>
                             <tbody>
                             {{#each this}}
-                            <tr>
-                                <td class="disable-select file-check-box">
-                                    <input class="text-bottom" type="checkbox" data-name="{$vPath}"/>
-                                    {{asString ../../..}}
-                                </td>
-                                {{#each ../headers}}
-                                <td>{{valueWithName this ../this.attributes}}</td>
-                                {{/each}}
-                            </tr>
+                                {{#with this as |file|}}
+                                <tr>
+                                    <td class="disable-select file-check-box">
+                                        <input class="text-bottom" type="checkbox" data-name="{$vPath}"/>
+                                    </td>
+                                    {{#each ../headers}}
+                                            <td>{{valueWithName this ../this.attributes}}</td>
+                                    {{/each}}
+                                </tr>
+                                {{/with}}
                             {{/each}}
                             </tbody>
                         </table>
