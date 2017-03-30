@@ -26,6 +26,9 @@ import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -195,15 +198,30 @@ public class IndexServiceImpl implements IndexService {
                 }
 
                 String project = "";
-                if(json.has("attributes"))
+                String releaseDate = "";
+                long releaseDateLong = 0L;
+                if(json.has("attributes")) {
                     project = StreamSupport.stream(json.get("attributes").spliterator(), false)
                             .filter(jsonNode ->
                                     jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("attachto"))
-                            .map(s->s.get("value").textValue() )
+                            .map(s -> s.get("value").textValue())
                             .collect(Collectors.joining(","));
+
+                    releaseDate = StreamSupport.stream(json.get("attributes").spliterator(), false)
+                            .filter(jsonNode ->
+                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("ReleaseDate"))
+                            .map(s -> s.get("value").textValue())
+                            .collect(Collectors.joining());
+                }
                 valueMap.put(BioStudiesField.PROJECT, project);
-
-
+                SimpleDateFormat f = new SimpleDateFormat("yyyy-mm-dd");
+                try {
+                    Date d = f.parse(releaseDate.isEmpty()?"2000-01-01":releaseDate);
+                    releaseDateLong = d.getTime();
+                } catch (Exception e) {
+                    logger.debug(e);
+                }
+                valueMap.put(BioStudiesField.RELEASE_DATE, releaseDateLong);
 
                 updateDocument(valueMap);
 

@@ -50,7 +50,7 @@ public class TaxonomyManager {
             taxonomyWriter = new DirectoryTaxonomyWriter(getTaxoDirectory(), IndexWriterConfig.OpenMode.CREATE);
             taxonomyReader = new DirectoryTaxonomyReader(taxoDirectory);
         } catch (IOException e) {
-            logger.error("can not create taxonomy writer", e);
+            logger.error("can not create taxonomy writer or reader", e);
         }
     }
 
@@ -70,6 +70,8 @@ public class TaxonomyManager {
     public void refreshTaxonomyReader(){
         TaxonomyReader tempReader;
         try {
+            if(taxonomyReader==null)
+                taxonomyReader = new DirectoryTaxonomyReader(taxoDirectory);
             if((tempReader=TaxonomyReader.openIfChanged(taxonomyReader))!= null)
                 taxonomyReader = tempReader;
         } catch (IOException e) {

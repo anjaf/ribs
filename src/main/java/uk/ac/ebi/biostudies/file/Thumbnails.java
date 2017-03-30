@@ -92,7 +92,6 @@ public class Thumbnails {
             in.close();
         }
         response.getOutputStream().flush();
-        response.getOutputStream().close();
     }
 
     private void createPlaceholderThumbnail(String sourceFilePath, File thumbnailFile) throws IOException {

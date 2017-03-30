@@ -19,6 +19,7 @@ public enum BioStudiesField {
     PROJECT("project", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false, new AttributeFieldAnalyzer()),
     LINKS("links", "", BioStudiesFieldType.LONG, true, false, null),
     FILES("files", "", BioStudiesFieldType.LONG, true, false, null),
+    RELEASE_DATE("release_date", "", BioStudiesFieldType.LONG, true, false, new AttributeFieldAnalyzer()),
     ID("id", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false, null),
     ORGAN("organ", "Organ", BioStudiesFieldType.FACET, false, false, null),
     TECHNOLOGY("tech", "Assay Technology Type", BioStudiesFieldType.FACET, false, true, null),

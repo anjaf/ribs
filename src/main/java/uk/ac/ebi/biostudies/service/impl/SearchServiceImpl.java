@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
@@ -139,14 +141,22 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public ObjectNode applySearchOnQuery(Query query, int page, int pageSize){
+    public ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder){
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
         String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode response = mapper.createObjectNode();
+        SortField.Type sortFieldType = extractFieldType(sortBy);
+        boolean shouldReverse = extractSortOrder(sortOrder, sortBy);
+
+        SortField sortField = sortFieldType==SortField.Type.LONG
+                ? new SortedNumericSortField (sortBy, sortFieldType, shouldReverse)
+                : new SortField(sortBy, sortFieldType, shouldReverse);
+        Sort sort = new Sort( sortField );
+
         try {
-            TopDocs hits = searcher.search(query, reader.numDocs());
+            TopDocs hits = searcher.search(query, reader.numDocs(), sort);
             int hitsPerPage = pageSize;
             int to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
             response.put("page", page);
@@ -183,6 +193,32 @@ public class SearchServiceImpl implements SearchService {
         return  response;
     }
 
+    private SortField.Type extractFieldType(String sortBy){
+       try{
+           if(!sortBy.isEmpty()) {
+               BioStudiesField field = BioStudiesField.valueOf(sortBy.toUpperCase());
+               return field.getType().toString().toLowerCase().contains("string") ? SortField.Type.STRING : SortField.Type.LONG;
+           }
+       }
+       catch (Exception e){
+            logger.debug("bad sortby value {}", sortBy);
+       }
+       return SortField.Type.SCORE;
+    }
+    private boolean extractSortOrder(String sortOrder, String sortBy){
+        if(sortOrder.isEmpty()) {
+            if (Constants.ACCESSION.equalsIgnoreCase(sortBy) || Constants.TITLE.equalsIgnoreCase(sortBy) || Constants.AUTHORS.equalsIgnoreCase(sortBy))
+                sortOrder = Constants.ASCENDING;
+            else
+                sortOrder = Constants.DESCENDING;
+        }
+        boolean shouldReverse =  (Constants.DESCENDING.equalsIgnoreCase(sortOrder) ? true : false);
+        if (sortBy ==null || Constants.RELEVANCE.equalsIgnoreCase(sortBy) ) {
+            shouldReverse = !shouldReverse;
+        }
+        return shouldReverse;
+    }
+
     @Override
     public boolean isAccessible(String accession) {
         QueryParser parser = new QueryParser(BioStudiesField.ACCESSION.toString(), BioStudiesField.ACCESSION.getAnalyzer());
@@ -198,7 +234,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public String search(String queryString, int page, int pagesize) {
+    public String search(String queryString, int page, int pagesize, String sortBy, String sortOrder) {
         String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
 
@@ -217,7 +253,7 @@ public class SearchServiceImpl implements SearchService {
             expandedQuery = excludeCompoundStudies(expandedQuery);
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
             logger.debug("Lucene query: {}",queryAfterSecurity.toString());
-            response = applySearchOnQuery(queryAfterSecurity, page, pagesize);
+            response = applySearchOnQuery(queryAfterSecurity, page, pagesize, sortBy, sortOrder);
             response.set("expandedEfoTerms", mapper.createArrayNode() );
             response.set("expandedSynonyms", mapper.createArrayNode() );
             response.put("query",  queryString.equals("*:*") ? null : queryString);

@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by ehsan on 27/02/2017.
  */
 public interface SearchService {
-    String search(String query, int page, int pagesize);
+    String search(String query, int page, int pagesize, String sortBy, String sortOrder);
     String getDetailFile(String accessionNumber) throws IOException;
 
     /**
@@ -43,7 +43,7 @@ public interface SearchService {
 
     Query applyFacets(Query query, JsonNode facets);
 
-    ObjectNode applySearchOnQuery(Query query, int page, int pageSize);
+    ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder);
 
     boolean isAccessible(String accession);
 }

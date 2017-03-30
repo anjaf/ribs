@@ -45,10 +45,12 @@ public class Search {
 
     @RequestMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public String search(@RequestParam(value="query", required=false, defaultValue = "*:*") String queryString,
-                                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
-                                        @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pagesize
+                                        @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
+                                        @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pagesize,
+                                        @RequestParam(value="sortby", required=false, defaultValue = "") String sortBy,
+                                        @RequestParam(value="sortorder", required=false, defaultValue = "") String sortOrder
     ) throws UnsupportedEncodingException {
-        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), page, pagesize);
+        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), page, pagesize, sortBy, sortOrder);
 //        return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
     }
 
@@ -57,6 +59,8 @@ public class Search {
                                            @RequestParam(value="facets", required=false) String facets,
                                            @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
                                            @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pageSize,
+                                           @RequestParam(value="sortby", required=false, defaultValue = "") String sortBy,
+                                           @RequestParam(value="sortorder", required=false, defaultValue = "") String sortOrder,
                                            @PathVariable String project){
         ObjectMapper mapper = new ObjectMapper();
         JsonNode selectedFacets = null;
@@ -83,7 +87,7 @@ public class Search {
         }
 
         fq = searchService.applyFacets(fq, selectedFacets);
-        JsonNode result = searchService.applySearchOnQuery(fq, page, pageSize);
+        JsonNode result = searchService.applySearchOnQuery(fq, page, pageSize, sortBy, sortOrder);
         return result.toString();
     }
 
