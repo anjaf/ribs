@@ -231,3 +231,25 @@ ul#bs-orgs {
     padding-right:2px;
 }
 
+a.section-button {
+    background-color: var(--P3);
+    padding: 2px 5px;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 0px;
+    color: white;
+    border-radius: 3px;
+    margin-right:3px;
+}
+
+a.section-button:hover {
+    background-color: #466B7D;
+}
+
+.text-bottom {
+    vertical-align: text-bottom;
+}
+
+#selected-file-text {
+    padding-right: 10px;
+}

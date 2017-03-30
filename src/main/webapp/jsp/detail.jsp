@@ -207,7 +207,7 @@
                             {{#each this}}
                             <tr>
                                 <td class="disable-select file-check-box">
-                                    <input class="text-bottom" type="checkbox" data-name="{$vPath}"/>
+                                    <input class="text-bottom" type="checkbox" data-name="{{path}}"/>
                                 </td>
                                 {{#each ../headers}}
                                 <td>{{valueWithName this ../this.attributes}}</td>
@@ -216,6 +216,9 @@
                             {{/each}}
                             </tbody>
                         </table>
+                        <div>
+                            <span id="selected-file-text"></span><a id="download-selected-files">Download all</a><br/><br/>
+                        </div>
                     </div>
                 </div>
             </section>

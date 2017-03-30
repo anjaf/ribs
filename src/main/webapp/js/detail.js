@@ -1,3 +1,5 @@
+var filesTable, selectedFilesCount=0, totalRows=0;
+
 String.format = function() {
     var s = arguments[0];
     for (var i = 0; i < arguments.length - 1; i++) {
@@ -381,6 +383,7 @@ function postRender() {
     handleSectionArtifacts();
     handleTableExpansion();
     handleOrganisations();
+    handleFileDownloadSelection();
     formatPageHtml();
     handleAnchors();
 }
@@ -396,7 +399,9 @@ function createDataTables() {
 }
 
 function createMainFileTable() {
-    $("#file-list").DataTable({
+    totalRows = $("#file-list tbody tr").length;
+
+    filesTable = $("#file-list").DataTable({
         "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
         "columnDefs": [ {"targets": [0], "searchable": false, "orderable": false, "visible": true},
          //   {"targets": [2], "searchable": true, "orderable": false, "visible": false}
@@ -682,5 +687,86 @@ function handleAnchors() {
     }
 */
 
+}
 
+function handleFileDownloadSelection() {
+    $("#file-list tbody").on('click', 'input[type="checkbox"]', function () {
+        $(this).toggleClass('selected');
+        updateSelectedFiles($(this).hasClass('selected') ? 1 : -1);
+    });
+
+    $("#file-list tbody tr td a").on('click', function () {
+        event.stopPropagation();
+    });
+
+    $("#download-selected-files").on('click', function () {
+        // select all checked input boxes and get the href in the links contained in their siblings
+        var files = $.map($('input.selected', filesTable.column(0).nodes()), function (v) {
+            return $(v).data('name');
+        });
+        downloadFiles(files);
+    });
+
+    $("#select-all-files").on('click', function () {
+        var isChecked = $(this).is(':checked');
+        if (!isChecked) {
+            $('input[type="checkbox"]', filesTable.column(0).nodes()).prop('checked', false);
+            $('input[type="checkbox"]', filesTable.column(0).nodes()).removeAttr('checked');
+            $('input[type="checkbox"]', filesTable.column(0).nodes()).removeProp('checked');
+            $('input[type="checkbox"]', filesTable.column(0).nodes()).removeClass('selected');
+            selectedFilesCount = 0;
+        } else {
+            $('input[type="checkbox"]', filesTable.column(0).nodes()).prop('checked', true);
+            $('input[type="checkbox"]', filesTable.column(0).nodes()).addClass('selected');
+            selectedFilesCount = totalRows;
+        }
+        updateSelectedFiles(0);
+    });
+
+    updateSelectedFiles(0);
+}
+
+function updateSelectedFiles(inc)
+{
+
+    if (!filesTable || !filesTable.rows() || !filesTable.rows().eq(0) ) return;
+    selectedFilesCount += inc;
+    $("#selected-file-text").text( (selectedFilesCount == 0
+            ? 'No ' : selectedFilesCount)
+        +' file'+(selectedFilesCount>1 ? 's':'')+' selected');
+    if (selectedFilesCount==0) {
+        $('#download-selected-files').hide();
+    } else {
+        $('#download-selected-files').show();
+        $('#download-selected-files').text('Download' + (selectedFilesCount==2
+                ? ' both'
+                : selectedFilesCount>1 ? ' all '+selectedFilesCount : ''));
+    }
+
+    if (selectedFilesCount==totalRows)
+        $("#select-all-files").prop('checked', true);
+    else
+        $("#select-all-files").removeProp('checked');
+
+}
+
+
+function downloadFiles(files) {
+    var html = '';
+    if (files.length==1) {
+        html += '<form method="GET" target="_blank" action="'
+            + contextPath + "/files/"
+            + $('#accession').text() + '/' + files[0]+'" />';
+    } else {
+        html += '<form method="POST" target="_blank" action="'
+            + contextPath + "/files/"
+            + $('#accession').text() + '/zip'+location.search+'">';
+        $(files).each( function(i,v) {
+            html += '<input type="hidden" name="files" value="'+v+'"/>'
+        });
+        html += '</form>';
+    }
+    var submissionForm = $(html);
+    $('body').append(submissionForm);
+    $(submissionForm).submit();
 }
