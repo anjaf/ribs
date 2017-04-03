@@ -263,10 +263,10 @@ public class IndexServiceImpl implements IndexService {
                 try{
                 switch (field.getType()) {
                     case STRING_TOKENIZED:
-                        doc.add(new TextField(String.valueOf(field), valueMap.get(field).toString().toLowerCase(), Field.Store.YES));
+                        doc.add(new TextField(String.valueOf(field), valueMap.get(field).toString(), Field.Store.YES));
                         break;
                     case STRING_UNTOKENIZED:
-                        doc.add(new StringField(String.valueOf(field), valueMap.get(field).toString().toLowerCase(), Field.Store.YES));
+                        doc.add(new StringField(String.valueOf(field), valueMap.get(field).toString(), Field.Store.YES));
                         break;
                     case LONG:
                         doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));

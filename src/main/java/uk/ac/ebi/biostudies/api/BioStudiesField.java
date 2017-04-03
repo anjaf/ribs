@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostudies.api;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.AccessFieldAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.ExperimentTextAnalyzer;
@@ -16,7 +17,7 @@ public enum BioStudiesField {
     TITLE("title", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, new ExperimentTextAnalyzer()),
     AUTHORS("authors", "", BioStudiesFieldType.STRING_TOKENIZED, true, false,  new AttributeFieldAnalyzer()),
     CONTENT("content", "", BioStudiesFieldType.STRING_TOKENIZED, true, true, new ExperimentTextAnalyzer()),
-    PROJECT("project", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false, new AttributeFieldAnalyzer()),
+    PROJECT("project", "", BioStudiesFieldType.STRING_TOKENIZED, false, false, new AttributeFieldAnalyzer()),
     LINKS("links", "", BioStudiesFieldType.LONG, true, false, null),
     FILES("files", "", BioStudiesFieldType.LONG, true, false, null),
     RELEASE_DATE("release_date", "", BioStudiesFieldType.LONG, true, false, new AttributeFieldAnalyzer()),
