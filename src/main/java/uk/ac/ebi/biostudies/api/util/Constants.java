@@ -15,4 +15,5 @@ public interface Constants {
     String AUTHORS = "authors";
     String LINKS = "links";
     String FILES = "files";
+    String STUDIES_JSON_FILE = "studies.json";
 }
