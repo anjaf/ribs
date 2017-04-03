@@ -14,6 +14,8 @@ public interface IndexService {
     public void indexSingleDoc();
     @Async
     public void deleteDoc();
-    @Async
+
     public void clearIndex() throws IOException;
+
+    public void updateFromJSONFile(String jsonFileName);
 }

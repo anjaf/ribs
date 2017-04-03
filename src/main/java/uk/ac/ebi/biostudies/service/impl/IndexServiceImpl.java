@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.service.FacetService;
@@ -23,6 +24,7 @@ import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.config.IndexManager;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,6 +38,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -126,8 +130,28 @@ public class IndexServiceImpl implements IndexService {
     public void clearIndex() throws IOException {
         indexManager.getIndexWriter().deleteAll();
         indexManager.getIndexWriter().forceMergeDeletes();
-        indexManager.getIndexWriter().commit();
+//        indexManager.getIndexWriter().commit();
 
+    }
+
+    @Override
+    public synchronized void updateFromJSONFile(String jsonFileName)  {
+        if (jsonFileName == null) {
+            jsonFileName = "studies.json";
+        }
+        try{
+            String sourceLocation = indexConfig.getStudiesInputFile();
+            if (isNotBlank(sourceLocation)) {
+                if (jsonFileName != null && !jsonFileName.isEmpty())
+                    sourceLocation = sourceLocation.replaceAll(Constants.STUDIES_JSON_FILE, jsonFileName);
+                File srcFile = new File(sourceLocation);
+                File destFile = new File(System.getProperty("java.io.tmpdir"), Constants.STUDIES_JSON_FILE);
+                logger.info("Making a local copy  of {} at {}", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
+                com.google.common.io.Files.copy(srcFile, destFile);
+            }
+        }catch(Exception ex){
+            logger.error("problem in coping file: {}", jsonFileName, ex);
+        }
     }
 
 
@@ -239,10 +263,10 @@ public class IndexServiceImpl implements IndexService {
                 try{
                 switch (field.getType()) {
                     case STRING_TOKENIZED:
-                        doc.add(new TextField(String.valueOf(field), valueMap.get(field).toString(), Field.Store.YES));
+                        doc.add(new TextField(String.valueOf(field), valueMap.get(field).toString().toLowerCase(), Field.Store.YES));
                         break;
                     case STRING_UNTOKENIZED:
-                        doc.add(new StringField(String.valueOf(field), valueMap.get(field).toString(), Field.Store.YES));
+                        doc.add(new StringField(String.valueOf(field), valueMap.get(field).toString().toLowerCase(), Field.Store.YES));
                         break;
                     case LONG:
                         doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));
@@ -291,4 +315,5 @@ public class IndexServiceImpl implements IndexService {
             return title;
         }
     }
+
 }
