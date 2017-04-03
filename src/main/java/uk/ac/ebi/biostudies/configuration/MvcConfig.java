@@ -6,7 +6,11 @@ package uk.ac.ebi.biostudies.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -18,7 +22,9 @@ import org.springframework.web.servlet.view.JstlView;
 @Configuration
 @EnableWebMvc
 @EnableAsync
+@EnableScheduling
 @ComponentScan(basePackages = "uk.ac.ebi.biostudies")
+@PropertySource("classpath:scheduler.properties")
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
@@ -38,6 +44,16 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/fonts/**").addResourceLocations("/fonts/").setCachePeriod(6000);
         registry.addResourceHandler("/page/**").addResourceLocations("/html/").setCachePeriod(6000);
 
+    }
+
+    @Bean
+    public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
+
+        properties.setLocation(new ClassPathResource( "scheduler.properties" ));
+        properties.setIgnoreResourceNotFound(false);
+
+        return properties;
     }
 
     @Bean

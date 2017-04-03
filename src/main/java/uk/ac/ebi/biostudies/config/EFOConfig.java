@@ -30,6 +30,9 @@ public class EFOConfig {
     @Value("${bs.efo.ignoreList}")
     private String ignoreList;
 
+    @Value("${bs.efo.owl}")
+    private String owl;
+
 
 
     private Set<String> stopWordsSet = new HashSet<>();
@@ -55,6 +58,11 @@ public class EFOConfig {
     public String getIgnoreList(){
         return ignoreList;
     }
+
+    public String getOwl(){
+        return owl;
+    }
+
 
 
 }
