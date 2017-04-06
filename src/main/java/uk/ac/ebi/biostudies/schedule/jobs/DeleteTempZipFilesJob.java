@@ -19,10 +19,12 @@ package uk.ac.ebi.biostudies.schedule.jobs;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AgeFileFilter;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 
@@ -35,13 +37,15 @@ public class DeleteTempZipFilesJob  {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     IndexConfig indexConfig;
+
+    @Scheduled(cron = "${bs.files.temp-zip.delete}")
     public void doExecute( ) throws Exception {
         try {
             logger.debug("Looking for expired temp zip files");
-//            Files files = getComponent(Files.class);
             Date oldestFileDate = DateUtils.addDays(new Date(), -1);
             File tempZipDirectory = new File(indexConfig.getZipTempDir());
-            if (!tempZipDirectory.exists()) tempZipDirectory.mkdir();
+            if (!tempZipDirectory.exists())
+                tempZipDirectory.mkdir();
             Iterator<File> filesToDelete = FileUtils.iterateFiles(tempZipDirectory, new AgeFileFilter(oldestFileDate), null);
             while (filesToDelete.hasNext()) {
                 File file = filesToDelete.next();

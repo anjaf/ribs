@@ -33,6 +33,15 @@ public class EFOConfig {
     @Value("${bs.efo.owl}")
     private String owl;
 
+    @Value("${bs.efo.update.source}")
+    private String efoUrl;
+
+    @Value("${bs.efo.source}")
+    private String efoSource;
+
+//    @Value("${bs.efo.location}")
+//    private String efoLocation;
+
 
 
     private Set<String> stopWordsSet = new HashSet<>();
@@ -41,6 +50,10 @@ public class EFOConfig {
     private void init(){
         String[] words = stopWords.split("\\s*,\\s*");
         stopWordsSet.addAll(Arrays.asList(words));
+    }
+
+    public String getEfoUrl(){
+        return efoUrl;
     }
 
     public String getEfoIndexLocation(){
@@ -61,6 +74,13 @@ public class EFOConfig {
 
     public String getOwl(){
         return owl;
+    }
+
+    public String getEfoSource(){
+        return efoSource;
+    }
+    public String getEfoLocation(){
+        return System.getProperty("java.io.tmpdir")+"\\"+owl;
     }
 
 

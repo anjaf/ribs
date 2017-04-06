@@ -84,7 +84,7 @@ public class IndexManager {
 
     private void loadEFO(IndexWriterConfig efoIndexWriterConfig) throws Exception{
         if(!DirectoryReader.indexExists(efoIndexDirectory)){
-            try (InputStream resourceInputStream = (new ClassPathResource(eFOConfig.getOwl())).getInputStream()){
+            try (InputStream resourceInputStream = (new ClassPathResource(eFOConfig.getEfoSource())).getInputStream()){
                 efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
                 ontology.update(resourceInputStream);
                 logger.info("EFO loading completed");

@@ -19,6 +19,8 @@ import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
+import uk.ac.ebi.biostudies.schedule.jobs.ReloadOntologyJob;
+import uk.ac.ebi.biostudies.schedule.jobs.UpdateOntologyJob;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.config.IndexManager;
@@ -63,9 +65,12 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     FacetService facetService;
 
+    @Autowired
+    ReloadOntologyJob reloadOntologyJob;
+
     @PostConstruct
     public void init(){
-
+        reloadOntologyJob.doExecute();
     }
 
 
@@ -136,9 +141,6 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public synchronized void updateFromJSONFile(String jsonFileName)  {
-        if (jsonFileName == null) {
-            jsonFileName = "studies.json";
-        }
         try{
             String sourceLocation = indexConfig.getStudiesInputFile();
             if (isNotBlank(sourceLocation)) {

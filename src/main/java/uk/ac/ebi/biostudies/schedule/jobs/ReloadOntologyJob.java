@@ -23,10 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.EFOConfig;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -43,23 +46,29 @@ public class ReloadOntologyJob{
     @Autowired
     Ontology ontology;
 
-    public void doExecute() throws Exception {
+    @Scheduled(cron = "${bs.efo.reload}")
+    @Async
+    public void doExecute(){
         // check if efo.owl is in temp folder; if it's not there, copy from source
-        String efoLocation = efoConfig.getOwl();
-        File efoFile = new File(efoLocation);
-        if (!efoFile.exists()) {
-            String efoBuiltinSource = efoConfig.getOwl();//getPreferences().getString("bs.efo.source");
-            try (InputStream is = new ClassPathResource(efoBuiltinSource).getInputStream()) {
-                Files.write(CharStreams.toString(new InputStreamReader(is, "UTF-8")),
-                        efoFile, Charset.forName("UTF-8"));
+        try {
+            String efoLocation = efoConfig.getEfoLocation();
+            File efoFile = new File(efoLocation);
+            if (!efoFile.exists()) {
+                String efoBuiltinSource = efoConfig.getEfoSource();
+                try (InputStream is = new ClassPathResource(efoBuiltinSource).getInputStream()) {
+                    Files.write(CharStreams.toString(new InputStreamReader(is, "UTF-8")),
+                            efoFile, Charset.forName("UTF-8"));
+                }
             }
-        }
 
-        logger.info("Loading EFO ontology from [{}]", efoFile.getPath());
+            logger.info("Loading EFO ontology from [{}]", efoFile.getPath());
 
-        try (InputStream is = new FileInputStream(efoFile)) {
-            ontology.update(is);
-            logger.info("EFO loading completed");
+            try (InputStream is = new FileInputStream(efoFile)) {
+                ontology.update(is);
+                logger.info("EFO loading completed");
+            }
+        }catch (Exception ex){
+            logger.error("Problem in loading EFO! ", ex);
         }
     }
 }
