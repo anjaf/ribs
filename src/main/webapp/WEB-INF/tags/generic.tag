@@ -4,6 +4,7 @@
 <%@attribute name="postBody" fragment="true" %>
 <%@attribute name="head" fragment="true" %>
 <%@attribute name="breadcrumbs" fragment="true" %>
+<%@attribute name="preContent" fragment="true" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <c:set var="currentUser" value="${Session.getCurrentUser()}"/>
 <!doctype html>
@@ -47,7 +48,7 @@
     <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.1/css/ebi-global.css" type="text/css" media="all">
     <link rel="stylesheet" href="//www.ebi.ac.uk/web_guidelines/EBI-Icon-fonts/v1.1/fonts.css" type="text/css" media="all">
 
-    <link rel="stylesheet" href="../css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="${contextPath}/css/font-awesome.min.css" type="text/css">
 
     <!-- Use this CSS file for any custom styling -->
     <!--
@@ -62,8 +63,8 @@
 
     <!-- you can replace this with theme-[projectname].css. See http://www.ebi.ac.uk/web/style/colour for details of how to do this -->
     <!-- also inform ES so we can host your colour palette file -->
-    <link rel="stylesheet" href="../css/theme-biostudies.css" type="text/css" media="all">
-    <link rel="stylesheet" href="../css/common.css" type="text/css" media="all">
+    <link rel="stylesheet" href="${contextPath}/css/theme-biostudies.css" type="text/css" media="all">
+    <link rel="stylesheet" href="${contextPath}/css/common.css" type="text/css" media="all">
 
     <!-- for production the above can be replaced with -->
     <!--
@@ -137,7 +138,7 @@
 
                 <!-- local-title -->
                 <div class="columns medium-7" id="local-title">
-                    <h1><a href="../../" title="Back to BioStudies homepage"><img src="../images/logo.png"/></a></h1>
+                    <h1><a href="../../" title="Back to BioStudies homepage"><img src="${contextPath}/images/logo.png"/></a></h1>
 
                 </div>
                 <!-- /local-title -->
@@ -193,7 +194,7 @@
     </div>
 </div>
 
-
+<jsp:invoke fragment="preContent"/>
 <div id="content" role="main" class="row">
 
     <!-- Suggested layout containers -->
@@ -205,7 +206,7 @@
                     <a class="popup-close" href="#"><i class="icon icon-functional" data-icon="x"></i></a>
                     <div class="clearboth"></div>
                 </div>
-                <form method="post" class="popup-content" action="${pageContext.request.contextPath}/auth" >
+                <form method="post" class="popup-content" action="${contextPath}/auth" >
                     <input  type="hidden" name="t" value="${request.getHeader(HttpTools.REFERER_HEADER)}"/>
                     <fieldset>
                         <input id="user-field" type="text" name="u" maxlength="50" placeholder="Username"/>
@@ -218,11 +219,10 @@
                     </fieldset>
                     <div id="login-status" class="alert" style="display:none"></div>
                 </form>
-                <form id="logout-form" method="post" class="popup-content" action="${pageContext.request.contextPath}/logout" >
+                <form id="logout-form" method="post" class="popup-content" action="${contextPath}/logout" >
                 </form>
             </div>
         </div>
-
         <!-- Your menu structure should make a breadcrumb redundant, but if a breadcrumb is needed uncomment the below -->
         <nav aria-label="You are here:" role="navigation">
             <jsp:invoke fragment="breadcrumbs"/>
@@ -273,7 +273,7 @@
 <!--
 <script>window.jQuery || document.write('<script src="../js/libs/jquery-1.10.2.min.js"><\/script>')</script>
 -->
-<script src="../js/jquery-3.2.0.min.js"></script>
+<script src="${contextPath}/js/jquery-3.2.0.min.js"></script>
 <!-- Your custom JavaScript file scan go here... change names accordingly -->
 <!--
 <script defer="defer" src="//www.ebi.ac.uk/web_guidelines/js/plugins.js"></script>
@@ -289,9 +289,9 @@
 <script type="text/JavaScript">$(document).foundation();</script>
 <script type="text/JavaScript">$(document).foundationExtendEBI();</script>
 
-<script src='../js/handlebars-v4.0.5.js'></script>
-<script src='../js/jquery.cookie.js'></script>
-<script src='../js/common.js'></script>
+<script src='${contextPath}/js/handlebars-v4.0.5.js'></script>
+<script src='${contextPath}/js/jquery.cookie.js'></script>
+<script src='${contextPath}/js/common.js'></script>
 <!-- Google Analytics details... -->
 <!-- Change UA-XXXXX-X to be your site's ID -->
 <!--

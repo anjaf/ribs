@@ -64,7 +64,7 @@ public abstract class BaseDownloadServlet {
 
         IDownloadFile downloadFile = null;
         try {
-            String[] requestArgs = request.getRequestURI().replaceFirst("/files/", "").split("/");
+            String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"/files/"       ,"").split("/");
             String accession = requestArgs[0];
             if(!searchService.isAccessible(accession)) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);

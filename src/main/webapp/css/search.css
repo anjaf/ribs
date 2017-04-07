@@ -35,3 +35,14 @@ ul#search-results li {
     color: #6BA8C5;
     padding: 10px;
 }
+
+.project-logo {
+    padding-right:15px;
+    height: 50px;
+    border: 0px !important
+}
+.project-logo img{
+    height: 50px !important;
+    padding-right:5px;
+
+}

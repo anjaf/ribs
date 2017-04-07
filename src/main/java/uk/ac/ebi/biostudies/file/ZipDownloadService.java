@@ -106,7 +106,7 @@ public class ZipDownloadService extends BaseDownloadServlet{
     ) throws DownloadServletException {
 
         String path=null;
-        String[] requestArgs = request.getRequestURI().replaceFirst("^/", "").split("/");
+        String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"/files/"       ,"").split("/");
         String accession = requestArgs[0];
 
         if (request.getParameter("file")!=null) { // async request

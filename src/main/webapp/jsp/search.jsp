@@ -1,21 +1,25 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <t:generic>
     <jsp:attribute name="head">
-        <link rel="stylesheet" href="../css/search.css" type="text/css">
+        <link rel="stylesheet" href="${contextPath}/css/search.css" type="text/css">
+    </jsp:attribute>
+    <jsp:attribute name="preContent">
+        <div id="project-banner" >
+        </div>
     </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
-    <ul class="breadcrumbs">
-        <li><a href="../../">BioStudies</a></li>
-        <li>
-            <span class="show-for-sr">Current: </span> Studies
-        </li>
-    </ul>
+        <ul class="breadcrumbs">
+            <li><a href="${contextPath}/">BioStudies</a></li>
+            <li>
+                <span class="show-for-sr">Current: </span> Studies
+            </li>
+        </ul>
     </jsp:attribute>
     <jsp:attribute name="postBody">
-        <script src="../js/jquery.highlight.js"></script>
-
+        <script src="${contextPath}/js/jquery.highlight.js"></script>
         <script id='results-template' type='text/x-handlebars-template'>
             <div id="left-column">
                 <div class="small-12 columns">
@@ -53,26 +57,52 @@
         <script id='result-template' type='text/x-handlebars-template'>
             <div class="search-result">
                 <div class="meta-data">
-                    <span class="release-date">4 February 2017</span>
-                    {{#ifCond links '!=' 0}}
-                    <span class="release-links">{{links}} link(s)</span>
-                    {{/ifCond}}
-                    {{#ifCond files '!=' 0}}
-                    <span class="release-files">
-                        {{#ifCond files '>' 1}}
-                            {{files}} files
-                        {{else}}
-                            {{files}} file
+                    <span class="release-date">{{epochToDate release_date}}</span>
+                    {{#ifCond type '!=' 'project'}}
+                        {{#ifCond links '!=' 0}}
+                            <span class="release-links">{{links}} link(s)</span>
                         {{/ifCond}}
-                    </span>
+                        {{#ifCond files '!=' 0}}
+                            <span class="release-files">
+                                {{#ifCond files '>' 1}}
+                                    {{files}} files
+                                {{else}}
+                                    {{files}} file
+                                {{/ifCond}}
+                            </span>
+                        {{/ifCond}}
                     {{/ifCond}}
-
                 </div>
-                <div class="title"><a href="../studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
+                <div class="title" data-type="{{type}}" data-accession="{{accession}}">
+                    {{#if project}}
+                        <a href="../{{project}}/studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
+                    {{else}}
+                        <a href="../studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
+                    {{/if}}
                 </div>
             </div>
         </script>
-        <script src="../js/search.js"></script>
+
+        <script id='error-template' type='text/x-handlebars-template'>
+            <section>
+                <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>{{title}}</h3>
+                <p>{{&message}}</p>
+                <p>If you require further assistance locating missing page or file, please <a href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it for you.</p>
+            </section>
+        </script>
+        <script id='project-banner-template' type='text/x-handlebars-template'>
+            <div class="project-banner-content columns medium-12 clearfix row">
+                <span class="project-logo">
+                    <a class="no-border" href="{{url}}" target="_blank">
+                        <img src="{{logo}}"></a>
+                </span>
+                <span class="project-text">
+                    <span class="project-description">{{description}}</span>
+                </span>
+            </div>
+        </script>
+
+        <script src="${contextPath}/js/search.js"></script>
     </jsp:attribute>
     <jsp:body>
         <div id="loader">

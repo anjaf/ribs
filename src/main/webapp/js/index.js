@@ -12,7 +12,7 @@
              $('#latest').slideDown();
              $('#studyCountStats').fadeIn();
 
-             $.getJSON( contextPath + "api/search",{query:'type:Project'}, function( data ) {
+             $.getJSON( contextPath + "/api/search",{query:'type:Project'}, function( data ) {
                  if (data && data.totalHits && data.totalHits>0) {
                      $('#projectCount').text(data.totalHits + (data.totalHits == 1 ? ' project' : ' projects'));
                      $('#projectCountStats').fadeIn();

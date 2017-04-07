@@ -3,6 +3,7 @@ package uk.ac.ebi.biostudies.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 
@@ -43,7 +44,7 @@ public interface SearchService {
 
     Query applyFacets(Query query, JsonNode facets);
 
-    ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder);
+    ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder) throws ParseException;
 
     boolean isAccessible(String accession);
 }

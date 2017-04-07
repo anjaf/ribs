@@ -52,12 +52,12 @@ public class FileDownloadService extends BaseDownloadServlet{
         IDownloadFile file = null;
 
         try {
-            String[] requestArgs = request.getRequestURI().replaceFirst("/files/", "").split("/");;
+            String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"/files/"       ,"").split("/");
             if (requestArgs.length == 1) { // name only passed
                 name = requestArgs[0];
             } else if (requestArgs.length >1 ) { // accession/name passed
                 accession = requestArgs[0];
-                name = StringUtils.replace(request.getRequestURI().substring(accession.length()+8), "..", "");
+                name = StringUtils.replace(requestArgs[1], "..", "");
             }
 
             logger.info("Requested download of [" + name + "], path [" + relativePath + "]");

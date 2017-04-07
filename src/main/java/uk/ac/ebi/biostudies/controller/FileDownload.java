@@ -25,7 +25,7 @@ public class FileDownload {
     FileDownloadService fileDownloadService;
 
     @RequestMapping(value = "/**", method = RequestMethod.POST)
-    public void getFilesInZipedFormat(HttpServletRequest request, HttpServletResponse response) throws Exception{
+    public void getFilesInZippedFormat(HttpServletRequest request, HttpServletResponse response) throws Exception{
         zipDownloadService.doRequest(request, response);
     }
 

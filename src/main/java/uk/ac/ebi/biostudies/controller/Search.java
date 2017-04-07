@@ -61,7 +61,7 @@ public class Search {
                                            @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pageSize,
                                            @RequestParam(value="sortby", required=false, defaultValue = "") String sortBy,
                                            @RequestParam(value="sortorder", required=false, defaultValue = "") String sortOrder,
-                                           @PathVariable String project){
+                                           @PathVariable String project) throws ParseException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode selectedFacets = null;
         String prjSearch = "(content:+"+project+")";

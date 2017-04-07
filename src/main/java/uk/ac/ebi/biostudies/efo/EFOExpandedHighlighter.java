@@ -36,8 +36,8 @@ public class EFOExpandedHighlighter {
     private static final String HIT_CLOSE_MARK = "\u00bb";
     private static final String SYN_OPEN_MARK = "\u2039";
     private static final String SYN_CLOSE_MARK = "\u203a";
-    private static final String EFO_OPEN_MARK = "\u2035";
-    private static final String EFO_CLOSE_MARK = "\u2032";
+    private static final String EFO_OPEN_MARK = "\u2037";
+    private static final String EFO_CLOSE_MARK = "\u2034";
 
     private final RegexHelper SYN_AND_HIT_REGEX = new RegexHelper(HIT_OPEN_MARK + SYN_OPEN_MARK + "([^" + SYN_CLOSE_MARK + HIT_CLOSE_MARK + "]+)" + SYN_CLOSE_MARK + HIT_CLOSE_MARK, "g");
     private final RegexHelper EFO_AND_SYN_REGEX = new RegexHelper(SYN_OPEN_MARK + EFO_OPEN_MARK + "([^" + EFO_CLOSE_MARK + SYN_CLOSE_MARK + "]+)" + EFO_CLOSE_MARK + SYN_CLOSE_MARK, "g");

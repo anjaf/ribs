@@ -1,9 +1,10 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <t:generic>
     <jsp:attribute name="head">
-        <link rel="stylesheet" href="../css/index.css" type="text/css">
+        <link rel="stylesheet" href="${contextPath}/css/index.css" type="text/css">
     </jsp:attribute>
     <jsp:attribute name="postBody">
         <script id='stats-template' type='text/x-handlebars-template'>
@@ -38,7 +39,7 @@
                 {{/each}}
             </div>
         </script>
-        <script src="../js/index.js"></script>
+        <script src="${contextPath}/js/index.js"></script>
     </jsp:attribute>
 
     <jsp:body>

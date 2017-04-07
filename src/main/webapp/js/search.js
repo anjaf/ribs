@@ -1,3 +1,4 @@
+var project;
 !function(d) {
 
     var params = document.location.search.replace(/(^\?)/,'').split("&").map(
@@ -6,6 +7,36 @@
             }.bind({}))[0];
     registerHelpers(params);
 
+
+    var parts = $.grep($(location).attr('pathname').replace(contextPath+'/','').split('/'),function(a) {return a!=''});
+    project = parts.length>1 ? parts[0] : undefined;
+    if(project) {
+        params.query = (params.query ? params.query : '')+' %2Bproject:'+project;
+        $.getJSON(contextPath+"/api/studies/"+project,function (data) {
+            showProjectBanner(data);
+            showResults(params);
+        }).fail(function(error) {
+            showError(error);
+        });
+    } else {
+        showResults(params);
+    }
+
+
+}(document);
+
+function showProjectBanner(data) {
+    var templateSource = $('script#project-banner-template').html();
+    var template = Handlebars.compile(templateSource);
+    var project={logo:contextPath+'/files/'+data.accno+'/'+data.section.files[0][0].path};
+    $(data.section.attributes).each(function () {
+        project[this.name.toLowerCase()] = this.value
+    })
+    var html = template(project);
+    $('#project-banner').html(html);
+}
+
+function showResults(params) {
     // Prepare template
     var templateSource = $('script#results-template').html();
     var template = Handlebars.compile(templateSource);
@@ -13,19 +44,22 @@
     // Data in json
     $.getJSON(contextPath+"/api/search", params,function (data) {
         // Generate html using template and data
+        if(project) {
+            data.project = project;
+        }
         var html = template(data);
 
         // Add the result to the DOM
-        d.getElementById('renderedContent').innerHTML = html;
+        $('#renderedContent').html(html);
         postRender(data)
 
     });
-}(document);
-
+}
 function registerHelpers(params) {
 
     Handlebars.registerHelper('result', function(o) {
         var template = Handlebars.compile($('script#result-template').html());
+        o.project = project;
         return template(o);
     });
 
@@ -103,6 +137,11 @@ function registerHelpers(params) {
         return this.name
     });
 
+    Handlebars.registerHelper('epochToDate', function(v) {
+        return (new Date(v)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+    });
+
+
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 
         switch (operator) {
@@ -139,6 +178,17 @@ function postRender(data) {
     if (data.query) $("#search-results").highlight(data.query.split(' '));
     // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
     // $("#renderedContent").highlight(['mouse','gland '],{className:'efo'});
+
+    // get project logo
+    $("div[data-type='project']").each( function() {
+        var $prj = $(this), accession = $(this).data('accession');
+        $('a',$prj).attr('href',contextPath+'/'+accession+'/studies');
+        $.getJSON(contextPath+ '/api/studies/'+accession, function (data) {
+            $prj.prepend('<a class="project-logo" href="'+contextPath+'/'+accession+'/studies">'+
+                '<img src="'+contextPath+'/files/'+accession+'/'+data.section.files[0][0].path+'"/>'
+            +'</a>');
+        })
+    });
 
 }
 

@@ -12,6 +12,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.queryparser.simple.SimpleQueryParser;
 import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,10 +64,10 @@ public class SearchServiceImpl implements SearchService {
     SecurityQueryBuilder securityQueryBuilder;
 
     private static Query excludeCompound;
-
+    private static QueryParser parser;
     @PostConstruct
     void init(){
-        QueryParser parser = new QueryParser(BioStudiesField.TYPE.toString(), BioStudiesField.TYPE.getAnalyzer());
+        parser = new QueryParser(BioStudiesField.TYPE.toString(), BioStudiesField.TYPE.getAnalyzer());
         try {
             excludeCompound = parser.parse("type:compound");
         } catch (ParseException e) {
@@ -74,7 +75,6 @@ public class SearchServiceImpl implements SearchService {
         }
     }
 
-    @Override
     public String highlightText(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly){
         String result = efoExpandedHighlighter.highlightQuery(originalQuery, synonymQuery, efoQuery, fieldName, text, fragmentOnly);
         return result;
@@ -90,7 +90,6 @@ public class SearchServiceImpl implements SearchService {
         return autocompletion.getEfoWords(query, limit);
     }
 
-    @Override
     public Query expandQuery(Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder){
         Map<String, String> queryInfo = analyzerManager.getExpandableFields();
         Query modifiedQuery = null;
@@ -141,10 +140,14 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder){
+    public ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder) throws ParseException {
+        Query emptyQuery = parser.parse("");
+        return applySearchOnQuery(query, emptyQuery, emptyQuery, page, pageSize, sortBy, sortOrder);
+    }
+
+    public ObjectNode applySearchOnQuery(Query query, Query synonymQuery, Query efoQuery, int page, int pageSize, String sortBy, String sortOrder){
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
-        String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode response = mapper.createObjectNode();
         SortField.Type sortFieldType = extractFieldType(sortBy);
@@ -156,7 +159,7 @@ public class SearchServiceImpl implements SearchService {
         Sort sort = new Sort( sortField );
 
         try {
-            TopDocs hits = searcher.search(query, reader.numDocs(), sort);
+            TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
             int hitsPerPage = pageSize;
             int to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
             response.put("page", page);
@@ -180,6 +183,13 @@ public class SearchServiceImpl implements SearchService {
                     }
                     docNode.put("isPublic",
                             (" " + doc.get(String.valueOf(BioStudiesField.ACCESS) + " ")).toLowerCase().contains(" public ")
+                    );
+                    docNode.put(String.valueOf(BioStudiesField.CONTENT),
+                            efoExpandedHighlighter.highlightQuery( query, synonymQuery, efoQuery,
+                                    BioStudiesField.CONTENT.toString(),
+                                    doc.get(BioStudiesField.CONTENT.toString()),
+                                    true
+                            )
                     );
                     docs.add(docNode);
                 }
@@ -246,14 +256,14 @@ public class SearchServiceImpl implements SearchService {
         try {
             logger.debug("User queryString: {}",queryString);
             Query query = parser.parse(queryString.toLowerCase());
-            BooleanQuery.Builder syn, efo;
-            syn = new BooleanQuery.Builder();
-            efo = new BooleanQuery.Builder();
-            Query expandedQuery = expandQuery(query, syn, efo);
+            BooleanQuery.Builder synonymQueryBuilder = new BooleanQuery.Builder();
+            BooleanQuery.Builder efoQueryBuilder = new BooleanQuery.Builder();
+            Query expandedQuery = expandQuery(query, synonymQueryBuilder, efoQueryBuilder);
             expandedQuery = excludeCompoundStudies(expandedQuery);
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
             logger.debug("Lucene query: {}",queryAfterSecurity.toString());
-            response = applySearchOnQuery(queryAfterSecurity, page, pagesize, sortBy, sortOrder);
+            response = applySearchOnQuery(queryAfterSecurity, synonymQueryBuilder.build(), efoQueryBuilder.build(),
+                    page, pagesize, sortBy, sortOrder);
             response.set("expandedEfoTerms", mapper.createArrayNode() );
             response.set("expandedSynonyms", mapper.createArrayNode() );
             response.put("query",  queryString.equals("*:*") ? null : queryString);

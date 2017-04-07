@@ -9,19 +9,18 @@
         <link rel="stylesheet" href="../css/detail.css" type="text/css">
     </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
-    <ul class="breadcrumbs">
-        <li><a href="../../">BioStudies</a></li>
-        <li><a href="../studies">Studies</a></li>
-        <li>
-            <span class="show-for-sr">Current: </span> <span id="accession">Loading</span>
-        </li>
-    </ul>
+        <ul class="breadcrumbs">
+            <li><a href="../../">BioStudies</a></li>
+            <li><a href="../studies">Studies</a></li>
+            <li>
+                <span class="show-for-sr">Current: </span> <span id="accession">Loading</span>
+            </li>
+        </ul>
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
         <script src="../js/jquery.dataTables.min.js"></script>
         <script src="../js/jquery.highlight.js"></script>
-
         <!-- Handlebars templates-->
         <script id='study-template' type='text/x-handlebars-template'>
             <div id="left-column">
@@ -210,7 +209,7 @@
                                     <input class="text-bottom" type="checkbox" data-name="{{path}}"/>
                                 </td>
                                 {{#each ../headers}}
-                                <td>{{valueWithName this ../this.attributes}}</td>
+                                    <td>{{valueWithName this ../this.attributes}}</td>
                                 {{/each}}
                             </tr>
                             {{/each}}

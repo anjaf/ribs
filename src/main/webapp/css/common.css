@@ -14,6 +14,13 @@
  * limitations under the License.
  *
  */
+#content {
+    padding-top: 0px;
+}
+
+.breadcrumbs {
+    padding-top: 0.5rem;
+}
 
 .alert {
     color: #ff7777;
@@ -77,4 +84,43 @@
 .efo {
     background-color: #FFCCAA;
     padding: 0px 1px;
+}
+
+.project {
+    float:right;
+    padding-top: 3px;
+}
+
+#project-banner {
+    background-color: aliceblue;
+}
+
+
+.project-text{
+    vertical-align: middle;
+    color: #777;
+    padding-left: 10px;
+    font-size: 11pt;
+}
+.project-title{
+    font-size: 150%;
+    color: #555;
+}
+
+.no-border {
+    border: 0px !important;
+}
+
+.project-logo {
+    padding-right:15px;
+    height: 50px;
+    /* display: table-cell; */
+}
+.project-logo img{
+    height: 50px !important;
+    padding-right:5px;
+}
+.project-banner-content {
+    padding: 10px;
+    text-align: left;
 }
