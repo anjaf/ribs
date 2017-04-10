@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -19,6 +21,7 @@ import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -49,8 +52,8 @@ public class Search {
                                         @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pagesize,
                                         @RequestParam(value="sortby", required=false, defaultValue = "") String sortBy,
                                         @RequestParam(value="sortorder", required=false, defaultValue = "") String sortOrder
-    ) throws UnsupportedEncodingException {
-        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), page, pagesize, sortBy, sortOrder);
+    ) throws Exception {
+        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), null, null, page, pagesize, sortBy, sortOrder);
 //        return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
     }
 
@@ -61,15 +64,8 @@ public class Search {
                                            @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pageSize,
                                            @RequestParam(value="sortby", required=false, defaultValue = "") String sortBy,
                                            @RequestParam(value="sortorder", required=false, defaultValue = "") String sortOrder,
-                                           @PathVariable String project) throws ParseException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode selectedFacets = null;
-        String prjSearch = "(content:+"+project+")";
-        try {
-            selectedFacets = mapper.readTree(facets);
-        } catch (IOException e) {
-           logger.debug(e);
-        }
+                                           @PathVariable String project) throws Exception {
+//        ObjectMapper objectContainer = new ObjectMapper();
 //        ArrayNode organNa =mapper.createArrayNode();
 //        organNa.add("heart");
 //        organNa.add("n/a");
@@ -78,21 +74,14 @@ public class Search {
 //        raw.add("raw");
 //        raw.add("processed");
 //        objectContainer.set("rawprocessed",raw);
-        QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), BioStudiesField.PROJECT.getAnalyzer());
-        Query fq = null;
-        try {
-            fq = qp.parse(queryString);
-        } catch (ParseException e) {
-            logger.debug(e);
-        }
-
-        fq = searchService.applyFacets(fq, selectedFacets);
-        JsonNode result = searchService.applySearchOnQuery(fq, page, pageSize, sortBy, sortOrder);
-        return result.toString();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode selectedFacets = null;
+        selectedFacets = mapper.readTree(facets);
+        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project, page, pageSize, sortBy, sortOrder);
     }
 
     @RequestMapping(value = "/{prjname}/default", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
-    public String getHecatosDefaultFacets(@PathVariable String prjname) {
+    public String getHecatosDefaultFacets(@PathVariable String prjname) throws Exception{
         return facetService.getDefaultFacetTemplate(prjname).toString();
     }
 }
