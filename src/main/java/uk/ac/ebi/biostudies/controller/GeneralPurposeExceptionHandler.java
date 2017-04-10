@@ -18,6 +18,6 @@ public class GeneralPurposeExceptionHandler extends ResponseEntityExceptionHandl
     protected ResponseEntity<Object> handleConflict(Exception ex, WebRequest request) {
         String bodyOfResponse = "The requested resource not found";
         return handleExceptionInternal(ex, bodyOfResponse,
-                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+                new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 }
