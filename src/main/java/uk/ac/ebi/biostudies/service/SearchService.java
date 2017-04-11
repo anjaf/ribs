@@ -14,7 +14,7 @@ import java.util.Map;
  * Created by ehsan on 27/02/2017.
  */
 public interface SearchService {
-    String search(String query, int page, int pageSize, String sortBy, String sortOrder);
+    String search(String query, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder);
     String getDetailFile(String accessionNumber) throws IOException;
 
     /**
@@ -42,9 +42,9 @@ public interface SearchService {
 
     String getEfoWords(String query, Integer limit);
 
-    Query applyFacets(Query query, JsonNode facets);
+    Query applyFacets(Query query, JsonNode facets, String prjName);
 
-    ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder) throws ParseException;
+    ObjectNode applySearchOnQuery(Query query, Query synonymQuery, Query efoQuery, int page, int pageSize, String sortBy, String sortOrder) throws ParseException;
 
     boolean isAccessible(String accession);
 }

@@ -110,7 +110,17 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public Query applyFacets(Query query, JsonNode facets){
+    public Query applyFacets(Query query, JsonNode facets, String prjName){
+        QueryParser searchPrjParser = new QueryParser(BioStudiesField.PROJECT.toString(), BioStudiesField.PROJECT.getAnalyzer());
+        BooleanQuery.Builder bqBuilder = new BooleanQuery.Builder();
+        bqBuilder.add(query, BooleanClause.Occur.MUST);
+        try {
+            String prjSearch = "("+BioStudiesField.PROJECT+":"+prjName+")";
+            Query searchInPrj = searchPrjParser.parse(prjSearch);
+            bqBuilder.add(searchInPrj, BooleanClause.Occur.MUST);
+        } catch (ParseException e) {
+            logger.debug(e);
+        }
         Map<BioStudiesField, List<String>> selectedFacets = new HashMap<>();
         if(facets!=null){
             Iterator<String> fieldNamesIterator = facets.fieldNames();
@@ -136,15 +146,10 @@ public class SearchServiceImpl implements SearchService {
                 }
             }
         }
-        return  facetService.addFacetDrillDownFilters(query, selectedFacets);
+        return  facetService.addFacetDrillDownFilters(bqBuilder.build(), selectedFacets);
     }
 
     @Override
-    public ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder) throws ParseException {
-        Query emptyQuery = parser.parse("");
-        return applySearchOnQuery(query, emptyQuery, emptyQuery, page, pageSize, sortBy, sortOrder);
-    }
-
     public ObjectNode applySearchOnQuery(Query query, Query synonymQuery, Query efoQuery, int page, int pageSize, String sortBy, String sortOrder){
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
@@ -247,7 +252,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public String search(String queryString, int page, int pageSize, String sortBy, String sortOrder) {
+    public String search(String queryString, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
         String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
 
@@ -265,6 +270,10 @@ public class SearchServiceImpl implements SearchService {
             expandedQuery = excludeCompoundStudies(expandedQuery);
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
             logger.debug("Lucene query: {}",queryAfterSecurity.toString());
+            if(selectedFacets!=null && prjName!=null && !prjName.isEmpty()){
+                queryAfterSecurity = applyFacets(queryAfterSecurity, selectedFacets, prjName);
+                logger.debug("Lucene after facet query: {}",queryAfterSecurity.toString());
+            }
             response = applySearchOnQuery(queryAfterSecurity, synonymQueryBuilder.build(), efoQueryBuilder.build(),
                     page, pageSize, sortBy, sortOrder);
             response.set("expandedEfoTerms", mapper.createArrayNode() );

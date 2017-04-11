@@ -82,7 +82,7 @@ public class FacetServiceImpl implements FacetService {
         QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), new SimpleAnalyzer());
         Query fq = null;
         try {
-            fq = qp.parse("content:"+prjName);
+            fq = qp.parse(BioStudiesField.PROJECT+":"+prjName);
         } catch (ParseException e) {
             e.printStackTrace();
         }

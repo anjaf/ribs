@@ -29,10 +29,7 @@
                         <span>Sort by:</span>
                         <select id="sort-by">
                             <option value="relevance">Relevance</option>
-                            <option value="accession">Accession</option>
-                            <option value="title">Title</option>
-                            <option value="authors">Authors</option>
-                            <option value="released">Released</option>
+                            <option value="release_date">Released</option>
                             <option value="files">Files</option>
                             <option value="links">Links</option>
                         </select>
@@ -40,14 +37,14 @@
                             <a class="fa fa-angle-down" id="sort-desc"/><a class="fa fa-angle-up" id="sort-asc"/>
                         </span>
                     </div>
-                        {{#if query}}
-                            <h2>Search results for: {{query}}</h2>
-                        {{/if}}
-                        <ul id="search-results">
-                            {{#each this.hits}}
-                            <li>{{&result this}}</li>
-                            {{/each}}
-                        </ul>
+                    {{#if query}}
+                        <h4 class="clearboth">Search results for: {{query}}</h4>
+                    {{/if}}
+                    <ul id="search-results">
+                        {{#each this.hits}}
+                        <li>{{&result this}}</li>
+                        {{/each}}
+                    </ul>
                     {{else}}
                         {{#if query}}
                             <section>
@@ -90,9 +87,9 @@
                 </div>
                 <div class="title" data-type="{{type}}" data-accession="{{accession}}">
                     {{#if project}}
-                        <a href="../{{project}}/studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
+                        <a href="${contextPath}/{{project}}/studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
                     {{else}}
-                        <a href="../studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
+                        <a href="${contextPath}/studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
                     {{/if}}
                 </div>
             </div>

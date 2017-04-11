@@ -195,7 +195,7 @@ function postRender(data, params) {
     $('#sort-by').val(data.sortBy);
     $('#sort-by').change(function (e) {
         params.sortBy = $(this).val();
-        params.sortOrder = $.inArray(params.sortBy,['title','accession','authors'])>=0 ? 'ascending' : 'descending';
+        params.sortOrder = 'descending';
         window.location = contextPath+'/studies/?' + $.param(params);
     });
     if (data.sortOrder=='ascending') {
