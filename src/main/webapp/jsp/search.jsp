@@ -25,6 +25,21 @@
                 <div class="small-12 columns">
                     {{&pager}}
                     {{#if this.hits}}
+                    <div id="sort-by-div">
+                        <span>Sort by:</span>
+                        <select id="sort-by">
+                            <option value="relevance">Relevance</option>
+                            <option value="accession">Accession</option>
+                            <option value="title">Title</option>
+                            <option value="authors">Authors</option>
+                            <option value="released">Released</option>
+                            <option value="files">Files</option>
+                            <option value="links">Links</option>
+                        </select>
+                        <span id="sorting-links">
+                            <a class="fa fa-angle-down" id="sort-desc"/><a class="fa fa-angle-up" id="sort-asc"/>
+                        </span>
+                    </div>
                         {{#if query}}
                             <h2>Search results for: {{query}}</h2>
                         {{/if}}

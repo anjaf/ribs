@@ -165,6 +165,8 @@ public class SearchServiceImpl implements SearchService {
             response.put("page", page);
             response.put("pageSize", hitsPerPage);
             response.put("totalHits", hits.totalHits);
+            response.put( "sortBy", sortBy);
+            response.put( "sortOrder", sortOrder);
             if (hits.totalHits > 0) {
                 ArrayNode docs = mapper.createArrayNode();
                 for (int i = (page - 1) * hitsPerPage; i < to; i++) {
@@ -184,6 +186,7 @@ public class SearchServiceImpl implements SearchService {
                     docNode.put("isPublic",
                             (" " + doc.get(String.valueOf(BioStudiesField.ACCESS) + " ")).toLowerCase().contains(" public ")
                     );
+
                     docNode.put(String.valueOf(BioStudiesField.CONTENT),
                             efoExpandedHighlighter.highlightQuery( query, synonymQuery, efoQuery,
                                     BioStudiesField.CONTENT.toString(),
@@ -244,7 +247,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public String search(String queryString, int page, int pagesize, String sortBy, String sortOrder) {
+    public String search(String queryString, int page, int pageSize, String sortBy, String sortOrder) {
         String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
 
@@ -263,7 +266,7 @@ public class SearchServiceImpl implements SearchService {
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
             logger.debug("Lucene query: {}",queryAfterSecurity.toString());
             response = applySearchOnQuery(queryAfterSecurity, synonymQueryBuilder.build(), efoQueryBuilder.build(),
-                    page, pagesize, sortBy, sortOrder);
+                    page, pageSize, sortBy, sortOrder);
             response.set("expandedEfoTerms", mapper.createArrayNode() );
             response.set("expandedSynonyms", mapper.createArrayNode() );
             response.put("query",  queryString.equals("*:*") ? null : queryString);

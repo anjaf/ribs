@@ -16,7 +16,7 @@ public enum BioStudiesField {
     TYPE("type", "", BioStudiesFieldType.STRING_UNTOKENIZED, true, false,  new AttributeFieldAnalyzer()),
     TITLE("title", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, new ExperimentTextAnalyzer()),
     AUTHORS("authors", "", BioStudiesFieldType.STRING_TOKENIZED, true, false,  new AttributeFieldAnalyzer()),
-    CONTENT("content", "", BioStudiesFieldType.STRING_TOKENIZED, true, true, new ExperimentTextAnalyzer()),
+    CONTENT("content", "", BioStudiesFieldType.STRING_TOKENIZED, false, true, new ExperimentTextAnalyzer()),
     PROJECT("project", "", BioStudiesFieldType.STRING_TOKENIZED, false, false, new AttributeFieldAnalyzer()),
     LINKS("links", "", BioStudiesFieldType.LONG, true, false, null),
     FILES("files", "", BioStudiesFieldType.LONG, true, false, null),

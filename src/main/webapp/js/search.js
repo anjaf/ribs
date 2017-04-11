@@ -1,10 +1,11 @@
 var project;
 !function(d) {
 
-    var params = document.location.search.replace(/(^\?)/,'').split("&").map(
+    var split_params = document.location.search.replace(/(^\?)/,'').split("&").filter(function (a) { return a!='' }).map(
             function(s) {
                 return s = s.split("="), this[s[0]] = s[1], this
-            }.bind({}))[0];
+            }.bind({}));
+    var params = split_params.length ? split_params[0] : {};
     registerHelpers(params);
 
 
@@ -51,7 +52,7 @@ function showResults(params) {
 
         // Add the result to the DOM
         $('#renderedContent').html(html);
-        postRender(data)
+        postRender(data, params)
 
     });
 }
@@ -67,19 +68,19 @@ function registerHelpers(params) {
         if (!o.data.root.page || !o.data.root.pageSize || !o.data.root.totalHits ) {
             return '';
         }
-        var ul = '<ul class="pagination" role="navigation" aria-label="Pagination">';
+        var ul = '<ul id="pager" class="pagination" role="navigation" aria-label="Pagination">';
         var page = o.data.root.page, pageSize = o.data.root.pageSize, totalHits =o.data.root.totalHits;
         var maxPage = Math.ceil(totalHits/pageSize*1.0);
-
+        var prms = $.extend({}, params);
         if (page>1) {
-            params.page = o.data.root.page-1;
-            ul += '<li class="pagination-previous"><a href="'+contextPath+'/studies?'+$.param(params)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
+            prms.page = o.data.root.page-1;
+            ul += '<li class="pagination-previous"><a href="'+contextPath+'/studies?'+$.param(prms)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
         }
 
         if (maxPage<=10) {
             for (var i = 1; i <= maxPage; i++) {
-                params.page = i;
-                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="'+contextPath+'/studies?' + $.param(params) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
+                prms.page = i;
+                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="'+contextPath+'/studies?' + $.param(prms) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
             }
         } else {
             var arr;
@@ -113,18 +114,18 @@ function registerHelpers(params) {
                     ul += '<li class="ellipsis" aria-hidden="true"></li>';
                     continue;
                 }
-                params.page = arr[i];
+                prms.page = arr[i];
                 if (arr[i]==page) {
                     ul += '<li class="current">' + arr[i] + '</li>';
                 } else {
-                    ul += '<li><a href="'+contextPath+'/studies?' + $.param(params) + '" aria-label="Page ' + arr[i] + '">' + arr[i] + '</a></li>';
+                    ul += '<li><a href="'+contextPath+'/studies?' + $.param(prms) + '" aria-label="Page ' + arr[i] + '">' + arr[i] + '</a></li>';
                 }
             };
         }
 
         if (o.data.root.page && o.data.root.pageSize &&  o.data.root.page*o.data.root.pageSize < o.data.root.totalHits) {
-            params.page = page+1;
-            ul += '<li class="pagination-next"><a href="'+contextPath+'/studies?'+$.param(params)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
+            prms.page = page+1;
+            ul += '<li class="pagination-next"><a href="'+contextPath+'/studies?'+$.param(prms)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
         }
 
         ul += '</ul>'
@@ -172,7 +173,7 @@ function registerHelpers(params) {
 
 }
 
-function postRender(data) {
+function postRender(data, params) {
     $('#left-column').slideDown();
     // add highlights
     if (data.query) $("#search-results").highlight(data.query.split(' '));
@@ -188,6 +189,31 @@ function postRender(data) {
                 '<img src="'+contextPath+'/files/'+accession+'/'+data.section.files[0][0].path+'"/>'
             +'</a>');
         })
+    });
+
+    //set sort params
+    $('#sort-by').val(data.sortBy);
+    $('#sort-by').change(function (e) {
+        params.sortBy = $(this).val();
+        params.sortOrder = $.inArray(params.sortBy,['title','accession','authors'])>=0 ? 'ascending' : 'descending';
+        window.location = contextPath+'/studies/?' + $.param(params);
+    });
+    if (data.sortOrder=='ascending') {
+        $('#sort-desc').removeClass('selected');
+        $('#sort-asc').addClass('selected');
+    } else {
+        $('#sort-desc').addClass('selected');
+        $('#sort-asc').removeClass('selected');
+    }
+    $('#sort-desc').click(function (e) {
+        if ($(this).hasClass('selected')) return;
+        params.sortOrder = 'descending';
+        window.location = contextPath+'/studies/?' + $.param(params);
+    });
+    $('#sort-asc').click(function (e) {
+        if ($(this).hasClass('selected')) return;
+        params.sortOrder = 'ascending';
+        window.location = contextPath+'/studies/?' + $.param(params);
     });
 
 }

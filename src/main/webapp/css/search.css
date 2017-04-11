@@ -4,6 +4,7 @@
 ul#search-results {
     list-style-type: none;
     width: 80%;
+    clear: both;
 }
 
 ul#search-results li {
@@ -45,4 +46,33 @@ ul#search-results li {
     height: 50px !important;
     padding-right:5px;
 
+}
+
+#sort-by {
+    width:auto;
+    font-size: 0.875rem;
+}
+#sort-by-div {
+    float: right;
+    font-size: 0.875rem;
+}
+
+#pager {
+    float: left;
+}
+
+#sort-desc {
+    border-right:0 !important;
+}
+
+
+#sorting-links a {
+    padding: 11px 12px;
+    border: 1px solid #999999;
+    height: 2.4375rem;
+}
+
+#sorting-links a.selected {
+    background-color: #75c8ec;
+    color: white;
 }

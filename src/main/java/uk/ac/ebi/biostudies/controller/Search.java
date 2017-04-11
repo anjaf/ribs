@@ -46,11 +46,11 @@ public class Search {
     @RequestMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     public String search(@RequestParam(value="query", required=false, defaultValue = "*:*") String queryString,
                                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
-                                        @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pagesize,
-                                        @RequestParam(value="sortby", required=false, defaultValue = "") String sortBy,
-                                        @RequestParam(value="sortorder", required=false, defaultValue = "") String sortOrder
+                                        @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
+                                        @RequestParam(value="sortBy", required=false, defaultValue = "relevance") String sortBy,
+                                        @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder
     ) throws UnsupportedEncodingException {
-        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), page, pagesize, sortBy, sortOrder);
+        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), page, pageSize, sortBy, sortOrder);
 //        return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
     }
 
@@ -58,9 +58,9 @@ public class Search {
     public String getHecatosSelectedFacets(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
                                            @RequestParam(value="facets", required=false) String facets,
                                            @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
-                                           @RequestParam(value="pagesize", required=false, defaultValue = "20") Integer pageSize,
-                                           @RequestParam(value="sortby", required=false, defaultValue = "") String sortBy,
-                                           @RequestParam(value="sortorder", required=false, defaultValue = "") String sortOrder,
+                                           @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
+                                           @RequestParam(value="sortBy", required=false, defaultValue = "relevance") String sortBy,
+                                           @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder,
                                            @PathVariable String project) throws ParseException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode selectedFacets = null;
