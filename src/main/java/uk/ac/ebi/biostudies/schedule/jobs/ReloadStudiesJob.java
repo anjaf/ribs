@@ -51,8 +51,8 @@ public class ReloadStudiesJob {
             if (isNotBlank(sourceLocation)) {
                 logger.info("Reload of study data from [{}] requested", sourceLocation);
                 indexService.updateFromJSONFile(null);
-                indexService.clearIndex();
-                indexService.indexAll();
+                indexService.clearIndex(false);
+                indexService.indexAll("");
                 logger.info("Reload of study data from [{}] completed", sourceLocation);
             }
         } catch (Exception x) {

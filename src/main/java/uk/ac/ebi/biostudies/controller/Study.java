@@ -11,6 +11,8 @@ import uk.ac.ebi.biostudies.service.SearchService;
 
 import java.io.*;
 
+import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
+
 
 /**
  * Created by awais on 14/02/2017.
@@ -24,7 +26,7 @@ public class Study {
     @Autowired
     SearchService searchService;
 
-    @RequestMapping(value = "/studies/{accession:.+}", produces = {MediaType.APPLICATION_JSON_VALUE}, method = RequestMethod.GET)
+    @RequestMapping(value = "/studies/{accession:.+}", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
     //TODO: stream file directly
     public ResponseEntity<String> search(@PathVariable("accession") String accession)  {
         if(!searchService.isAccessible(accession)) {

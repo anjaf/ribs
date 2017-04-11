@@ -3,6 +3,7 @@ package uk.ac.ebi.biostudies.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import uk.ac.ebi.biostudies.api.util.Constants;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -19,7 +20,7 @@ public class IndexConfig {
     private String facetDirectory;
 
     @ Value("${studiesFileDirectory}")
-    private String studiesInputFile;
+    private String studiesFileDirectory;
 
     @ Value("${indexer.threadCount}")
     private int threadCount;
@@ -57,20 +58,16 @@ public class IndexConfig {
         return indexDirectory;
     }
 
-    public void setIndexDirectory(String indexDirectory) {
-        this.indexDirectory = indexDirectory;
-    }
-
     public String getFacetDirectory() {
         return facetDirectory;
     }
 
-    public void setFacetDirectory(String facetDirectory) {
-        this.facetDirectory = facetDirectory;
+    public String getStudiesInputFile() {
+        return studiesFileDirectory + Constants.STUDIES_JSON_FILE;
     }
 
-    public String getStudiesInputFile() {
-        return studiesInputFile;
+    public String getStudiesFileDirectory() {
+        return studiesFileDirectory;
     }
 
     public String getRepositoryPath() {
@@ -86,10 +83,6 @@ public class IndexConfig {
     }
 
 
-
-    public void setStudiesInputFile(String studiesInputFile) {
-        this.studiesInputFile = studiesInputFile;
-    }
 
     public String[] getIndexFields(){
         String[] fields = indexFields.split(",");
