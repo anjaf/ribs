@@ -11,22 +11,22 @@ import uk.ac.ebi.biostudies.api.util.analyzer.ExperimentTextAnalyzer;
  */
 public enum BioStudiesField {
 
-    ACCESS("access", "", BioStudiesFieldType.STRING_TOKENIZED , false, false, new AccessFieldAnalyzer()),
-    ACCESSION("accession", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, new AttributeFieldAnalyzer()),
-    TYPE("type", "", BioStudiesFieldType.STRING_UNTOKENIZED, true, false,  new AttributeFieldAnalyzer()),
-    TITLE("title", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, new ExperimentTextAnalyzer()),
-    AUTHORS("authors", "", BioStudiesFieldType.STRING_TOKENIZED, true, false,  new AttributeFieldAnalyzer()),
-    CONTENT("content", "", BioStudiesFieldType.STRING_TOKENIZED, true, true, new ExperimentTextAnalyzer()),
-    PROJECT("project", "", BioStudiesFieldType.STRING_TOKENIZED, false, false, new AttributeFieldAnalyzer()),
-    LINKS("links", "", BioStudiesFieldType.LONG, true, false, null),
-    FILES("files", "", BioStudiesFieldType.LONG, true, false, null),
-    RELEASE_DATE("release_date", "", BioStudiesFieldType.LONG, true, false, new AttributeFieldAnalyzer()),
-    ID("id", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false, null),
-    ORGAN("organ", "Organ", BioStudiesFieldType.FACET, false, false, null),
-    TECHNOLOGY("tech", "Assay Technology Type", BioStudiesFieldType.FACET, false, true, null),
-    DATATYPE("dataType", "Data Type", BioStudiesFieldType.FACET, false, false, null),
-    COMPOUND("compound", "Compound", BioStudiesFieldType.FACET, false, true, null),
-    RAWPROCESSED("rawProcessed", "Raw/Processed", BioStudiesFieldType.FACET, false, false, null),
+    ACCESS("access", "", BioStudiesFieldType.STRING_TOKENIZED , false, false, false, new AccessFieldAnalyzer()),
+    ACCESSION("accession", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, true, new AttributeFieldAnalyzer()),
+    TYPE("type", "", BioStudiesFieldType.STRING_UNTOKENIZED, true, false, false, new AttributeFieldAnalyzer()),
+    TITLE("title", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, true,new ExperimentTextAnalyzer()),
+    AUTHORS("authors", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, true, new AttributeFieldAnalyzer()),
+    CONTENT("content", "", BioStudiesFieldType.STRING_TOKENIZED, true, true, false, new ExperimentTextAnalyzer()),
+    PROJECT("project", "", BioStudiesFieldType.STRING_TOKENIZED, false, false, false, new AttributeFieldAnalyzer()),
+    LINKS("links", "", BioStudiesFieldType.LONG, true, false, true, null),
+    FILES("files", "", BioStudiesFieldType.LONG, true, false, true, null),
+    RELEASE_DATE("release_date", "", BioStudiesFieldType.LONG, true, false, true, new AttributeFieldAnalyzer()),
+    ID("id", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false, false, null),
+    ORGAN("organ", "Organ", BioStudiesFieldType.FACET, false, false, false, null),
+    TECHNOLOGY("tech", "Assay Technology Type", BioStudiesFieldType.FACET, false, true, true, null),
+    DATATYPE("dataType", "Data Type", BioStudiesFieldType.FACET, false, false, false, null),
+    COMPOUND("compound", "Compound", BioStudiesFieldType.FACET, false, true, false, null),
+    RAWPROCESSED("rawProcessed", "Raw/Processed", BioStudiesFieldType.FACET, false, false, false, null),
     ;
 
     private final String name;
@@ -36,16 +36,18 @@ public enum BioStudiesField {
     private final boolean isRetrieved;
     private final boolean expand;
     private Analyzer analyzer;
+    private boolean sort;
 
 
 
-    private BioStudiesField(final String name, String title, BioStudiesFieldType type , boolean isRetrieved, boolean expand, Analyzer analayzer) {
+    private BioStudiesField(final String name, String title, BioStudiesFieldType type , boolean isRetrieved, boolean expand, boolean sort, Analyzer analayzer) {
         this.name = name;
         this.type = type;
         this.isRetrieved = isRetrieved;
         this.title = title;
         this.expand = expand;
         this.analyzer = analayzer;
+        this.sort = sort;
     }
 
     @Override
@@ -74,4 +76,5 @@ public enum BioStudiesField {
     public boolean isExpand() {
         return expand;
     }
+    public boolean isSort(){return  sort;}
 }

@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostudies.api.util;
 
+import org.springframework.http.MediaType;
+
 /**
  * Created by ehsan on 30/03/2017.
  */
@@ -16,4 +18,5 @@ public interface Constants {
     String LINKS = "links";
     String FILES = "files";
     String STUDIES_JSON_FILE = "studies.json";
+    String JSON_UNICODE_MEDIA_TYPE = MediaType.APPLICATION_JSON_VALUE+";charset=UTF-8";
 }

@@ -9,13 +9,12 @@ import java.io.IOException;
  */
 public interface IndexService {
     @Async
-    public void indexAll();
-    @Async
-    public void indexSingleDoc();
-    @Async
-    public void deleteDoc();
+    public void indexAll(String fileName);
 
-    public void clearIndex() throws IOException;
+    public void deleteDoc(String accession) throws Exception;
+
+    public void clearIndex(boolean commit) throws IOException;
 
     public void updateFromJSONFile(String jsonFileName);
+
 }

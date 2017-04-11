@@ -11,6 +11,9 @@ import org.apache.lucene.document.*;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -75,10 +78,16 @@ public class IndexServiceImpl implements IndexService {
 
 
     @Override
-    public void indexAll() {
+    public void indexAll(String fileName) {
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = Executors.newFixedThreadPool(indexConfig.getThreadCount());
-        String inputStudiesFile = indexConfig.getStudiesInputFile();
+        String inputStudiesFile = System.getProperty("java.io.tmpdir")+"/";
+        if(fileName!=null && !fileName.isEmpty())
+            inputStudiesFile = inputStudiesFile +fileName;
+//            inputStudiesFile = indexConfig.getStudiesFileDirectory()+fileName;
+        else
+            inputStudiesFile = inputStudiesFile + Constants.STUDIES_JSON_FILE;
+//            inputStudiesFile = indexConfig.getStudiesInputFile();
         int counter = 0;
         try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFile), "UTF-8")) {
             JsonFactory factory = new JsonFactory();
@@ -121,21 +130,24 @@ public class IndexServiceImpl implements IndexService {
         }
     }
 
-    @Override
-    public void indexSingleDoc() {
 
+    @Override
+    public void deleteDoc(String accession) throws Exception{
+        if(accession==null || accession.isEmpty())
+            return;
+        QueryParser parser = new QueryParser(BioStudiesField.ACCESSION.toString(), BioStudiesField.ACCESSION.getAnalyzer());
+        String strquery = BioStudiesField.ACCESSION.toString()+":"+accession;
+        Query query = parser.parse(strquery);
+        indexManager.getIndexWriter().deleteDocuments(query);
+        indexManager.getIndexWriter().commit();
     }
 
     @Override
-    public void deleteDoc() {
-
-    }
-
-    @Override
-    public void clearIndex() throws IOException {
+    public void clearIndex(boolean commit) throws IOException {
         indexManager.getIndexWriter().deleteAll();
         indexManager.getIndexWriter().forceMergeDeletes();
-//        indexManager.getIndexWriter().commit();
+        if(commit)
+            indexManager.getIndexWriter().commit();
 
     }
 
@@ -261,14 +273,24 @@ public class IndexServiceImpl implements IndexService {
             Document doc = new Document();
 
             //TODO: replace by classes if possible
+            String value;
             for (BioStudiesField field: BioStudiesField.values()) {
                 try{
                 switch (field.getType()) {
                     case STRING_TOKENIZED:
-                        doc.add(new TextField(String.valueOf(field), valueMap.get(field).toString(), Field.Store.YES));
+                        value = valueMap.get(field).toString();
+                        doc.add(new TextField(String.valueOf(field), value, Field.Store.YES));
+//                        if need sorting uncomment these lines
+//                        if(field.isSort())
+//                            doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef(value.length()<256 ? value.toLowerCase():value.substring(0,256).toLowerCase())));
                         break;
                     case STRING_UNTOKENIZED:
-                        doc.add(new StringField(String.valueOf(field), valueMap.get(field).toString(), Field.Store.YES));
+                        value = valueMap.get(field).toString();
+                        doc.add(new StringField(String.valueOf(field), value, Field.Store.YES));
+//                        if need sorting uncomment these lines
+//                        if(field.isSort())
+//                            doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef(value.length()<256 ? value.toLowerCase():value.substring(0,256).toLowerCase())));
+
                         break;
                     case LONG:
                         doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));
