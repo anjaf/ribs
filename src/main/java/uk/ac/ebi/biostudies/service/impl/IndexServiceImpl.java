@@ -236,33 +236,27 @@ public class IndexServiceImpl implements IndexService {
                 }
 
                 String project = "";
-                String releaseDate = "";
                 long releaseDateLong = 0L;
+                if(json.has("rtime"))
+                    releaseDateLong = Long.valueOf(json.get("rtime").asText());
+                if(releaseDateLong==0L) {
+                    Calendar calendar = Calendar.getInstance();
+                    if(!String.valueOf(valueMap.get(BioStudiesField.ACCESS)).contains("public"))
+                        calendar.set(2050, 0, 1);
+                    releaseDateLong = calendar.getTimeInMillis();
+                }
+
+                valueMap.put(BioStudiesField.RELEASE_DATE, releaseDateLong);
+
                 if(json.has("attributes")) {
                     project = StreamSupport.stream(json.get("attributes").spliterator(), false)
                             .filter(jsonNode ->
                                     jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("attachto"))
                             .map(s -> s.get("value").textValue())
                             .collect(Collectors.joining(","));
-
-                    releaseDate = StreamSupport.stream(json.get("attributes").spliterator(), false)
-                            .filter(jsonNode ->
-                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("ReleaseDate"))
-                            .map(s -> s.get("value").textValue())
-                            .collect(Collectors.joining());
                 }
                 valueMap.put(BioStudiesField.PROJECT, project);
-                SimpleDateFormat f = new SimpleDateFormat("yyyy-mm-dd");
-                try {
-                    Date d = f.parse(releaseDate.isEmpty()?"2000-01-01":releaseDate);
-                    releaseDateLong = d.getTime();
-                } catch (Exception e) {
-                    logger.debug(e);
-                }
-                valueMap.put(BioStudiesField.RELEASE_DATE, releaseDateLong);
-
                 updateDocument(valueMap);
-
             } catch (Exception e) {
                 System.out.println("Problem indexing " + json);
                 e.printStackTrace();
