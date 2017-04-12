@@ -212,12 +212,11 @@ public class IndexServiceImpl implements IndexService {
                                 .collect(Collectors.joining(", "))
                 );
 
-                valueMap.put( BioStudiesField.ACCESS,  !json.has("accessTags") ? "" :
+                String access = !json.has("accessTags") ? "" :
                         StreamSupport.stream(json.get("accessTags").spliterator(),false)
                                 .map( s-> s.textValue())
-                                .collect(Collectors.joining(" "))
-                );
-//                valueMap.put( BioStudiesField.ORGAN, !json.get("section").has("subsections") ? "" :
+                                .collect(Collectors.joining(" "));
+                valueMap.put( BioStudiesField.ACCESS, access.replaceAll("~", ""));
 
                 String value="";
                 if(json.has("section") && json.get("section").has("attributes")) {
@@ -234,8 +233,6 @@ public class IndexServiceImpl implements IndexService {
                         valueMap.put(bsField, value);
                     }
                 }
-
-                String project = "";
                 long releaseDateLong = 0L;
                 if(json.has("rtime"))
                     releaseDateLong = Long.valueOf(json.get("rtime").asText());
@@ -245,9 +242,9 @@ public class IndexServiceImpl implements IndexService {
                         calendar.set(2050, 0, 1);
                     releaseDateLong = calendar.getTimeInMillis();
                 }
-
                 valueMap.put(BioStudiesField.RELEASE_DATE, releaseDateLong);
 
+                String project = "";
                 if(json.has("attributes")) {
                     project = StreamSupport.stream(json.get("attributes").spliterator(), false)
                             .filter(jsonNode ->
