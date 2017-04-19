@@ -13,7 +13,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -33,9 +32,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -202,15 +199,14 @@ public class IndexServiceImpl implements IndexService {
                         jsonNode -> jsonNode.findValues("url").size()
                         ).sum()
                 );
-                valueMap.put( BioStudiesField.AUTHORS, !json.get("section").has("subsections") ? "" :
-                        StreamSupport.stream(json.get("section").get("subsections").spliterator(),false)
-                                .filter(jsonNode ->
-                                        jsonNode.has("type") && jsonNode.get("type").textValue().equalsIgnoreCase("Author"))
-                                .map(authorNode -> StreamSupport.stream(authorNode.get("attributes").spliterator(),false)
-                                        .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Name"))
-                                        .findFirst().get().get("value").textValue())
-                                .collect(Collectors.joining(", "))
-                );
+                String author = "";
+                if(json.get("section").has("subsections")) {
+                    author = StreamSupport.stream(json.get("section").get("subsections").spliterator(), false)
+                             .filter(jsonNode ->
+                                     jsonNode.has("type") && jsonNode.get("type").textValue().equalsIgnoreCase("Author") && jsonNode.get("attributes").isArray() && jsonNode.get("attributes").get(0).get("name").asText().equalsIgnoreCase("Name"))
+                             .map(authorNode -> authorNode.get("attributes").get(0).get("value").asText()).collect(Collectors.joining(", "));
+                }
+                valueMap.put( BioStudiesField.AUTHORS, author);
 
                 String access = !json.has("accessTags") ? "" :
                         StreamSupport.stream(json.get("accessTags").spliterator(),false)
