@@ -263,3 +263,8 @@ a.section-button:hover {
 .bs-icon-fa-stack {
     width: 1em;
 }
+
+#release-date-download {
+    color: #999999;
+    padding-bottom: 10px;
+}

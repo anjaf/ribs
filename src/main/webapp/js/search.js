@@ -139,7 +139,7 @@ function registerHelpers(params) {
     });
 
     Handlebars.registerHelper('epochToDate', function(v) {
-        return (new Date(v)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+        return (new Date(v*1000)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
     });
 
 

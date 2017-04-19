@@ -66,6 +66,8 @@ $.fn.groupBy = function(fn) {
         data.section.accno = data.accno;
         var rootPath = data.attributes.filter( function (v,i) { return    v.name=='RootPath';   });
         data.section.root = rootPath.length ? rootPath[0].value : '';
+        var releaseDate = data.attributes.filter( function (v,i) { return    v.name=='ReleaseDate';   });
+        data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();
