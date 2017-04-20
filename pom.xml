@@ -14,7 +14,7 @@
         <jackson.library>2.7.5</jackson.library>
         <lucene.version>6.5.0</lucene.version>
     </properties>
-    
+
     <repositories>
         <repository>
             <id>artifactory-repo</id>
@@ -208,6 +208,12 @@
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
             <version>1.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+            <version>4.12</version>
         </dependency>
     </dependencies>
 
