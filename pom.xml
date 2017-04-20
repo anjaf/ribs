@@ -14,6 +14,26 @@
         <jackson.library>2.7.5</jackson.library>
         <lucene.version>6.5.0</lucene.version>
     </properties>
+    
+    <repositories>
+        <repository>
+            <id>artifactory-repo</id>
+            <url>http://bar.ebi.ac.uk:8081/artifactory/repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>artifactory-repo</id>
+            <url>http://bar.ebi.ac.uk:8081/artifactory/repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencies>
         <dependency>
