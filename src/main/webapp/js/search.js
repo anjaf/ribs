@@ -22,8 +22,6 @@ var project;
     } else {
         showResults(params);
     }
-
-
 }(document);
 
 function showProjectBanner(data) {
@@ -43,7 +41,7 @@ function showResults(params) {
     var template = Handlebars.compile(templateSource);
 
     // Data in json
-    $.getJSON(contextPath+"/api/search", params,function (data) {
+    $.getJSON(contextPath+(project ? "/api/"+project+"/search" : "/api/search"), params,function (data) {
         // Generate html using template and data
         if(project) {
             data.project = project;
@@ -52,8 +50,24 @@ function showResults(params) {
 
         // Add the result to the DOM
         $('#renderedContent').html(html);
-        postRender(data, params)
 
+        postRender(data, params);
+    }).done( function () {
+        $('#left-column').slideDown("fast", function () {
+            if ($('#hasFacets').length) {
+                $.getJSON(contextPath + "/api/" + project + "/facets", function (data) {
+                    var templateSource = $('script#facet-list-template').html();
+                    var template = Handlebars.compile(templateSource);
+                    data.selectedFacets = params.facets ? params.facets.split(",") : [];
+                    var html = template(data);
+                    $('#facets').html(html);
+                }).fail(function (error) {
+                    showError(error);
+                }).done( function (data) {
+                    postRenderFacets(data, params);
+                });
+            }
+        })
     });
 }
 function registerHelpers(params) {
@@ -174,7 +188,6 @@ function registerHelpers(params) {
 }
 
 function postRender(data, params) {
-    $('#left-column').slideDown();
     // add highlights
     if (data.query) $("#search-results").highlight(data.query.split(' '));
     // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
@@ -215,6 +228,16 @@ function postRender(data, params) {
         params.sortOrder = 'ascending';
         window.location = contextPath+'/studies/?' + $.param(params);
     });
+}
+
+function postRenderFacets(data, params) {
+    // check the currently selected face
+    if (params.facets) {
+        $(params.facets.split(",")).each(function () {
+            $('input[id="'+this+'"]').attr('checked','checked');
+            console.log($('#'+this.replace(':','\\\\:')));
+        })
+    }
 
 }
 

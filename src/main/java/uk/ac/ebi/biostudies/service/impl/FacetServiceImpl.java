@@ -2,6 +2,7 @@ package uk.ac.ebi.biostudies.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,13 +46,14 @@ public class FacetServiceImpl implements FacetService {
     @Override
     public List<FacetResult> getFacetsForQuery(Query query) {
         FacetsCollector facetsCollector = new FacetsCollector();
-        List <FacetResult>allResults = new ArrayList();
+        List<FacetResult> allResults = new ArrayList();
         try {
             FacetsCollector.search(indexManager.getIndexSearcher(), query, 10, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
-            for(BioStudiesField field:BioStudiesField.values()){
-                if(field.getType()== BioStudiesFieldType.FACET)
+            for (BioStudiesField field:BioStudiesField.values()) {
+                if(field.getType()== BioStudiesFieldType.FACET) {
                     allResults.add(facets.getTopChildren(20, field.toString()));
+                }
             }
         } catch (IOException e) {
             logger.debug("problem in creating facetresults for this query {}", query, e);
@@ -64,21 +66,28 @@ public class FacetServiceImpl implements FacetService {
     public JsonNode getFacetsForQueryAsJson(Query query){
         List<FacetResult> facetResults = getFacetsForQuery(query);
         ObjectMapper mapper = new ObjectMapper();
-        ObjectNode objectContainer = mapper.createObjectNode();
+        ArrayNode list = mapper.createArrayNode();
         for(FacetResult fcResult:facetResults){
-            ObjectNode obj = mapper.createObjectNode();
+            ObjectNode facet = mapper.createObjectNode();
+            BioStudiesField field = BioStudiesField.getFacet(fcResult.dim);
+            facet.put("title", field.getTitle());
+            facet.put("name", field.toString());
+            ArrayNode children = mapper.createArrayNode();
             for(LabelAndValue labelVal :fcResult.labelValues){
-                obj.put(labelVal.label, labelVal.value.intValue());
+                ObjectNode child = mapper.createObjectNode();
+                child.put("name", labelVal.label);
+                child.put("hits", labelVal.value.intValue());
+                children.add(child);
             }
-            objectContainer.set(fcResult.dim, obj);
+            facet.put("children", children);
+            list.add(facet);
         }
-        return objectContainer;
+        return list;
     }
 
     @Override
     public synchronized  JsonNode getDefaultFacetTemplate(String prjName) {
-        if(hecatosFacets!=null)
-            return  hecatosFacets;
+        //if(hecatosFacets!=null) return  hecatosFacets;
         QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), new SimpleAnalyzer());
         Query fq = null;
         try {

@@ -76,3 +76,46 @@ ul#search-results li {
     background-color: #75c8ec;
     color: white;
 }
+
+#facet ul  {
+    list-style-type: none;
+}
+
+.facet-value {
+    margin: 0;
+    cursor: pointer;
+}
+
+.facet-name {
+    color: #777;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+.facet-label {
+    display: initial;
+    word-break: break-all;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    color: #267799;
+    line-height: inherit;
+    font-size: 10pt;
+}
+
+.facet-label input{
+    margin: 0;
+    vertical-align: middle;
+}
+
+.facet-hits {
+    background-color: #eee;
+    margin-left: 6px;
+    padding: 3px;
+    border-radius: 3px;
+    color: #a7a7a7;
+    font-size: 8pt;
+}

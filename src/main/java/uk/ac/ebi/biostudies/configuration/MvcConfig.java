@@ -11,11 +11,9 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
@@ -28,14 +26,23 @@ import org.springframework.web.servlet.view.JstlView;
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        AntPathMatcher matcher = new AntPathMatcher();
+        matcher.setCaseSensitive(false);
+        configurer.setPathMatcher(matcher);
+    }
+
+    @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
         registry.addViewController("/studies").setViewName("search");
         registry.addViewController("/studies/*").setViewName("search");
         registry.addViewController("/studies/{accession:.+}").setViewName("detail");
         registry.addViewController("/studies/{accession:.+}/").setViewName("detail");
-        registry.addViewController("/{accession:.+}/studies").setViewName("search");
-        registry.addViewController("/{accession:.+}/studies/").setViewName("search");
+        registry.addViewController("/hecatos/studies/*").setViewName("hecatos");
+        registry.addViewController("/{^hecatos}/studies/*").setViewName("search");
+        registry.addViewController("/hecatos/studies").setViewName("hecatos");
+        registry.addViewController("/{^hecatos}/studies").setViewName("search");
     }
 
     @Override

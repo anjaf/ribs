@@ -3,6 +3,9 @@ package uk.ac.ebi.biostudies.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import java.net.URLDecoder;
+import java.util.*;
 
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -43,30 +47,29 @@ public class Search {
     }
 
     @RequestMapping(value = "/{project}/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getHecatosSelectedFacets(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
+    public String getSelectedFacets(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
                                            @RequestParam(value="facets", required=false) String facets,
                                            @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
                                            @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
                                            @RequestParam(value="sortBy", required=false, defaultValue = "relevance") String sortBy,
                                            @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder,
                                            @PathVariable String project) throws Exception {
-//        ObjectMapper objectContainer = new ObjectMapper();
-//        ArrayNode organNa =mapper.createArrayNode();
-//        organNa.add("heart");
-//        organNa.add("n/a");
-//        objectContainer.set("organ", organNa);
-//        ArrayNode raw =mapper.createArrayNode();
-//        raw.add("raw");
-//        raw.add("processed");
-//        objectContainer.set("rawprocessed",raw);
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode selectedFacets = null;
-        selectedFacets = mapper.readTree(facets);
+        ObjectNode selectedFacets = mapper.createObjectNode();
+        for (String facet:StringUtils.split(facets,",")) {
+            String[] parts = facet.split(":");
+            if (parts.length!=2) continue;
+            if (!selectedFacets.has(parts[0])) {
+                selectedFacets.set(parts[0],mapper.createArrayNode() );
+            }
+            ((ArrayNode) selectedFacets.get(parts[0])).add(parts[1]);
+        }
+        System.out.println(selectedFacets);
         return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project, page, pageSize, sortBy, sortOrder);
     }
 
-    @RequestMapping(value = "/{prjname}/default", produces = JSON_UNICODE_MEDIA_TYPE , method = RequestMethod.GET)
-    public String getHecatosDefaultFacets(@PathVariable String prjname) throws Exception{
-        return facetService.getDefaultFacetTemplate(prjname).toString();
+    @RequestMapping(value = "/{project}/facets", produces = JSON_UNICODE_MEDIA_TYPE , method = RequestMethod.GET)
+    public String getDefaultFacets(@PathVariable String project) throws Exception{
+        return facetService.getDefaultFacetTemplate(project).toString();
     }
 }

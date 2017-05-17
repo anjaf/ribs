@@ -6,6 +6,8 @@ import uk.ac.ebi.biostudies.api.util.analyzer.AccessFieldAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.ExperimentTextAnalyzer;
 
+import java.util.Arrays;
+
 /**
  * Created by awais on 17/02/2017.
  */
@@ -77,4 +79,8 @@ public enum BioStudiesField {
         return expand;
     }
     public boolean isSort(){return  sort;}
+
+    public static BioStudiesField getFacet(String name) {
+        return Arrays.stream(BioStudiesField.values()).filter( field -> field.name==name).findFirst().get();
+    }
 }
