@@ -119,3 +119,29 @@ ul#search-results li {
     color: #a7a7a7;
     font-size: 8pt;
 }
+
+
+.update-icon:before {
+    color: #FFFFFF !important;
+    font-size: 16pt !important;
+    vertical-align: middle;
+    border: 1px solid #22AAE2;
+    border-radius: 50%;
+    background: #0378BB;
+    padding: 12pt;
+    margin-right: 0px !important;
+    vertical-align: initial;
+    box-shadow: inset 0 0 0 2px white;
+    display: block;
+    margin: 12pt 0 3pt 0;
+    cursor: pointer;
+}
+
+.update-icon {
+    color: #0378BB !important;
+}
+
+.update-button  {
+    width:100%;
+    text-align: center;
+}

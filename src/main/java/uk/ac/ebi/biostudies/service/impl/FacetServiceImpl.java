@@ -21,9 +21,7 @@ import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.service.FacetService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ehsan on 09/03/2017.
@@ -66,23 +64,27 @@ public class FacetServiceImpl implements FacetService {
     public JsonNode getFacetsForQueryAsJson(Query query){
         List<FacetResult> facetResults = getFacetsForQuery(query);
         ObjectMapper mapper = new ObjectMapper();
-        ArrayNode list = mapper.createArrayNode();
+        List<ObjectNode> list = new ArrayList<>();
         for(FacetResult fcResult:facetResults){
             ObjectNode facet = mapper.createObjectNode();
             BioStudiesField field = BioStudiesField.getFacet(fcResult.dim);
             facet.put("title", field.getTitle());
             facet.put("name", field.toString());
-            ArrayNode children = mapper.createArrayNode();
+            List<ObjectNode> children = new ArrayList<>();
             for(LabelAndValue labelVal :fcResult.labelValues){
                 ObjectNode child = mapper.createObjectNode();
                 child.put("name", labelVal.label);
                 child.put("hits", labelVal.value.intValue());
                 children.add(child);
             }
-            facet.put("children", children);
+            Collections.sort(children, Comparator.comparing(o -> o.get("name").textValue()));
+            ArrayNode childrenArray = mapper.createArrayNode();
+            childrenArray.addAll(children);
+            facet.set("children", childrenArray);
             list.add(facet);
         }
-        return list;
+        Collections.sort(list, Comparator.comparing(o -> o.get("title").textValue()));
+        return mapper.createArrayNode().addAll(list);
     }
 
     @Override

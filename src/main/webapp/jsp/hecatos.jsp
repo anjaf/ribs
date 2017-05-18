@@ -23,44 +23,46 @@
         <script id='results-template' type='text/x-handlebars-template'>
             <div id="left-column">
                 <div class="small-12 columns">
-                    {{&pager}}
                     {{#if this.hits}}
-                    <div id="sort-by-div">
-                        <span>Sort by:</span>
-                        <select id="sort-by">
-                            <option value="relevance">Relevance</option>
-                            <option value="release_date">Released</option>
-                            <option value="files">Files</option>
-                            <option value="links">Links</option>
-                        </select>
-                        <span id="sorting-links">
-                            <a class="fa fa-angle-down" id="sort-desc"/><a class="fa fa-angle-up" id="sort-asc"/>
-                        </span>
-                    </div>
+                        {{&pager}}
+                        <div id="sort-by-div">
+                            <span>Sort by:</span>
+                            <select id="sort-by">
+                                <option value="relevance">Relevance</option>
+                                <option value="release_date">Released</option>
+                                <option value="files">Files</option>
+                                <option value="links">Links</option>
+                            </select>
+                            <span id="sorting-links">
+                                <a class="fa fa-angle-down" id="sort-desc"/><a class="fa fa-angle-up" id="sort-asc"/>
+                            </span>
+                        </div>
+                    {{/if}}
                 </div>
                 <div class="small-12 columns">
                     <div id="facets" class="small-3 columns">
                     </div>
                     <div class="small-9 columns">
-                        <ul id="search-results">
-                            {{#each this.hits}}
-                            <li>{{&result this}}</li>
-                            {{/each}}
-                        </ul>
+                        {{#if this.hits}}
+                            <ul id="search-results">
+                                {{#each this.hits}}
+                                <li>{{&result this}}</li>
+                                {{/each}}
+                            </ul>
                         {{else}}
-                        {{#if query}}
-                        <section>
-                            <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
-                                Your search for {{query}} returned no results.</h3>
-                            <p></p>
-                        </section>
-                        {{else}}
-                        <section>
-                            <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
-                                Your search returned no results.</h3>
-                            <p></p>
-                        </section>
-                        {{/if}}
+                            {{#if query}}
+                                <section>
+                                    <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
+                                        Your search for {{query}} returned no results.</h3>
+                                    <p></p>
+                                </section>
+                            {{else}}
+                                <section>
+                                    <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
+                                        Your search returned no results.</h3>
+                                    <p></p>
+                                </section>
+                            {{/if}}
                         {{/if}}
                     </div>
                 </div>
@@ -120,22 +122,27 @@
             </div>
         </script>
         <script id='facet-list-template' type='text/x-handlebars-template'>
-            <div id="facet">
-                {{#each this}}
-                    <div class="facet-name">{{title}}</div>
-                    <ul>
-                    {{#each children}}
-                        <li>
-                            <label class="facet-label" for="{{../name}}:{{name}}">
-                                <input class="facet-value" type="checkbox" id="{{../name}}:{{name}}"/>
-                                <span>{{name}}</span>
-                                <span class="facet-hits">{{hits}}</span>
-                            </label>
-                        </li>
+            <form>
+                <div id="facet">
+                    {{#each this}}
+                        <div class="facet-name">{{title}}</div>
+                        <ul>
+                        {{#each children}}
+                            <li>
+                                <label class="facet-label" for="{{../name}}:{{name}}">
+                                    <input class="facet-value" type="checkbox" name="facets" value="{{../name}}:{{name}}" id="{{../name}}:{{name}}"/>
+                                    <span>{{name}}</span>
+                                    <span class="facet-hits">{{hits}}</span>
+                                </label>
+                            </li>
+                        {{/each}}
+                        </ul>
                     {{/each}}
-                    </ul>
-                {{/each}}
-            </div>
+                    <div class="update-button">
+                        <button type="submit" class="icon icon-functional update-icon" data-icon="1">Update</button>
+                    </div>
+                </div>
+            </form>
         </script>
 
         <script src="${contextPath}/js/search.js"></script>

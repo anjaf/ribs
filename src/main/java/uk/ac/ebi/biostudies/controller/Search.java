@@ -56,13 +56,15 @@ public class Search {
                                            @PathVariable String project) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode selectedFacets = mapper.createObjectNode();
-        for (String facet:StringUtils.split(facets,",")) {
-            String[] parts = facet.split(":");
-            if (parts.length!=2) continue;
-            if (!selectedFacets.has(parts[0])) {
-                selectedFacets.set(parts[0],mapper.createArrayNode() );
+        if (facets!=null) {
+            for (String facet : StringUtils.split(facets, ",")) {
+                String[] parts = facet.split(":");
+                if (parts.length != 2) continue;
+                if (!selectedFacets.has(parts[0])) {
+                    selectedFacets.set(parts[0], mapper.createArrayNode());
+                }
+                ((ArrayNode) selectedFacets.get(parts[0])).add(parts[1]);
             }
-            ((ArrayNode) selectedFacets.get(parts[0])).add(parts[1]);
         }
         System.out.println(selectedFacets);
         return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project, page, pageSize, sortBy, sortOrder);

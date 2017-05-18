@@ -1,27 +1,22 @@
 var project;
 !function(d) {
 
-    var split_params = document.location.search.replace(/(^\?)/,'').split("&").filter(function (a) { return a!='' }).map(
-            function(s) {
-                return s = s.split("="), this[s[0]] = s[1], this
-            }.bind({}));
+    var split_params = document.location.search.replace(/(^\?)/,'')
+            .split("&")
+            .filter(function (a) {return a!='' })
+            .map(function(s) {
+                    s = s.split("=")
+                    v = decodeURIComponent(s[1]).split('+').join(' ');
+                    this[s[0]] =  this[s[0]] ? this[s[0]]+','+v:v;
+                    return this;
+                }.bind({}));
     var params = split_params.length ? split_params[0] : {};
     registerHelpers(params);
 
 
     var parts = $.grep($(location).attr('pathname').replace(contextPath+'/','').split('/'),function(a) {return a!=''});
     project = parts.length>1 ? parts[0] : undefined;
-    if(project) {
-        params.query = (params.query ? params.query : '')+' %2Bproject:'+project;
-        $.getJSON(contextPath+"/api/studies/"+project,function (data) {
-            showProjectBanner(data);
-            showResults(params);
-        }).fail(function(error) {
-            showError(error);
-        });
-    } else {
-        showResults(params);
-    }
+    showResults(params);
 }(document);
 
 function showProjectBanner(data) {
@@ -39,6 +34,14 @@ function showResults(params) {
     // Prepare template
     var templateSource = $('script#results-template').html();
     var template = Handlebars.compile(templateSource);
+
+    if(project) {
+        $.getJSON(contextPath + "/api/studies/" + project, function (data) {
+            showProjectBanner(data);
+        }).fail(function (error) {
+            showError(error);
+        });
+    }
 
     // Data in json
     $.getJSON(contextPath+(project ? "/api/"+project+"/search" : "/api/search"), params,function (data) {
@@ -61,6 +64,7 @@ function showResults(params) {
                     data.selectedFacets = params.facets ? params.facets.split(",") : [];
                     var html = template(data);
                     $('#facets').html(html);
+                    postRenderFacets(data,params);
                 }).fail(function (error) {
                     showError(error);
                 }).done( function (data) {
@@ -235,7 +239,6 @@ function postRenderFacets(data, params) {
     if (params.facets) {
         $(params.facets.split(",")).each(function () {
             $('input[id="'+this+'"]').attr('checked','checked');
-            console.log($('#'+this.replace(':','\\\\:')));
         })
     }
 

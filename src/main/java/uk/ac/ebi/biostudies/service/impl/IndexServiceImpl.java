@@ -298,11 +298,11 @@ public class IndexServiceImpl implements IndexService {
         }
 
         private void addFacet(String value, BioStudiesField field, Document doc){
-            if(value==null || value.isEmpty())
-                value="n/a";
-            String []subValues = value.split(",");
-            for(String subVal:subValues){
-                doc.add(new FacetField(field.toString(), value.trim().toLowerCase()));
+            if(value==null || value.isEmpty()) {
+                value = "n/a";
+            }
+            for(String subVal:value.split(",")) {
+                doc.add(new FacetField(field.toString(), subVal.trim().toLowerCase()));
             }
         }
 
