@@ -278,7 +278,8 @@ public class SearchServiceImpl implements SearchService {
                     page, pageSize, sortBy, sortOrder);
             response.set("expandedEfoTerms", mapper.createArrayNode() );
             response.set("expandedSynonyms", mapper.createArrayNode() );
-            response.put("query",  queryString.equals("*:*") ? null : queryString);
+            response.put("query",  queryString.equals("*:*") ? null: queryString);
+            response.put("facets", selectedFacets.size()==0 ? null : selectedFacets);
         }
         catch(Throwable error){
             logger.error("problem in searching this query {}", queryString, error);

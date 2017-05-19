@@ -43,6 +43,18 @@
                     <div id="facets" class="small-3 columns">
                     </div>
                     <div class="small-9 columns">
+                        {{#ifCond query '&&' hits}}
+                            <h4 class="clearboth">Search results for <span class="query">{{query}}</span></h4>
+                        {{else}}
+                            {{#if facets}}
+                                <h4 class="clearboth">
+                                    Search results for
+                                    {{#each facets}}
+                                    <span class="query">{{@key}}:{{this}}</span>
+                                    {{/each}}
+                                </h4>
+                            {{/if}}
+                        {{/ifCond}}
                         {{#if this.hits}}
                             <ul id="search-results">
                                 {{#each this.hits}}

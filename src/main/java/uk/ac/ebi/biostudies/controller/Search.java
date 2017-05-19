@@ -66,7 +66,6 @@ public class Search {
                 ((ArrayNode) selectedFacets.get(parts[0])).add(parts[1]);
             }
         }
-        System.out.println(selectedFacets);
         return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project, page, pageSize, sortBy, sortOrder);
     }
 

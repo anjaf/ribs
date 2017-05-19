@@ -37,9 +37,9 @@
                             <a class="fa fa-angle-down" id="sort-desc"/><a class="fa fa-angle-up" id="sort-asc"/>
                         </span>
                     </div>
-                    {{#if query}}
-                        <h4 class="clearboth">Search results for: {{query}}</h4>
-                    {{/if}}
+                    {{#ifCond query '&&' hits}}
+                        <h4 class="clearboth">Search results for <span class="query">{{query}}</span></h4>
+                    {{/ifCond}}
                     <ul id="search-results">
                         {{#each this.hits}}
                         <li>{{&result this}}</li>

@@ -77,6 +77,10 @@ ul#search-results li {
     color: white;
 }
 
+#facets {
+    margin-top:10pt;
+}
+
 #facet ul  {
     list-style-type: none;
 }
@@ -144,4 +148,8 @@ ul#search-results li {
 .update-button  {
     width:100%;
     text-align: center;
+}
+
+.query {
+    color:#22aae2;
 }
