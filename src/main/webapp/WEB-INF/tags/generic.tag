@@ -4,9 +4,9 @@
 <%@attribute name="postBody" fragment="true" %>
 <%@attribute name="head" fragment="true" %>
 <%@attribute name="breadcrumbs" fragment="true" %>
-<%@attribute name="preContent" fragment="true" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <c:set var="currentUser" value="${Session.getCurrentUser()}"/>
+<c:set var="pathname" value="${requestScope['javax.servlet.forward.request_uri']}"/>
 <!doctype html>
 <html lang="en">
 <head>
@@ -138,7 +138,7 @@
 
                 <!-- local-title -->
                 <div class="columns medium-7" id="local-title">
-                    <h1><a href="../../" title="Back to BioStudies homepage"><img src="${contextPath}/images/logo.png"/></a></h1>
+                    <h1><a href="${contextPath}" title="Back to BioStudies homepage"><img src="${contextPath}/images/logo.png"/></a></h1>
 
                 </div>
                 <!-- /local-title -->
@@ -194,7 +194,7 @@
     </div>
 </div>
 
-<jsp:invoke fragment="preContent"/>
+<div id="project-banner"></div>
 <div id="content" role="main" class="row">
 
     <!-- Suggested layout containers -->
@@ -291,6 +291,14 @@
 
 <script src='${contextPath}/js/handlebars-v4.0.5.js'></script>
 <script src='${contextPath}/js/jquery.cookie.js'></script>
+
+<!-- shared variables -->
+<script>
+    var contextPath = '${contextPath}';
+    var parts = $.grep('${pathname}'.replace(contextPath+'/','').split('/'),function(a) {return a!=''});
+    var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
+</script>
+
 <script src='${contextPath}/js/common.js'></script>
 <!-- Google Analytics details... -->
 <!-- Change UA-XXXXX-X to be your site's ID -->
@@ -302,9 +310,17 @@
   });
 </script>
 -->
-<script>
-    var contextPath = '${contextPath}';
-</script>
 <jsp:invoke fragment="postBody"/>
+<script id='project-banner-template' type='text/x-handlebars-template'>
+    <div class="project-banner-content columns medium-12 clearfix row">
+                <span class="project-logo">
+                    <a class="no-border" href="{{url}}" target="_blank">
+                        <img src="{{logo}}"></a>
+                </span>
+        <span class="project-text">
+                    <span class="project-description">{{description}}</span>
+                </span>
+    </div>
+</script>
 </body>
 </html>

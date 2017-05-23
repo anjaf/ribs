@@ -59,7 +59,7 @@ $.fn.groupBy = function(fn) {
     var templateSource = $('script#study-template').html();
     var template = Handlebars.compile(templateSource);
     var url = window.location.href;
-    url = url.replace('/studies/','/api/studies/');
+    url = url.replace('/studies/','/api/studies/').replace(project,'');
     $.getJSON(url,params, function (data) {
         // set accession
         $('#accession').text(data.accno);

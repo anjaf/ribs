@@ -1,17 +1,18 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <t:generic>
 
     <jsp:attribute name="head">
-        <link rel="stylesheet" href="../css/jquery.dataTables.css">
-        <link rel="stylesheet" href="../css/font-awesome.min.css" type="text/css">
-        <link rel="stylesheet" href="../css/detail.css" type="text/css">
+        <link rel="stylesheet" href="${contextPath}/css/jquery.dataTables.css">
+        <link rel="stylesheet" href="${contextPath}/css/font-awesome.min.css" type="text/css">
+        <link rel="stylesheet" href="${contextPath}/css/detail.css" type="text/css">
     </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
         <ul class="breadcrumbs">
-            <li><a href="../../">BioStudies</a></li>
-            <li><a href="../studies">Studies</a></li>
+            <li><a href="${contextPath}">BioStudies</a></li>
+            <li><a href="${contextPath}/studies">Studies</a></li>
             <li>
                 <span class="show-for-sr">Current: </span> <span id="accession">Loading</span>
             </li>
@@ -19,8 +20,8 @@
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
-        <script src="../js/jquery.dataTables.min.js"></script>
-        <script src="../js/jquery.highlight.js"></script>
+        <script src="${contextPath}/js/jquery.dataTables.min.js"></script>
+        <script src="${contextPath}/js/jquery.highlight.js"></script>
         <!-- Handlebars templates-->
         <script id='study-template' type='text/x-handlebars-template'>
             <div id="left-column">
@@ -28,7 +29,14 @@
                     {{&main-file-table}}
                     {{&main-link-table}}
                 </div>
-                <div id="release-date-download">Release Date: {{releaseDate}}
+                <div id="release-date-download">
+                    <span class="release-date">
+                        {{#if releaseDate}}
+                            Release Date: {{releaseDate}}
+                        {{else}}
+                            <i class="fa fa-lock" aria-hidden="true"></i> Private
+                        {{/if}}
+                    </span>
                     <div id="download-source">
                         <a href="/biostudies/files/{{accno}}/{{accno}}.json" target="_blank"
                                                  title="Download Study as JSON" class="source-icon source-icon-json"
@@ -289,7 +297,7 @@
              </section>
          </script>
 
-        <script src="../js/detail.js"></script>
+        <script src="${contextPath}/js/detail.js"></script>
     </jsp:attribute>
     <jsp:body>
         <div id="loader">

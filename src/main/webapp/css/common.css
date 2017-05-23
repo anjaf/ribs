@@ -124,3 +124,21 @@
     padding: 10px;
     text-align: left;
 }
+
+#project-search {
+    color: white;
+    font-size: 10pt;
+    float: right;
+    padding-right: 10px;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: pointer;
+}
+
+#project-search input{
+    vertical-align: middle;
+    margin: 0px 3px 3px !important;
+}

@@ -1,4 +1,3 @@
-var project;
 !function(d) {
 
     var split_params = document.location.search.replace(/(^\?)/,'')
@@ -13,29 +12,8 @@ var project;
     var params = split_params.length ? split_params[0] : {};
     registerHelpers(params);
 
-
-    var parts = $.grep($(location).attr('pathname').replace(contextPath+'/','').split('/'),function(a) {return a!=''});
-    project = parts.length>1 ? parts[0] : undefined;
     showResults(params);
 }(document);
-
-function showProjectBanner(data) {
-    var templateSource = $('script#project-banner-template').html();
-    var template = Handlebars.compile(templateSource);
-    var project={logo:contextPath+'/files/'+data.accno+'/'+data.section.files[0][0].path};
-    $(data.section.attributes).each(function () {
-        project[this.name.toLowerCase()] = this.value
-    })
-    var html = template(project);
-    $('#project-banner').html(html);
-
-    // add project search checkbox
-    $('#example').append('<label id="project-search"><input id="search-in-project" type="checkbox" />Search in '+project.title+' only</label>');
-    $('#search-in-project').bind('change', function(){
-        $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');
-    });
-}
-
 
 
 function showResults(params) {
@@ -43,18 +21,8 @@ function showResults(params) {
     var templateSource = $('script#results-template').html();
     var template = Handlebars.compile(templateSource);
 
-    if(project) {
-        // display project banner
-        $.getJSON(contextPath + "/api/studies/" + project, function (data) {
-            showProjectBanner(data);
-        }).fail(function (error) {
-            showError(error);
-        });
-    }
-
     // do search
     $.getJSON(contextPath+(project ? "/api/"+project+"/search" : "/api/search"), params,function (data) {
-
         if(project) {
             data.project = project;
         }

@@ -265,6 +265,10 @@ a.section-button:hover {
 }
 
 #release-date-download {
-    color: #999999;
+    color: #58585a;
     padding-bottom: 10px;
+}
+
+.release-date {
+    font-size:10pt;
 }

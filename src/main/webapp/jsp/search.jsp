@@ -6,10 +6,6 @@
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/search.css" type="text/css">
     </jsp:attribute>
-    <jsp:attribute name="preContent">
-        <div id="project-banner" >
-        </div>
-    </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
         <ul class="breadcrumbs">
             <li><a href="${contextPath}/">BioStudies</a></li>
@@ -102,18 +98,6 @@
                 <p>If you require further assistance locating missing page or file, please <a href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it for you.</p>
             </section>
         </script>
-        <script id='project-banner-template' type='text/x-handlebars-template'>
-            <div class="project-banner-content columns medium-12 clearfix row">
-                <span class="project-logo">
-                    <a class="no-border" href="{{url}}" target="_blank">
-                        <img src="{{logo}}"></a>
-                </span>
-                <span class="project-text">
-                    <span class="project-description">{{description}}</span>
-                </span>
-            </div>
-        </script>
-
         <script src="${contextPath}/js/search.js"></script>
     </jsp:attribute>
     <jsp:body>

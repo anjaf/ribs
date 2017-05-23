@@ -6,10 +6,6 @@
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/search.css" type="text/css">
     </jsp:attribute>
-    <jsp:attribute name="preContent">
-        <div id="project-banner">
-        </div>
-    </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
         <ul class="breadcrumbs">
             <li><a href="${contextPath}/">BioStudies</a></li>

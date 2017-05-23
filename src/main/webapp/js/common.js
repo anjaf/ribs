@@ -15,6 +15,16 @@
         showLoginForm();
     }
 
+    if(project) {
+        // display project banner
+        $.getJSON(contextPath + "/api/studies/" + project, function (data) {
+            showProjectBanner(data);
+        }).fail(function (error) {
+            showError(error);
+        });
+    }
+
+
 }(document);
 
 function showLoginForm() {
@@ -64,4 +74,26 @@ function showError(error) {
     var html = errorTemplate(data);
     $('#renderedContent').html(html);
     $('#accession').text("Error");
+}
+
+
+function showProjectBanner(data) {
+    var templateSource = $('script#project-banner-template').html();
+    var template = Handlebars.compile(templateSource);
+    var projectObj={logo:contextPath+'/files/'+data.accno+'/'+data.section.files[0][0].path};
+    $(data.section.attributes).each(function () {
+        projectObj[this.name.toLowerCase()] = this.value
+    })
+    var html = template(projectObj);
+    $('#project-banner').html(html);
+
+    // add project search checkbox
+    $('#example').append('<label id="project-search"><input id="search-in-project" type="checkbox" />Search in '+projectObj.title+' only</label>');
+    $('#search-in-project').bind('change', function(){
+        $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');
+    });
+    $('#search-in-project').click();
+
+    //fix breadcrumbs
+    $('ul.breadcrumbs').children().first().next().html('<li><a href="/biostudies/'+project+'/studies">'+projectObj.title+'</a></li>')
 }
