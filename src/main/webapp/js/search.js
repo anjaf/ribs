@@ -28,7 +28,15 @@ function showProjectBanner(data) {
     })
     var html = template(project);
     $('#project-banner').html(html);
+
+    // add project search checkbox
+    $('#example').append('<label id="project-search"><input id="search-in-project" type="checkbox" />Search in '+project.title+' only</label>');
+    $('#search-in-project').bind('change', function(){
+        $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');
+    });
 }
+
+
 
 function showResults(params) {
     // Prepare template
@@ -36,6 +44,7 @@ function showResults(params) {
     var template = Handlebars.compile(templateSource);
 
     if(project) {
+        // display project banner
         $.getJSON(contextPath + "/api/studies/" + project, function (data) {
             showProjectBanner(data);
         }).fail(function (error) {
@@ -43,20 +52,19 @@ function showResults(params) {
         });
     }
 
-    // Data in json
+    // do search
     $.getJSON(contextPath+(project ? "/api/"+project+"/search" : "/api/search"), params,function (data) {
-        // Generate html using template and data
+
         if(project) {
             data.project = project;
         }
         var html = template(data);
-
-        // Add the result to the DOM
         $('#renderedContent').html(html);
 
         postRender(data, params);
     }).done( function () {
         $('#left-column').slideDown("fast", function () {
+            // fill facets
             if ($('#hasFacets').length) {
                 $.getJSON(contextPath + "/api/" + project + "/facets", function (data) {
                     var templateSource = $('script#facet-list-template').html();

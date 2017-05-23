@@ -25,7 +25,7 @@ public enum BioStudiesField {
     RELEASE_DATE("release_date", "", BioStudiesFieldType.LONG, true, false, true, new AttributeFieldAnalyzer()),
     ID("id", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false, false, null),
     ORGAN("organ", "Organ", BioStudiesFieldType.FACET, false, true, false, null),
-    TECHNOLOGY("tech", "Assay Technology Type", BioStudiesFieldType.FACET, false, true, true, null),
+    TECHNOLOGY("technology", "Assay Technology Type", BioStudiesFieldType.FACET, false, true, true, null),
     DATATYPE("dataType", "Data Type", BioStudiesFieldType.FACET, false, true, false, null),
     COMPOUND("compound", "Compound", BioStudiesFieldType.FACET, false, true, false, null),
     RAWPROCESSED("rawProcessed", "Raw/Processed", BioStudiesFieldType.FACET, false, true, false, null),

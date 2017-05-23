@@ -116,11 +116,7 @@ ul#search-results li {
 }
 
 .facet-hits {
-    background-color: #eee;
-    margin-left: 6px;
-    padding: 3px;
-    border-radius: 3px;
-    color: #a7a7a7;
+    color: #aaaaaa;
     font-size: 8pt;
 }
 
@@ -152,4 +148,22 @@ ul#search-results li {
 
 .query {
     color:#22aae2;
+}
+
+#project-search {
+    color: white;
+    font-size: 10pt;
+    float: right;
+    padding-right: 10px;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    cursor: pointer;
+}
+
+#project-search input{
+    vertical-align: middle;
+    margin: 0px 3px 3px !important;
 }

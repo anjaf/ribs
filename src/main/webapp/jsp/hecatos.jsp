@@ -144,7 +144,7 @@
                                 <label class="facet-label" for="{{../name}}:{{name}}">
                                     <input class="facet-value" type="checkbox" name="facets" value="{{../name}}:{{name}}" id="{{../name}}:{{name}}"/>
                                     <span>{{name}}</span>
-                                    <span class="facet-hits">{{hits}}</span>
+                                    <span class="facet-hits">({{hits}})</span>
                                 </label>
                             </li>
                         {{/each}}
