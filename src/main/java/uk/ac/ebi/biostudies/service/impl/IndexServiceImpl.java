@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.*;
 import org.apache.lucene.facet.FacetField;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -46,6 +47,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 /**
  * Created by ehsan on 27/02/2017.
  */
+
 
 @Service
 @Scope("singleton")
@@ -273,7 +275,8 @@ public class IndexServiceImpl implements IndexService {
                         break;
                     case STRING_UNTOKENIZED:
                         value = valueMap.get(field).toString();
-                        doc.add(new StringField(String.valueOf(field), value, Field.Store.YES));
+                        Field unTokenizeField = new Field(String.valueOf(field), value, BioStudiesFieldType.TYPE_NOT_ANALYZED);
+                        doc.add(unTokenizeField);
 //                        if need sorting uncomment these lines
 //                        if(field.isSort())
 //                            doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef(value.length()<256 ? value.toLowerCase():value.substring(0,256).toLowerCase())));
