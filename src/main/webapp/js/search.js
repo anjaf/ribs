@@ -169,7 +169,11 @@ function registerHelpers(params) {
 
 function postRender(data, params) {
     // add highlights
-    if (data.query) $("#search-results").highlight(data.query.split(' '));
+
+    if (data.query) {
+        var split = data.query.match(/(?:[^\s"]+|"[^"]*")+/g).map( function(v) { return v.replace(/\"/g,'')});
+        $("#search-results").highlight(split);
+    }
     // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
     // $("#renderedContent").highlight(['mouse','gland '],{className:'efo'});
 
