@@ -18,5 +18,6 @@ public interface Constants {
     String LINKS = "links";
     String FILES = "files";
     String STUDIES_JSON_FILE = "studies.json";
-    String JSON_UNICODE_MEDIA_TYPE = MediaType.APPLICATION_JSON_VALUE+";charset=UTF-8";
+    String JSON_UNICODE_MEDIA_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
+    String STRING_UNICODE_MEDIA_TYPE = MediaType.TEXT_PLAIN_VALUE+";charset=UTF-8";
 }
