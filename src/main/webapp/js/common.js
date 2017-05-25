@@ -24,6 +24,24 @@
         });
     }
 
+    var autoCompleteFixSet = function() {
+        $(this).attr('autocomplete', 'off');
+    };
+    var autoCompleteFixUnset = function() {
+        $(this).removeAttr('autocomplete');
+    };
+
+    $("#query").autocomplete(
+        contextPath + "/api/autocomplete/keywords"
+        , { matchContains: false
+            , selectFirst: false
+            , scroll: true
+            , max: 50
+            , requestTreeUrl: contextPath + "/api/autocomplete/efotree"
+        }
+    ).focus(autoCompleteFixSet).blur(autoCompleteFixUnset).removeAttr('autocomplete');
+
+
 
 }(document);
 

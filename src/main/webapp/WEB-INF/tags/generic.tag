@@ -292,7 +292,8 @@
 
 <script src='${contextPath}/js/handlebars-v4.0.5.js'></script>
 <script src='${contextPath}/js/jquery.cookie.js'></script>
-
+<script src='${contextPath}/js/jquery.caret-range-1.0.js'></script>
+<script src='${contextPath}/js/jquery.autocomplete.js'></script>
 <!-- shared variables -->
 <script>
     var contextPath = '${contextPath}';
