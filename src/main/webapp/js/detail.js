@@ -156,6 +156,7 @@ function registerHelpers() {
             $.each(this, function (i, file) {
                 file.attributes = file.attributes || [];
                 file.attributes.push({"name": "Name", "value": file.path});
+                file.attributes.push({"name": "Size", "value": getByteString(file.size)});
                 $.each(file.attributes, function (i, attribute) {
                     if (!(attribute.name in hsh)) {
                         names.push(attribute.name);
@@ -167,7 +168,7 @@ function registerHelpers() {
                     }
                 })
             });
-            this.headers = names;
+            this.headers = names.filter(function (name) { return name.toLowerCase()!='type' });
             this.type = this[0].type
         }
     });
@@ -744,4 +745,13 @@ function handleThumbnails() {
             $(this).append('<i class="fa fa-file-image-o"></i><span  class="thumbnail-image"/><img/>')
         }
     })
+}
+
+function getByteString(b) {
+    if (b==0) return '0 bytes';
+    if (b==1) return '1 byte';
+    prec = {'bytes':0, 'KB':0, 'MB':1, 'GB':2, 'TB':2, 'PB':2, 'EB':2, 'ZB':2, 'YB':2};
+    keys = $.map(prec, function(v,i){return i});
+    var i = Math.floor(Math.log(b) / Math.log(1000))
+    return parseFloat(b / Math.pow(1000, i)).toFixed(prec[keys[i]]) + ' ' + keys[i];
 }
