@@ -115,8 +115,14 @@ public class Autocompletion {
         return sb.toString();
     }
 
-    public void rebuild(List<BioStudiesField> numericalFieldNameTitle) throws IOException {
+    public void rebuild() throws IOException {
         getStore().clear();
+        List<BioStudiesField> numericalFieldNameTitle = new ArrayList();
+        //Add the fields that you want autoComplete be Applied
+        for(BioStudiesField bsField:BioStudiesField.values()) {
+            if(bsField.isExpand())
+                numericalFieldNameTitle.add(bsField);
+        }
 
         // adding field terms (for all non-numerical fields) and names (if there is a description)
         for (BioStudiesField field : numericalFieldNameTitle) {

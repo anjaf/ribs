@@ -42,6 +42,8 @@ public interface SearchService {
 
     String getEfoWords(String query, Integer limit);
 
+    String getEfoTree(String query);
+
     Query applyFacets(Query query, JsonNode facets, String prjName);
 
     ObjectNode applySearchOnQuery(Query query, Query synonymQuery, Query efoQuery, int page, int pageSize, String sortBy, String sortOrder) throws ParseException;

@@ -61,20 +61,17 @@ public class Ontology {
         // load custom synonyms to lookup index
         loadCustomSynonyms();
 
+        Long time = System.currentTimeMillis();
         this.efo = removeIgnoredClasses(new EFOLoader().load(ontologyStream));
+        logger.debug((System.currentTimeMillis()-time)+"");
+
 
         efoExpansionLookupIndex.setEfo(getEfo());
         efoExpansionLookupIndex.buildIndex();
 
 
         autocompletion.setEfo(getEfo());
-        //Add the fields that you want autoComplete be Applied
-        List<BioStudiesField> autoFields = new ArrayList();
-        for(BioStudiesField bsField:BioStudiesField.values()) {
-            if(bsField.isExpand())
-                autoFields.add(bsField);
-        }
-        autocompletion.rebuild(autoFields);
+        autocompletion.rebuild();
 
 
         this.assayByMolecule.reload(getEfo(), "http://www.ebi.ac.uk/efo/EFO_0002772");

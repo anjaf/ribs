@@ -16,6 +16,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.util.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
+import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
 import javax.annotation.PostConstruct;
@@ -52,6 +53,8 @@ public class IndexManager {
     TaxonomyManager taxonomyManager;
     @Autowired
     AnalyzerManager analyzerManager;
+    @Autowired
+    Autocompletion autocompletion;
 
 
     @PostConstruct
@@ -76,6 +79,7 @@ public class IndexManager {
             efoIndexReader = DirectoryReader.open(efoIndexWriter);
             efoIndexSearcher = new IndexSearcher(getEfoIndexReader());
             taxonomyManager.init();
+            autocompletion.rebuild();
 
         }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);

@@ -17,7 +17,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.STRING_UNICODE_MEDIA_TYPE;
 
 @RestController
 @RequestMapping(value="/api/autocomplete")
-public class AutoComplete {
+public class AutoCompleteController {
 
     @Autowired
     SearchService searchService;
@@ -33,12 +33,11 @@ public class AutoComplete {
     }
 
     @RequestMapping(value = "/efotree", produces = STRING_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getEfoTree(@RequestParam(value="query", defaultValue = "") String query,
-                              @RequestParam(value="limit", required=false, defaultValue = "10") Integer limit){
-        if(query==null || query.isEmpty())
+    public String getEfoTree(@RequestParam(value="efoid", defaultValue = "") String efoid){
+        if(efoid==null || efoid.isEmpty())
             return "";
 
-        return searchService.getEfoWords(query, limit);
+        return searchService.getEfoTree(efoid);
     }
 
 

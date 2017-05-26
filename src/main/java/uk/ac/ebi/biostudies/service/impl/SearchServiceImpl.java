@@ -90,6 +90,11 @@ public class SearchServiceImpl implements SearchService {
         return autocompletion.getEfoWords(query, limit);
     }
 
+    @Override
+    public String getEfoTree(String query) {
+        return autocompletion.getEfoChildren(query);
+    }
+
     public Query expandQuery(Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder){
         Map<String, String> queryInfo = analyzerManager.getExpandableFields();
         Query modifiedQuery = null;
