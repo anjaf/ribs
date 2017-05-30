@@ -52,6 +52,7 @@
                     </div>
                 </div>
                 <div id="bs-content">
+                    <div id="thumbnail"></div>
                     <h4>{{valueWithName 'Title' attributes}}</h4>
                     <!-- Authors -->
                     <ul id="bs-authors">
@@ -216,7 +217,7 @@
                             {{#each this}}
                             <tr>
                                 <td class="disable-select file-check-box">
-                                    <input class="text-bottom" type="checkbox" data-name="{{path}}"/>
+                                    <input type="checkbox" data-name="{{path}}"/>
                                 </td>
                                 {{#each ../headers}}
                                     <td>{{valueWithName this ../this.attributes}}</td>

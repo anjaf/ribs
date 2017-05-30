@@ -111,6 +111,7 @@ function registerHelpers() {
     });
 
     Handlebars.registerHelper('replaceCharacter', function(val, a, b ) {
+        if (!val) return '';
         return val.replace(a,b);
     });
 
@@ -300,14 +301,18 @@ function registerHelpers() {
     Handlebars.registerHelper('publication', function(obj, options) {
         var publication = {}
         if (!obj.subsections) return '';
-        var pubs = obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='publication';});
-        if (!pubs || pubs.length <1) return null;
-        $.each(pubs[0].attributes, function(i,v) {
-            publication[v.name.toLowerCase().replace(' ','_')] = v.value
+        var pubs = obj.subsections.filter(function (o) {
+            return o.type && o.type.toLowerCase() == 'publication';
+        });
+        if (!pubs || pubs.length < 1) return null;
+        $.each(pubs[0].attributes, function (i, v) {
+            publication[v.name.toLowerCase().replace(' ', '_')] = v.value
         });
         publication.accno = pubs[0].accno;
-        var type = publication.accno.toLowerCase().substr(0,3);
-        publication.URL = getURL(type, publication.accno);
+        if (publication.accno) {
+            var type = publication.accno.toLowerCase().substr(0, 3);
+            publication.URL = getURL(type, publication.accno);
+        }
         var template = Handlebars.compile($('script#publication-template').html());
         return new Handlebars.SafeString(template(publication));
     });
@@ -740,14 +745,28 @@ function clearFilter() {
 
 function handleThumbnails() {
     $("input[data-name]").parent().next().each(function () {
-        var name = $(this).text().toLowerCase();
-        if ( $.inArray(name.substring(name.lastIndexOf('.')+1), ['doc','html'])) {
-            $(this).append('<i class="fa fa-file-image-o"></i><span  class="thumbnail-image"/><img/>')
+        var path = $(this).text();
+        if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), ['html','pdf']) >=0 ) {
+            $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'
+                +contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'"><i class="fa fa-file-image-o"></i></a>')
         }
     })
+
+    $("input[data-name]").parent().next().hover( function() {
+        var $tn = $(this).find('.thumbnail-icon');
+        if (!$tn.length) return;
+        $('#thumbnail').html('<img src="'+ $tn.data('thumbnail') +'"/>');
+        $('#thumbnail').css('top',$tn.offset().top - 10);
+        $('#thumbnail').css('left',$('#right-column').offset().left - $('#thumbnail').width() - 10);
+        $('#thumbnail').show();
+    }, function () {
+        $('#thumbnail').hide();
+    });
+
 }
 
 function getByteString(b) {
+    if (b==undefined) return '';
     if (b==0) return '0 bytes';
     if (b==1) return '1 byte';
     prec = {'bytes':0, 'KB':0, 'MB':1, 'GB':2, 'TB':2, 'PB':2, 'EB':2, 'ZB':2, 'YB':2};
