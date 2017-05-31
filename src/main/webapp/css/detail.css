@@ -301,3 +301,49 @@ a.thumbnail-icon {
     margin: auto;
     cursor: pointer;
 }
+
+
+.sub-attribute {
+    position: absolute;
+    background-color: #EAF5FB;
+    padding: 3px;
+    border: 1px solid #267799;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: none;
+    color: #777;
+    z-index: 999;
+    width: 50%;
+    font-size: small;
+}
+
+.sub-attribute-info {
+    margin: 0px 0px 0px 4px;
+    display: inline-block;
+    color: #267799;
+    cursor: pointer;
+    font-size: 10pt;
+}
+
+.sub-attribute-title {
+    font-weight: bold;
+    margin-right:5px;
+}
+
+.sub-attribute-text {
+    background-color: #EAF5FB;
+}
+
+.ontology-icon {
+    border: 0px !important;
+    color: #267799 !important;
+    padding: 2px;
+    /* display: inline; */
+}
+
+.attributes-icon {
+    font-size: 14px;
+    padding: 0px 5px;
+    color: #aaa;
+    cursor: pointer;
+}

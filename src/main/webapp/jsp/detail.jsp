@@ -73,9 +73,12 @@
                     <div>{{accno}}</div>
 
                     <!-- Study level attributes -->
-                    {{#eachGroup 'name' 'value' attributes}}
-                        <div class="bs-name">{{name}}</div>
-                        <div>{{value}}</div>
+                    {{#eachGroup attributes}}
+                        {{#each this}}
+                            {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
+                                {{value}}
+                            {{#if @last}}</div>{{/if}}
+                        {{/each}}
                     {{/eachGroup}}
 
                     <!-- Subsections -->
@@ -128,31 +131,45 @@
         <script id='section-template' type='text/x-handlebars-template'>
             <section name="{{replaceCharacter this.accno '/' '-'}}">
                 <div class="bs-name {{this.indentClass}}">
-                    {{type}}
+                    {{#ifHasAttribute 'Title' this.attributes}}
+                        {{valueWithName 'Title' this.attributes}}
+                    {{else}}
+                        {{type}}
+                    {{/ifHasAttribute}}
                     <!--span class="section-title-bar"><span class="file-filter"><i class="fa fa-filter"></i>
                                 Files in: </span><a class="section-button" data-files-id="df1">This section</a></span-->
                 </div>
                 <div class="has-child-section">
-
                     {{&section-link-tables}}
-                    <!-- Study level attributes -->
-                    {{#eachGroup 'name' 'value' attributes}}
-                        <div class="bs-name">{{name}}</div>
-                        <div>{{value}}</div>
+                    {{#if subsections}}
+                        {{#each subsections}}
+                            {{#ifArray this}}
+                                {{&table this}}
+                            {{/ifArray}}
+                        {{/each}}
+                    {{/if}}
+
+                    <!-- section level attributes -->
+                    {{#eachGroup attributes}}
+                        {{#each this}}
+                            {{#ifCond name '!=' 'Title'}}
+                                {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
+                                    {{value}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
+                            {{/ifCond}}
+                        {{/each}}
                     {{/eachGroup}}
 
                     {{#if subsections}}
-                    <div class="has-child-section">
-                            {{#each subsections}}
-                                {{#ifArray this}}
-                                    {{&table this}}
-                                {{else}}
-                                    {{#ifRenderable this}}
+                        {{#each subsections}}
+                            {{#ifArray this}}
+                            {{else}}
+                                {{#ifRenderable this}}
+                                    <div class="has-child-section">
                                         {{&section this 'true'}}
-                                    {{/ifRenderable}}
-                                {{/ifArray}}
-                            {{/each}}
-                    </div>
+                                    </div>
+                                {{/ifRenderable}}
+                            {{/ifArray}}
+                        {{/each}}
                     {{/if}}
 
                 </div>
@@ -290,7 +307,18 @@
             </div>
         </script>
 
-         <script id='error-template' type='text/x-handlebars-template'>
+        <script id='valqual-template' type='text/x-handlebars-template'>{{#ifArray this}}
+                {{&renderOntologySubAttribute this}}
+                {{#eachSubAttribute this}}
+                    {{#if @first}}<i class="fa fa-info-circle sub-attribute-info"></i><span class="sub-attribute">{{/if}}
+                    <span class="sub-attribute-title">{{name}}:</span>
+                    <span>{{value}}</span>
+                    <br/>
+                    {{#if @last}}</span>{{/if}}
+                {{/eachSubAttribute}}
+        {{/ifArray}}</script>
+
+        <script id='error-template' type='text/x-handlebars-template'>
              <section>
                  <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>{{title}}</h3>
                  <p>{{&message}}</p>

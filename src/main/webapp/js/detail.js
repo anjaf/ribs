@@ -91,6 +91,17 @@ function registerHelpers() {
         return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+e.value+'</a>' : e.value);
     });
 
+    Handlebars.registerHelper('ifHasAttribute', function(val, obj, options) {
+        var ret = false;
+        if (obj!=null) {
+            var e = obj.filter(function (o) {return o['name'] == val})[0];
+            ret = !(e == undefined);
+        }
+        return ret ? options.fn(this) : options.inverse(this);
+
+    });
+
+
     Handlebars.registerHelper('section', function(o, shouldIndent) {
         var template = Handlebars.compile($('script#section-template').html());
         this.indentClass = (shouldIndent=='true') ? 'indented-section' : '';
@@ -125,20 +136,18 @@ function registerHelpers() {
         }
     });
 
-    Handlebars.registerHelper('eachGroup', function(key, val, arr, options) {
+    Handlebars.registerHelper('eachGroup', function(arr, options) {
         if (!arr) return;
         var mod = arr.reduce(function(r, i) {
-            r[i[key]] = r[i[key]] || [];
-            r[i[key]].push(i[val]);
+            r[i.name] ? r[i.name].push(i) : r[i.name]=[i];
             return r;
-        }, {})
-        var ret = '';
+        }, {});
+        var ret ='';
         for(var k in mod) {
-            ret = ret + options.fn({name:k,value:mod[k].join(', ')});
+            ret = ret + options.fn(mod[k]);
         }
         return ret;
     });
-
 
     Handlebars.registerHelper('setHeaders', function() {
         var names = $.map(this, function (v) {
@@ -178,6 +187,40 @@ function registerHelpers() {
         var o = findall(this,'files');
         var template = Handlebars.compile($('script#main-file-table').html());
         return template(o);
+    });
+
+    Handlebars.registerHelper('valquals', function(o) {
+        var template = Handlebars.compile($('script#valqual-template').html());
+        return template(o);
+    });
+
+
+    Handlebars.registerHelper('renderOntologySubAttribute', function(arr) {
+        if (!arr) return;
+        arr = arr.filter( function (o) {
+            return $.inArray(o.name.toLowerCase(), ['ontology', 'termname', 'termid'])>=0
+        })
+        var ret = '';
+        $.each(arr, function (i,o) {
+            if (o.name.toLowerCase()=='ontology') {
+                var termname = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termname' })[0];
+                var termid = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termid' })[0];
+                ret += '<span data-ontology="'+ o.value+'" ' +
+                    (termid ? 'data-term-id="'+ termid.value+'" ' : '') +
+                    (termname ? 'data-term-name="'+ termname.value : '') +
+                    '"></span>';
+            }
+        });
+        return ret;
+    });
+
+    Handlebars.registerHelper('eachSubAttribute', function(arr, options) {
+        if (!arr) return;
+        return arr.filter( function (o) {
+            return $.inArray(o.name.toLowerCase(), ['ontology', 'termname', 'termid'])<0
+        }).map( function(o, i, filtered) {
+            return options.fn(o, {data: {first:i==0, last: i==(filtered.length-1), index : i}})
+        }).join('')
     });
 
     Handlebars.registerHelper('section-link-tables', function(o) {
@@ -346,7 +389,6 @@ function registerHelpers() {
         }
     });
 
-
 }
 
 function findall(obj,k,unroll){ // works only for files and links
@@ -393,6 +435,8 @@ function postRender() {
     handleFileDownloadSelection();
     formatPageHtml();
     handleAnchors();
+    handleSubattributes();
+    handleOntologyLinks();
 }
 
 
@@ -773,4 +817,42 @@ function getByteString(b) {
     keys = $.map(prec, function(v,i){return i});
     var i = Math.floor(Math.log(b) / Math.log(1000))
     return parseFloat(b / Math.pow(1000, i)).toFixed(prec[keys[i]]) + ' ' + keys[i];
+}
+
+function handleSubattributes() {
+// handle sub-attributes (shown with an (i) sign)
+    $('.sub-attribute-info').hover(
+        function () {
+            $(this).next().css('display', 'inline-block');
+            $(this).prev().toggleClass('sub-attribute-text');
+        }, function () {
+            $(this).next().css('display', 'none');
+            $(this).prev().toggleClass('sub-attribute-text');
+        }
+    );
+}
+
+function handleOntologyLinks() {
+// handle ontology links
+    $("span[data-term-id][data-ontology]").each(function () {
+        var ont = $(this).data('ontology').toLowerCase();
+        var termId = $(this).data('term-id');
+        var name = $(this).data('term-name');
+        $.ajax({
+            async: true,
+            context: this,
+            url: "//www.ebi.ac.uk/ols/api/ontologies/" + ont + "/terms",
+            data: {short_form: termId, size: 1},
+            success: function (data) {
+                if (data && data._embedded && data._embedded.terms && data._embedded.terms.length > 0) {
+                    var n = name ? name : data._embedded.terms[0].description ? data._embedded.terms[0].description : null;
+                    $(this).append('<a title="' + data._embedded.terms[0].obo_id +
+                        ( n ? ' - ' + n : '') + '" ' +
+                        'class="ontology-icon"  target="_blank" href="' + data._embedded.terms[0].iri
+                        + '"><span class="icon icon-conceptual" data-icon="o"></span></a>');
+                }
+            }
+        });
+
+    });
 }
