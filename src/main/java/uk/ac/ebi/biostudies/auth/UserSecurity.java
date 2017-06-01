@@ -58,6 +58,12 @@ public class UserSecurity {
         passwordCache.invalidate(username);
     }
 
+    public boolean isManager(){
+        if(Session.getCurrentUser().getUsername().equalsIgnoreCase("manager"))
+            return true;
+        return false;
+    }
+
     public User checkAccess(String username, String passwordHash) throws IOException {
         if (username==null || passwordHash ==null) return null;
 

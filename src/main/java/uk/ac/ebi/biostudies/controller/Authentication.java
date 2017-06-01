@@ -54,7 +54,7 @@ public class Authentication {
             Integer maxAge = "on".equals(remember) ? 31557600 : null;
 
             if (isLoginSuccessful) {
-                logger.debug("Successfully authenticated user [{}]", username);
+                logger.info("Successfully authenticated user [{}]", username);
                 HttpTools.setCookie(response, HttpTools.AE_USERNAME_COOKIE, username, maxAge);
                 HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, username, maxAge);
                 HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, authenticatedUser.getHashedPassword(), maxAge);
@@ -98,7 +98,7 @@ public class Authentication {
             HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, null, 0);
             HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE, null, 0);
             HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, null, 0);
-            logger.debug("Logged out user [{}]", extractedUserName);
+            logger.info("Logged out user [{}]", extractedUserName);
             String returnURL = request.getHeader(HttpTools.REFERER_HEADER);
             sendRedirect(response,returnURL,true);
 
