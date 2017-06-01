@@ -48,11 +48,11 @@ public class HTMLThumbnail implements IThumbnail{
                 return true;
             }
         };
-        jep.setSize(400,400);
-        BufferedImage image = new BufferedImage(400,400, BufferedImage.TYPE_INT_RGB);
+        jep.setSize(THUMBNAIL_WIDTH,THUMBNAIL_HEIGHT);
+        BufferedImage image = new BufferedImage(THUMBNAIL_WIDTH,THUMBNAIL_HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = image.createGraphics();
         jep.print(g);
-        BufferedImageOp resampler = new ResampleOp(200,200, ResampleOp.FILTER_LANCZOS);
+        BufferedImageOp resampler = new ResampleOp(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, ResampleOp.FILTER_LANCZOS);
         BufferedImage output = resampler.filter(image, null);
         ImageIOUtil.writeImage(output, thumbnailFile.getAbsolutePath(), 96);
     }

@@ -38,9 +38,9 @@ public class ImageThumbnail implements IThumbnail{
         File sourceFile = new File(sourceFilePath);
         BufferedImage input = ImageIO.read(sourceFile);
         float height = (float) input.getHeight(), width = (float) input.getWidth();
-        if (width > 200 || height>200) {
+        if (width > THUMBNAIL_WIDTH || height>THUMBNAIL_WIDTH) {
             float inverseAspectRatio = height / width;
-            BufferedImageOp resampler = new ResampleOp(200, Math.round(inverseAspectRatio * 200), ResampleOp.FILTER_LANCZOS);
+            BufferedImageOp resampler = new ResampleOp(THUMBNAIL_WIDTH, Math.round(inverseAspectRatio * THUMBNAIL_WIDTH), ResampleOp.FILTER_LANCZOS);
             BufferedImage output = resampler.filter(input, null);
             if (!ImageIO.write(output, "png", thumbnailFile)) {
                 throw new IOException("Cannot write thumbnail");

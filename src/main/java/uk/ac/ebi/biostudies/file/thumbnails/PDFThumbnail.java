@@ -17,11 +17,14 @@
 
 package uk.ac.ebi.biostudies.file.thumbnails;
 
+import com.twelvemonkeys.image.ResampleOp;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.util.ImageIOUtil;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
 
@@ -41,7 +44,10 @@ public class PDFThumbnail implements IThumbnail {
             pdf = PDDocument.load(sourceFilePath);
             PDPage page = (PDPage) pdf.getDocumentCatalog().getAllPages().get(0);
             BufferedImage image = page.convertToImage(BufferedImage.TYPE_INT_RGB, 96);
-            ImageIOUtil.writeImage(image, thumbnailFile.getAbsolutePath(), 96);
+            float inverseAspectRatio = ((float) image.getHeight()) / image.getWidth();
+            BufferedImageOp resampler = new ResampleOp(THUMBNAIL_WIDTH, Math.round(inverseAspectRatio * THUMBNAIL_WIDTH), ResampleOp.FILTER_LANCZOS);
+            BufferedImage output = resampler.filter(image, null);
+            ImageIO.write(output, "png", thumbnailFile);
         } finally {
             if(pdf!=null) {
                 pdf.close();

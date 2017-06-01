@@ -790,7 +790,8 @@ function clearFilter() {
 function handleThumbnails() {
     $("input[data-name]").parent().next().each(function () {
         var path = $(this).text();
-        if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), ['html','pdf']) >=0 ) {
+        if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
+                ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm']) >=0 ) {
             $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'
                 +contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'"><i class="fa fa-file-image-o"></i></a>')
         }
@@ -799,10 +800,21 @@ function handleThumbnails() {
     $("input[data-name]").parent().next().hover( function() {
         var $tn = $(this).find('.thumbnail-icon');
         if (!$tn.length) return;
-        $('#thumbnail').html('<img src="'+ $tn.data('thumbnail') +'"/>');
+        $('#thumbnail').html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>')
         $('#thumbnail').css('top',$tn.offset().top - 10);
         $('#thumbnail').css('left',$('#right-column').offset().left - $('#thumbnail').width() - 10);
         $('#thumbnail').show();
+        var img = $("<img />").attr('src', $tn.data('thumbnail'))
+            .on('load', function() {
+                if (!this.complete || typeof this.naturalWidth == "undefined" || this.naturalWidth == 0) {
+                    $('#thumbnail').hide();
+                } else {
+                    $('#thumbnail').html('').append(img)
+                    $('#thumbnail').css('top',$tn.offset().top - 10);
+                    $('#thumbnail').css('left',$('#right-column').offset().left - $('#thumbnail').width() - 10);
+                    $('#thumbnail').show();
+                }
+            });
     }, function () {
         $('#thumbnail').hide();
     });

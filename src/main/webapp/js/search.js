@@ -189,11 +189,12 @@ function postRender(data, params) {
     });
 
     //set sort params
+    var projectPath = contextPath + (project ? '/'+project : '');
     $('#sort-by').val(data.sortBy);
     $('#sort-by').change(function (e) {
         params.sortBy = $(this).val();
         params.sortOrder = 'descending';
-        window.location = contextPath+'/studies/?' + $.param(params);
+        window.location = projectPath+'/studies/?' + $.param(params);
     });
     if (data.sortOrder=='ascending') {
         $('#sort-desc').removeClass('selected');
@@ -205,12 +206,12 @@ function postRender(data, params) {
     $('#sort-desc').click(function (e) {
         if ($(this).hasClass('selected')) return;
         params.sortOrder = 'descending';
-        window.location = contextPath+'/studies/?' + $.param(params);
+        window.location = projectPath+'/studies/?' + $.param(params);
     });
     $('#sort-asc').click(function (e) {
         if ($(this).hasClass('selected')) return;
         params.sortOrder = 'ascending';
-        window.location = contextPath+'/studies/?' + $.param(params);
+        window.location = projectPath+'/studies/?' + $.param(params);
     });
 }
 

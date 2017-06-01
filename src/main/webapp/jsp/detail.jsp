@@ -164,9 +164,7 @@
                             {{#ifArray this}}
                             {{else}}
                                 {{#ifRenderable this}}
-                                    <div class="has-child-section">
-                                        {{&section this 'true'}}
-                                    </div>
+                                    {{&section this 'true'}}
                                 {{/ifRenderable}}
                             {{/ifArray}}
                         {{/each}}

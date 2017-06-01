@@ -47,10 +47,10 @@ public class TXTThumbnail implements IThumbnail{
             byte[] data      = new byte[512]; // get only the first 0.5K
             int bytesRead = source.read(data);
             AttributedString text =  new AttributedString(new String(data));
-            BufferedImage image = new BufferedImage(200,200, BufferedImage.TYPE_INT_RGB);
+            BufferedImage image = new BufferedImage(THUMBNAIL_WIDTH,THUMBNAIL_HEIGHT, BufferedImage.TYPE_INT_RGB);
             Graphics2D g = image.createGraphics();
             g.setColor(background);
-            g.fillRect(0, 0, 200, 200);
+            g.fillRect(0, 0, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
             g.setColor(Color.BLACK);
             g.setFont(font);
             AttributedCharacterIterator paragraph = text.getIterator();
@@ -58,7 +58,7 @@ public class TXTThumbnail implements IThumbnail{
             int paragraphEnd = paragraph.getEndIndex();
             FontRenderContext frc = g.getFontRenderContext();
             LineBreakMeasurer lineMeasurer = new LineBreakMeasurer(paragraph, frc);
-            float breakWidth = 200;
+            float breakWidth = THUMBNAIL_WIDTH;
             float drawPosY = 0;
             lineMeasurer.setPosition(paragraphStart);
             while (lineMeasurer.getPosition() < paragraphEnd) {
