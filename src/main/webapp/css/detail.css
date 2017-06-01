@@ -347,3 +347,17 @@ a.thumbnail-icon {
     color: #aaa;
     cursor: pointer;
 }
+
+.publication-link {
+    display: inline-block;
+}
+
+.publication-link-type {
+    font-size: 8pt;
+    background: #f1f1f1;
+    padding: 2px 3px;
+    border-radius: 3px;
+    color: #58585a;
+    border: #efefef 1px solid;
+    vertical-align: middle;
+}

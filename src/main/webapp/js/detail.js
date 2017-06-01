@@ -47,6 +47,31 @@ $.fn.groupBy = function(fn) {
         'go':'http://amigo.geneontology.org/amigo/term/{0}',
         'chebi':'http://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}'
     };
+
+    reverseLinkMap = {
+        '^europepmc.org/articles/(.*)':'PMC',
+        '^europepmc.org/abstract/MED/(.*)':'PMID',
+        '^dx.doi.org/(.*)':'DOI',
+        '^www.ebi.ac.uk/chembldb/compound/inspect/(.*)':'ChEMBL',
+        '^www.ebi.ac.uk/ega/studies/(.*)':'EGA',
+        '^www.uniprot.org/uniprot/(.*)':'Sprot',
+        '^www.ebi.ac.uk/ena/data/view/(.*)':'GEN',
+        '^www.ebi.ac.uk/arrayexpress/experiments/(.*)/files/':'ArrayExpress Files',
+        '^www.ebi.ac.uk/arrayexpress/experiments/(.*)':'ArrayExpress',
+        '^www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=(.*)':'refSNP',
+        '^www.ebi.ac.uk/pdbe-srv/view/entry/(.*)/summary':'PDB',
+        '^pfam.xfam.org/family/(.*)':'Pfam',
+        '^omim.org/entry/(.*)':'OMIM',
+        '^www.ebi.ac.uk/interpro/entry/(.*)':'InterPro',
+        '^www.ncbi.nlm.nih.gov/nuccore/(.*)':'RefSeq',
+        '^www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=(.*)':'GEO',
+        '^dx.doi.org/(.*)':'DOI',
+        '^www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc=(.*)':'IntAct',
+        '^www.ebi.ac.uk/biostudies/studies/(.*)':'BioStudies',
+        '^www.ebi.ac.uk/biostudies/studies/search.html?query=(.*)':'BioStudies Search',
+        '^amigo.geneontology.org/amigo/term/(.*)':'GO',
+        '^www.ebi.ac.uk/chebi/searchId.do?chebiId=(.*)':'ChEBI'
+    };
     orgOrder= [];
 
     var params = document.location.search.replace(/(^\?)/,'').split("&").map(
@@ -348,14 +373,28 @@ function registerHelpers() {
             return o.type && o.type.toLowerCase() == 'publication';
         });
         if (!pubs || pubs.length < 1) return null;
+        publication.URLs = [];
         $.each(pubs[0].attributes, function (i, v) {
-            publication[v.name.toLowerCase().replace(' ', '_')] = v.value
+            var name = v.name.toLowerCase().replace(' ', '_');
+            var url = getURL(v.value);
+            if (url) {
+                publication.URLs.push(url);
+            } else {
+                publication[name] = v.value
+            }
         });
         publication.accno = pubs[0].accno;
         if (publication.accno) {
-            var type = publication.accno.toLowerCase().substr(0, 3);
-            publication.URL = getURL(type, publication.accno);
+            var url = getURL(publication.accno);
+            if (!url && (/^\d+$/).test(publication.accno)) {
+                publication.URLs.push(getURL('PMID'+publication.accno));
+            } else {
+                publication.URLs.push(url);
+            }
         }
+
+        if (!publication.URLs.length) delete publication.URLs
+
         var template = Handlebars.compile($('script#publication-template').html());
         return new Handlebars.SafeString(template(publication));
     });
@@ -468,16 +507,25 @@ function createMainFileTable() {
     });
 }
 
-function getURL(type, accession) {
-   var url =  linkMap[type] ? String.format(linkMap[type], accession) : null;
-   if (type=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
+function getURL(accession) {
+    var type = /^[a-zA-z]+/.exec(accession);
+    if (type && type.length) type = type[0]; else return null;
+    var url =  linkMap[type.toLowerCase()] ? String.format(linkMap[type.toLowerCase()], accession) : null;
+   if (type.toLowerCase()=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
        url = url.replace('/studies/','/datasets/');
    }
    if (accession.indexOf('http:')==0 || accession.indexOf('https:')==0  || accession.indexOf('ftp:')==0 ) {
+       var value = accession.replace("http://",'').replace("https://",'').replace("ftp://",'')
+       for(var r in reverseLinkMap) {
+           var acc = new RegExp(r).exec(value);
+           if (acc && acc.length>0) {
+               return {url:accession, type: reverseLinkMap[r], text:acc[1] }
+           }
+       }
        url = accession;
    }
 
-   return url;
+   return url ?  {url:url, type:type, text:accession} : null;
 }
 function createLinkTables() {
 
@@ -489,7 +537,7 @@ function createLinkTables() {
             var type =  $($('td',row)[1]).text().toLowerCase();
             var url = getURL( type, $($('td',row)[0]).text());
             if (url) {
-                $($('td',row)[0]).wrapInner('<a href="'+ url +'" target="_blank">');
+                $($('td',row)[0]).wrapInner('<a href="'+ url.url +'" target="_blank">');
             }
         });
 
