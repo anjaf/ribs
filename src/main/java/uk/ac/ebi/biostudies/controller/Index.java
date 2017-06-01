@@ -37,7 +37,7 @@ public class Index {
      */
     @RequestMapping(value = "/index/reload/{filename}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> indexAll(String filename) throws Exception {
-        if(!userSecurity.isManager())
+        if(!userSecurity.currentUserIsSuperUser()) //TODO: Replace this with spring security
             return new ResponseEntity<String>("{\"message\":\"forbidden\"}", HttpStatus.FORBIDDEN);
         if(filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default")) {
             indexService.clearIndex(false);
@@ -50,14 +50,14 @@ public class Index {
 
     @RequestMapping(value = "/index/clear", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> clearIndex() throws Exception {
-        if(!userSecurity.isManager())
+        if(!userSecurity.currentUserIsSuperUser())
             return new ResponseEntity<String>("{\"message\":\"forbidden\"}", HttpStatus.FORBIDDEN);
         indexService.clearIndex(true);
         return new ResponseEntity<String>("{\"message\":\"Index empty\"}", HttpStatus.OK);
     }
     @RequestMapping(value = "/index/delete/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> deleteDoc(@PathVariable(required=false) String accession) throws Exception {
-        if(!userSecurity.isManager())
+        if(!userSecurity.currentUserIsSuperUser())
             return new ResponseEntity<String>("{\"message\":\"forbidden\"}", HttpStatus.FORBIDDEN);
         indexService.deleteDoc(accession);
         return new ResponseEntity<String>("{\"message\":\"Index empty\"}", HttpStatus.OK);

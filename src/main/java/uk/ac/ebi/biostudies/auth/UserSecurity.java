@@ -58,10 +58,10 @@ public class UserSecurity {
         passwordCache.invalidate(username);
     }
 
-    public boolean isManager(){
-        if(Session.getCurrentUser().getUsername().equalsIgnoreCase("manager"))
-            return true;
-        return false;
+    public boolean currentUserIsSuperUser(){
+        User currentUser = Session.getCurrentUser();
+        if (currentUser==null) return false;
+        return  currentUser.isSuperUser();
     }
 
     public User checkAccess(String username, String passwordHash) throws IOException {
