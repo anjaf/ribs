@@ -58,7 +58,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
 
         properties.setLocation(new ClassPathResource( "scheduler.properties" ));
