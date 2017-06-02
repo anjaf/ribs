@@ -171,11 +171,16 @@ function postRender(data, params) {
     // add highlights
 
     if (data.query) {
+        var highlights = [];
+        highlights = highlights.concat(data.expandedSynonyms.map(function (v) { return {word:v,class:'synonym'} } ));
+        highlights = highlights.concat(data.expandedEfoTerms.map(function (v) { return {word:v,class:'efo'} } ));
         var split = data.query.match(/(?:[^\s"]+|"[^"]*")+/g).map( function(v) { return v.replace(/\"/g,'')});
-        $("#search-results").highlight(split);
+        highlights = highlights.concat(split.map(function (v) { return {word:v,class:'highlight'} } ));
+        highlights.sort(function (a,b) {return b.word.length-a.word.length })
+        $.each(highlights, function (i,v) {
+            $("#search-results").highlight(v.word,{className:v.class});
+        });
     }
-    // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
-    // $("#renderedContent").highlight(['mouse','gland '],{className:'efo'});
 
     // get project logo
     $("div[data-type='project']").each( function() {

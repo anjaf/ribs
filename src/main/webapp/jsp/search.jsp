@@ -88,6 +88,9 @@
                         <a href="${contextPath}/studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
                     {{/if}}
                 </div>
+                {{#if content}}
+                    <div class="content">{{content}}</div>
+                {{/if}}
             </div>
         </script>
 

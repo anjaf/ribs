@@ -17,6 +17,9 @@
 
 package uk.ac.ebi.biostudies.efo;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.slf4j.Logger;
@@ -42,35 +45,38 @@ public class EFOQueryExpander {
     EFOExpansionLookupIndex efoExpansionLookupIndex;
 
 
-    public Query expand(Map<String, String> queryInfo, Query query, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder) throws IOException {
-        Query result;
+    public Pair<Query, EFOExpansionTerms> expand(Map<String, String> queryInfo, Query query, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder) throws IOException {
 
         if (query instanceof BooleanQuery) {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
-
+            EFOExpansionTerms expansionTerms = new EFOExpansionTerms();
             List<BooleanClause> clauses = ((BooleanQuery) query).clauses();
             for (BooleanClause c : clauses) {
-                 builder.add(
-                        expand(queryInfo, c.getQuery(), synonymBooleanBuilder, efoBooleanBuilder)
-                        , c.getOccur()
-                );
+                Pair<Query, EFOExpansionTerms> expanded = expand(queryInfo, c.getQuery(), synonymBooleanBuilder, efoBooleanBuilder);
+                builder.add( expanded.getKey() , c.getOccur());
+                EFOExpansionTerms local = expanded.getValue();
+                if (local!=null) {
+                    expansionTerms.term = expansionTerms.term == null ? local.term : expansionTerms + " " + local.term;
+                    expansionTerms.efo.addAll(local.efo);
+                    expansionTerms.synonyms.addAll(local.synonyms);
+                }
             }
-            result = builder.build();
+            return new MutablePair<>(builder.build(),expansionTerms);
         } else if (query instanceof PrefixQuery || query instanceof WildcardQuery) {
             // we don't expand prefix or wildcard queries yet (because there are side-effects
             // we need to take care of first
             // for example, for prefix query will found multi-worded terms which, well, is wrong
-            return query;
+            return new MutablePair<>(query, null);
         } else {
-            result = doExpand(queryInfo, query, synonymBooleanBuilder, efoBooleanBuilder);
+            return doExpand(queryInfo, query, synonymBooleanBuilder, efoBooleanBuilder);
         }
-        return result;
     }
 
     private boolean isExpandable(String fieldName){
         return true;
     }
-    private Query doExpand(Map<String, String> fieldsAndQueryInfo, Query query, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder) throws IOException {
+
+    private Pair<Query, EFOExpansionTerms> doExpand(Map<String, String> fieldsAndQueryInfo, Query query, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder) throws IOException {
         String field = getQueryField(query);
         if (null != field) {
 
@@ -98,11 +104,11 @@ public class EFOQueryExpander {
                         boolQueryBuilder.add(expansionPart, BooleanClause.Occur.SHOULD);
                     }
 
-                    return boolQueryBuilder.build();
+                    return new MutablePair<>(boolQueryBuilder.build(), expansionTerms);
                 }
             }
         }
-        return query;
+        return new MutablePair<>(query, null);
     }
 
     private String getQueryField(Query query) {

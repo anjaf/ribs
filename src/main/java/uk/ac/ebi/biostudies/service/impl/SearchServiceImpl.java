@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
@@ -24,6 +26,7 @@ import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.efo.EFOExpandedHighlighter;
+import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
 import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.FacetService;
@@ -75,19 +78,9 @@ public class SearchServiceImpl implements SearchService {
         }
     }
 
-    public String highlightText(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly){
-        String result = efoExpandedHighlighter.highlightQuery(originalQuery, synonymQuery, efoQuery, fieldName, text, fragmentOnly);
-        return result;
-    }
-
     @Override
     public String getKeywords(String query, String field, Integer limit) {
        return autocompletion.getKeywords(query, field, limit);
-    }
-
-    @Override
-    public String getEfoWords(String query, Integer limit) {
-        return autocompletion.getEfoWords(query, limit);
     }
 
     @Override
@@ -95,16 +88,14 @@ public class SearchServiceImpl implements SearchService {
         return autocompletion.getEfoChildren(query);
     }
 
-    public Query expandQuery(Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder){
+    public Pair<Query, EFOExpansionTerms> expandQuery(Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder){
         Map<String, String> queryInfo = analyzerManager.getExpandableFields();
-        Query modifiedQuery = null;
         try {
-            modifiedQuery = efoQueryExpander.expand(queryInfo, originalQuery, synonymBooleanBuilder, efoBooleanBuilder);
+            return efoQueryExpander.expand(queryInfo, originalQuery, synonymBooleanBuilder, efoBooleanBuilder);
         }catch (Exception ex){
             logger.error("problem in expanding query {}", originalQuery, ex);
-            return originalQuery;
         }
-        return modifiedQuery;
+        return new MutablePair<>(originalQuery, null);
     }
 
     private Query excludeCompoundStudies(Query originalQuery){
@@ -114,8 +105,7 @@ public class SearchServiceImpl implements SearchService {
         return  excludeBuilder.build();
     }
 
-    @Override
-    public Query applyFacets(Query query, JsonNode facets, String prjName){
+    private Query applyFacets(Query query, JsonNode facets, String prjName){
         QueryParser searchPrjParser = new QueryParser(BioStudiesField.PROJECT.toString(), BioStudiesField.PROJECT.getAnalyzer());
         BooleanQuery.Builder bqBuilder = new BooleanQuery.Builder();
         bqBuilder.add(query, BooleanClause.Occur.MUST);
@@ -154,8 +144,8 @@ public class SearchServiceImpl implements SearchService {
         return  facetService.addFacetDrillDownFilters(bqBuilder.build(), selectedFacets);
     }
 
-    @Override
-    public ObjectNode applySearchOnQuery(Query query, Query synonymQuery, Query efoQuery, int page, int pageSize, String sortBy, String sortOrder){
+    private ObjectNode applySearchOnQuery(Query query, Query synonymQuery, Query efoQuery, int page, int pageSize,
+                                         String sortBy, String sortOrder, boolean doHighlight){
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
         ObjectMapper mapper = new ObjectMapper();
@@ -197,13 +187,15 @@ public class SearchServiceImpl implements SearchService {
                             (" " + doc.get(String.valueOf(BioStudiesField.ACCESS) + " ")).toLowerCase().contains(" public ")
                     );
 
-                    docNode.put(String.valueOf(BioStudiesField.CONTENT),
-                            efoExpandedHighlighter.highlightQuery( query, synonymQuery, efoQuery,
-                                    BioStudiesField.CONTENT.toString(),
-                                    doc.get(BioStudiesField.CONTENT.toString()),
-                                    true
-                            )
-                    );
+                    if (doHighlight) {
+                        docNode.put(String.valueOf(BioStudiesField.CONTENT),
+                                efoExpandedHighlighter.highlightQuery(query, synonymQuery, efoQuery,
+                                        BioStudiesField.CONTENT.toString(),
+                                        doc.get(BioStudiesField.CONTENT.toString()),
+                                        true
+                                )
+                        );
+                    }
                     docs.add(docNode);
                 }
                 response.set("hits", docs);
@@ -260,9 +252,11 @@ public class SearchServiceImpl implements SearchService {
     public String search(String queryString, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
         String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
-
-        if (StringUtils.isEmpty(queryString))
+        boolean doHighlight = true;
+        if (StringUtils.isEmpty(queryString)) {
             queryString = "*:*";
+            doHighlight = false;
+        }
         Analyzer analyzer = analyzerManager.getPerFieldAnalyzerWrapper();
         QueryParser parser = new BioStudiesQueryParser(fields, analyzer);
         ObjectNode response = mapper.createObjectNode();
@@ -271,8 +265,8 @@ public class SearchServiceImpl implements SearchService {
             Query query = parser.parse(queryString.toLowerCase());
             BooleanQuery.Builder synonymQueryBuilder = new BooleanQuery.Builder();
             BooleanQuery.Builder efoQueryBuilder = new BooleanQuery.Builder();
-            Query expandedQuery = expandQuery(query, synonymQueryBuilder, efoQueryBuilder);
-            expandedQuery = excludeCompoundStudies(expandedQuery);
+            Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query, synonymQueryBuilder, efoQueryBuilder);
+            Query expandedQuery = excludeCompoundStudies(queryEFOExpansionTermsPair.getKey());
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
             logger.debug("Lucene query: {}",queryAfterSecurity.toString());
             if(selectedFacets!=null && prjName!=null && !prjName.isEmpty()){
@@ -280,10 +274,22 @@ public class SearchServiceImpl implements SearchService {
                 logger.debug("Lucene after facet query: {}",queryAfterSecurity.toString());
             }
             response = applySearchOnQuery(queryAfterSecurity, synonymQueryBuilder.build(), efoQueryBuilder.build(),
-                    page, pageSize, sortBy, sortOrder);
-            response.set("expandedEfoTerms", mapper.createArrayNode() );
-            response.set("expandedSynonyms", mapper.createArrayNode() );
-            response.put("query",  queryString.equals("*:*") ? null: queryString);
+                    page, pageSize, sortBy, sortOrder, doHighlight);
+
+            // add expansion
+            EFOExpansionTerms expansionTerms =  queryEFOExpansionTermsPair.getValue();
+            if (expansionTerms!=null) {
+                ArrayNode expandedEfoTerms = mapper.createArrayNode();
+                expansionTerms.efo.forEach(s -> expandedEfoTerms.add(s));
+                response.set("expandedEfoTerms", expandedEfoTerms);
+
+                ArrayNode expandedSynonymTerms = mapper.createArrayNode();
+                expansionTerms.synonyms.forEach(s -> expandedSynonymTerms.add(s));
+                response.set("expandedSynonyms", expandedSynonymTerms);
+
+            }
+
+            response.put("query",  doHighlight ? queryString : null);
             response.set("facets", selectedFacets==null || selectedFacets.size()==0 ? null : selectedFacets);
         }
         catch(Throwable error){

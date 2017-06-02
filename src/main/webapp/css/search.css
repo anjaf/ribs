@@ -22,7 +22,7 @@ ul#search-results li {
 
 .search-result span.accession {
     font-size: 80%;
-    color: rgb(107, 168, 197);
+    color: #58585a;
     white-space: nowrap;
 }
 
@@ -148,4 +148,20 @@ ul#search-results li {
 
 .query {
     color:#22aae2;
+}
+
+.content:before, .content:after {
+    content: '...';
+}
+
+.content {
+    font-size: 10pt;
+    color: #58585a;
+    margin-top: 4pt;
+}
+
+.title a {
+    color: #267799;
+    border-bottom: 0;
+    font-size: 14pt
 }

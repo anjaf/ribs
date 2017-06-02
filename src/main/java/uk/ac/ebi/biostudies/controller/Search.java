@@ -36,7 +36,7 @@ public class Search {
     FacetService facetService;
 
     @RequestMapping(value = "/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String search(@RequestParam(value="query", required=false, defaultValue = "*:*") String queryString,
+    public String search(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
                                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
                                         @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
                                         @RequestParam(value="sortBy", required=false, defaultValue = "relevance") String sortBy,
