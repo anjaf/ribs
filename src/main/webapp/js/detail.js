@@ -312,15 +312,17 @@ function registerHelpers() {
         var orgNumber = 1;
         var orgToNumberMap = {}
          $.each(obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='author';}), function (i,o) {
-            var author = {}
-            $.each(o.attributes, function (i,v) {
-                author[v.name] = v.value;
-            });
-            if (!orgToNumberMap[author.affiliation]) {
-                orgToNumberMap[author.affiliation] = orgNumber++;
-                orgOrder.push(author.affiliation);
-            }
-            author.affiliationNumber = orgToNumberMap[author.affiliation]
+             var author = {}
+             $.each(o.attributes, function (i, v) {
+                 author[v.name] = v.value;
+             });
+             if (author.affiliation) {
+                 if (!orgToNumberMap[author.affiliation]) {
+                     orgToNumberMap[author.affiliation] = orgNumber++;
+                     orgOrder.push(author.affiliation);
+                 }
+                 author.affiliationNumber = orgToNumberMap[author.affiliation]
+             }
             ret += options.fn(author);
         });
         return ret;
