@@ -160,6 +160,8 @@ function registerHelpers(params) {
                 return (v1 && v2) ? options.fn(this) : options.inverse(this);
             case '||':
                 return (v1 || v2) ? options.fn(this) : options.inverse(this);
+            case 'contains':
+                return (v1.indexOf(v2) >=0 ) ? options.fn(this) : options.inverse(this);
             default:
                 return options.inverse(this);
         }
@@ -172,8 +174,8 @@ function postRender(data, params) {
 
     if (data.query) {
         var highlights = [];
-        highlights = highlights.concat(data.expandedSynonyms.map(function (v) { return {word:v,class:'synonym'} } ));
-        highlights = highlights.concat(data.expandedEfoTerms.map(function (v) { return {word:v,class:'efo'} } ));
+        if (data.expandedSynonyms) highlights = highlights.concat(data.expandedSynonyms.map(function (v) { return {word:v,class:'synonym'} } ));
+        if (data.expandedEfoTerms) highlights = highlights.concat(data.expandedEfoTerms.map(function (v) { return {word:v,class:'efo'} } ));
         var split = data.query.match(/(?:[^\s"]+|"[^"]*")+/g).map( function(v) { return v.replace(/\"/g,'')});
         highlights = highlights.concat(split.map(function (v) { return {word:v,class:'highlight'} } ));
         highlights.sort(function (a,b) {return b.word.length-a.word.length })
@@ -187,9 +189,14 @@ function postRender(data, params) {
         var $prj = $(this), accession = $(this).data('accession');
         $('a',$prj).attr('href',contextPath+'/'+accession+'/studies');
         $.getJSON(contextPath+ '/api/studies/'+accession, function (data) {
-            $prj.prepend('<a class="project-logo" href="'+contextPath+'/'+accession+'/studies">'+
-                '<img src="'+contextPath+'/files/'+accession+'/'+data.section.files[0][0].path+'"/>'
-            +'</a>');
+            var path = data.section.files.path;
+            if (!path && data.section.files[0]) path =data.section.files[0].path;
+            if (!path && data.section.files[0][0]) path = data.section.files[0][0].path;
+            if (path) {
+                $prj.prepend('<a class="project-logo" href="' + contextPath + '/' + accession + '/studies">' +
+                    '<img src="' + contextPath + '/files/' + accession + '/' + path + '"/>'
+                    + '</a>');
+            }
         })
     });
 

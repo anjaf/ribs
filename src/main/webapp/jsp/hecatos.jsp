@@ -79,45 +79,6 @@
             <div class="clearboth"></div>
         </script>
 
-        <script id='result-template' type='text/x-handlebars-template'>
-            <div class="search-result">
-                <div class="meta-data">
-                    <span class="release-date">{{epochToDate release_date}}</span>
-                    {{#ifCond type '!=' 'project'}}
-                    {{#ifCond links '!=' 0}}
-                    <span class="release-links">{{links}} link(s)</span>
-                    {{/ifCond}}
-                    {{#ifCond files '!=' 0}}
-                    <span class="release-files">
-                                {{#ifCond files '>' 1}}
-                                    {{files}} files
-                                {{else}}
-                                    {{files}} file
-                                {{/ifCond}}
-                            </span>
-                    {{/ifCond}}
-                    {{/ifCond}}
-                </div>
-                <div class="title" data-type="{{type}}" data-accession="{{accession}}">
-                    {{#if project}}
-                    <a href="${contextPath}/{{project}}/studies/{{accession}}">{{title}}</a> <span class="accession">{{accession}}</span>
-                    {{else}}
-                    <a href="${contextPath}/studies/{{accession}}">{{title}}</a> <span
-                        class="accession">{{accession}}</span>
-                    {{/if}}
-                </div>
-            </div>
-        </script>
-
-        <script id='error-template' type='text/x-handlebars-template'>
-            <section>
-                <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>{{title}}</h3>
-                <p>{{&message}}</p>
-                <p>If you require further assistance locating missing page or file, please <a
-                        href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it
-                    for you.</p>
-            </section>
-        </script>
         <script id='project-banner-template' type='text/x-handlebars-template'>
             <div class="project-banner-content columns medium-12 clearfix row">
                 <span class="project-logo">
@@ -152,7 +113,7 @@
                 </div>
             </form>
         </script>
-
+        <%@ include file="result-templates.jsp" %>
         <script src="${contextPath}/js/search.js"></script>
         <span id="hasFacets"></span>
     </jsp:attribute>

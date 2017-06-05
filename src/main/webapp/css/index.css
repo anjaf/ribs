@@ -110,28 +110,29 @@
     color: #466B7D;
     padding-right: 10px;
 }
+
 #latestList{
     padding-left: 20px;
-    color: #466B7D;
 }
+
 #latestList li {
     list-style: square;
-    line-height: 24px;
-    margin-left: 19px;
+    margin-left: 20px;
+    color: #466B7D;
+    margin-bottom: 8pt
 }
+
+#latestList li a{
+    color: #267799
+}
+
 .icon {
     margin-right: 6px;
 }
 .browse-study-accession {
     font-size: 70%;
     padding: 5px;
-    color: rgb(107, 168, 197);
+    color: #9e9e9e;
     white-space: nowrap;
 }
 
-.browse-study-accession:before {
-    content: '[';
-}
-.browse-study-accession:after {
-    content: ']';
-}

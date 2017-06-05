@@ -10,30 +10,16 @@ ul#search-results {
 ul#search-results li {
     padding: 15px 0;
 }
-.search-result span.accession:after {
-    content: ']';
-    margin-left: 2px;
-}
-
-.search-result span.accession:before {
-    content: '[';
-    margin-right: 2px;
-}
-
-.search-result span.accession {
-    font-size: 80%;
-    color: #58585a;
-    white-space: nowrap;
-}
 
 .search-result .meta-data {
-    color: #999;
+    color: #9e9e9e;
     font-size: 9pt;
+    margin-top:3pt;
 }
 
 .search-result .meta-data span:not(:first-child):before {
     content: ' \25AA';
-    color: #6BA8C5;
+    color: #9e9e9e;
     padding: 10px;
 }
 
@@ -156,12 +142,20 @@ ul#search-results li {
 
 .content {
     font-size: 10pt;
-    color: #58585a;
     margin-top: 4pt;
+}
+
+.title {
+    margin-top: 2pt;
 }
 
 .title a {
     color: #267799;
-    border-bottom: 0;
     font-size: 14pt
+}
+
+.authors {
+    color: #777;
+    font-size: 9pt;
+    margin-bottom: 2pt;
 }
