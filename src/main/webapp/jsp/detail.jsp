@@ -57,10 +57,11 @@
                     <!-- Authors -->
                     <ul id="bs-authors">
                         {{#eachAuthor this}}
-                        <li>{{Name}}
-                            {{#if affiliation}}
-                                <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
-                            {{/if}}
+                        <li><span class="author">{{Name}}
+                                {{#if affiliation}}
+                                    <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
+                                {{/if}}
+                            </span>
                         </li>
                         {{/eachAuthor}}
                     </ul>

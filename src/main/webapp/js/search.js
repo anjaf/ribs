@@ -225,6 +225,21 @@ function postRender(data, params) {
         params.sortOrder = 'ascending';
         window.location = projectPath+'/studies/?' + $.param(params);
     });
+
+    // limit authors
+    $('.authors').each( function() {
+        var authors = $(this).text().split(',');
+        if (authors.length>10) {
+            $(this).text(authors.slice(0,9).join(', '));
+            var rest = $('<span/>', {class:'hidden'}).text(', '+authors.slice(10).join(','));
+            var more = $('<span/>', {class:'more'}).text('+ ' + (authors.length-10) + ' more')
+                .click(function () {
+                    $(this).next().show();
+                    $(this).hide();
+                })
+            $(this).append(more).append(rest)
+        }
+    })
 }
 
 function postRenderFacets(data, params) {
