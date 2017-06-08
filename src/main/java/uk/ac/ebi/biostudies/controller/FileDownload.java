@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
  * Created by ehsan on 22/03/2017.
  */
 @RestController
-@RequestMapping(value="/files")
 public class FileDownload {
 
     @Autowired
@@ -24,12 +23,17 @@ public class FileDownload {
     @Autowired
     FileDownloadService fileDownloadService;
 
-    @RequestMapping(value = "/**", method = RequestMethod.POST)
+    @RequestMapping(value = "/files/**", method = RequestMethod.POST)
     public void getFilesInZippedFormat(HttpServletRequest request, HttpServletResponse response) throws Exception{
         zipDownloadService.doRequest(request, response);
     }
 
-    @RequestMapping(value = "/**", method = RequestMethod.GET)
+    @RequestMapping(value = "/{datacenter}/files/**", method = RequestMethod.GET)
+    public void downloadZippedFile(HttpServletRequest request, HttpServletResponse response) throws Exception{
+        zipDownloadService.doRequest(request, response);
+    }
+
+    @RequestMapping(value = "/files/**", method = RequestMethod.GET)
     public void getSingleFile(HttpServletRequest request, HttpServletResponse response) throws Exception{
         fileDownloadService.doRequest(request, response);
     }
