@@ -1,20 +1,21 @@
 package uk.ac.ebi.biostudies.controller;
 
-
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.biostudies.api.util.PublicRest;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import java.net.URLDecoder;
-import java.util.*;
 
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -22,19 +23,27 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 
 /**
  * Created by awais on 14/02/2017.
+ *
+ * Rest endpoint for searching Biostudies
  */
+
+@Api(value="api", description="Rest endpoint for searching and retrieving Biostudies")
 @RestController
 @RequestMapping(value="/api")
 public class Search {
 
     private Logger logger = LogManager.getLogger(Search.class.getName());
 
-
     @Autowired
     SearchService searchService;
     @Autowired
     FacetService facetService;
 
+    @ApiOperation(value = "Returns search result", notes = "Search your query in Biostudies and return the results", response = ObjectNode.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JsonObject contains search results", response = ObjectNode.class)
+    })
+    @PublicRest
     @RequestMapping(value = "/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String search(@RequestParam(value="query", required=false, defaultValue = "*:*") String queryString,
                                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
@@ -46,6 +55,11 @@ public class Search {
 //        return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Returns results for selected facets", notes = "Returns results for selected facets by user interface", response = ObjectNode.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Search results for selected facets", response = ObjectNode.class)
+    })
+    @PublicRest
     @RequestMapping(value = "/{project}/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String getSelectedFacets(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
                                            @RequestParam(value="facets", required=false) String facets,
