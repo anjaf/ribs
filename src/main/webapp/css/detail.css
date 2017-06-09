@@ -154,9 +154,15 @@ ul#bs-authors, ul#bs-orgs, ul#bs-funding {
     margin: 0;
     display: table;
     list-style-type: none;
+    font-size: 10pt;
 }
-ul#bs-authors li , ul#bs-orgs li{
+ul#bs-authors li {
+    display: inline-block;
+}
+
+ul#bs-orgs li{
     display: inline;
+    font-size: 9pt;
 }
 
 ul#bs-authors li+li:before {
@@ -346,4 +352,23 @@ a.thumbnail-icon {
     padding: 0px 5px;
     color: #aaa;
     cursor: pointer;
+}
+
+.publication-link {
+    display: inline-block;
+}
+
+.publication-link-type {
+    font-size: 8pt;
+    background: #f1f1f1;
+    padding: 2px 3px;
+    border-radius: 3px;
+    color: #58585a;
+    border: #efefef 1px solid;
+    vertical-align: middle;
+}
+
+.highlight-author {
+    background-color: #B0F8CD;
+    color: #000;
 }

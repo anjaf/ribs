@@ -83,7 +83,6 @@
 
 .efo {
     background-color: #FFCCAA;
-    padding: 0px 1px;
 }
 
 .project {
@@ -236,3 +235,11 @@
     font-weight: bold;
 }
 /* autocomplete-related classes */
+
+#static-text .icon::before {
+    margin-right: 6px;
+}
+
+#static-text .icon {
+    color: #267799;
+}

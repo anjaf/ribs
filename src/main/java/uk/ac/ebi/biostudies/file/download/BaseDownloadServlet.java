@@ -17,6 +17,7 @@
 
 package uk.ac.ebi.biostudies.file.download;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,8 +65,9 @@ public abstract class BaseDownloadServlet {
 
         IDownloadFile downloadFile = null;
         try {
-            String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"/files/"       ,"").split("/");
+            String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"(/[a-zA-Z])?/files/"       ,"").split("/");
             String accession = requestArgs[0];
+
             if(!searchService.isAccessible(accession)) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;

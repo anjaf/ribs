@@ -57,7 +57,11 @@
                     <!-- Authors -->
                     <ul id="bs-authors">
                         {{#eachAuthor this}}
-                        <li>{{Name}} <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
+                        <li><span class="author">{{Name}}
+                                {{#if affiliation}}
+                                    <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
+                                {{/if}}
+                            </span>
                         </li>
                         {{/eachAuthor}}
                     </ul>
@@ -81,6 +85,25 @@
                         {{/each}}
                     {{/eachGroup}}
 
+
+                    <!-- Publication -->
+                    {{publication this}}
+
+                    <!-- Funding -->
+                    {{#eachFunder this}}
+                    {{#if @first}}
+                    <div class="bs-name">Funding</div>
+                    <ul id="bs-funding">
+                        {{/if}}
+                        <li>{{name}}{{#if grants}}:
+                            <span class="bs-grants">{{grants}}</span>
+                            {{/if}}
+                        </li>
+                        {{#if @last}}
+                    </ul>
+                    {{/if}}
+                    {{/eachFunder}}
+
                     <!-- Subsections -->
                     {{#if subsections}}
                         {{#each subsections}}
@@ -90,23 +113,6 @@
                         {{/each}}
                     {{/if}}
 
-                    <!-- Publication -->
-                    {{publication this}}
-
-                    <!-- Funding -->
-                    {{#eachFunder this}}
-                        {{#if @first}}
-                            <div class="bs-name">Funding</div>
-                            <ul id="bs-funding">
-                        {{/if}}
-                        <li>{{name}}{{#if grants}}:
-                            <span class="bs-grants">{{grants}}</span>
-                            {{/if}}
-                        </li>
-                        {{#if @last}}
-                            </ul>
-                        {{/if}}
-                    {{/eachFunder}}
                 </div>
             </div>
             <div class="clearboth"></div>
@@ -114,12 +120,18 @@
 
         <script id='publication-template' type='text/x-handlebars-template'>
             {{#if this}}
-            <div class="bs-name">Published In</div>
-            <div>{{journal}}.
+            <div class="bs-name">Publication</div>
+            <div>{{#if authors}}{{authors}}.{{/if}}
+                {{#if journal}}<i>{{journal}}</i>.{{/if}}
                 {{#if publication_date}}{{publication_date}};{{/if}}
                 {{volume}}{{#if pages}}: {{pages}}{{/if}}
-                {{#if URL}}
-                    <a href="{{URL}}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i> {{accno}}</a>
+                {{#if URLs}}
+                    {{#each URLs}}
+                        <span class="publication-link">
+                            <span class="publication-link-type"><i class="fa fa-external-link" aria-hidden="true"></i> {{type}}</span>
+                            <a href="{{url}}" target="_blank">{{text}}</a>
+                        </span>
+                    {{/each}}
                 {{else}}
                     {{accno}}
                 {{/if}}

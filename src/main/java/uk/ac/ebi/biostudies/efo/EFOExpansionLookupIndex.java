@@ -195,13 +195,13 @@ public class EFOExpansionLookupIndex {
                 Query q = overrideQueryField(origQuery, "term");
 
                 TopDocs hits = searcher.search(q, MAX_INDEX_HITS);
-                this.logger.debug("Expansion lookup for query [{}] returned [{}] hits", q.toString(), hits.totalHits);
+                //this.logger.debug("Expansion lookup for query [{}] returned [{}] hits", q.toString(), hits.totalHits);
 
                 for (ScoreDoc d : hits.scoreDocs) {
                     Document doc = searcher.doc(d.doc);
                     String[] terms = doc.getValues("term");
                     String[] efo = doc.getValues("efo");
-                    this.logger.debug("Synonyms [{}], EFO Terms [{}]", StringUtils.join(terms, ", "), StringUtils.join(efo, ", "));
+                    //this.logger.debug("Synonyms [{}], EFO Terms [{}]", StringUtils.join(terms, ", "), StringUtils.join(efo, ", "));
                     if (0 != terms.length) {
                         expansion.synonyms.addAll(Arrays.asList(terms));
                     }
@@ -248,7 +248,7 @@ public class EFOExpansionLookupIndex {
                     }
                     Query q = qb.build();
                     TopDocs hits = searcher.search(q, MAX_INDEX_HITS);
-                    this.logger.debug("Expansion lookup for query [{}] returned [{}] hits", q.toString(), hits.totalHits);
+                    //this.logger.debug("Expansion lookup for query [{}] returned [{}] hits", q.toString(), hits.totalHits);
 
                     for (ScoreDoc d : hits.scoreDocs) {
                         Document doc = searcher.doc(d.doc);

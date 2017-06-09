@@ -46,15 +46,7 @@ public class EFOExpandedHighlighter {
 
     public String highlightQuery(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly ) {
 
-        String result = doHighlightQuery(originalQuery, fieldName, text, HIT_OPEN_MARK, HIT_CLOSE_MARK, fragmentOnly);
-        if(synonymQuery!=null)
-            result = doHighlightQuery(synonymQuery, fieldName, result, SYN_OPEN_MARK, SYN_CLOSE_MARK, fragmentOnly);
-        if(efoQuery!=null)
-            result = doHighlightQuery(efoQuery, fieldName, result, EFO_OPEN_MARK, EFO_CLOSE_MARK, fragmentOnly);
-
-        result = EFO_AND_SYN_REGEX.replace(result, SYN_OPEN_MARK + "$1" + SYN_CLOSE_MARK);
-        result = SYN_AND_HIT_REGEX.replace(result, HIT_OPEN_MARK + "$1" + HIT_CLOSE_MARK);
-        result = EFO_AND_HIT_REGEX.replace(result, HIT_OPEN_MARK + "$1" + HIT_CLOSE_MARK);
+        String result = doHighlightQuery(originalQuery, fieldName, text, "", "", fragmentOnly);
 
         return result;
 
@@ -73,7 +65,7 @@ public class EFOExpandedHighlighter {
             String str = highlighter.getBestFragment(new ExperimentTextAnalyzer(), "".equals(fieldName)
                                     ? indexConfig.getDefaultField()
                                     : fieldName, text);
-            return null != str ? str.replaceAll(closeMark+" "+openMark," ") : text;
+            return str;
         } catch (Exception x) {
             logger.error("Caught an exception:", x);
         }

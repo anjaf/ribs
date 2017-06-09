@@ -50,7 +50,7 @@ public class ZipDownloadService extends BaseDownloadServlet{
 
         // set filename and accession
         String[] requestArgs = request.getRequestURI().replaceFirst("/files/", "").split("/");
-        String accession = requestArgs[0];
+        String accession = relativePath.substring(relativePath.lastIndexOf('/')+1);
         String[] filenames = request.getParameterMap().get("files");
 
         if (filenames != null) { // first hit: We have to zip the files
@@ -79,8 +79,7 @@ public class ZipDownloadService extends BaseDownloadServlet{
                             URLEncoder.encode(accession, "UTF-8"),
                             URLEncoder.encode(datacentre.substring(0, 1), "UTF-8"));
                     zipStatusService.addFile(uuid);
-                    request.getRequestDispatcher("/servlets/view/-/zip/html" + forwardedParams)
-                            .forward(request, response);
+                    response.sendRedirect( request.getContextPath()+ "/zip" + forwardedParams);
                     return;
                 } else {
                     // File is not large. Send over the zipped stream
@@ -106,8 +105,9 @@ public class ZipDownloadService extends BaseDownloadServlet{
     ) throws DownloadServletException {
 
         String path=null;
-        String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"/files/"       ,"").split("/");
+        String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"(/[a-zA-Z])?/files/"       ,"").split("/");
         String accession = requestArgs[0];
+
 
         if (request.getParameter("file")!=null) { // async request
             String uuid = UUID.fromString(request.getParameter("file")).toString();

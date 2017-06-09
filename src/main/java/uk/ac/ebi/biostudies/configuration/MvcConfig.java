@@ -42,6 +42,15 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
+        registry.addViewController("/about").setViewName("about");
+        registry.addViewController("/about/*").setViewName("about");
+        registry.addViewController("/help").setViewName("help");
+        registry.addViewController("/help/*").setViewName("help");
+        registry.addViewController("/submit").setViewName("submit");
+        registry.addViewController("/submit/*").setViewName("submit");
+        registry.addViewController("/zip").setViewName("zip");
+        registry.addViewController("/zip/*").setViewName("zip");
+
         registry.addViewController("/studies").setViewName("search");
         registry.addViewController("/studies/*").setViewName("search");
         registry.addViewController("/studies/{accession:.+}").setViewName("detail");
@@ -60,8 +69,6 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/css/**").addResourceLocations("/css/").setCachePeriod(6000);
         registry.addResourceHandler("/images/**").addResourceLocations("/images/").setCachePeriod(6000);
         registry.addResourceHandler("/fonts/**").addResourceLocations("/fonts/").setCachePeriod(6000);
-        registry.addResourceHandler("/page/**").addResourceLocations("/html/").setCachePeriod(6000);
-
     }
 
     @Bean

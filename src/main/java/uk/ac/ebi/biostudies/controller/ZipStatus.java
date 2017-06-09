@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 
 @RestController
-@RequestMapping(value="/zipstatus")
+@RequestMapping(value="/{datacenter}/zipstatus")
 public class ZipStatus {
 
     @Autowired

@@ -163,12 +163,12 @@
 
                 <!-- local-nav -->
                 <nav >
-                    <ul class="dropdown menu float-left" data-description="navigational">
+                    <ul class="menu float-left" data-description="navigational">
                         <li class=""><a href="${contextPath}/">Home</a></li>
                         <li><a href="${contextPath}/studies/">Browse</a></li>
-                        <li><a>Submit</a></li>
-                        <li><a>Help</a></li>
-                        <li><a>About BioStudies</a></li>
+                        <li><a href="${contextPath}/submit">Submit</a></li>
+                        <li><a href="${contextPath}/help">Help</a></li>
+                        <li><a href="${contextPath}/about">About BioStudies</a></li>
                     </ul>
                     <ul class="dropdown menu float-right" data-description="tasks">
                         <li class=""><a href="${contextPath}"><span class="icon icon-functional" data-icon="n"></span> Feedback</a></li>

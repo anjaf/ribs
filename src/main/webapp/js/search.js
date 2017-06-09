@@ -160,6 +160,8 @@ function registerHelpers(params) {
                 return (v1 && v2) ? options.fn(this) : options.inverse(this);
             case '||':
                 return (v1 || v2) ? options.fn(this) : options.inverse(this);
+            case 'contains':
+                return (v1.indexOf(v2) >=0 ) ? options.fn(this) : options.inverse(this);
             default:
                 return options.inverse(this);
         }
@@ -171,20 +173,30 @@ function postRender(data, params) {
     // add highlights
 
     if (data.query) {
+        var highlights = [];
+        if (data.expandedSynonyms) highlights = highlights.concat(data.expandedSynonyms.map(function (v) { return {word:v,class:'synonym'} } ));
+        if (data.expandedEfoTerms) highlights = highlights.concat(data.expandedEfoTerms.map(function (v) { return {word:v,class:'efo'} } ));
         var split = data.query.match(/(?:[^\s"]+|"[^"]*")+/g).map( function(v) { return v.replace(/\"/g,'')});
-        $("#search-results").highlight(split);
+        highlights = highlights.concat(split.map(function (v) { return {word:v,class:'highlight'} } ));
+        highlights.sort(function (a,b) {return b.word.length-a.word.length })
+        $.each(highlights, function (i,v) {
+            $("#search-results").highlight(v.word,{className:v.class});
+        });
     }
-    // $("#renderedContent").highlight(['ductal','CrkII '],{className:'synonym'});
-    // $("#renderedContent").highlight(['mouse','gland '],{className:'efo'});
 
     // get project logo
     $("div[data-type='project']").each( function() {
         var $prj = $(this), accession = $(this).data('accession');
         $('a',$prj).attr('href',contextPath+'/'+accession+'/studies');
         $.getJSON(contextPath+ '/api/studies/'+accession, function (data) {
-            $prj.prepend('<a class="project-logo" href="'+contextPath+'/'+accession+'/studies">'+
-                '<img src="'+contextPath+'/files/'+accession+'/'+data.section.files[0][0].path+'"/>'
-            +'</a>');
+            var path = data.section.files.path;
+            if (!path && data.section.files[0]) path =data.section.files[0].path;
+            if (!path && data.section.files[0][0]) path = data.section.files[0][0].path;
+            if (path) {
+                $prj.prepend('<a class="project-logo" href="' + contextPath + '/' + accession + '/studies">' +
+                    '<img src="' + contextPath + '/files/' + accession + '/' + path + '"/>'
+                    + '</a>');
+            }
         })
     });
 
@@ -213,6 +225,21 @@ function postRender(data, params) {
         params.sortOrder = 'ascending';
         window.location = projectPath+'/studies/?' + $.param(params);
     });
+
+    // limit authors
+    $('.authors').each( function() {
+        var authors = $(this).text().split(',');
+        if (authors.length>10) {
+            $(this).text(authors.slice(0,9).join(', '));
+            var rest = $('<span/>', {class:'hidden'}).text(', '+authors.slice(10).join(','));
+            var more = $('<span/>', {class:'more'}).text('+ ' + (authors.length-10) + ' more')
+                .click(function () {
+                    $(this).next().show();
+                    $(this).hide();
+                })
+            $(this).append(more).append(rest)
+        }
+    })
 }
 
 function postRenderFacets(data, params) {
