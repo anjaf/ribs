@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import uk.ac.ebi.biostudies.api.util.PublicRest;
+import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import java.net.URLDecoder;
@@ -43,7 +43,7 @@ public class Search {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "JsonObject contains search results", response = ObjectNode.class)
     })
-    @PublicRest
+    @PublicRESTMethod
     @RequestMapping(value = "/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String search(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
                                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
@@ -59,7 +59,7 @@ public class Search {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Search results for selected facets", response = ObjectNode.class)
     })
-    @PublicRest
+    @PublicRESTMethod
     @RequestMapping(value = "/{project}/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String getSelectedFacets(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
                                            @RequestParam(value="facets", required=false) String facets,
