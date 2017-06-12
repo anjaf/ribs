@@ -72,6 +72,25 @@ $.fn.groupBy = function(fn) {
         '^amigo.geneontology.org/amigo/term/(.*)':'GO',
         '^www.ebi.ac.uk/chebi/searchId.do?chebiId=(.*)':'ChEBI'
     };
+
+    linkTypeMap = {
+        'sprot': 'UniProt',
+        'gen': 'ENA',
+        'arrayexpress': 'ArrayExpress',
+        'refsnp': 'dbSNP',
+        'pdb': 'PDBe',
+        'pfam': 'Pfam',
+        'omim': 'OMIM',
+        'interpro': 'InterPro',
+        'refseq': 'Nucleotide',
+        'ensembl': 'Ensembl',
+        'doi': 'DOI',
+        'intact': 'IntAct',
+        'chebi': 'ChEBI',
+        'ega': 'EGA',
+        '': 'External'
+    };
+
     orgOrder= [];
 
     var params = document.location.search.replace(/(^\?)/,'').split("&").map(
@@ -114,6 +133,14 @@ function registerHelpers() {
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) return '' ;
         return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+e.value+'</a>' : e.value);
+    });
+
+    Handlebars.registerHelper('linkWithName', function(val, obj) {
+        if (obj==null) return;
+        var e = obj.filter( function(o) { return o['name']==val})[0];
+        if (e==undefined) return '' ;
+        var value = val.toLowerCase()=='type' && linkTypeMap[e.value] ? linkTypeMap[e.value] : e.value;
+        return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+ value+'</a>' : value);
     });
 
     Handlebars.registerHelper('renderFileTableRow', function(val, obj) {

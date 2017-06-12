@@ -308,7 +308,7 @@
                     {{#each this.links}}
                     <tr>
                         {{#each ../linkHeaders}}
-                        <td>{{valueWithName this ../attributes}}</td>
+                        <td>{{linkWithName this ../attributes}}</td>
                         {{/each}}
                     </tr>
                     {{/each}}
