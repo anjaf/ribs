@@ -247,7 +247,7 @@
                                     <input type="checkbox" data-name="{{path}}"/>
                                 </td>
                                 {{#each ../headers}}
-                                    <td>{{valueWithName this ../this.attributes}}</td>
+                                    {{renderFileTableRow this ../this.attributes}}
                                 {{/each}}
                             </tr>
                             {{/each}}

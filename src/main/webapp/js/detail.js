@@ -116,6 +116,16 @@ function registerHelpers() {
         return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+e.value+'</a>' : e.value);
     });
 
+    Handlebars.registerHelper('renderFileTableRow', function(val, obj) {
+        if (obj==null) return;
+        var e = obj.filter( function(o) { return o['name']==val})[0];
+        if (e==undefined) return '' ;
+        return new Handlebars.SafeString('<td' + (e.sort ? ' data-sort="'+e.sort+'"' : '')+'>' +
+            (e.url ?'<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+e.value+'</a>' :e.value)
+            +'</td>'
+        );
+    });
+
     Handlebars.registerHelper('ifHasAttribute', function(val, obj, options) {
         var ret = false;
         if (obj!=null) {
@@ -191,7 +201,7 @@ function registerHelpers() {
             $.each(this, function (i, file) {
                 file.attributes = file.attributes || [];
                 file.attributes.push({"name": "Name", "value": file.path});
-                file.attributes.push({"name": "Size", "value": getByteString(file.size)});
+                file.attributes.push({"name": "Size", "value": getByteString(file.size), "sort":file.size});
                 $.each(file.attributes, function (i, attribute) {
                     if (!(attribute.name in hsh)) {
                         names.push(attribute.name);
@@ -498,6 +508,7 @@ function createMainFileTable() {
         "columnDefs": [ {"targets": [0], "searchable": false, "orderable": false, "visible": true},
          //   {"targets": [2], "searchable": true, "orderable": false, "visible": false}
             ],
+        "order": [[1, "asc"]],
         "dom": "rlftpi",
         "infoCallback": function( settings, start, end, max, total, out ) {
             return (total== max) ? out : out +'<br/><a class="section-button" id="clear-filter" onclick="clearFilter();return false;">' +
