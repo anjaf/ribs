@@ -55,7 +55,7 @@ $.fn.groupBy = function(fn) {
         '^www.ebi.ac.uk/chembldb/compound/inspect/(.*)':'ChEMBL',
         '^www.ebi.ac.uk/ega/studies/(.*)':'EGA',
         '^www.uniprot.org/uniprot/(.*)':'Sprot',
-        '^www.ebi.ac.uk/ena/data/view/(.*)':'GEN',
+        '^www.ebi.ac.uk/ena/data/view/(.*)':'ENA',
         '^www.ebi.ac.uk/arrayexpress/experiments/(.*)/files/':'ArrayExpress Files',
         '^www.ebi.ac.uk/arrayexpress/experiments/(.*)':'ArrayExpress',
         '^www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=(.*)':'refSNP',
@@ -117,11 +117,12 @@ function registerHelpers() {
     });
 
     Handlebars.registerHelper('renderFileTableRow', function(val, obj) {
-        if (obj==null) return;
+        if (obj==null) return new Handlebars.SafeString('<td></td>');
         var e = obj.filter( function(o) { return o['name']==val})[0];
-        if (e==undefined) return '' ;
+        if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
         return new Handlebars.SafeString('<td' + (e.sort ? ' data-sort="'+e.sort+'"' : '')+'>' +
-            (e.url ?'<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+e.value+'</a>' :e.value)
+            (e.url ?'<a onclick="closeFullScreen();" href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+
+                new Handlebars.SafeString(e.value)+'</a>' :e.value)
             +'</td>'
         );
     });
@@ -940,4 +941,10 @@ function handleOntologyLinks() {
         });
 
     });
+}
+
+
+function closeFullScreen() {
+    $('.table-expander','.fullscreen').click();
+    $('#right-column-expander','.fullscreen').click();
 }

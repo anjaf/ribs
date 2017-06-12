@@ -141,7 +141,7 @@
         </script>
 
         <script id='section-template' type='text/x-handlebars-template'>
-            <section name="{{replaceCharacter this.accno '/' '-'}}">
+            <section id="{{replaceCharacter this.accno '/' '-'}}" name="{{replaceCharacter this.accno '/' '-'}}">
                 <div class="bs-name {{this.indentClass}}">
                     {{#ifHasAttribute 'Title' this.attributes}}
                         {{valueWithName 'Title' this.attributes}}
