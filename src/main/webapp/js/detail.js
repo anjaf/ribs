@@ -131,7 +131,7 @@ function registerHelpers() {
     Handlebars.registerHelper('valueWithName', function(val, obj) {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
-        if (e==undefined) return '' ;
+        if (e==undefined) return '';
         return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+e.value+'</a>' : e.value);
     });
 
