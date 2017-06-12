@@ -16,9 +16,16 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import uk.ac.ebi.biostudies.api.util.PublicRest;
 
 @Configuration
 @EnableWebMvc
+@EnableSwagger2
 @EnableAsync
 @EnableScheduling
 @ComponentScan(basePackages = "uk.ac.ebi.biostudies")
@@ -81,6 +88,15 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         viewResolver.setPrefix("/jsp/");
         viewResolver.setSuffix(".jsp");
         return viewResolver;
+    }
+
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.withMethodAnnotation(PublicRest.class))
+                .paths(PathSelectors.any())
+                .build();
     }
 
 }
