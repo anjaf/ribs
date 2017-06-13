@@ -29,7 +29,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 
 @Api(value="api", description="Rest endpoint for searching and retrieving Biostudies")
 @RestController
-@RequestMapping(value="/api")
+@RequestMapping(value="/api/v1")
 public class Search {
 
     private Logger logger = LogManager.getLogger(Search.class.getName());

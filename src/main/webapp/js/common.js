@@ -17,7 +17,7 @@
 
     if(project) {
         // display project banner
-        $.getJSON(contextPath + "/api/studies/" + project, function (data) {
+        $.getJSON(contextPath + "/api/v1/studies/" + project, function (data) {
             showProjectBanner(data);
         }).fail(function (error) {
             showError(error);
@@ -32,12 +32,12 @@
     };
 
     $("#query").autocomplete(
-        contextPath + "/api/autocomplete/keywords"
+        contextPath + "/api/v1/autocomplete/keywords"
         , { matchContains: false
             , selectFirst: false
             , scroll: true
             , max: 50
-            , requestTreeUrl: contextPath + "/api/autocomplete/efotree"
+            , requestTreeUrl: contextPath + "/api/v1/autocomplete/efotree"
         }
     ).focus(autoCompleteFixSet).blur(autoCompleteFixUnset).removeAttr('autocomplete');
 

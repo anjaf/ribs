@@ -16,7 +16,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.STRING_UNICODE_MEDIA_TYPE;
 
 
 @RestController
-@RequestMapping(value="/api/autocomplete")
+@RequestMapping(value="/api/v1/autocomplete")
 public class AutoCompleteController {
 
     @Autowired

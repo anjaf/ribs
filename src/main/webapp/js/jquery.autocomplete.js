@@ -919,7 +919,7 @@
                 dataType: options.dataType,
                 url: options.requestTreeUrl,
                 data: {
-                    query: eltData.treeId
+                    efoid: eltData.treeId
                 },
                 success: function(data) {
                     var parsed = options.parse(data);

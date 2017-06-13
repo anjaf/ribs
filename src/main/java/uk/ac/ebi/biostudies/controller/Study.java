@@ -18,7 +18,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
  * Created by awais on 14/02/2017.
  */
 @RestController
-@RequestMapping(value="/api")
+@RequestMapping(value="/api/v1")
 public class Study {
 
     private Logger logger = LogManager.getLogger(Study.class.getName());

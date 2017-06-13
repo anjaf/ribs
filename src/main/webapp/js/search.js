@@ -22,7 +22,7 @@ function showResults(params) {
     var template = Handlebars.compile(templateSource);
 
     // do search
-    $.getJSON(contextPath+(project ? "/api/"+project+"/search" : "/api/search"), params,function (data) {
+    $.getJSON(contextPath+(project ? "/api/v1/"+project+"/search" : "/api/v1/search"), params,function (data) {
         if(project) {
             data.project = project;
         }
@@ -34,7 +34,7 @@ function showResults(params) {
         $('#left-column').slideDown("fast", function () {
             // fill facets
             if ($('#hasFacets').length) {
-                $.getJSON(contextPath + "/api/" + project + "/facets", function (data) {
+                $.getJSON(contextPath + "/api/v1/" + project + "/facets", function (data) {
                     var templateSource = $('script#facet-list-template').html();
                     var template = Handlebars.compile(templateSource);
                     data.selectedFacets = params.facets ? params.facets.split(",") : [];
@@ -188,7 +188,7 @@ function postRender(data, params) {
     $("div[data-type='project']").each( function() {
         var $prj = $(this), accession = $(this).data('accession');
         $('a',$prj).attr('href',contextPath+'/'+accession+'/studies');
-        $.getJSON(contextPath+ '/api/studies/'+accession, function (data) {
+        $.getJSON(contextPath+ '/api/v1/studies/'+accession, function (data) {
             var path = data.section.files.path;
             if (!path && data.section.files[0]) path =data.section.files[0].path;
             if (!path && data.section.files[0][0]) path = data.section.files[0][0].path;

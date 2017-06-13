@@ -5,14 +5,14 @@
     // Prepare template
     var template = Handlebars.compile($('script#stats-template').html());
 
-    $.getJSON( contextPath + "/api/search",{query:'type:Study',pageSize:5,sortby:'release_date'}, function( data ) {
+    $.getJSON( contextPath + "/api/v1/search",{query:'type:Study',pageSize:5,sortby:'release_date'}, function( data ) {
          if (data) {
              var totalCount = data.totalHits + (data.totalHits == 1 ? ' study' : ' studies');
              $('#template').html(template(data));
              $('#latest').slideDown();
              $('#studyCountStats').fadeIn();
 
-             $.getJSON( contextPath + "/api/search",{query:'type:Project'}, function( data ) {
+             $.getJSON( contextPath + "/api/v1/search",{query:'type:Project'}, function( data ) {
                  if (data && data.totalHits && data.totalHits>0) {
                      $('#projectCount').text(data.totalHits + (data.totalHits == 1 ? ' project' : ' projects'));
                      $('#projectCountStats').fadeIn();

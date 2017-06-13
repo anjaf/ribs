@@ -20,7 +20,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
  */
 @SuppressWarnings("Duplicates")
 @RestController
-@RequestMapping(value="/api")
+@RequestMapping(value="/api/v1")
 public class Index {
 
     @Autowired
