@@ -148,8 +148,7 @@
                     {{else}}
                         {{type}}
                     {{/ifHasAttribute}}
-                    <!--span class="section-title-bar"><span class="file-filter"><i class="fa fa-filter"></i>
-                                Files in: </span><a class="section-button" data-files-id="df1">This section</a></span-->
+                    <span class="section-title-bar"></span>
                 </div>
                 <div class="has-child-section">
                     {{&section-link-tables}}
@@ -226,7 +225,7 @@
                 <div id="file-list-container">
                     <div class="table-caption">
                         <span class="widge-title"><i class="fa fa-download"></i> Download data files</span>
-                        <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
+                        <span class="fa fa-expand fa-icon table-expander" id="all-files-expander" title="Click to expand"/>
                     </div>
                     <div class="table-wrapper">
                         <table id="file-list" class="stripe compact hover">

@@ -147,7 +147,7 @@
                     <form id="ebi_search" action="${contextPath}/studies">
                         <fieldset>
                             <div class="input-group margin-bottom-none margin-top-large">
-                                <input id="query" class="input-group-field" title="EB-eye Search" tabindex="1" type="text" name="query"  size="35" maxlength="2048" placeholder="Search BioStudies" value="${fn:escapeXml(query)}" />
+                                <input id="query" class="input-group-field" tabindex="1" type="text" name="query"  size="35" maxlength="2048" placeholder="Search BioStudies" value="${fn:escapeXml(query)}" />
                                 <div class="input-group-button">
                                     <input id="search_submit" class="button icon icon-functional" tabindex="2" type="submit" value="1" />
                                 </div>

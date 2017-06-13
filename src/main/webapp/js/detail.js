@@ -132,7 +132,11 @@ function registerHelpers() {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) return '';
-        return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+e.value+'</a>' : e.value);
+        return new Handlebars.SafeString( e.url ? '<a href="'
+                                                    + e.url
+                                                    + (e.url[0]!='#' ? '" target="_blank':'')
+                                                    +'">'+e.value+'</a>'
+                                                : e.value);
     });
 
     Handlebars.registerHelper('linkWithName', function(val, obj) {
@@ -147,9 +151,17 @@ function registerHelpers() {
         if (obj==null) return new Handlebars.SafeString('<td></td>');
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
-        return new Handlebars.SafeString('<td' + (e.sort ? ' data-sort="'+e.sort+'"' : '')+'>' +
-            (e.url ?'<a onclick="closeFullScreen();" href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+
-                new Handlebars.SafeString(e.value)+'</a>' :e.value)
+        return new Handlebars.SafeString('<td'
+                + (e.sort ? ' data-sort="'+e.sort+'"' : '')
+                + (e.search ? ' data-search="'+e.search+'"' : '')
+            +'>'
+                + (e.url ?'<a onclick="closeFullScreen();" '
+                    + 'href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')
+                + '">'
+                        + new Handlebars.SafeString(e.value)
+                    +'</a>'
+                        :e.value
+                 )
             +'</td>'
         );
     });
@@ -482,7 +494,10 @@ function findall(obj,k,unroll){ // works only for files and links
                 $.each(obj[k], function () {
                     $.each($.isArray(this) ? this : [this], function () {
                         if (accno && this.attributes) {
-                            this.attributes.splice(0, 0, {'name': 'Section', 'value': type, 'url':'#'+accno.replace('/','-')});
+                            this.attributes.splice(0, 0, { 'name': 'Section',
+                                                            'search': accno.replace('/','-'),
+                                                            'value': type,
+                                                            'url':'#'+accno.replace('/','-')});
                         }
                     });
                 });
@@ -778,6 +793,23 @@ function handleAnchors() {
         $('#left-column').slideDown();
     }
 
+    // handle clicks on file filters in section
+    $("#file-list td[data-search]").each(function(){
+        var divId = $(this).data('search');
+        var bar = $('#' + divId+ '> .bs-name > .section-title-bar');
+        if (!$('a[data-files-id="'+divId+'"]', bar).length) {
+            bar.append('<span class="file-filter"><i class="fa fa-filter"></i>'
+                + 'Files in: </span><a class="section-button" data-files-id="'
+                + divId + '">This section</a>'
+            );
+        }
+
+    });
+    $("a[data-files-id]").click( function() {
+        $('#all-files-expander').click();
+        filesTable.column(3).search('^'+$(this).data('files-id')+'$',true,false).draw();
+    });
+
     // handle clicks on section links in main file table
    /* $("a[href^='#']", "#file-list" ).filter(function(){ return $(this).attr('href').length>1 }).click( function(){
         var subsec = $(this).attr('href');
@@ -785,11 +817,6 @@ function handleAnchors() {
         openHREF(subsec);
     });
 
-    // handle clicks on file filters in section
-    $("a[data-files-id]").click( function() {
-        $('#right-column-expander').click();
-        filesTable.column(2).search('^'+$(this).data('files-id')+'$',true,false).draw();
-    });
 
 
 
@@ -975,3 +1002,4 @@ function closeFullScreen() {
     $('.table-expander','.fullscreen').click();
     $('#right-column-expander','.fullscreen').click();
 }
+

@@ -372,3 +372,16 @@ a.thumbnail-icon {
     background-color: #B0F8CD;
     color: #000;
 }
+
+.file-filter {
+    color: #AAA;
+    margin-right:3px;
+}
+
+.section-title-bar {
+    font-size: 9pt;
+    margin-left: 20px;
+    cursor: text;
+}
+
+
