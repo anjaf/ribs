@@ -24,28 +24,30 @@ $.fn.groupBy = function(fn) {
 }
 !function(d) {
 
-    linkMap = {'pmc':'http://europepmc.org/articles/{0}',
+    linkMap = {
+        'pmc':'http://europepmc.org/articles/{0}',
         'pmid':'http://europepmc.org/abstract/MED/{0}',
-        'doi':'http://dx.doi.org/{0}',
+        'doi':'https://dx.doi.org/{0}',
         'chembl':'https://www.ebi.ac.uk/chembldb/compound/inspect/{0}',
         'ega':'http://www.ebi.ac.uk/ega/studies/{0}',
-        'sprot':'http://www.uniprot.org/uniprot/{0}',
-        'gen':'http://www.ebi.ac.uk/ena/data/view/{0}',
+        'uniprot':'http://www.uniprot.org/uniprot/{0}',
+        'ena':'http://www.ebi.ac.uk/ena/data/view/{0}',
         'arrayexpress files':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
         'arrayexpress':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}',
-        'refsnp':'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
+        'dbsnp':'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
         'pdb':'http://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
         'pfam':'http://pfam.xfam.org/family/{0}',
         'omim':'http://omim.org/entry/{0}',
         'interpro':'http://www.ebi.ac.uk/interpro/entry/{0}',
-        'refseq':'http://www.ncbi.nlm.nih.gov/nuccore/{0}',
+        'nucleotide':'http://www.ncbi.nlm.nih.gov/nuccore/{0}',
         'geo':'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={0}',
-        'doi':'http://dx.doi.org/{0}',
         'intact':'http://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc={0}',
         'biostudies':'https://www.ebi.ac.uk/biostudies/studies/{0}',
         'biostudies search':'https://www.ebi.ac.uk/biostudies/studies/search.html?query={0}',
         'go':'http://amigo.geneontology.org/amigo/term/{0}',
-        'chebi':'http://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}'
+        'chebi':'http://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}',
+        'bioproject':'https://www.ncbi.nlm.nih.gov/bioproject/{0}',
+        'biosamples':'https://www.ebi.ac.uk/biosamples/samples/{0}'
     };
 
     reverseLinkMap = {
@@ -58,7 +60,7 @@ $.fn.groupBy = function(fn) {
         '^www.ebi.ac.uk/ena/data/view/(.*)':'ENA',
         '^www.ebi.ac.uk/arrayexpress/experiments/(.*)/files/':'ArrayExpress Files',
         '^www.ebi.ac.uk/arrayexpress/experiments/(.*)':'ArrayExpress',
-        '^www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=(.*)':'refSNP',
+        '^www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=(.*)':'dbSNP',
         '^www.ebi.ac.uk/pdbe-srv/view/entry/(.*)/summary':'PDB',
         '^pfam.xfam.org/family/(.*)':'Pfam',
         '^omim.org/entry/(.*)':'OMIM',
@@ -70,7 +72,9 @@ $.fn.groupBy = function(fn) {
         '^www.ebi.ac.uk/biostudies/studies/(.*)':'BioStudies',
         '^www.ebi.ac.uk/biostudies/studies/search.html?query=(.*)':'BioStudies Search',
         '^amigo.geneontology.org/amigo/term/(.*)':'GO',
-        '^www.ebi.ac.uk/chebi/searchId.do?chebiId=(.*)':'ChEBI'
+        '^www.ebi.ac.uk/chebi/searchId.do?chebiId=(.*)':'ChEBI',
+        '^www.ncbi.nlm.nih.gov/bioproject/(.*)':'BioProject',
+        '^www.ebi.ac.uk/biosamples/samples/(.*)':'BioSamples'
     };
 
     linkTypeMap = {
@@ -88,7 +92,9 @@ $.fn.groupBy = function(fn) {
         'intact': 'IntAct',
         'chebi': 'ChEBI',
         'ega': 'EGA',
-        '': 'External'
+        '': 'External',
+        'bioproject': 'BioProject',
+        'biosample': 'BioSamples',
     };
 
     orgOrder= [];
@@ -563,26 +569,32 @@ function createMainFileTable() {
     });
 }
 
-function getURL(accession) {
-    var type = /^[a-zA-z]+/.exec(accession);
-    if (type && type.length) type = type[0]; else return null;
+function getURL(accession, type) {
+    if (!type) {
+        type = /^[a-zA-z]+/.exec(accession);
+        if (type && type.length) {
+            type = type[0];
+        } else {
+            return null;
+        }
+    }
     var url =  linkMap[type.toLowerCase()] ? String.format(linkMap[type.toLowerCase()], accession) : null;
-   if (type.toLowerCase()=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
-       url = url.replace('/studies/','/datasets/');
-   }
-   if (accession.indexOf('http:')==0 || accession.indexOf('https:')==0  || accession.indexOf('ftp:')==0 ) {
-       var value = accession.replace("http://",'').replace("https://",'').replace("ftp://",'')
-       for(var r in reverseLinkMap) {
+    if (type.toLowerCase()=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
+        url = url.replace('/studies/','/datasets/');
+    }
+    if (accession.indexOf('http:')==0 || accession.indexOf('https:')==0  || accession.indexOf('ftp:')==0 ) {
+        var value = accession.replace("http://",'').replace("https://",'').replace("ftp://",'')
+        for(var r in reverseLinkMap) {
            var acc = new RegExp(r).exec(value);
            if (acc && acc.length>0) {
                return {url:accession, type: reverseLinkMap[r], text:acc[1] }
            }
-       }
-       url = accession;
-   }
-
-   return url ?  {url:url, type:type, text:accession} : null;
+        }
+        url = accession;
+    }
+    return url ?  {url:url, type:type, text:accession} : null;
 }
+
 function createLinkTables() {
 
     //handle links
@@ -591,7 +603,7 @@ function createLinkTables() {
         $("tr",this).each( function (i,row) {
             if (i==0) return;
             var type =  $($('td',row)[1]).text().toLowerCase();
-            var url = getURL( type, $($('td',row)[0]).text());
+            var url = getURL($($('td',row)[0]).text(), type);
             if (url) {
                 $($('td',row)[0]).wrapInner('<a href="'+ url.url +'" target="_blank">');
             }
