@@ -88,14 +88,14 @@ public class SearchServiceImpl implements SearchService {
         return autocompletion.getEfoChildren(query);
     }
 
-    public Pair<Query, EFOExpansionTerms> expandQuery(Query originalQuery, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder){
+    public Pair<Query, EFOExpansionTerms> expandQuery(Query query){
         Map<String, String> queryInfo = analyzerManager.getExpandableFields();
         try {
-            return efoQueryExpander.expand(queryInfo, originalQuery, synonymBooleanBuilder, efoBooleanBuilder);
+            return efoQueryExpander.expand(queryInfo, query);
         }catch (Exception ex){
-            logger.error("problem in expanding query {}", originalQuery, ex);
+            logger.error("Problem in expanding query {}", query, ex);
         }
-        return new MutablePair<>(originalQuery, null);
+        return new MutablePair<>(query, null);
     }
 
     private Query excludeCompoundStudies(Query originalQuery){
@@ -137,15 +137,14 @@ public class SearchServiceImpl implements SearchService {
                             facetNames.add(objNode.textValue());
                         }
                 }catch (Throwable ex){
-                    logger.debug("ui sent invalid facet: {}", dim, ex);
+                    logger.debug("Invalid facet: {}", dim, ex);
                 }
             }
         }
         return  facetService.addFacetDrillDownFilters(bqBuilder.build(), selectedFacets);
     }
 
-    private ObjectNode applySearchOnQuery(Query query, Query synonymQuery, Query efoQuery, int page, int pageSize,
-                                         String sortBy, String sortOrder, boolean doHighlight){
+    private ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder, boolean doHighlight){
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
         ObjectMapper mapper = new ObjectMapper();
@@ -189,8 +188,7 @@ public class SearchServiceImpl implements SearchService {
 
                     if (doHighlight) {
                         docNode.put(String.valueOf(BioStudiesField.CONTENT),
-                                efoExpandedHighlighter.highlightQuery(query, synonymQuery, efoQuery,
-                                        BioStudiesField.CONTENT.toString(),
+                                efoExpandedHighlighter.highlightQuery(query, BioStudiesField.CONTENT.toString(),
                                         doc.get(BioStudiesField.CONTENT.toString()),
                                         true
                                 )
@@ -263,9 +261,7 @@ public class SearchServiceImpl implements SearchService {
         try {
             logger.debug("User queryString: {}",queryString);
             Query query = parser.parse(queryString.toLowerCase());
-            BooleanQuery.Builder synonymQueryBuilder = new BooleanQuery.Builder();
-            BooleanQuery.Builder efoQueryBuilder = new BooleanQuery.Builder();
-            Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query, synonymQueryBuilder, efoQueryBuilder);
+            Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query);
             Query expandedQuery = excludeCompoundStudies(queryEFOExpansionTermsPair.getKey());
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
             logger.debug("Lucene query: {}",queryAfterSecurity.toString());
@@ -273,8 +269,7 @@ public class SearchServiceImpl implements SearchService {
                 queryAfterSecurity = applyFacets(queryAfterSecurity, selectedFacets, prjName);
                 logger.debug("Lucene after facet query: {}",queryAfterSecurity.toString());
             }
-            response = applySearchOnQuery(queryAfterSecurity, synonymQueryBuilder.build(), efoQueryBuilder.build(),
-                    page, pageSize, sortBy, sortOrder, doHighlight);
+            response = applySearchOnQuery(queryAfterSecurity,page, pageSize, sortBy, sortOrder, doHighlight);
 
             // add expansion
             EFOExpansionTerms expansionTerms =  queryEFOExpansionTermsPair.getValue();

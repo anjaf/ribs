@@ -25,7 +25,13 @@
             <span class="release-date">{{epochToDate release_date}}</span>
             {{#ifCond type '!=' 'project'}}
                 {{#ifCond links '!=' 0}}
-                <span class="release-links">{{links}} link(s)</span>
+                    <span class="release-links">
+                        {{#ifCond links '>' 1}}
+                            {{links}} links
+                        {{else}}
+                            {{links}} link
+                        {{/ifCond}}
+                    </span>
                 {{/ifCond}}
                 {{#ifCond files '!=' 0}}
                     <span class="release-files">

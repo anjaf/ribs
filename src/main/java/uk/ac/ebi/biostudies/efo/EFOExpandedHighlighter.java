@@ -44,7 +44,7 @@ public class EFOExpandedHighlighter {
     private final RegexHelper EFO_AND_HIT_REGEX = new RegexHelper(HIT_OPEN_MARK + EFO_OPEN_MARK + "([^" + EFO_CLOSE_MARK + HIT_CLOSE_MARK + "]+)" + EFO_CLOSE_MARK + HIT_CLOSE_MARK, "g");
 
 
-    public String highlightQuery(Query originalQuery, Query synonymQuery, Query efoQuery, String fieldName, String text, boolean fragmentOnly ) {
+    public String highlightQuery(Query originalQuery, String fieldName, String text, boolean fragmentOnly ) {
 
         String result = doHighlightQuery(originalQuery, fieldName, text, "", "", fragmentOnly);
 
