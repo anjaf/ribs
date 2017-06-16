@@ -525,10 +525,10 @@ function findall(obj,k,unroll){ // works only for files and links
 function postRender() {
     $('body').append('<div id="blocker"/><div id="tooltip"/>');
     drawSubsections();
-    handleThumbnails();
     createDataTables();
     createMainFileTable();
     createLinkTables();
+    showRightColumn();
     handleSectionArtifacts();
     handleTableExpansion();
     handleOrganisations();
@@ -537,8 +537,14 @@ function postRender() {
     handleAnchors();
     handleSubattributes();
     handleOntologyLinks();
+    handleThumbnails();
 }
 
+function  showRightColumn() {
+    if ($('#right-column').text().trim().length>0) {
+        $('#right-column').show();
+    }
+}
 
 function createDataTables() {
     $(".section-table").each(function () {

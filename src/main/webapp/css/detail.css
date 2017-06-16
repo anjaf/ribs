@@ -111,6 +111,7 @@ a.show-less:hover {
     background-color: hsla(201, 65%, 95%, 1);
     border: solid 1px #C9E4F3;
     font-size: 12px;
+    display:none;
 }
 #left-column {
     width: 98%;
