@@ -270,6 +270,12 @@ function registerHelpers() {
         return template(o);
     });
 
+
+    Handlebars.registerHelper('main-orcid-claimer', function(o,k) {
+        var template = Handlebars.compile($('script#main-orcid-claimer').html());
+        return template({accession:o.data.root.accno});
+    });
+
     Handlebars.registerHelper('valquals', function(o) {
         var template = Handlebars.compile($('script#valqual-template').html());
         return template(o);
@@ -537,6 +543,7 @@ function postRender() {
     handleAnchors();
     handleSubattributes();
     handleOntologyLinks();
+    handleORCIDIntegration();
     handleThumbnails();
 }
 
@@ -936,6 +943,8 @@ function clearFilter() {
 function handleThumbnails() {
     $("input[data-name]").parent().next().each(function () {
         var path = $(this).text();
+        $('a',this).addClass('file-name-column');
+        $('a',this).attr('title',path);
         if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
                 ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm']) >=0 ) {
             $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'
@@ -1021,3 +1030,16 @@ function closeFullScreen() {
     $('#right-column-expander','.fullscreen').click();
 }
 
+function handleORCIDIntegration() {
+    var accession = $('#orcid-accession').text();
+    thorApplicationNamespace.createWorkOrcId(
+        $('#orcid-title').text(),
+        'other', // work type from https://github.com/ORCID/ORCID-Source/blob/master/orcid-model/src/main/resources/record_2.0/work-2.0.xsd
+        new Date( Date.parse($('#orcid-publication-year').text())).getFullYear(),
+        document.location.origin + contextPath+"/studies/"+accession,
+        null, // description
+        null // db name
+    );
+    thorApplicationNamespace.addWorkIdentifier('other-id', accession);
+    thorApplicationNamespace.loadClaimingInfo();
+}

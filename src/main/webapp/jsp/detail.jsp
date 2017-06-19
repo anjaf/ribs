@@ -22,17 +22,19 @@
     <jsp:attribute name="postBody">
         <script src="${contextPath}/js/jquery.dataTables.min.js"></script>
         <script src="${contextPath}/js/jquery.highlight.js"></script>
+        <script src="//ves-ebi-37.ebi.ac.uk:8080/ThorWebTest/resources/js/dataclaiming/ebithor-claiming.1.2.js"></script>
         <!-- Handlebars templates-->
         <script id='study-template' type='text/x-handlebars-template'>
             <div id="left-column">
                 <div id="right-column">
                     {{&main-file-table}}
                     {{&main-link-table}}
+                    {{&main-orcid-claimer}}
                 </div>
                 <div id="release-date-download">
                     <span class="release-date">
                         {{#if releaseDate}}
-                            Release Date: {{releaseDate}}
+                        Release Date: <span  id="orcid-publication-year">{{releaseDate}}</span>
                         {{else}}
                             <i class="fa fa-lock" aria-hidden="true"></i> Private
                         {{/if}}
@@ -53,7 +55,7 @@
                 </div>
                 <div id="bs-content">
                     <div id="thumbnail"></div>
-                    <h4>{{valueWithName 'Title' attributes}}</h4>
+                    <h4 id="orcid-title">{{valueWithName 'Title' attributes}}</h4>
                     <!-- Authors -->
                     <ul id="bs-authors">
                         {{#eachAuthor this}}
@@ -74,7 +76,7 @@
 
                     <!-- Accession -->
                     <div class="bs-name">Accession</div>
-                    <div>{{accno}}</div>
+                    <div id="orcid-accession">{{accno}}</div>
 
                     <!-- Study level attributes -->
                     {{#eachGroup attributes}}
@@ -334,6 +336,35 @@
                  <p>If you require further assistance locating missing page or file, please <a href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it for you.</p>
              </section>
          </script>
+
+        <script id='main-orcid-claimer' type='text/x-handlebars-template'>
+            <section>
+                <div class="table-caption">
+                    <span class="widge-title"><img class="orcid-logo" src="${contextPath}/images/orcid.svg"></img>ORCID: Data claiming</span>
+                    <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
+                </div>
+                <div class="thor_div_showIf_notSigned" style="display:none">
+                    <div>
+                        You can <a href="#" class="thor_a_generate_signinLink">sign-in to ORCID</a> to claim your data
+                    </div>
+                    <div>
+                        <input type="checkbox" class="thor_checkbox_rememberMe_cookie"> Remember
+                            me on this computer
+                    </div>
+                </div>
+                <div class="thor_div_showIf_signedIn" style="display:none">
+                    <div>You have signed in as <label class="thor_label_show_userName" ></label>
+                        <a href="#" title="Sign Out" class="thor_a_generate_logoutLink">(sign out)</a>
+                    </div>
+                    <div style="display:none" class="thor_div_showIf_datasetNotClaimed">
+                        <a href="#" class="thor_a_generate_claimLink">Claim {{accession}} into your ORCID</a>
+                    </div>
+                    <div style="display:none" class="thor_div_showIf_datasetAlreadyClaimed">
+                        You have claimed {{accession}} into your ORCID.
+                    </div>
+                </div>
+            </section>
+        </script>
 
         <script src="${contextPath}/js/detail.js"></script>
     </jsp:attribute>

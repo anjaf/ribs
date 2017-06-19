@@ -385,4 +385,26 @@ a.thumbnail-icon {
     cursor: text;
 }
 
+.file-name-column {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    max-width: 200px;
+}
 
+.orcid-logo {
+    height: 20px;
+    margin-bottom: 5px;
+    margin-right: 3px;
+}
+.thor_div_showIf_notSigned {
+    line-height: 20pt;
+}
+.thor_label_show_userName {
+    display: inline-block;
+}
+.thor_a_generate_claimLink, thor_div_showIf_datasetAlreadyClaimed {
+    font-size: 10pt;
+}
