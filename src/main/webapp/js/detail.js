@@ -543,7 +543,7 @@ function postRender() {
     handleAnchors();
     handleSubattributes();
     handleOntologyLinks();
-    handleORCIDIntegration();
+    //handleORCIDIntegration();
     handleThumbnails();
 }
 
