@@ -262,7 +262,7 @@ public class SearchServiceImpl implements SearchService {
         ObjectNode response = mapper.createObjectNode();
         try {
             logger.debug("User queryString: {}",queryString);
-            Query query = parser.parse(queryString.toLowerCase());
+            Query query = parser.parse(queryString);
             BooleanQuery.Builder synonymQueryBuilder = new BooleanQuery.Builder();
             BooleanQuery.Builder efoQueryBuilder = new BooleanQuery.Builder();
             Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query, synonymQueryBuilder, efoQueryBuilder);

@@ -25,6 +25,9 @@ public class IndexConfig {
     @ Value("${indexer.threadCount}")
     private int threadCount;
 
+    @Value("${indexer.queueSize}")
+    private int queueSize;
+
     @ Value("${index.fields}")
     private String indexFields;
 
@@ -103,5 +106,9 @@ public class IndexConfig {
 
     public String getFtpDir() {
         return ftpDir;
+    }
+
+    public int getQueueSize(){
+        return queueSize;
     }
 }

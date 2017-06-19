@@ -9,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.*;
 import org.apache.lucene.facet.FacetField;
-import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -23,7 +22,6 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.schedule.jobs.ReloadOntologyJob;
-import uk.ac.ebi.biostudies.schedule.jobs.UpdateOntologyJob;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.config.IndexManager;
@@ -33,12 +31,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -79,7 +73,8 @@ public class IndexServiceImpl implements IndexService {
     @Override
     public void indexAll(String fileName) {
         Long startTime = System.currentTimeMillis();
-        ExecutorService executorService = Executors.newFixedThreadPool(indexConfig.getThreadCount());
+        ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
+                60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
         String inputStudiesFile = System.getProperty("java.io.tmpdir")+"/";
         if(fileName!=null && !fileName.isEmpty())
             inputStudiesFile = inputStudiesFile +fileName;
@@ -185,18 +180,22 @@ public class IndexServiceImpl implements IndexService {
         @Override
         public void run() {
             try {
-
                 Map<BioStudiesField, Object> valueMap = new HashMap<>(BioStudiesField.values().length);
-
                 valueMap.put( BioStudiesField.ID, json.get("accno").textValue() );
                 valueMap.put( BioStudiesField.ACCESSION, valueMap.get(BioStudiesField.ID));
                 valueMap.put( BioStudiesField.TYPE, json.get("section").get("type").textValue().toLowerCase());
                 valueMap.put( BioStudiesField.TITLE, getTitle(json));
-                valueMap.put( BioStudiesField.CONTENT, String.join(" ", json.findValuesAsText("value")));
+
                 valueMap.put( BioStudiesField.FILES, json.findValues("files").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("path").size()
                         ).sum()
                 );
+                StringBuilder content = new StringBuilder(String.join(" ", json.findValuesAsText("value")));
+                content.append("\n");
+                content.append(json.findValues("files").stream().map(jsonNode -> jsonNode.findValuesAsText("path").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
+                content.append("\n");
+                content.append(json.findValues("links").stream().map(jsonNode -> jsonNode.findValuesAsText("url").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
+                valueMap.put( BioStudiesField.CONTENT, content.toString());
                 valueMap.put( BioStudiesField.LINKS, json.findValues("links").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("url").size()
                         ).sum()
@@ -224,10 +223,10 @@ public class IndexServiceImpl implements IndexService {
                         if(bsField.getType()!= BioStudiesFieldType.FACET)
                             continue;
                         value = StreamSupport.stream(attNodes.spliterator(), false)
-                            .filter(jsonNode ->
-                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase(bsField.getTitle()))
-                            .map(s->s.get("value").textValue() )
-                            .collect(Collectors.joining(","));
+                                .filter(jsonNode ->
+                                        jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase(bsField.getTitle()))
+                                .map(s->s.get("value").textValue() )
+                                .collect(Collectors.joining(","));
                         valueMap.put(bsField, value);
                     }
                 }
@@ -265,33 +264,33 @@ public class IndexServiceImpl implements IndexService {
             String value;
             for (BioStudiesField field: BioStudiesField.values()) {
                 try{
-                switch (field.getType()) {
-                    case STRING_TOKENIZED:
-                        value = valueMap.get(field).toString();
-                        doc.add(new TextField(String.valueOf(field), value, Field.Store.YES));
+                    switch (field.getType()) {
+                        case STRING_TOKENIZED:
+                            value = valueMap.get(field).toString();
+                            doc.add(new TextField(String.valueOf(field), value, Field.Store.YES));
 //                        if need sorting uncomment these lines
 //                        if(field.isSort())
 //                            doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef(value.length()<256 ? value.toLowerCase():value.substring(0,256).toLowerCase())));
-                        break;
-                    case STRING_UNTOKENIZED:
-                        value = valueMap.get(field).toString();
-                        Field unTokenizeField = new Field(String.valueOf(field), value, BioStudiesFieldType.TYPE_NOT_ANALYZED);
-                        doc.add(unTokenizeField);
+                            break;
+                        case STRING_UNTOKENIZED:
+                            value = valueMap.get(field).toString();
+                            Field unTokenizeField = new Field(String.valueOf(field), value, BioStudiesFieldType.TYPE_NOT_ANALYZED);
+                            doc.add(unTokenizeField);
 //                        if need sorting uncomment these lines
 //                        if(field.isSort())
 //                            doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef(value.length()<256 ? value.toLowerCase():value.substring(0,256).toLowerCase())));
 
-                        break;
-                    case LONG:
-                        doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));
-                        doc.add(new StoredField(String.valueOf(field), valueMap.get(field).toString()));
-                        break;
-                    case FACET:
-                        addFacet(String.valueOf(valueMap.get(field)), field, doc);
-                }
-                }catch(Exception ex){
-                        logger.error("field name: {}", field.toString(), ex);
+                            break;
+                        case LONG:
+                            doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));
+                            doc.add(new StoredField(String.valueOf(field), valueMap.get(field).toString()));
+                            break;
+                        case FACET:
+                            addFacet(String.valueOf(valueMap.get(field)), field, doc);
                     }
+                }catch(Exception ex){
+                    logger.error("field name: {}", field.toString(), ex);
+                }
 
 
             }
@@ -329,5 +328,7 @@ public class IndexServiceImpl implements IndexService {
             return title;
         }
     }
+
+
 
 }
