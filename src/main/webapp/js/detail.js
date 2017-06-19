@@ -24,28 +24,30 @@ $.fn.groupBy = function(fn) {
 }
 !function(d) {
 
-    linkMap = {'pmc':'http://europepmc.org/articles/{0}',
+    linkMap = {
+        'pmc':'http://europepmc.org/articles/{0}',
         'pmid':'http://europepmc.org/abstract/MED/{0}',
-        'doi':'http://dx.doi.org/{0}',
+        'doi':'https://dx.doi.org/{0}',
         'chembl':'https://www.ebi.ac.uk/chembldb/compound/inspect/{0}',
         'ega':'http://www.ebi.ac.uk/ega/studies/{0}',
-        'sprot':'http://www.uniprot.org/uniprot/{0}',
-        'gen':'http://www.ebi.ac.uk/ena/data/view/{0}',
+        'uniprot':'http://www.uniprot.org/uniprot/{0}',
+        'ena':'http://www.ebi.ac.uk/ena/data/view/{0}',
         'arrayexpress files':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
         'arrayexpress':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}',
-        'refsnp':'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
+        'dbsnp':'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
         'pdb':'http://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
         'pfam':'http://pfam.xfam.org/family/{0}',
         'omim':'http://omim.org/entry/{0}',
         'interpro':'http://www.ebi.ac.uk/interpro/entry/{0}',
-        'refseq':'http://www.ncbi.nlm.nih.gov/nuccore/{0}',
+        'nucleotide':'http://www.ncbi.nlm.nih.gov/nuccore/{0}',
         'geo':'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={0}',
-        'doi':'http://dx.doi.org/{0}',
         'intact':'http://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc={0}',
         'biostudies':'https://www.ebi.ac.uk/biostudies/studies/{0}',
         'biostudies search':'https://www.ebi.ac.uk/biostudies/studies/search.html?query={0}',
         'go':'http://amigo.geneontology.org/amigo/term/{0}',
-        'chebi':'http://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}'
+        'chebi':'http://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}',
+        'bioproject':'https://www.ncbi.nlm.nih.gov/bioproject/{0}',
+        'biosamples':'https://www.ebi.ac.uk/biosamples/samples/{0}'
     };
 
     reverseLinkMap = {
@@ -58,7 +60,7 @@ $.fn.groupBy = function(fn) {
         '^www.ebi.ac.uk/ena/data/view/(.*)':'ENA',
         '^www.ebi.ac.uk/arrayexpress/experiments/(.*)/files/':'ArrayExpress Files',
         '^www.ebi.ac.uk/arrayexpress/experiments/(.*)':'ArrayExpress',
-        '^www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=(.*)':'refSNP',
+        '^www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=(.*)':'dbSNP',
         '^www.ebi.ac.uk/pdbe-srv/view/entry/(.*)/summary':'PDB',
         '^pfam.xfam.org/family/(.*)':'Pfam',
         '^omim.org/entry/(.*)':'OMIM',
@@ -70,7 +72,9 @@ $.fn.groupBy = function(fn) {
         '^www.ebi.ac.uk/biostudies/studies/(.*)':'BioStudies',
         '^www.ebi.ac.uk/biostudies/studies/search.html?query=(.*)':'BioStudies Search',
         '^amigo.geneontology.org/amigo/term/(.*)':'GO',
-        '^www.ebi.ac.uk/chebi/searchId.do?chebiId=(.*)':'ChEBI'
+        '^www.ebi.ac.uk/chebi/searchId.do?chebiId=(.*)':'ChEBI',
+        '^www.ncbi.nlm.nih.gov/bioproject/(.*)':'BioProject',
+        '^www.ebi.ac.uk/biosamples/samples/(.*)':'BioSamples'
     };
 
     linkTypeMap = {
@@ -88,7 +92,9 @@ $.fn.groupBy = function(fn) {
         'intact': 'IntAct',
         'chebi': 'ChEBI',
         'ega': 'EGA',
-        '': 'External'
+        '': 'External',
+        'bioproject': 'BioProject',
+        'biosample': 'BioSamples',
     };
 
     orgOrder= [];
@@ -132,7 +138,11 @@ function registerHelpers() {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) return '';
-        return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+e.value+'</a>' : e.value);
+        return new Handlebars.SafeString( e.url ? '<a href="'
+                                                    + e.url
+                                                    + (e.url[0]!='#' ? '" target="_blank':'')
+                                                    +'">'+e.value+'</a>'
+                                                : e.value);
     });
 
     Handlebars.registerHelper('linkWithName', function(val, obj) {
@@ -147,9 +157,17 @@ function registerHelpers() {
         if (obj==null) return new Handlebars.SafeString('<td></td>');
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
-        return new Handlebars.SafeString('<td' + (e.sort ? ' data-sort="'+e.sort+'"' : '')+'>' +
-            (e.url ?'<a onclick="closeFullScreen();" href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+
-                new Handlebars.SafeString(e.value)+'</a>' :e.value)
+        return new Handlebars.SafeString('<td'
+                + (e.sort ? ' data-sort="'+e.sort+'"' : '')
+                + (e.search ? ' data-search="'+e.search+'"' : '')
+            +'>'
+                + (e.url ?'<a onclick="closeFullScreen();" '
+                    + 'href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')
+                + '">'
+                        + new Handlebars.SafeString(e.value)
+                    +'</a>'
+                        :e.value
+                 )
             +'</td>'
         );
     });
@@ -250,6 +268,12 @@ function registerHelpers() {
         var o = findall(this,'files');
         var template = Handlebars.compile($('script#main-file-table').html());
         return template(o);
+    });
+
+
+    Handlebars.registerHelper('main-orcid-claimer', function(o,k) {
+        var template = Handlebars.compile($('script#main-orcid-claimer').html());
+        return template({accession:o.data.root.accno});
     });
 
     Handlebars.registerHelper('valquals', function(o) {
@@ -482,7 +506,10 @@ function findall(obj,k,unroll){ // works only for files and links
                 $.each(obj[k], function () {
                     $.each($.isArray(this) ? this : [this], function () {
                         if (accno && this.attributes) {
-                            this.attributes.splice(0, 0, {'name': 'Section', 'value': type, 'url':'#'+accno.replace('/','-')});
+                            this.attributes.splice(0, 0, { 'name': 'Section',
+                                                            'search': accno.replace('/','-'),
+                                                            'value': type,
+                                                            'url':'#'+accno.replace('/','-')});
                         }
                     });
                 });
@@ -504,10 +531,10 @@ function findall(obj,k,unroll){ // works only for files and links
 function postRender() {
     $('body').append('<div id="blocker"/><div id="tooltip"/>');
     drawSubsections();
-    handleThumbnails();
     createDataTables();
     createMainFileTable();
     createLinkTables();
+    showRightColumn();
     handleSectionArtifacts();
     handleTableExpansion();
     handleOrganisations();
@@ -516,8 +543,15 @@ function postRender() {
     handleAnchors();
     handleSubattributes();
     handleOntologyLinks();
+    //handleORCIDIntegration();
+    handleThumbnails();
 }
 
+function  showRightColumn() {
+    if ($('#right-column').text().trim().length>0) {
+        $('#right-column').show();
+    }
+}
 
 function createDataTables() {
     $(".section-table").each(function () {
@@ -548,26 +582,32 @@ function createMainFileTable() {
     });
 }
 
-function getURL(accession) {
-    var type = /^[a-zA-z]+/.exec(accession);
-    if (type && type.length) type = type[0]; else return null;
+function getURL(accession, type) {
+    if (!type) {
+        type = /^[a-zA-z]+/.exec(accession);
+        if (type && type.length) {
+            type = type[0];
+        } else {
+            return null;
+        }
+    }
     var url =  linkMap[type.toLowerCase()] ? String.format(linkMap[type.toLowerCase()], accession) : null;
-   if (type.toLowerCase()=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
-       url = url.replace('/studies/','/datasets/');
-   }
-   if (accession.indexOf('http:')==0 || accession.indexOf('https:')==0  || accession.indexOf('ftp:')==0 ) {
-       var value = accession.replace("http://",'').replace("https://",'').replace("ftp://",'')
-       for(var r in reverseLinkMap) {
+    if (type.toLowerCase()=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
+        url = url.replace('/studies/','/datasets/');
+    }
+    if (accession.indexOf('http:')==0 || accession.indexOf('https:')==0  || accession.indexOf('ftp:')==0 ) {
+        var value = accession.replace("http://",'').replace("https://",'').replace("ftp://",'')
+        for(var r in reverseLinkMap) {
            var acc = new RegExp(r).exec(value);
            if (acc && acc.length>0) {
                return {url:accession, type: reverseLinkMap[r], text:acc[1] }
            }
-       }
-       url = accession;
-   }
-
-   return url ?  {url:url, type:type, text:accession} : null;
+        }
+        url = accession;
+    }
+    return url ?  {url:url, type:type, text:accession} : null;
 }
+
 function createLinkTables() {
 
     //handle links
@@ -576,7 +616,7 @@ function createLinkTables() {
         $("tr",this).each( function (i,row) {
             if (i==0) return;
             var type =  $($('td',row)[1]).text().toLowerCase();
-            var url = getURL( type, $($('td',row)[0]).text());
+            var url = getURL($($('td',row)[0]).text(), type);
             if (url) {
                 $($('td',row)[0]).wrapInner('<a href="'+ url.url +'" target="_blank">');
             }
@@ -778,6 +818,23 @@ function handleAnchors() {
         $('#left-column').slideDown();
     }
 
+    // handle clicks on file filters in section
+    $("#file-list td[data-search]").each(function(){
+        var divId = $(this).data('search');
+        var bar = $('#' + divId+ '> .bs-name > .section-title-bar');
+        if (!$('a[data-files-id="'+divId+'"]', bar).length) {
+            bar.append('<span class="file-filter"><i class="fa fa-filter"></i>'
+                + 'Files in: </span><a class="section-button" data-files-id="'
+                + divId + '">This section</a>'
+            );
+        }
+
+    });
+    $("a[data-files-id]").click( function() {
+        $('#all-files-expander').click();
+        filesTable.column(3).search('^'+$(this).data('files-id')+'$',true,false).draw();
+    });
+
     // handle clicks on section links in main file table
    /* $("a[href^='#']", "#file-list" ).filter(function(){ return $(this).attr('href').length>1 }).click( function(){
         var subsec = $(this).attr('href');
@@ -785,11 +842,6 @@ function handleAnchors() {
         openHREF(subsec);
     });
 
-    // handle clicks on file filters in section
-    $("a[data-files-id]").click( function() {
-        $('#right-column-expander').click();
-        filesTable.column(2).search('^'+$(this).data('files-id')+'$',true,false).draw();
-    });
 
 
 
@@ -891,6 +943,8 @@ function clearFilter() {
 function handleThumbnails() {
     $("input[data-name]").parent().next().each(function () {
         var path = $(this).text();
+        $('a',this).addClass('file-name-column');
+        $('a',this).attr('title',path);
         if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
                 ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm']) >=0 ) {
             $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'
@@ -974,4 +1028,18 @@ function handleOntologyLinks() {
 function closeFullScreen() {
     $('.table-expander','.fullscreen').click();
     $('#right-column-expander','.fullscreen').click();
+}
+
+function handleORCIDIntegration() {
+    var accession = $('#orcid-accession').text();
+    thorApplicationNamespace.createWorkOrcId(
+        $('#orcid-title').text(),
+        'other', // work type from https://github.com/ORCID/ORCID-Source/blob/master/orcid-model/src/main/resources/record_2.0/work-2.0.xsd
+        new Date( Date.parse($('#orcid-publication-year').text())).getFullYear(),
+        document.location.origin + contextPath+"/studies/"+accession,
+        null, // description
+        null // db name
+    );
+    thorApplicationNamespace.addWorkIdentifier('other-id', accession);
+    thorApplicationNamespace.loadClaimingInfo();
 }

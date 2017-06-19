@@ -111,6 +111,7 @@ a.show-less:hover {
     background-color: hsla(201, 65%, 95%, 1);
     border: solid 1px #C9E4F3;
     font-size: 12px;
+    display:none;
 }
 #left-column {
     width: 98%;
@@ -371,4 +372,39 @@ a.thumbnail-icon {
 .highlight-author {
     background-color: #B0F8CD;
     color: #000;
+}
+
+.file-filter {
+    color: #AAA;
+    margin-right:3px;
+}
+
+.section-title-bar {
+    font-size: 9pt;
+    margin-left: 20px;
+    cursor: text;
+}
+
+.file-name-column {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    max-width: 200px;
+}
+
+.orcid-logo {
+    height: 20px;
+    margin-bottom: 5px;
+    margin-right: 3px;
+}
+.thor_div_showIf_notSigned {
+    line-height: 20pt;
+}
+.thor_label_show_userName {
+    display: inline-block;
+}
+.thor_a_generate_claimLink, thor_div_showIf_datasetAlreadyClaimed {
+    font-size: 10pt;
 }

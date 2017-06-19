@@ -45,14 +45,14 @@ public class EFOQueryExpander {
     EFOExpansionLookupIndex efoExpansionLookupIndex;
 
 
-    public Pair<Query, EFOExpansionTerms> expand(Map<String, String> queryInfo, Query query, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder) throws IOException {
+    public Pair<Query, EFOExpansionTerms> expand(Map<String, String> queryInfo, Query query) throws IOException {
 
         if (query instanceof BooleanQuery) {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
             EFOExpansionTerms expansionTerms = new EFOExpansionTerms();
             List<BooleanClause> clauses = ((BooleanQuery) query).clauses();
             for (BooleanClause c : clauses) {
-                Pair<Query, EFOExpansionTerms> expanded = expand(queryInfo, c.getQuery(), synonymBooleanBuilder, efoBooleanBuilder);
+                Pair<Query, EFOExpansionTerms> expanded = expand(queryInfo, c.getQuery());
                 builder.add( expanded.getKey() , c.getOccur());
                 EFOExpansionTerms local = expanded.getValue();
                 if (local!=null) {
@@ -68,7 +68,7 @@ public class EFOQueryExpander {
             // for example, for prefix query will found multi-worded terms which, well, is wrong
             return new MutablePair<>(query, null);
         } else {
-            return doExpand(queryInfo, query, synonymBooleanBuilder, efoBooleanBuilder);
+            return doExpand(queryInfo, query);
         }
     }
 
@@ -76,7 +76,7 @@ public class EFOQueryExpander {
         return true;
     }
 
-    private Pair<Query, EFOExpansionTerms> doExpand(Map<String, String> fieldsAndQueryInfo, Query query, BooleanQuery.Builder synonymBooleanBuilder, BooleanQuery.Builder efoBooleanBuilder) throws IOException {
+    private Pair<Query, EFOExpansionTerms> doExpand(Map<String, String> fieldsAndQueryInfo, Query query) throws IOException {
         String field = getQueryField(query);
         if (null != field) {
 
@@ -93,14 +93,12 @@ public class EFOQueryExpander {
                     for (String term : expansionTerms.synonyms) {
                         Query synonymPart = newQueryFromString(term.trim(), field);
                         if (!queryPartIsRedundant(query, synonymPart)) {
-                            synonymBooleanBuilder.add(synonymPart, BooleanClause.Occur.SHOULD);
                             boolQueryBuilder.add(synonymPart, BooleanClause.Occur.SHOULD);
                         }
                     }
 
                     for (String term : expansionTerms.efo) {
                         Query expansionPart = newQueryFromString(term.trim(), field);
-                        efoBooleanBuilder.add(expansionPart, BooleanClause.Occur.SHOULD);
                         boolQueryBuilder.add(expansionPart, BooleanClause.Occur.SHOULD);
                     }
 
