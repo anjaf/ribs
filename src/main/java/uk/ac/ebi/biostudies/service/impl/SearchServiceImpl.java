@@ -80,7 +80,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public String getKeywords(String query, String field, Integer limit) {
-       return autocompletion.getKeywords(query, field, limit);
+        return autocompletion.getKeywords(query, field, limit);
     }
 
     @Override
@@ -207,16 +207,16 @@ public class SearchServiceImpl implements SearchService {
     }
 
     private SortField.Type extractFieldType(String sortBy){
-       try{
-           if(!sortBy.isEmpty()) {
-               BioStudiesField field = BioStudiesField.valueOf(sortBy.toUpperCase());
-               return field.getType().toString().toLowerCase().contains("string") ? SortField.Type.STRING : SortField.Type.LONG;
-           }
-       }
-       catch (Exception e){
+        try{
+            if(!sortBy.isEmpty()) {
+                BioStudiesField field = BioStudiesField.valueOf(sortBy.toUpperCase());
+                return field.getType().toString().toLowerCase().contains("string") ? SortField.Type.STRING : SortField.Type.LONG;
+            }
+        }
+        catch (Exception e){
             logger.debug("bad sortby value {}", sortBy);
-       }
-       return SortField.Type.SCORE;
+        }
+        return SortField.Type.SCORE;
     }
     private boolean extractSortOrder(String sortOrder, String sortBy){
         if(sortOrder.isEmpty()) {
@@ -261,10 +261,6 @@ public class SearchServiceImpl implements SearchService {
         try {
             logger.debug("User queryString: {}",queryString);
             Query query = parser.parse(queryString);
-            BooleanQuery.Builder synonymQueryBuilder = new BooleanQuery.Builder();
-            BooleanQuery.Builder efoQueryBuilder = new BooleanQuery.Builder();
-            Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query, synonymQueryBuilder, efoQueryBuilder);
-            Query query = parser.parse(queryString.toLowerCase());
             Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query);
             Query expandedQuery = excludeCompoundStudies(queryEFOExpansionTermsPair.getKey());
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
