@@ -59,14 +59,14 @@
                     <!-- Authors -->
                     <ul id="bs-authors">
                         {{#eachAuthor this}}
-                            <li {{#ifCond @index '>' 10}}class="hidden"{{/ifCond}} ><span class="author">{{Name}}
+                            <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} ><span class="author">{{Name}}
                                     {{#if affiliation}}
                                         <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
                                     {{/if}}
                                 </span>
                             </li>
                             {{#if @last}}
-                                {{#ifCond @index '>' 10}}
+                                {{#ifCond @index '>=' 10}}
                                     <li><span class="more">+ {{@left}} more</span></li>
                                 {{/ifCond}}
                             {{/if}}
@@ -75,9 +75,9 @@
                     <!-- Affiliations -->
                     <ul id="bs-orgs">
                         {{#eachOrganization this}}
-                            <li {{#ifCond @index '>' 10}}class="hidden"{{/ifCond}} id="{{affiliation}}"><sup>{{affiliationNumber}}</sup> {{name}}</li>
+                            <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} id="{{affiliation}}"><sup>{{affiliationNumber}}</sup> {{name}}</li>
                             {{#if @last}}
-                                {{#ifCond @index '>' 10}}
+                                {{#ifCond @index '>=' 10}}
                                     <li><span class="more" id="expand-orgs">+ {{@left}} more</span></li>
                                 {{/ifCond}}
                             {{/if}}
