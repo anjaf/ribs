@@ -59,18 +59,28 @@
                     <!-- Authors -->
                     <ul id="bs-authors">
                         {{#eachAuthor this}}
-                        <li><span class="author">{{Name}}
-                                {{#if affiliation}}
-                                    <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
-                                {{/if}}
-                            </span>
-                        </li>
+                            <li {{#ifCond @index '>' 10}}class="hidden"{{/ifCond}} ><span class="author">{{Name}}
+                                    {{#if affiliation}}
+                                        <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
+                                    {{/if}}
+                                </span>
+                            </li>
+                            {{#if @last}}
+                                {{#ifCond @index '>' 10}}
+                                    <li><span class="more">+ {{@left}} more</span></li>
+                                {{/ifCond}}
+                            {{/if}}
                         {{/eachAuthor}}
                     </ul>
                     <!-- Affiliations -->
                     <ul id="bs-orgs">
                         {{#eachOrganization this}}
-                        <li id="{{affiliation}}"><sup>{{affiliationNumber}}</sup> {{name}}</li>
+                            <li {{#ifCond @index '>' 10}}class="hidden"{{/ifCond}} id="{{affiliation}}"><sup>{{affiliationNumber}}</sup> {{name}}</li>
+                            {{#if @last}}
+                                {{#ifCond @index '>' 10}}
+                                    <li><span class="more" id="expand-orgs">+ {{@left}} more</span></li>
+                                {{/ifCond}}
+                            {{/if}}
                         {{/eachOrganization}}
                     </ul>
 
