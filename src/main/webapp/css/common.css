@@ -252,3 +252,8 @@
     cursor: pointer;
     color: white;
 }
+
+nav span.icon {
+    font-size: 13px;
+}
+

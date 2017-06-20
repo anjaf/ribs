@@ -46,13 +46,3 @@
         </div>
     </div>
 </script>
-
-<script id='error-template' type='text/x-handlebars-template'>
-    <section>
-        <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>{{title}}</h3>
-        <p>{{&message}}</p>
-        <p>If you require further assistance locating missing page or file, please <a
-                href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it
-            for you.</p>
-    </section>
-</script>
