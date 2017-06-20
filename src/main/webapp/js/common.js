@@ -41,7 +41,8 @@
         }
     ).focus(autoCompleteFixSet).blur(autoCompleteFixUnset).removeAttr('autocomplete');
 
-
+    //update title
+    document.title = $($('.breadcrumbs').text().split(/\s+/)).map(function  () { return this.trim(); }).filter(function () { return this!="" && this!='Current:';}).get().reverse().join(' < ' )+' < EMBL-EBI';
 
 }(document);
 
