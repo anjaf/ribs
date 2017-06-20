@@ -40,12 +40,15 @@
             , requestTreeUrl: contextPath + "/api/v1/autocomplete/efotree"
         }
     ).focus(autoCompleteFixSet).blur(autoCompleteFixUnset).removeAttr('autocomplete');
+    updateTitleFromBreadCrumbs();
+}(document);
 
+
+function updateTitleFromBreadCrumbs() {
     //update title
     var breadcrumbs = $($('.breadcrumbs').text().split(/\s+/)).map(function  () { return this.trim(); }).filter(function () { return this!="" && this!='Current:';}).get().reverse();
     document.title = breadcrumbs.length ? breadcrumbs.join(' < ' )+' < EMBL-EBI' : 'BioStudies < EMBL-EBI';
-
-}(document);
+}
 
 function showLoginForm() {
     $('#login-form').show();
@@ -93,7 +96,8 @@ function showError(error) {
 
     var html = errorTemplate(data);
     $('#renderedContent').html(html);
-    $('#accession').text("Error");
+    $('.breadcrumbs li:last').contents().last().replaceWith('Error');
+    updateTitleFromBreadCrumbs();
 }
 
 

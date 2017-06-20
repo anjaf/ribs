@@ -121,7 +121,6 @@ $.fn.groupBy = function(fn) {
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();
-
     }).fail(function(error) {
         showError(error);
     });
@@ -764,6 +763,9 @@ function handleOrganisations() {
 }
 
 function formatPageHtml() {
+
+    updateTitleFromBreadCrumbs();
+
     //replace all newlines with html tags
     $('#ae-detail > .value').each(function () {
         var html = $(this).html();

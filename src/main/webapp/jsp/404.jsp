@@ -7,7 +7,7 @@
         <ul class="breadcrumbs">
             <li><a href="${contextPath}/">BioStudies</a></li>
             <li>
-                <span class="show-for-sr">Current: </span> ERROR
+                <span class="show-for-sr">Current: </span> Error
             </li>
         </ul>
     </jsp:attribute>
