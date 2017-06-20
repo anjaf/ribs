@@ -42,7 +42,8 @@
     ).focus(autoCompleteFixSet).blur(autoCompleteFixUnset).removeAttr('autocomplete');
 
     //update title
-    document.title = $($('.breadcrumbs').text().split(/\s+/)).map(function  () { return this.trim(); }).filter(function () { return this!="" && this!='Current:';}).get().reverse().join(' < ' )+' < EMBL-EBI';
+    var breadcrumbs = $($('.breadcrumbs').text().split(/\s+/)).map(function  () { return this.trim(); }).filter(function () { return this!="" && this!='Current:';}).get().reverse();
+    document.title = breadcrumbs.length ? breadcrumbs.join(' < ' )+' < EMBL-EBI' : 'BioStudies < EMBL-EBI';
 
 }(document);
 
