@@ -180,8 +180,16 @@ function postRender(data, params) {
         highlights = highlights.concat(split.map(function (v) { return {word:v,class:'highlight'} } ));
         highlights.sort(function (a,b) {return b.word.length-a.word.length })
         $.each(highlights, function (i,v) {
-            $("#search-results").highlight(v.word,{className:v.class});
+            if (v.word!='AND' && v.word!='OR' && v.word!='NOT') {
+                $("#search-results").highlight(v.word, {className: v.class});
+            }
         });
+
+        $("#renderedContent .highlight").attr('title','This is exact string matched for input query terms');
+        $("#renderedContent .efo").attr('title','This is matched child term from Experimental Factor Ontology e.g. brain and subparts of brain');
+        $("#renderedContent .synonym").attr('title','This is synonym matched from Experimental Factor Ontology e.g. neoplasia for cancer');
+
+
     }
 
     // get project logo
