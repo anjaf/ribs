@@ -243,3 +243,17 @@
 #static-text .icon {
     color: #267799;
 }
+
+.more {
+    background-color: #cccccc;
+    margin-left: 5pt;
+    border-radius: 3px;
+    padding: 1pt 3pt;
+    cursor: pointer;
+    color: white;
+}
+
+nav span.icon {
+    font-size: 13px;
+}
+

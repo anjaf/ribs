@@ -35,7 +35,7 @@ $.fn.groupBy = function(fn) {
         'arrayexpress files':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
         'arrayexpress':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}',
         'dbsnp':'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
-        'pdb':'http://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
+        'pdbe':'http://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
         'pfam':'http://pfam.xfam.org/family/{0}',
         'omim':'http://omim.org/entry/{0}',
         'interpro':'http://www.ebi.ac.uk/interpro/entry/{0}',
@@ -61,7 +61,7 @@ $.fn.groupBy = function(fn) {
         '^www.ebi.ac.uk/arrayexpress/experiments/(.*)/files/':'ArrayExpress Files',
         '^www.ebi.ac.uk/arrayexpress/experiments/(.*)':'ArrayExpress',
         '^www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=(.*)':'dbSNP',
-        '^www.ebi.ac.uk/pdbe-srv/view/entry/(.*)/summary':'PDB',
+        '^www.ebi.ac.uk/pdbe-srv/view/entry/(.*)/summary':'PDBe',
         '^pfam.xfam.org/family/(.*)':'Pfam',
         '^omim.org/entry/(.*)':'OMIM',
         '^www.ebi.ac.uk/interpro/entry/(.*)':'InterPro',
@@ -121,7 +121,6 @@ $.fn.groupBy = function(fn) {
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();
-
     }).fail(function(error) {
         showError(error);
     });
@@ -373,7 +372,8 @@ function registerHelpers() {
 
         var orgNumber = 1;
         var orgToNumberMap = {}
-         $.each(obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='author';}), function (i,o) {
+        var authors = obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='author';});
+         $.each(authors, function (i,o) {
              var author = {}
              $.each(o.attributes, function (i, v) {
                  author[v.name] = v.value;
@@ -385,7 +385,9 @@ function registerHelpers() {
                  }
                  author.affiliationNumber = orgToNumberMap[author.affiliation]
              }
-            ret += options.fn(author);
+            var data = Handlebars.createFrame(options.data);
+            data.first = i==0, data.last = i==(authors.length-1), data.index = i, data.left = authors.length-10;
+            ret += options.fn(author, {data: data});
         });
         return ret;
     });
@@ -402,7 +404,9 @@ function registerHelpers() {
         });
 
         $.each(orgOrder, function(i,v) {
-            ret += options.fn({name:orgs[v],affiliationNumber:i+1, affiliation:v});
+            var data = Handlebars.createFrame(options.data);
+            data.first = i==0, data.last = i==(orgOrder.length-1), data.index = i, data.left = orgOrder.length-10;
+            ret += options.fn({name:orgs[v],affiliationNumber:i+1, affiliation:v}, {data:data});
         });
         return ret;
     });
@@ -543,7 +547,7 @@ function postRender() {
     handleAnchors();
     handleSubattributes();
     handleOntologyLinks();
-    //handleORCIDIntegration();
+    handleORCIDIntegration();
     handleThumbnails();
 }
 
@@ -723,6 +727,7 @@ function handleOrganisations() {
     });
     $('.org-link').click(function () {
         var href = $(this).attr('href');
+        if ($(href).hasClass('hidden')) $('#expand-orgs').click();
         $('html, body').animate({
             scrollTop: $(href).offset().top
         }, 200, function () {
@@ -747,6 +752,7 @@ function handleOrganisations() {
 
     $('#bs-orgs li').hover(
         function () {
+            if ($('span.more',$(this)).length) return;
             $(this).addClass('highlight-author')
             $('.org-link[data-affiliation="'+this.id+'"]').parent().parent().addClass('highlight-author')
         }, function () {
@@ -757,6 +763,9 @@ function handleOrganisations() {
 }
 
 function formatPageHtml() {
+
+    updateTitleFromBreadCrumbs();
+
     //replace all newlines with html tags
     $('#ae-detail > .value').each(function () {
         var html = $(this).html();
@@ -833,6 +842,18 @@ function handleAnchors() {
     $("a[data-files-id]").click( function() {
         $('#all-files-expander').click();
         filesTable.column(3).search('^'+$(this).data('files-id')+'$',true,false).draw();
+    });
+
+    //handle author list expansion
+    $('#bs-authors li span.more').click(function () {
+        $('#bs-authors li').removeClass('hidden');
+        $(this).hide();
+    });
+
+    //handle org list expansion
+    $('#bs-orgs li span.more').click(function () {
+        $('#bs-orgs li').removeClass('hidden');
+        $(this).hide();
     });
 
     // handle clicks on section links in main file table

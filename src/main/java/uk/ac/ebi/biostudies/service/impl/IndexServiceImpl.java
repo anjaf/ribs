@@ -191,9 +191,11 @@ public class IndexServiceImpl implements IndexService {
                         ).sum()
                 );
                 StringBuilder content = new StringBuilder(String.join(" ", json.findValuesAsText("value")));
-                content.append("\n");
+                content.append(" ");
+                content.append(String.join(" ", json.findValuesAsText("accno")));
+                content.append(" ");
                 content.append(json.findValues("files").stream().map(jsonNode -> jsonNode.findValuesAsText("path").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
-                content.append("\n");
+                content.append(" ");
                 content.append(json.findValues("links").stream().map(jsonNode -> jsonNode.findValuesAsText("url").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
                 valueMap.put( BioStudiesField.CONTENT, content.toString());
                 valueMap.put( BioStudiesField.LINKS, json.findValues("links").stream().mapToLong(

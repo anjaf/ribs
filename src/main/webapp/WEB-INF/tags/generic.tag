@@ -8,6 +8,8 @@
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <c:set var="currentUser" value="${Session.getCurrentUser()}"/>
 <c:set var="pathname" value="${requestScope['javax.servlet.forward.request_uri']}"/>
+<c:set var="pagename" value="${fn:replace(pageContext.request.requestURI,pageContext.request.contextPath,'')}"/>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -164,11 +166,11 @@
                 <!-- local-nav -->
                 <nav >
                     <ul class="menu float-left" data-description="navigational">
-                        <li class=""><a href="${contextPath}/">Home</a></li>
-                        <li><a href="${contextPath}/studies/">Browse</a></li>
-                        <li><a href="${contextPath}/submit">Submit</a></li>
-                        <li><a href="${contextPath}/help">Help</a></li>
-                        <li><a href="${contextPath}/about">About BioStudies</a></li>
+                        <li class="${pagename.equals('/jsp/index.jsp')? 'active':''}"><a href="${contextPath}/">Home</a></li>
+                        <li class="${pagename.equals('/jsp/search.jsp')? 'active':''}"><a href="${contextPath}/studies/">Browse</a></li>
+                        <li class="${pagename.equals('/jsp/submit.jsp')? 'active':''}"><a href="${contextPath}/submit">Submit</a></li>
+                        <li class="${pagename.equals('/jsp/help.jsp')? 'active':''}"><a href="${contextPath}/help">Help</a></li>
+                        <li class="${pagename.equals('/jsp/about.jsp')? 'active':''}"><a href="${contextPath}/about">About BioStudies</a></li>
                     </ul>
                     <ul class="dropdown menu float-right" data-description="tasks">
                         <li class=""><a href="${contextPath}"><span class="icon icon-functional" data-icon="n"></span> Feedback</a></li>
@@ -324,5 +326,16 @@
                 </span>
     </div>
 </script>
+
+<script id='error-template' type='text/x-handlebars-template'>
+    <section>
+        <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>{{title}}</h3>
+        <p>{{&message}}</p>
+        <p>If you require further assistance locating missing page or file, please <a
+                href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it
+            for you.</p>
+    </section>
+</script>
+
 </body>
 </html>

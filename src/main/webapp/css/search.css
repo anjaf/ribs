@@ -159,11 +159,8 @@ ul#search-results li {
     font-size: 9pt;
     margin-bottom: 2pt;
 }
-.more {
-    background-color: #cccccc;
-    margin-left: 5pt;
-    border-radius: 3px;
-    padding: 1pt 3pt;
-    cursor: pointer;
-    color: white;
+.result-count {
+    font-size: 9pt;
+    color: #999;
+    display: block;
 }

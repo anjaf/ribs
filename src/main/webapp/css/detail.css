@@ -15,6 +15,10 @@
  *
  */
 
+.hidden , #bs-authors li.hidden, #bs-orgs li.hidden{
+    display: none;
+}
+
 .bs-name {
     color: #267799;
     margin:20px 0px 5px 0px;
@@ -284,10 +288,6 @@ a.section-button:hover {
     padding-left:4px;
     cursor: pointer;
     color: #aaaaaa;
-}
-
-.hidden {
-    display: none;
 }
 
 #thumbnail {
