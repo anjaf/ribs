@@ -36,6 +36,8 @@ public class FacetServiceImpl implements FacetService {
     IndexManager indexManager;
     @Autowired
     TaxonomyManager taxonomyManager;
+    @Autowired
+    SecurityQueryBuilder securityQueryBuilder;
 
 
     private JsonNode hecatosFacets;
@@ -46,6 +48,7 @@ public class FacetServiceImpl implements FacetService {
         FacetsCollector facetsCollector = new FacetsCollector();
         List<FacetResult> allResults = new ArrayList();
         try {
+            query = securityQueryBuilder.applySecurity(query);
             FacetsCollector.search(indexManager.getIndexSearcher(), query, 10, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             for (BioStudiesField field:BioStudiesField.values()) {
@@ -55,6 +58,8 @@ public class FacetServiceImpl implements FacetService {
             }
         } catch (IOException e) {
             logger.debug("problem in creating facetresults for this query {}", query, e);
+        } catch (Throwable e) {
+            logger.debug("problem in applying security in creating facetresults for this query {}", query, e);
         }
         return allResults;
         //                searcher.search(new MatchAllDocsQuery(), facetsCollector); new MatchAllDocsQuery()
