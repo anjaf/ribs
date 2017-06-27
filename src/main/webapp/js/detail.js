@@ -549,7 +549,8 @@ function postRender() {
     handleSubattributes();
     handleOntologyLinks();
     handleORCIDIntegration();
-    handleThumbnails();
+    handleImageURLs();
+    handleThumbnails(); //keep this as the last call
 }
 
 function  showRightColumn() {
@@ -1015,10 +1016,10 @@ function handleSubattributes() {
     $('.sub-attribute-info').hover(
         function () {
             $(this).next().css('display', 'inline-block');
-            $(this).prev().toggleClass('sub-attribute-text');
+            $(this).toggleClass('sub-attribute-text');
         }, function () {
             $(this).next().css('display', 'none');
-            $(this).prev().toggleClass('sub-attribute-text');
+            $(this).toggleClass('sub-attribute-text');
         }
     );
 }
@@ -1066,4 +1067,12 @@ function handleORCIDIntegration() {
     );
     thorApplicationNamespace.addWorkIdentifier('other-id', accession);
     thorApplicationNamespace.loadClaimingInfo();
+}
+
+function handleImageURLs() {
+// handle image URLs
+    $(".sub-attribute:contains('Image URL')").each(function () {
+        var url = $(this).parent().clone().children().remove().end().text();
+        $(this).parent().html('<img class="url-image" src="' + url + '"/>');
+    });
 }
