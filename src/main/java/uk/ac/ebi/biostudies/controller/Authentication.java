@@ -60,10 +60,10 @@ public class Authentication {
                 HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, authenticatedUser.getHashedPassword(), maxAge);
                 HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE,null,0);
             } else {
-                HttpTools.setCookie(response, HttpTools.AE_USERNAME_COOKIE, null,1);
-                HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, null,1);
-                HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, username, null);
-                HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE,URLEncoder.encode("Invalid username or password", "UTF-8"), null);
+                HttpTools.setCookie(response, HttpTools.AE_USERNAME_COOKIE, null,null);
+                HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, null,null);
+                    HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, username, 5);
+                HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE,URLEncoder.encode("Invalid username or password", "UTF-8"), 5);
             }
         }
 

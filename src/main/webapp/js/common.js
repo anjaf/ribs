@@ -11,8 +11,13 @@
 
     var message = $.cookie("AeAuthMessage");
     if(message) {
-        showLoginError(message);
+        $('#login-status').text(message).show();
         showLoginForm();
+    }
+    var user = $.cookie("AeAuthUser");
+    if(user) {
+        $('#user-field').attr('value',user);
+        $('#pass-field').focus();
     }
 
     if(project) {
@@ -54,11 +59,6 @@ function showLoginForm() {
     $('#login-form').show();
     $('#user-field').focus();
 }
-
-function showLoginError(s) {
-    $('#login-status').text(s).show();
-}
-
 
 function showError(error) {
     var errorTemplateSource = $('script#error-template').html();
