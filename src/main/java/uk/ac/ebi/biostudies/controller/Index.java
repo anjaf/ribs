@@ -1,8 +1,9 @@
 package uk.ac.ebi.biostudies.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,17 +36,27 @@ public class Index {
      *
      * @return String that will be returned as a text/plain response.
      */
-    @RequestMapping(value = "/index/reload/{filename}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public ResponseEntity<String> indexAll(String filename) throws Exception {
-        if(!userSecurity.currentUserIsSuperUser()) //TODO: Replace this with spring security
-            return new ResponseEntity<String>("{\"message\":\"forbidden\"}", HttpStatus.FORBIDDEN);
-        if(filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default")) {
-            indexService.clearIndex(false);
-            filename = "";
+    @RequestMapping(value = "/index/reload/{filename:.*}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    public ResponseEntity<String> indexAll(@PathVariable("filename") String filename) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode message = mapper.createObjectNode();
+        if(!userSecurity.currentUserIsSuperUser()) { //TODO: Replace this with spring security
+            message.put("message", "You don't have rights to access this endpoint");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
-        indexService.updateFromJSONFile(filename);
-        indexService.indexAll(filename);
-        return new ResponseEntity<String>("{}", HttpStatus.OK);
+        try {
+            if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default")) {
+                indexService.clearIndex(false);
+                filename = "";
+            }
+            indexService.copySourceFile(filename);
+            indexService.indexAll(filename);
+            message.put ("message", "Indexing started for "+filename);
+            return ResponseEntity.ok( mapper.writeValueAsString(message) );
+        } catch (Exception e) {
+            message.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapper.writeValueAsString(message));
+        }
     }
 
     @RequestMapping(value = "/index/clear", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)

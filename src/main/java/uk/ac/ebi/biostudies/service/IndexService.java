@@ -15,6 +15,6 @@ public interface IndexService {
 
     public void clearIndex(boolean commit) throws IOException;
 
-    public void updateFromJSONFile(String jsonFileName);
+    public void  copySourceFile(String jsonFileName) throws IOException;
 
 }

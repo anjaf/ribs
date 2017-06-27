@@ -146,19 +146,15 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public synchronized void updateFromJSONFile(String jsonFileName)  {
-        try{
-            String sourceLocation = indexConfig.getStudiesInputFile();
-            if (isNotBlank(sourceLocation)) {
-                if (jsonFileName != null && !jsonFileName.isEmpty())
-                    sourceLocation = sourceLocation.replaceAll(Constants.STUDIES_JSON_FILE, jsonFileName);
-                File srcFile = new File(sourceLocation);
-                File destFile = new File(System.getProperty("java.io.tmpdir"), Constants.STUDIES_JSON_FILE);
-                logger.info("Making a local copy  of {} at {}", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
-                com.google.common.io.Files.copy(srcFile, destFile);
-            }
-        }catch(Exception ex){
-            logger.error("problem in coping file: {}", jsonFileName, ex);
+    public synchronized void copySourceFile(String jsonFileName) throws IOException {
+        String sourceLocation = indexConfig.getStudiesInputFile();
+        if (isNotBlank(sourceLocation)) {
+            if (jsonFileName != null && !jsonFileName.isEmpty())
+                sourceLocation = sourceLocation.replaceAll(Constants.STUDIES_JSON_FILE, jsonFileName);
+            File srcFile = new File(sourceLocation);
+            File destFile = new File(System.getProperty("java.io.tmpdir"), jsonFileName);
+            logger.info("Making a local copy  of {} at {}", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
+            com.google.common.io.Files.copy(srcFile, destFile);
         }
     }
 

@@ -24,12 +24,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.IndexService;
-import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.TransformerException;
-import java.io.File;
-import java.io.IOException;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Service
@@ -50,12 +45,13 @@ public class ReloadStudiesJob {
             String sourceLocation = indexConfig.getStudiesInputFile();
             if (isNotBlank(sourceLocation)) {
                 logger.info("Reload of study data from [{}] requested", sourceLocation);
-                indexService.updateFromJSONFile(null);
+                indexService.copySourceFile(null);
                 indexService.clearIndex(false);
                 indexService.indexAll("");
                 logger.info("Reload of study data from [{}] completed", sourceLocation);
             }
         } catch (Exception x) {
+            logger.error("Error reloading index",x);
             throw new RuntimeException(x);
         }
     }
