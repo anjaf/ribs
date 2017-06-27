@@ -2,6 +2,9 @@ package uk.ac.ebi.biostudies.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.auth.UserSecurity;
 import uk.ac.ebi.biostudies.service.IndexService;
+import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 
@@ -23,6 +27,8 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 @RestController
 @RequestMapping(value="/api/v1")
 public class Index {
+
+    private Logger logger = LogManager.getLogger(Index.class.getName());
 
     @Autowired
     IndexService indexService;
@@ -47,13 +53,14 @@ public class Index {
         try {
             if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default")) {
                 indexService.clearIndex(false);
-                filename = "";
+                filename = Constants.STUDIES_JSON_FILE;
             }
             indexService.copySourceFile(filename);
             indexService.indexAll(filename);
             message.put ("message", "Indexing started for "+filename);
             return ResponseEntity.ok( mapper.writeValueAsString(message) );
         } catch (Exception e) {
+            logger.error(e);
             message.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapper.writeValueAsString(message));
         }
