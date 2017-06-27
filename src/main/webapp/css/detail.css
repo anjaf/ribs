@@ -385,7 +385,7 @@ a.thumbnail-icon {
     cursor: text;
 }
 
-.file-name-column {
+.overflow-name-column {
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
