@@ -91,9 +91,10 @@
                     <!-- Study level attributes -->
                     {{#eachGroup attributes}}
                         {{#each this}}
-                            {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
-                                {{value}}
-                            {{#if @last}}</div>{{/if}}
+                            {{#ifCond name '!=' 'Title'}}
+                                {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
+                                {{value}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
+                            {{/ifCond}}
                         {{/each}}
                     {{/eachGroup}}
 

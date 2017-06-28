@@ -47,7 +47,8 @@ $.fn.groupBy = function(fn) {
         'go':'http://amigo.geneontology.org/amigo/term/{0}',
         'chebi':'http://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}',
         'bioproject':'https://www.ncbi.nlm.nih.gov/bioproject/{0}',
-        'biosamples':'https://www.ebi.ac.uk/biosamples/samples/{0}'
+        'biosamples':'https://www.ebi.ac.uk/biosamples/samples/{0}',
+        'chemagora':'http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/{0}'
     };
 
     reverseLinkMap = {
@@ -148,7 +149,7 @@ function registerHelpers() {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) return '' ;
-        var value = val.toLowerCase()=='type' && linkTypeMap[e.value] ? linkTypeMap[e.value] : e.value;
+        var value = val.toLowerCase()=='type' && linkTypeMap[e.value.toLowerCase()] ? linkTypeMap[e.value.toLowerCase()] : e.value;
         return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+ value+'</a>' : value);
     });
 
@@ -548,7 +549,8 @@ function postRender() {
     handleSubattributes();
     handleOntologyLinks();
     handleORCIDIntegration();
-    handleThumbnails();
+    handleImageURLs();
+    handleThumbnails(); //keep this as the last call
 }
 
 function  showRightColumn() {
@@ -595,7 +597,7 @@ function getURL(accession, type) {
             return null;
         }
     }
-    var url =  linkMap[type.toLowerCase()] ? String.format(linkMap[type.toLowerCase()], accession) : null;
+    var url =  linkMap[type.toLowerCase()] ? String.format(linkMap[type.toLowerCase()], encodeURIComponent(accession)) : null;
     if (type.toLowerCase()=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
         url = url.replace('/studies/','/datasets/');
     }
@@ -617,13 +619,15 @@ function createLinkTables() {
     //handle links
     $(".link-list").each(function () {
         //create external links for known link types
+        var typeIndex = $('thead tr th',$(this)).map(function(i,v) {if ( $(v).text().toLowerCase()=='type') return i;}).filter(isFinite)[0];
         $("tr",this).each( function (i,row) {
             if (i==0) return;
-            var type =  $($('td',row)[1]).text().toLowerCase();
+            var type =  $($('td',row)[typeIndex]).text().toLowerCase();
             var url = getURL($($('td',row)[0]).text(), type);
             if (url) {
                 $($('td',row)[0]).wrapInner('<a href="'+ url.url +'" target="_blank">');
             }
+            $($('td',row)[0]).addClass("overflow-name-column");
         });
 
     });
@@ -964,7 +968,7 @@ function clearFilter() {
 function handleThumbnails() {
     $("input[data-name]").parent().next().each(function () {
         var path = $(this).text();
-        $('a',this).addClass('file-name-column');
+        $('a',this).addClass('overflow-name-column');
         $('a',this).attr('title',path);
         if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
                 ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm']) >=0 ) {
@@ -1012,10 +1016,10 @@ function handleSubattributes() {
     $('.sub-attribute-info').hover(
         function () {
             $(this).next().css('display', 'inline-block');
-            $(this).prev().toggleClass('sub-attribute-text');
+            $(this).toggleClass('sub-attribute-text');
         }, function () {
             $(this).next().css('display', 'none');
-            $(this).prev().toggleClass('sub-attribute-text');
+            $(this).toggleClass('sub-attribute-text');
         }
     );
 }
@@ -1063,4 +1067,12 @@ function handleORCIDIntegration() {
     );
     thorApplicationNamespace.addWorkIdentifier('other-id', accession);
     thorApplicationNamespace.loadClaimingInfo();
+}
+
+function handleImageURLs() {
+// handle image URLs
+    $(".sub-attribute:contains('Image URL')").each(function () {
+        var url = $(this).parent().clone().children().remove().end().text();
+        $(this).parent().html('<img class="url-image" src="' + url + '"/>');
+    });
 }
