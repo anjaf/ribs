@@ -180,7 +180,7 @@ public class IndexServiceImpl implements IndexService {
                 valueMap.put( BioStudiesField.ID, json.get("accno").textValue() );
                 valueMap.put( BioStudiesField.ACCESSION, valueMap.get(BioStudiesField.ID));
                 valueMap.put( BioStudiesField.TYPE, json.get("section").get("type").textValue().toLowerCase());
-                valueMap.put( BioStudiesField.TITLE, getTitle(json));
+                valueMap.put( BioStudiesField.TITLE, getTitle(json, (String)valueMap.get(BioStudiesField.ACCESSION)));
 
                 valueMap.put( BioStudiesField.FILES, json.findValues("files").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("path").size()
@@ -306,23 +306,19 @@ public class IndexServiceImpl implements IndexService {
             }
         }
 
-        private String getTitle(JsonNode json) {
+        private String getTitle(JsonNode json, String accession) {
             String title = "";
 
             try {
-                title = StreamSupport.stream(this.json.get("section").get("attributes").spliterator(), false)
+                title = StreamSupport.stream(this.json.get("attributes").spliterator(), false)
                         .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
-                        .findFirst().get().get("value").textValue().trim();
+                        .map(jsonNode -> jsonNode.findValue("value").asText().trim())
+                        .collect(Collectors.joining(" "));
             } catch (Exception ex1) {
-                System.out.println( "Title not found. Trying submission title for " + json.toString().substring(0,100));
-                try {
-                    title = StreamSupport.stream(this.json.get("attributes").spliterator(), false)
-                            .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
-                            .findFirst().get().get("value").textValue().trim();
-                } catch ( Exception ex2) {
-                    System.out.println( "Title not found for " + json.toString().substring(0,100));
-                }
+                System.out.println( "Title not found. Trying submission title for " + accession);
             }
+            if(title.isEmpty())
+                logger.error("title is empty accession: {}", accession);
             return title;
         }
     }
