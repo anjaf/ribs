@@ -310,15 +310,22 @@ public class IndexServiceImpl implements IndexService {
             String title = "";
 
             try {
-                title = StreamSupport.stream(this.json.get("attributes").spliterator(), false)
+                title = StreamSupport.stream(this.json.get("section").get("attributes").spliterator(), false)
                         .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
-                        .map(jsonNode -> jsonNode.findValue("value").asText().trim())
-                        .collect(Collectors.joining(" "));
+                        .findFirst().get().get("value").textValue().trim();
             } catch (Exception ex1) {
-                System.out.println( "Title not found. Trying submission title for " + accession);
+                logger.info( "Title not found. Trying submission title for " + accession);
+                try {
+                    title = StreamSupport.stream(this.json.get("attributes").spliterator(), false)
+                            .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
+                            .map(jsonNode -> jsonNode.findValue("value").asText().trim())
+                            .collect(Collectors.joining(","));//get().get("value").textValue().trim();
+                } catch ( Exception ex2) {
+                    System.out.println( "Title not found for " + json.toString().substring(0,100));
+                }
             }
             if(title.isEmpty())
-                logger.error("title is empty accession: {}", accession);
+                logger.error("title is empty accession: {1}", accession);
             return title;
         }
     }
