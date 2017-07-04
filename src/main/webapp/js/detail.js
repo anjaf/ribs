@@ -49,6 +49,9 @@ $.fn.groupBy = function(fn) {
         'bioproject':'https://www.ncbi.nlm.nih.gov/bioproject/{0}',
         'biosamples':'https://www.ebi.ac.uk/biosamples/samples/{0}',
         'chemagora':'http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/{0}'
+        'biostudies':'https://www.ebi.ac.uk/biostudies/studies/{0}',
+        'bioStudies search':'https://www.ebi.ac.uk/biostudies/studies/search.html?query={0}',
+        'compound':'https://www.ebi.ac.uk/biostudies/studies/{0}'
     };
 
     reverseLinkMap = {
@@ -96,6 +99,7 @@ $.fn.groupBy = function(fn) {
         '': 'External',
         'bioproject': 'BioProject',
         'biosample': 'BioSamples',
+        'compound':'Compound'
     };
 
     orgOrder= [];
