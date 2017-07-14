@@ -134,15 +134,17 @@ public class IndexServiceImpl implements IndexService {
         Query query = parser.parse(strquery);
         indexManager.getIndexWriter().deleteDocuments(query);
         indexManager.getIndexWriter().commit();
+        indexManager.refreshIndexSearcherAndReader();
     }
 
     @Override
     public void clearIndex(boolean commit) throws IOException {
         indexManager.getIndexWriter().deleteAll();
         indexManager.getIndexWriter().forceMergeDeletes();
-        if(commit)
+        if(commit) {
             indexManager.getIndexWriter().commit();
-
+            indexManager.refreshIndexSearcherAndReader();
+        }
     }
 
     @Override
