@@ -25,7 +25,13 @@
         <script src="//ves-ebi-37.ebi.ac.uk:8080/ThorWebTest/resources/js/dataclaiming/ebithor-claiming.1.2.js"></script>
         <!-- Handlebars templates-->
         <script id='study-template' type='text/x-handlebars-template'>
-            <div id="left-column">
+            <div id="left-column"  itemscope="itemscope" itemtype="http://schema.org/Dataset">
+                {{#if project}}
+                    <meta itemprop="url" content="${contextPath}/{{project}}/studies/{{accession}}" />
+                    <meta itemprop="sameAs" content="${contextPath}/studies/{{accession}}" />
+                {{else}}
+                    <meta itemprop="url" content="${contextPath}/studies/{{accession}}" />
+                {{/if}}
                 <div id="right-column">
                     {{&main-file-table}}
                     {{&main-link-table}}
@@ -40,12 +46,12 @@
                         {{/if}}
                     </span>
                     <div id="download-source">
-                        <a href="/biostudies/files/{{accno}}/{{accno}}.json" target="_blank"
+                        <a href="${contextPath}/files/{{accno}}/{{accno}}.json" target="_blank"
                                                  title="Download Study as JSON" class="source-icon source-icon-json"
                                                  data-icon="=">{JSON}</a>
-                        <a href="/biostudies/files/{{accno}}/{{accno}}.xml" target="_blank"
+                        <a href="${contextPath}/files/{{accno}}/{{accno}}.xml" target="_blank"
                             title="Download Study as XML" class="source-icon source-icon-xml" data-icon="=">
-                        &lt;XML&gt;</a><a href="/biostudies/files/{{accno}}/{{accno}}.pagetab.tsv" target="_blank"
+                        &lt;XML&gt;</a><a href="${contextPath}/files/{{accno}}/{{accno}}.pagetab.tsv" target="_blank"
                                           title="Download Study as PageTab" class="source-icon source-icon-pagetab"
                                           data-icon="=">→PageTab↲</a>
                         <a href="ftp://ftp.biostudies.ebi.ac.uk/pub/{{root}}" target="_blank"
@@ -55,11 +61,12 @@
                 </div>
                 <div id="bs-content">
                     <div id="thumbnail"></div>
-                    <h4 id="orcid-title">{{valueWithName 'Title' attributes}}</h4>
+                    <h4 id="orcid-title"  itemprop="name">{{valueWithName 'Title' attributes}}</h4>
                     <!-- Authors -->
                     <ul id="bs-authors">
                         {{#eachAuthor this}}
-                            <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} ><span class="author">{{Name}}
+                            <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} ><span class="author">
+                        <span itemscope itemtype="http://schema.org/Person"><span itemprop="name">{{Name}}</span></span>
                                     {{#if affiliation}}
                                         <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
                                     {{/if}}
@@ -75,7 +82,9 @@
                     <!-- Affiliations -->
                     <ul id="bs-orgs">
                         {{#eachOrganization this}}
-                            <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} id="{{affiliation}}"><sup>{{affiliationNumber}}</sup> {{name}}</li>
+                            <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} id="{{affiliation}}"><sup>{{affiliationNumber}}</sup>
+                                    <span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">{{name}}</span></span>
+                            </li>
                             {{#if @last}}
                                 {{#ifCond @index '>=' 10}}
                                     <li><span class="more" id="expand-orgs">+ {{@left}} more</span></li>
@@ -86,7 +95,7 @@
 
                     <!-- Accession -->
                     <div class="bs-name">Accession</div>
-                    <div id="orcid-accession">{{accno}}</div>
+                    <div id="orcid-accession" itemprop="identifier">{{accno}}</div>
 
                     <!-- Study level attributes -->
                     {{#eachGroup attributes}}
@@ -108,7 +117,7 @@
                     <div class="bs-name">Funding</div>
                     <ul id="bs-funding">
                         {{/if}}
-                        <li>{{name}}{{#if grants}}:
+                        <li><span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">{{name}}</span></span>{{#if grants}}:
                             <span class="bs-grants">{{grants}}</span>
                             {{/if}}
                         </li>
