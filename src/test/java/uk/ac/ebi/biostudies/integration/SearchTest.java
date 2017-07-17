@@ -211,9 +211,9 @@ public class SearchTest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
         List<WebElement> list = driver.findElements(By.cssSelector(".release-date"));
         Date [] values = new Date[list.size()];
-        SimpleDateFormat formatter = new SimpleDateFormat("d MMM yyyy");
-        for(int i=0; i < values.length; i++) {
-            String date = list.get(i).getText().trim();
+        SimpleDateFormat formatter1 = new SimpleDateFormat("d MMM yyyy");
+        SimpleDateFormat formatter2 = new SimpleDateFormat("MMM d, yyyy");        for(int i=0; i < values.length; i++) {
+            String date = list.get(i).getAttribute("innerText").trim();
             if (date.equalsIgnoreCase("today")) {
                 values[i] = Calendar.getInstance().getTime();
             } else if (date.equalsIgnoreCase("yesterday")) {
@@ -225,7 +225,11 @@ public class SearchTest {
                 cal.add(Calendar.DATE, 1);
                 values[i] = cal.getTime();
             } else {
-                values[i] = formatter.parse(date);
+                try{
+                    values[i] = formatter1.parse(date);
+                }catch (Exception ex){
+                    values[i] = formatter2.parse(date);
+                }
             }
         }
         Date [] unsortedValues = values.clone();
@@ -246,9 +250,11 @@ public class SearchTest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
         List<WebElement> list = driver.findElements(By.cssSelector(".release-date"));
         Date [] values = new Date[list.size()];
-        SimpleDateFormat formatter = new SimpleDateFormat("d MMM yyyy");
+        SimpleDateFormat formatter1 = new SimpleDateFormat("d MMM yyyy");
+        SimpleDateFormat formatter2 = new SimpleDateFormat("MMM d, yyyy");
+
         for(int i=0; i < values.length; i++) {
-            String date = list.get(i).getText().trim();
+            String date = list.get(i).getAttribute("innerText").trim();
             if (date.equalsIgnoreCase("today")) {
                 values[i] = new Date();
             } else if (date.equalsIgnoreCase("yesterday")) {
@@ -260,7 +266,11 @@ public class SearchTest {
                 cal.add(Calendar.DATE, 1);
                 values[i] = cal.getTime();
             } else {
-                values[i] = formatter.parse(date);
+                try{
+                values[i] = formatter1.parse(date);
+                }catch (Exception ex){
+                    values[i] = formatter2.parse(date);
+                }
             }
         }
         Date [] unsortedValues = values.clone();
