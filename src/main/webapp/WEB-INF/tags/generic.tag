@@ -297,7 +297,6 @@
     var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
 </script>
 
-<script src='${contextPath}/js/common.js'></script>
 <!-- Google Analytics details... -->
 <!-- Change UA-XXXXX-X to be your site's ID -->
 <!--
@@ -330,6 +329,6 @@
             for you.</p>
     </section>
 </script>
-
+<script src='${contextPath}/js/common.js'></script>
 </body>
 </html>

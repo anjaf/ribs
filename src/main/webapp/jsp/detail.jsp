@@ -20,7 +20,7 @@
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
-        <script src="${contextPath}/js/jquery.dataTables.min.js"></script>
+        <script src="${contextPath}/js/jquery.dataTables.js"></script>
         <script src="${contextPath}/js/jquery.highlight.js"></script>
         <script src="//ves-ebi-37.ebi.ac.uk:8080/ThorWebTest/resources/js/dataclaiming/ebithor-claiming.1.2.js"></script>
         <!-- Handlebars templates-->
@@ -163,7 +163,7 @@
         </script>
 
         <script id='section-template' type='text/x-handlebars-template'>
-            <section id="{{replaceCharacter this.accno '/' '-'}}" name="{{replaceCharacter this.accno '/' '-'}}">
+            <section id="{{accToLink this.accno}}" name="{{accToLink this.accno}}">
                 <div class="bs-name {{this.indentClass}}">
                     {{#ifHasAttribute 'Title' this.attributes}}
                         {{valueWithName 'Title' this.attributes}}
@@ -352,7 +352,7 @@
 
 
         <script id='main-orcid-claimer' type='text/x-handlebars-template'>
-            <section>
+            <section id="orc-id-claimer-section">
                 <div class="table-caption">
                     <span class="widge-title"><img class="orcid-logo" src="${contextPath}/images/orcid.svg"></img>ORCID: Data claiming</span>
                     <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>

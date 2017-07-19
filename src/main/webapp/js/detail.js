@@ -49,8 +49,6 @@ $.fn.groupBy = function(fn) {
         'bioproject':'https://www.ncbi.nlm.nih.gov/bioproject/{0}',
         'biosamples':'https://www.ebi.ac.uk/biosamples/samples/{0}',
         'chemagora':'http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/{0}',
-        'biostudies':'https://www.ebi.ac.uk/biostudies/studies/{0}',
-        'bioStudies search':'https://www.ebi.ac.uk/biostudies/studies/search.html?query={0}',
         'compound':'https://www.ebi.ac.uk/biostudies/studies/{0}'
     };
 
@@ -99,7 +97,8 @@ $.fn.groupBy = function(fn) {
         '': 'External',
         'bioproject': 'BioProject',
         'biosample': 'BioSamples',
-        'compound':'Compound'
+        'compound':'Compound',
+        'chemagora':'ChemAgora'
     };
 
     orgOrder= [];
@@ -160,10 +159,12 @@ function registerHelpers() {
     Handlebars.registerHelper('renderFileTableRow', function(val, obj) {
         if (obj==null) return new Handlebars.SafeString('<td></td>');
         var e = obj.filter( function(o) { return o['name']==val})[0];
-        if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
+        if (e==undefined) {
+            return new Handlebars.SafeString( val=='Section' ? '<td data-search=""></td>'  :'<td></td>') ;
+        }
         return new Handlebars.SafeString('<td'
                 + (e.sort ? ' data-sort="'+e.sort+'"' : '')
-                + (e.search ? ' data-search="'+e.search+'"' : '')
+                + ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'')
             +'>'
                 + (e.url ?'<a onclick="closeFullScreen();" '
                     + 'href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')
@@ -206,9 +207,9 @@ function registerHelpers() {
         }
     });
 
-    Handlebars.registerHelper('replaceCharacter', function(val, a, b ) {
+    Handlebars.registerHelper('accToLink', function(val) {
         if (!val) return '';
-        return val.replace(a,b);
+        return accToLink(val);
     });
 
     Handlebars.registerHelper('ifRenderable', function(arr,options) {
@@ -263,6 +264,7 @@ function registerHelpers() {
                     }
                 })
             });
+            if (names.indexOf("Section")>=0) names.splice(3,0,names.splice(names.indexOf("Section"),1)[0]);
             this.headers = names.filter(function (name) { return name.toLowerCase()!='type' });
             this.type = this[0].type
         }
@@ -516,9 +518,9 @@ function findall(obj,k,unroll){ // works only for files and links
                     $.each($.isArray(this) ? this : [this], function () {
                         if (accno && this.attributes) {
                             this.attributes.splice(0, 0, { 'name': 'Section',
-                                                            'search': accno.replace('/','-'),
+                                                            'search': accToLink(accno),
                                                             'value': type,
-                                                            'url':'#'+accno.replace('/','-')});
+                                                            'url':'#'+accToLink(accno)});
                         }
                     });
                 });
@@ -583,11 +585,11 @@ function createMainFileTable() {
         "order": [[1, "asc"]],
         "dom": "rlftpi",
         "infoCallback": function( settings, start, end, max, total, out ) {
-            return (total== max) ? out : out +'<br/><a class="section-button" id="clear-filter" onclick="clearFilter();return false;">' +
+            return (total== max) ? out : out +' <a class="section-button" id="clear-filter" onclick="clearFilter();return false;">' +
                 '<span class="fa-stack bs-icon-fa-stack">' +
                 '<i class="fa fa-filter fa-stack-1x"></i>' +
                 '<i class="fa-stack-1x filter-cross">×</i>' +
-                '</span> clear filter</a>';
+                '</span> show all files</a>';
         }
     });
 }
@@ -838,14 +840,15 @@ function handleAnchors() {
     // handle clicks on file filters in section
     $("#file-list td[data-search]").each(function(){
         var divId = $(this).data('search');
-        var bar = $('#' + divId+ '> .bs-name > .section-title-bar');
-        if (!$('a[data-files-id="'+divId+'"]', bar).length) {
-            bar.append('<span class="file-filter"><i class="fa fa-filter"></i>'
-                + 'Files in: </span><a class="section-button" data-files-id="'
-                + divId + '">This section</a>'
-            );
+        if (divId !='' ) {
+            var bar = $('#' + divId + '> .bs-name > .section-title-bar');
+            if (!$('a[data-files-id="' + divId + '"]', bar).length) {
+                bar.append('<span class="file-filter"><i class="fa fa-filter"></i>'
+                    + 'Files in: </span><a class="section-button" data-files-id="'
+                    + divId + '">This section</a>'
+                );
+            }
         }
-
     });
     $("a[data-files-id]").click( function() {
         $('#all-files-expander').click();
@@ -1060,6 +1063,10 @@ function closeFullScreen() {
 }
 
 function handleORCIDIntegration() {
+    if (typeof thorApplicationNamespace === "undefined") {
+        $('#orc-id-claimer-section').hide();
+        return;
+    };
     var accession = $('#orcid-accession').text();
     thorApplicationNamespace.createWorkOrcId(
         $('#orcid-title').text(),
@@ -1079,4 +1086,8 @@ function handleImageURLs() {
         var url = $(this).parent().clone().children().remove().end().text();
         $(this).parent().html('<img class="url-image" src="' + url + '"/>');
     });
+}
+
+function accToLink(acc) {
+    return acc.replace('/','').replace(' ','');
 }
