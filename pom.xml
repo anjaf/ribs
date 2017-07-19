@@ -332,7 +332,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.20</version>
                     <configuration>
-                        <reportsDirectory>/ebi/microarray/home/bamboo5/build-dir/BSTI-RMOB-IN/target/surefire-reports/</reportsDirectory>
+                        <reportsDirectory>/nfs/production3/ma/home/bamboo5/build-dir/BSTI-RMOB-IN/target/surefire-reports/</reportsDirectory>
                         <environmentVariables>
                             <phantomjs.binary.path>${phantomjs.binary.path}</phantomjs.binary.path>
                             <test.integration.sleep>${test.integration.sleep}</test.integration.sleep>
