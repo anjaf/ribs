@@ -332,7 +332,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.20</version>
                     <configuration>
-                        <reportsDirectory>${bamboo.agentWorkingDirectory}</reportsDirectory>
+                        <reportsDirectory>${bamboo.build.working.directory}</reportsDirectory>
                         <environmentVariables>
                             <phantomjs.binary.path>${phantomjs.binary.path}</phantomjs.binary.path>
                             <test.integration.sleep>${test.integration.sleep}</test.integration.sleep>
