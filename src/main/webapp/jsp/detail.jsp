@@ -1,12 +1,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <t:generic>
 
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/jquery.dataTables.css">
-        <link rel="stylesheet" href="${contextPath}/css/font-awesome.min.css" type="text/css">
         <link rel="stylesheet" href="${contextPath}/css/detail.css" type="text/css">
     </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
@@ -22,7 +22,7 @@
     <jsp:attribute name="postBody">
         <script src="${contextPath}/js/jquery.dataTables.js"></script>
         <script src="${contextPath}/js/jquery.highlight.js"></script>
-        <script src="//ves-ebi-37.ebi.ac.uk:8080/ThorWebTest/resources/js/dataclaiming/ebithor-claiming.1.2.js"></script>
+        <script src="<spring:eval expression="@orcidConfig.getdataClaimingUrl()"/>"></script>
         <!-- Handlebars templates-->
         <script id='study-template' type='text/x-handlebars-template'>
             <div id="left-column"  itemscope="itemscope" itemtype="http://schema.org/Dataset">
