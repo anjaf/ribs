@@ -2,6 +2,7 @@
 <%@ tag description="Generic page" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/functions" prefix = "fn" %>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@attribute name="postBody" fragment="true" %>
 <%@attribute name="head" fragment="true" %>
 <%@attribute name="breadcrumbs" fragment="true" %>
@@ -135,7 +136,7 @@
 
                 <!-- local-title -->
                 <div class="columns medium-7" id="local-title">
-                    <h1><a href="${contextPath}" title="Back to BioStudies homepage"><img src="${contextPath}/images/logo.png"/></a></h1>
+                    <h1><a href="${contextPath}" title="BioStudies homepage"><img src="${contextPath}/images/logo.png"/></a></h1>
 
                 </div>
                 <!-- /local-title -->
@@ -164,7 +165,8 @@
                         <li class="${pagename.equals('/jsp/search.jsp')? 'active':''}"><a href="${contextPath}/studies/">Browse</a></li>
                         <li class="${pagename.equals('/jsp/submit.jsp')? 'active':''}"><a href="${contextPath}/submit">Submit</a></li>
                         <li class="${pagename.equals('/jsp/help.jsp')? 'active':''}"><a href="${contextPath}/help">Help</a></li>
-                        <li class="${pagename.equals('/jsp/about.jsp')? 'active':''}"><a href="${contextPath}/about">About BioStudies</a></li>
+                        <li class="${pagename.equals('/jsp/about.jsp')? 'active':''}"><a href="${contextPath}/about"
+                        title="BioStudies v1.1.<spring:eval expression="@gitConfig.gitCommitIdAbbrev"/>">About BioStudies</a></li>
                     </ul>
                     <ul class="dropdown menu float-right" data-description="tasks">
                         <li class=""><a href="${contextPath}"><span class="icon icon-functional" data-icon="n"></span> Feedback</a></li>
