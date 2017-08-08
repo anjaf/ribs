@@ -298,6 +298,7 @@ a.section-button:hover {
     display: none;
     padding: 3px;
     background-color: white;
+    z-index:99999;
 }
 
 a.thumbnail-icon {
@@ -372,11 +373,6 @@ a.thumbnail-icon {
 .highlight-author {
     background-color: #B0F8CD;
     color: #000;
-}
-
-.file-filter {
-    color: #AAA;
-    margin-right:3px;
 }
 
 .section-title-bar {
