@@ -184,7 +184,7 @@ function postRender(data, params) {
         highlights.sort(function (a,b) {return b.word.length-a.word.length })
         $.each(highlights, function (i,v) {
             if (v.word!='AND' && v.word!='OR' && v.word!='NOT') {
-                $("#search-results").highlight(v.word, {className: v.class});
+                $("#search-results").highlight(v.word, {className: v.class, wordsOnly: v.word.indexOf('*') <0});
             }
         });
 
