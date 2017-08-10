@@ -17,6 +17,7 @@
 
 package uk.ac.ebi.biostudies.file;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,13 @@ import uk.ac.ebi.biostudies.file.download.RegularDownloadFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class FileDownloadService extends BaseDownloadServlet{
@@ -52,12 +59,15 @@ public class FileDownloadService extends BaseDownloadServlet{
         IDownloadFile file = null;
 
         try {
-            String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"/files/"       ,"").split("/");
-            if (requestArgs.length == 1) { // name only passed
-                name = requestArgs[0];
-            } else if (requestArgs.length >1 ) { // accession/name passed
-                accession = requestArgs[0];
-                name = StringUtils.replace(requestArgs[1], "..", "");
+            List<String> requestArgs = new ArrayList<>(Arrays.asList(
+                    request.getRequestURI().replaceAll(request.getContextPath()+"/files/"       ,"").split("/")));
+            if (requestArgs.size() == 1) { // name only passed
+                name = requestArgs.get(0);
+            } else if (requestArgs.size() >1 ) { // accession/name passed
+                accession = requestArgs.remove (0);
+                name = URLDecoder.decode(
+                        StringUtils.replace( StringUtils.join(requestArgs,'/') , "..", "")
+                            , StandardCharsets.UTF_8.toString());
             }
 
             logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
