@@ -860,13 +860,13 @@ function handleAnchors() {
     //handle author list expansion
     $('#bs-authors li span.more').click(function () {
         $('#bs-authors li').removeClass('hidden');
-        $(this).hide();
+        $(this).parent().remove();
     });
 
     //handle org list expansion
     $('#bs-orgs li span.more').click(function () {
         $('#bs-orgs li').removeClass('hidden');
-        $(this).hide();
+        $(this).parent().remove();
     });
 
     // handle clicks on section links in main file table
