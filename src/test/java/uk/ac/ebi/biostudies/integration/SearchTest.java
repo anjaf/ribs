@@ -44,7 +44,7 @@ public class SearchTest {
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".result-count")));
         String pages = driver.findElement(By.cssSelector(".result-count")).getAttribute("innerText");
-        assertTrue(pages.contains("Showing1"));
+        assertTrue(pages.contains("Showing"));
     }
 
     // Does not work with <input type="search"...
@@ -290,7 +290,7 @@ public class SearchTest {
         driver.manage().window().setSize(new Dimension(1280, 1024));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".result-count")));
         String pages = driver.findElement(By.cssSelector(".result-count")).getAttribute("innerText").trim();
-        assertTrue(pages.startsWith("(Showing21"));
+        assertTrue(pages.startsWith("(Showing"));
         String accession  = driver.findElement(By.cssSelector(".accession")).getAttribute("innerText").trim();
         driver.findElement(By.cssSelector(".title a")).click();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("orcid-accession")));
