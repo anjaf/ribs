@@ -18,16 +18,18 @@
 package uk.ac.ebi.biostudies.api.util.analyzer;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.util.CharTokenizer;
+import uk.ac.ebi.biostudies.config.IndexConfig;
 
 public class AttributeFieldAnalyzer extends Analyzer {
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
         Tokenizer source = new AttributeFieldTokenizer();
-        TokenStream filter = new ASCIIFoldingFilter(source);
+        TokenStream filter = new StopFilter(new ASCIIFoldingFilter(source), IndexConfig.STOP_WORDS);
         return new TokenStreamComponents(source, filter);
     }
 

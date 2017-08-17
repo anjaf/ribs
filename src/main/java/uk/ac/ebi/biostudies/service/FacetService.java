@@ -14,7 +14,6 @@ import java.util.Map;
 public interface FacetService {
 
     List<FacetResult> getFacetsForQuery(Query query);
-    JsonNode getFacetsForQueryAsJson(Query query);
     JsonNode getDefaultFacetTemplate(String prjName);
     Query addFacetDrillDownFilters(Query primaryQuery, Map<BioStudiesField, List<String>> userSelectedDimValues);
 }

@@ -1,9 +1,13 @@
 package uk.ac.ebi.biostudies.config;
 
+import org.apache.lucene.analysis.CharArraySet;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import uk.ac.ebi.biostudies.api.util.Constants;
+
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -51,6 +55,17 @@ public class IndexConfig {
 
     @Value("${bs.files.ftp.url}")
     private String ftpDir;
+
+    @Value("${indexer.stopwords}")
+    private String stopwords;
+
+    public static CharArraySet STOP_WORDS;
+
+
+    @PostConstruct
+    private void init(){
+        STOP_WORDS =  new CharArraySet(Arrays.asList(stopwords.split(",")), false);
+    }
 
 
     public int getThreadCount() {
@@ -111,4 +126,5 @@ public class IndexConfig {
     public int getQueueSize(){
         return queueSize;
     }
+
 }

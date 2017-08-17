@@ -29,6 +29,7 @@ public enum BioStudiesField {
     DATATYPE("dataType", "Data Type", BioStudiesFieldType.FACET, false, true, false, null),
     COMPOUND("compound", "Compound", BioStudiesFieldType.FACET, false, true, false, null),
     RAWPROCESSED("rawProcessed", "Raw/Processed", BioStudiesFieldType.FACET, false, true, false, null),
+    EXPRIMENTFACTOR("expFactor", "Experimental Factor", BioStudiesFieldType.FACET, false, true, false, null)
     ;
 
     private final String name;
@@ -81,6 +82,6 @@ public enum BioStudiesField {
     public boolean isSort(){return  sort;}
 
     public static BioStudiesField getFacet(String name) {
-        return Arrays.stream(BioStudiesField.values()).filter( field -> field.name==name).findFirst().get();
+        return Arrays.stream(BioStudiesField.values()).filter( field -> field.name.equalsIgnoreCase(name)).findFirst().get();
     }
 }

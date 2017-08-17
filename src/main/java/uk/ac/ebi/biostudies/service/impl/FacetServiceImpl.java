@@ -66,15 +66,28 @@ public class FacetServiceImpl implements FacetService {
     }
 
     @Override
-    public JsonNode getFacetsForQueryAsJson(Query query){
+    public JsonNode getDefaultFacetTemplate(String prjName){
+        QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), new SimpleAnalyzer());
+        Query query = null;
+        try {
+            query = qp.parse(BioStudiesField.PROJECT+":"+prjName);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         List<FacetResult> facetResults = getFacetsForQuery(query);
         ObjectMapper mapper = new ObjectMapper();
         List<ObjectNode> list = new ArrayList<>();
+        Set<String> validFacets = indexManager.getAllValidFields().keySet();
         for(FacetResult fcResult:facetResults){
+            if(fcResult==null)
+                continue;
+            if(!validFacets.contains(fcResult.dim))
+                continue;
             ObjectNode facet = mapper.createObjectNode();
-            BioStudiesField field = BioStudiesField.getFacet(fcResult.dim);
-            facet.put("title", field.getTitle());
-            facet.put("name", field.toString());
+            //BioStudiesField field = BioStudiesField.getFacet(fcResult.dim);
+            JsonNode facetNode = indexManager.getAllValidFields().get(fcResult.dim);
+            facet.put("title", facetNode.get("title").asText());
+            facet.put("name", facetNode.get("name").asText());
             List<ObjectNode> children = new ArrayList<>();
             for(LabelAndValue labelVal :fcResult.labelValues){
                 ObjectNode child = mapper.createObjectNode();
@@ -92,19 +105,6 @@ public class FacetServiceImpl implements FacetService {
         return mapper.createArrayNode().addAll(list);
     }
 
-    @Override
-    public synchronized  JsonNode getDefaultFacetTemplate(String prjName) {
-        //if(hecatosFacets!=null) return  hecatosFacets;
-        QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), new SimpleAnalyzer());
-        Query fq = null;
-        try {
-            fq = qp.parse(BioStudiesField.PROJECT+":"+prjName);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        hecatosFacets = getFacetsForQueryAsJson(fq);
-        return hecatosFacets;
-    }
 
     @Override
     public Query addFacetDrillDownFilters(Query primaryQuery, Map<BioStudiesField, List<String>> userSelectedDimValues){

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.ReadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.*;
@@ -45,9 +47,10 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Service
 @Scope("singleton")
-public class IndexServiceImpl implements IndexService {
 
-    private Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
+public class ConfigurableIndexService implements IndexService {
+
+    private Logger logger = LogManager.getLogger(ConfigurableIndexService.class.getName());
 
     @Autowired
     IndexConfig indexConfig;
@@ -104,7 +107,7 @@ public class IndexServiceImpl implements IndexService {
                 }
 
                 JsonNode submission = mapper.readTree(parser);
-                executorService.execute(new JsonDocumentIndexer(submission, indexManager.getIndexWriter(), taxonomyManager));
+                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager));
                 if(++counter%1000==0)
                     logger.info("{} docs indexed", counter);
             }
@@ -167,24 +170,25 @@ public class IndexServiceImpl implements IndexService {
         private IndexWriter writer;
         private JsonNode json;
         private TaxonomyManager taxonomyManager;
+        IndexManager indexManager;
 
-        public JsonDocumentIndexer(JsonNode json, IndexWriter writer, TaxonomyManager taxonomyManager) {
-
-            this.writer = writer;
+        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager) {
+            this.writer = indexManager.getIndexWriter();
             this.json = json;
             this.taxonomyManager = taxonomyManager;
+            this.indexManager = indexManager;
         }
 
         @Override
         public void run() {
             try {
-                Map<BioStudiesField, Object> valueMap = new HashMap<>(BioStudiesField.values().length);
-                valueMap.put( BioStudiesField.ID, json.get("accno").textValue() );
-                valueMap.put( BioStudiesField.ACCESSION, valueMap.get(BioStudiesField.ID));
-                valueMap.put( BioStudiesField.TYPE, json.get("section").get("type").textValue().toLowerCase());
-                valueMap.put( BioStudiesField.TITLE, getTitle(json, (String)valueMap.get(BioStudiesField.ACCESSION)));
+                Map<String, Object> valueMap = new HashMap<>(BioStudiesField.values().length);
+                valueMap.put( BioStudiesField.ID.toString(), json.get("accno").textValue() );
+                valueMap.put( BioStudiesField.ACCESSION.toString(), valueMap.get(BioStudiesField.ID.toString()));
+                valueMap.put( BioStudiesField.TYPE.toString(), json.get("section").get("type").textValue().toLowerCase());
+                valueMap.put( BioStudiesField.TITLE.toString(), getTitle(json, (String)valueMap.get(BioStudiesField.ACCESSION.toString())));
 
-                valueMap.put( BioStudiesField.FILES, json.findValues("files").stream().mapToLong(
+                valueMap.put( BioStudiesField.FILES.toString(), json.findValues("files").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("path").size()
                         ).sum()
                 );
@@ -195,41 +199,28 @@ public class IndexServiceImpl implements IndexService {
                 content.append(json.findValues("files").stream().map(jsonNode -> jsonNode.findValuesAsText("path").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
                 content.append(" ");
                 content.append(json.findValues("links").stream().map(jsonNode -> jsonNode.findValuesAsText("url").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
-                valueMap.put( BioStudiesField.CONTENT, content.toString());
-                valueMap.put( BioStudiesField.LINKS, json.findValues("links").stream().mapToLong(
+                valueMap.put( BioStudiesField.CONTENT.toString(), content.toString());
+                valueMap.put( BioStudiesField.LINKS.toString(), json.findValues("links").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("url").size()
                         ).sum()
                 );
                 String author = "";
                 if(json.get("section").has("subsections")) {
                     author = StreamSupport.stream(json.get("section").get("subsections").spliterator(), false)
-                             .filter(jsonNode ->
-                                     jsonNode.has("type") && jsonNode.get("type").textValue().equalsIgnoreCase("Author") && jsonNode.get("attributes").isArray() && jsonNode.get("attributes").get(0).get("name").asText().equalsIgnoreCase("Name"))
-                             .map(authorNode -> authorNode.get("attributes").get(0).get("value").asText()).collect(Collectors.joining(", "));
+                            .filter(jsonNode ->
+                                    jsonNode.has("type") && jsonNode.get("type").textValue().equalsIgnoreCase("Author") && jsonNode.get("attributes").isArray() && jsonNode.get("attributes").get(0).get("name").asText().equalsIgnoreCase("Name"))
+                            .map(authorNode -> authorNode.get("attributes").get(0).get("value").asText()).collect(Collectors.joining(", "));
                 }
-                valueMap.put( BioStudiesField.AUTHORS, author);
+                valueMap.put( BioStudiesField.AUTHORS.toString(), author);
 
                 String access = !json.has("accessTags") ? "" :
                         StreamSupport.stream(json.get("accessTags").spliterator(),false)
                                 .map( s-> s.textValue())
                                 .collect(Collectors.joining(" "));
-                valueMap.put( BioStudiesField.ACCESS, access.replaceAll("~", ""));
+                valueMap.put( BioStudiesField.ACCESS.toString(), access.replaceAll("~", ""));
 
                 String value="";
-                if(json.has("section") && json.get("section").has("attributes")) {
-                    JsonNode attNodes = json.get("section").get("attributes");
 
-                    for(BioStudiesField bsField:BioStudiesField.values()){
-                        if(bsField.getType()!= BioStudiesFieldType.FACET)
-                            continue;
-                        value = StreamSupport.stream(attNodes.spliterator(), false)
-                                .filter(jsonNode ->
-                                        jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase(bsField.getTitle()))
-                                .map(s->s.get("value").textValue() )
-                                .collect(Collectors.joining(","));
-                        valueMap.put(bsField, value);
-                    }
-                }
                 long releaseDateLong = 0L;
                 if(json.has("rtime"))
                     releaseDateLong = Long.valueOf(json.get("rtime").asText());
@@ -239,7 +230,7 @@ public class IndexServiceImpl implements IndexService {
                         calendar.set(2050, 0, 1);
                     releaseDateLong = calendar.getTimeInMillis();
                 }
-                valueMap.put(BioStudiesField.RELEASE_DATE, releaseDateLong);
+                valueMap.put(BioStudiesField.RELEASE_DATE.toString(), releaseDateLong);
 
                 String project = "";
                 if(json.has("attributes")) {
@@ -249,62 +240,93 @@ public class IndexServiceImpl implements IndexService {
                             .map(s -> s.get("value").textValue())
                             .collect(Collectors.joining(","));
                 }
-                valueMap.put(BioStudiesField.PROJECT, project);
+                valueMap.put(BioStudiesField.PROJECT.toString(), project);
+
+                //extract facets
+                ReadContext jsonPathContext = null;
+                if(indexManager.indexDetails.findValue(project.toLowerCase())!=null && json.has("section") && json.get("section").has("attributes")) {
+                    JsonNode attNodes = json.get("section").get("attributes");
+                    for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(project.toLowerCase())){
+                            if(fieldMetadataNode.get("jpath").asText().isEmpty()){
+                                value = StreamSupport.stream(attNodes.spliterator(), false)
+                                        .filter(jsonNode ->
+                                                jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase(fieldMetadataNode.get("title").asText()))
+                                        .map(s->s.get("value").textValue() )
+                                        .collect(Collectors.joining(","));
+                                valueMap.put(fieldMetadataNode.get("name").asText(), value);
+                            }
+                            else{
+                                extractWithJsonPath(jsonPathContext, json, valueMap, fieldMetadataNode);
+                            }
+
+                    }
+                }
+
+
                 updateDocument(valueMap);
             } catch (Exception e) {
-                System.out.println("Problem indexing " + json);
-                e.printStackTrace();
+                logger.error("problem in indexing", e);
             }
         }
 
-        private void updateDocument(Map<BioStudiesField, Object> valueMap) throws IOException {
+        private void extractWithJsonPath(ReadContext jsonPathContext, JsonNode json, Map<String, Object> valueMap, JsonNode fieldMetadataNode){
+            String result;
+            if(jsonPathContext==null)
+                jsonPathContext = JsonPath.parse(json.toString());
+            try {
+                List<String> resultData = jsonPathContext.read(json.get("jpath").asText());
+                result = String.join(",", resultData);
+            }catch (ClassCastException e){
+                result = jsonPathContext.read(json.get("jpath").asText());
+            }
+            valueMap.put(fieldMetadataNode.get("name").asText(), result);
+        }
+
+        private void updateDocument(Map<String, Object> valueMap) throws IOException {
             Document doc = new Document();
 
             //TODO: replace by classes if possible
             String value;
-            for (BioStudiesField field: BioStudiesField.values()) {
+            String prjName = (String)valueMap.get("project");
+            for (String field: indexManager.getProjectRelatedFields(prjName.toLowerCase())) {
+                JsonNode curNode = indexManager.getAllValidFields().get(field);
+                String fieldType = curNode.get("fieldType").asText();
                 try{
-                    switch (field.getType()) {
-                        case STRING_TOKENIZED:
-                            value = valueMap.get(field).toString();
+                    switch (fieldType) {
+                        case "str_tokenized":
+                            value = String.valueOf(valueMap.get(field));
                             doc.add(new TextField(String.valueOf(field), value, Field.Store.YES));
-//                        if need sorting uncomment these lines
-//                        if(field.isSort())
-//                            doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef(value.length()<256 ? value.toLowerCase():value.substring(0,256).toLowerCase())));
                             break;
-                        case STRING_UNTOKENIZED:
-                            value = valueMap.get(field).toString();
+                        case "str_untokenized":
+                            value = String.valueOf(valueMap.get(field));
                             Field unTokenizeField = new Field(String.valueOf(field), value, BioStudiesFieldType.TYPE_NOT_ANALYZED);
                             doc.add(unTokenizeField);
-//                        if need sorting uncomment these lines
-//                        if(field.isSort())
-//                            doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef(value.length()<256 ? value.toLowerCase():value.substring(0,256).toLowerCase())));
-
                             break;
-                        case LONG:
+                        case "long":
                             doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));
                             doc.add(new StoredField(String.valueOf(field), valueMap.get(field).toString()));
                             break;
-                        case FACET:
+                        case "facet":
                             addFacet(String.valueOf(valueMap.get(field)), field, doc);
                     }
                 }catch(Exception ex){
-                    logger.error("field name: {}", field.toString(), ex);
+                    logger.error("field name: {} doc accession:", field.toString(), String.valueOf(valueMap.get(BioStudiesField.ACCESSION.toString())), ex);
                 }
 
 
             }
 
             Document facetedDocument = taxonomyManager.getFacetsConfig().build(taxonomyManager.getTaxonomyWriter() ,doc);
-            writer.updateDocument(new Term(String.valueOf(BioStudiesField.ID), valueMap.get(BioStudiesField.ACCESSION).toString()), facetedDocument);
+            writer.updateDocument(new Term(BioStudiesField.ID.toString(), valueMap.get(BioStudiesField.ACCESSION.toString()).toString()), facetedDocument);
+
         }
 
-        private void addFacet(String value, BioStudiesField field, Document doc){
+        private void addFacet(String value, String fieldName, Document doc){
             if(value==null || value.isEmpty()) {
                 value = "n/a";
             }
             for(String subVal:value.split(",")) {
-                doc.add(new FacetField(field.toString(), subVal.trim().toLowerCase()));
+                doc.add(new FacetField(fieldName, subVal.trim().toLowerCase()));
             }
         }
 

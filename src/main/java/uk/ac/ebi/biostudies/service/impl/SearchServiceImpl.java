@@ -171,14 +171,15 @@ public class SearchServiceImpl implements SearchService {
                 for (int i = (page - 1) * hitsPerPage; i < to; i++) {
                     ObjectNode docNode = mapper.createObjectNode();
                     Document doc = reader.document(hits.scoreDocs[i].doc);
-                    for (BioStudiesField field : BioStudiesField.values()) {
-                        if (!field.isRetrieved()) continue;
-                        switch (field.getType()) {
-                            case LONG:
-                                docNode.put(String.valueOf(field), Long.parseLong(doc.get(field.toString())));
+                    for (String field : indexManager.getAllValidFields().keySet()) {
+                        JsonNode fieldData = indexManager.getAllValidFields().get(field);
+                        if (fieldData.get("isRetrived").asText().equalsIgnoreCase("false")) continue;
+                        switch (fieldData.get("fieldType").asText()) {
+                            case "long":
+                                docNode.put(field, Long.parseLong(doc.get(field)));
                                 break;
                             default:
-                                docNode.put(String.valueOf(field), doc.get(field.toString()));
+                                docNode.put(field, doc.get(field));
                                 break;
                         }
                     }
