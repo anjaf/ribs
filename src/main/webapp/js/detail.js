@@ -264,7 +264,7 @@ function registerHelpers() {
                     }
                 })
             });
-            if (names.indexOf("Section")>=0) names.splice(3,0,names.splice(names.indexOf("Section"),1)[0]);
+            if (names.indexOf("Section")>=0) names.splice(2,0,names.splice(names.indexOf("Section"),1)[0]);
             this.headers = names.filter(function (name) { return name.toLowerCase()!='type' });
             this.type = this[0].type
         }
@@ -516,11 +516,14 @@ function findall(obj,k,unroll){ // works only for files and links
 
                 $.each(obj[k], function () {
                     $.each($.isArray(this) ? this : [this], function () {
-                        if (accno && this.attributes) {
-                            this.attributes.splice(0, 0, { 'name': 'Section',
-                                                            'search': accToLink(accno),
-                                                            'value': type,
-                                                            'url':'#'+accToLink(accno)});
+                        if (accno) {
+                            this.attributes = this.attributes || [];
+                            this.attributes.splice(0, 0, {
+                                'name': 'Section',
+                                'search': accToLink(accno),
+                                'value': type,
+                                'url': '#' + accToLink(accno)
+                            });
                         }
                     });
                 });
@@ -838,14 +841,13 @@ function handleAnchors() {
     }
 
     // handle clicks on file filters in section
-    $("#file-list td[data-search]").each(function(){
+    $(filesTable.column(':contains(Section)').nodes()).each( function(){
         var divId = $(this).data('search');
         if (divId !='' ) {
             var bar = $('#' + divId + '> .bs-name > .section-title-bar');
             if (!$('a[data-files-id="' + divId + '"]', bar).length) {
-                bar.append('<span class="file-filter"><i class="fa fa-filter"></i>'
-                    + 'Files in: </span><a class="section-button" data-files-id="'
-                    + divId + '">This section</a>'
+                bar.append('<a class="section-button" data-files-id="'
+                    + divId + '"><i class="fa fa-filter"></i> show files in this section</a>'
                 );
             }
         }
@@ -858,13 +860,13 @@ function handleAnchors() {
     //handle author list expansion
     $('#bs-authors li span.more').click(function () {
         $('#bs-authors li').removeClass('hidden');
-        $(this).hide();
+        $(this).parent().remove();
     });
 
     //handle org list expansion
     $('#bs-orgs li span.more').click(function () {
         $('#bs-orgs li').removeClass('hidden');
-        $(this).hide();
+        $(this).parent().remove();
     });
 
     // handle clicks on section links in main file table
@@ -907,15 +909,15 @@ function handleFileDownloadSelection() {
     $("#select-all-files").on('click', function () {
         var isChecked = $(this).is(':checked');
         if (!isChecked) {
-            $('input[type="checkbox"]', filesTable.column(0).nodes()).prop('checked', false);
-            $('input[type="checkbox"]', filesTable.column(0).nodes()).removeAttr('checked');
-            $('input[type="checkbox"]', filesTable.column(0).nodes()).removeProp('checked');
-            $('input[type="checkbox"]', filesTable.column(0).nodes()).removeClass('selected');
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).prop('checked', false);
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).removeAttr('checked');
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).removeProp('checked');
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).removeClass('selected');
             selectedFilesCount = 0;
         } else {
-            $('input[type="checkbox"]', filesTable.column(0).nodes()).prop('checked', true);
-            $('input[type="checkbox"]', filesTable.column(0).nodes()).addClass('selected');
-            selectedFilesCount = totalRows;
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).prop('checked', true);
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).addClass('selected');
+            selectedFilesCount = filesTable.column(0, { search:'applied' }).nodes().length;
         }
         updateSelectedFiles(0);
     });
@@ -973,7 +975,7 @@ function clearFilter() {
 }
 
 function handleThumbnails() {
-    $("input[data-name]").parent().next().each(function () {
+    $(filesTable.column(1).nodes()).each(function () {
         var path = $(this).text();
         $('a',this).addClass('overflow-name-column');
         $('a',this).attr('title',path);
@@ -984,12 +986,12 @@ function handleThumbnails() {
         }
     })
 
-    $("input[data-name]").parent().next().hover( function() {
+    $(filesTable.column(1).nodes()).hover( function() {
         var $tn = $(this).find('.thumbnail-icon');
         if (!$tn.length) return;
         $('#thumbnail').html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>')
         $('#thumbnail').css('top',$tn.offset().top - 10);
-        $('#thumbnail').css('left',$('#right-column').offset().left - $('#thumbnail').width() - 10);
+        $('#thumbnail').css('left',$('#file-list-container').offset().left - $('#thumbnail').width() - 10);
         $('#thumbnail').show();
         var img = $("<img />").attr('src', $tn.data('thumbnail'))
             .on('load', function() {
@@ -998,7 +1000,7 @@ function handleThumbnails() {
                 } else {
                     $('#thumbnail').html('').append(img)
                     $('#thumbnail').css('top',$tn.offset().top - 10);
-                    $('#thumbnail').css('left',$('#right-column').offset().left - $('#thumbnail').width() - 10);
+                    $('#thumbnail').css('left',$('#file-list-container').offset().left - $('#thumbnail').width() - 10);
                     $('#thumbnail').show();
                 }
             });

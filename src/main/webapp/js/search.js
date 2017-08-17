@@ -122,7 +122,7 @@ function registerHelpers(params) {
             prms.page = page+1;
             ul += '<li class="pagination-next"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
         }
-        ul += '<li class="result-count"> (Showing' + ((o.data.root.page-1)*20+1) + '-'
+        ul += '<li class="result-count"> (Showing ' + ((o.data.root.page-1)*20+1) + '-'
             + (o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
             +' of ' + o.data.root.totalHits + ' results)</li>';
         ul += '</ul>'
@@ -184,7 +184,7 @@ function postRender(data, params) {
         highlights.sort(function (a,b) {return b.word.length-a.word.length })
         $.each(highlights, function (i,v) {
             if (v.word!='AND' && v.word!='OR' && v.word!='NOT') {
-                $("#search-results").highlight(v.word, {className: v.class});
+                $("#search-results").highlight(v.word, {className: v.class, wordsOnly: v.word.indexOf('*') <0});
             }
         });
 
