@@ -1,0 +1,29 @@
+{
+  "public":
+  [
+    {"name":"access", "title":"", "fieldType":"str_tokenized", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"AccessFieldAnalyzer", "jpath":""},
+    {"name":"accession", "title":"", "fieldType":"str_tokenized", "isRetrived":"true", "isExpand":"false", "isSort":"false", "analyzer":"AttributeFieldAnalyzer", "jpath":""},
+    {"name":"type", "title":"", "fieldType":"str_untokenized", "isRetrived":"true", "isExpand":"false", "isSort":"false", "analyzer":"AttributeFieldAnalyzer", "jpath":""},
+    {"name":"title", "title":"", "fieldType":"str_tokenized", "isRetrived":"true", "isExpand":"false", "isSort":"true", "analyzer":"ExperimentTextAnalyzer", "jpath":""},
+    {"name":"authors", "title":"", "fieldType":"str_tokenized", "isRetrived":"true", "isExpand":"false", "isSort":"true", "analyzer":"AttributeFieldAnalyzer", "jpath":""},
+    {"name":"content", "title":"", "fieldType":"str_tokenized", "isRetrived":"false", "isExpand":"true", "isSort":"false", "analyzer":"ExperimentTextAnalyzer", "jpath":""},
+    {"name":"project", "title":"", "fieldType":"str_tokenized", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"AttributeFieldAnalyzer", "jpath":""},
+    {"name":"links", "title":"", "fieldType":"long", "isRetrived":"true", "isExpand":"false", "isSort":"true", "analyzer":"", "jpath":""},
+    {"name":"files", "title":"", "fieldType":"long", "isRetrived":"true", "isExpand":"false", "isSort":"true", "analyzer":"", "jpath":""},
+    {"name":"release_date", "title":"", "fieldType":"long", "isRetrived":"true", "isExpand":"false", "isSort":"true", "analyzer":"AttributeFieldAnalyzer", "jpath":""},
+    {"name":"id", "title":"", "fieldType":"str_untokenized", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"", "jpath":""}
+  ],
+  "hecatos":
+  [
+    {"name":"organ", "title":"Organ", "fieldType":"facet", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"", "jpath":""},
+    {"name":"technology", "title":"Assay Technology Type", "fieldType":"facet", "isRetrived":"false", "isExpand":"false", "isSort":"true", "analyzer":"", "jpath":""},
+    {"name":"dataType", "title":"Data Type", "fieldType":"facet", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"", "jpath":""},
+    {"name":"compound", "title":"Compound", "fieldType":"facet", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"", "jpath":""},
+    {"name":"rawProcessed", "title":"Raw/Processed", "fieldType":"facet", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"", "jpath":""}
+  ],
+  "arrayexpress":
+  [
+    {"name":"expFactor", "title":"Experimental Factor", "fieldType":"facet", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"", "jpath":""},
+    {"name":"exp", "title":"Experimental Factor", "fieldType":"str_untokenized", "isRetrived":"true", "isExpand":"false", "isSort":"false", "analyzer":"AttributeFieldAnalyzer", "jpath":""}
+  ]
+}
