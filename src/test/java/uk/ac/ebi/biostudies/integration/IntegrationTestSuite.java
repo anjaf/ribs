@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostudies.integration;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -40,6 +41,11 @@ public class IntegrationTestSuite {
         int sleep = Integer.parseInt(System.getenv("test.integration.sleep"));
         System.out.println("sleeping "+sleep+" seconds to make sure tomcat is ready for integration test");
         Thread.sleep(sleep*1000);
+    }
+
+    @AfterClass
+    public static void destroy(){
+        IntegrationTestSuite.driver.quit();
     }
 
 }
