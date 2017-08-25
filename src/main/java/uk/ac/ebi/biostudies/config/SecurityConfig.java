@@ -15,7 +15,15 @@ public class SecurityConfig {
     @Value("${bs.users.authentication-url}")
     private String authUrl;
 
+    @Value("${index.admin.ip.whitelist}")
+    private String adminIPWhitelist;
+
     public String getAuthUrl() {
         return authUrl;
     }
+
+    public String getAdminIPWhitelist() {
+        return adminIPWhitelist;
+    }
+
 }
