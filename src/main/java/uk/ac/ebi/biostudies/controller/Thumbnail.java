@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.HandlerMapping;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.file.Thumbnails;
 import uk.ac.ebi.biostudies.service.SearchService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -37,8 +39,11 @@ public class Thumbnail {
      * @param accession
      * @param name
      */
-    @RequestMapping(value = "/{accession}/{name:.+}", method = RequestMethod.GET)
-    public void getThumbnail(HttpServletResponse response, @PathVariable String accession, @PathVariable String name) {
+    @RequestMapping(value = "/{accession}/**", method = RequestMethod.GET)
+    public void getThumbnail(HttpServletResponse response, HttpServletRequest request, @PathVariable String accession) {
+        String name = request.getAttribute( HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE ).toString();
+        String prefix = "/thumbnail/"+accession+"/";
+        name = name.substring(name.indexOf(prefix)+prefix.length());
         if(accession==null || accession.isEmpty() || name==null || name.isEmpty())
             return;
 
