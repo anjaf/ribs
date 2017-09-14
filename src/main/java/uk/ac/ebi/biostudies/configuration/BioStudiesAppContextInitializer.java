@@ -1,7 +1,8 @@
 package uk.ac.ebi.biostudies.configuration;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
-import uk.ac.ebi.biostudies.auth.SecurityFilter;
+import uk.ac.ebi.biostudies.auth.CookieFilter;
+import uk.ac.ebi.biostudies.auth.AdminFilter;
 
 import javax.servlet.Filter;
 
@@ -24,7 +25,7 @@ public class BioStudiesAppContextInitializer extends AbstractAnnotationConfigDis
 
     @Override
     protected Filter[] getServletFilters() {
-        return new Filter[]{new SecurityFilter()};
+        return new Filter[]{new CookieFilter()};
     }
  
 }

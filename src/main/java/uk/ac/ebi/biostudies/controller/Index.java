@@ -44,12 +44,9 @@ public class Index {
     public ResponseEntity<String> indexAll(@PathVariable("filename") String filename) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode message = mapper.createObjectNode();
-        if(!userSecurity.currentUserIsSuperUser()) { //TODO: Replace this with spring security
-            message.put("message", "You don't have rights to access this endpoint");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
         try {
-            if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default")) {
+            if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))
+            {
                 indexService.clearIndex(false);
                 filename = Constants.STUDIES_JSON_FILE;
             }
@@ -66,16 +63,12 @@ public class Index {
 
     @RequestMapping(value = "/index/clear", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> clearIndex() throws Exception {
-        if(!userSecurity.currentUserIsSuperUser())
-            return new ResponseEntity<String>("{\"message\":\"forbidden\"}", HttpStatus.FORBIDDEN);
-        indexService.clearIndex(true);
+           indexService.clearIndex(true);
         return new ResponseEntity<String>("{\"message\":\"Index empty\"}", HttpStatus.OK);
     }
     @RequestMapping(value = "/index/delete/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> deleteDoc(@PathVariable(required=false) String accession) throws Exception {
-        if(!userSecurity.currentUserIsSuperUser())
-            return new ResponseEntity<String>("{\"message\":\"forbidden\"}", HttpStatus.FORBIDDEN);
-        indexService.deleteDoc(accession);
+           indexService.deleteDoc(accession);
         return new ResponseEntity<String>("{\"message\":\"Index empty\"}", HttpStatus.OK);
     }
 }

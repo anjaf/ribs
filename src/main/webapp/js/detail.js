@@ -251,7 +251,7 @@ function registerHelpers() {
             var hsh = {'Name': 1, 'Size': 1};
             $.each(this, function (i, file) {
                 file.attributes = file.attributes || [];
-                file.attributes.push({"name": "Name", "value": file.path});
+                file.attributes.push({"name": "Name", "value": file.path.substring(file.path.lastIndexOf("/") +1) });
                 file.attributes.push({"name": "Size", "value": getByteString(file.size), "sort":file.size});
                 $.each(file.attributes, function (i, attribute) {
                     if (!(attribute.name in hsh)) {
@@ -976,9 +976,9 @@ function clearFilter() {
 
 function handleThumbnails() {
     $(filesTable.column(1).nodes()).each(function () {
-        var path = $(this).text();
+        var path = $('input',$(this).prev()).data('name');
         $('a',this).addClass('overflow-name-column');
-        $('a',this).attr('title',path);
+        $('a',this).attr('title',$(this).text());
         if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
                 ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm']) >=0 ) {
             $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'

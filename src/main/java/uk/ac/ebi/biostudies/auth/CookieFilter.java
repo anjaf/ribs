@@ -16,9 +16,9 @@ import java.io.PrintWriter;
 /**
  * Created by ehsan on 15/03/2017.
  */
-public class SecurityFilter implements Filter {
+public class CookieFilter implements Filter {
 
-    private Logger logger = LogManager.getLogger(SecurityFilter.class.getName());
+    private Logger logger = LogManager.getLogger(CookieFilter.class.getName());
 
 
     @Autowired
