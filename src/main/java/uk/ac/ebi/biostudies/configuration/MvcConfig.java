@@ -32,6 +32,12 @@ import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 @PropertySource("classpath:scheduler.properties")
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**");
+    }
+
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
         AntPathMatcher matcher = new AntPathMatcher();
