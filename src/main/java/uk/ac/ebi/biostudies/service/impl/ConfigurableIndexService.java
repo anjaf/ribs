@@ -181,8 +181,8 @@ public class ConfigurableIndexService implements IndexService {
 
         @Override
         public void run() {
+            Map<String, Object> valueMap = new HashMap<>(BioStudiesField.values().length);
             try {
-                Map<String, Object> valueMap = new HashMap<>(BioStudiesField.values().length);
                 valueMap.put( BioStudiesField.ID.toString(), json.get("accno").textValue() );
                 valueMap.put( BioStudiesField.ACCESSION.toString(), valueMap.get(BioStudiesField.ID.toString()));
                 valueMap.put( BioStudiesField.TYPE.toString(), json.get("section").get("type").textValue().toLowerCase());
@@ -265,7 +265,7 @@ public class ConfigurableIndexService implements IndexService {
 
                 updateDocument(valueMap);
             } catch (Exception e) {
-                logger.error("problem in indexing", e);
+                logger.error("problem in indexing accession {}", json.get("accno").textValue(), e );
             }
         }
 
@@ -310,7 +310,7 @@ public class ConfigurableIndexService implements IndexService {
                             addFacet(String.valueOf(valueMap.get(field)), field, doc);
                     }
                 }catch(Exception ex){
-                    logger.error("field name: {} doc accession:", field.toString(), String.valueOf(valueMap.get(BioStudiesField.ACCESSION.toString())), ex);
+                    logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(BioStudiesField.ACCESSION.toString())), ex);
                 }
 
 
@@ -345,7 +345,7 @@ public class ConfigurableIndexService implements IndexService {
                             .map(jsonNode -> jsonNode.findValue("value").asText().trim())
                             .collect(Collectors.joining(","));//get().get("value").textValue().trim();
                 } catch ( Exception ex2) {
-                    System.out.println( "Title not found for " + json.toString().substring(0,100));
+                    logger.error("Title not found for " + json.toString().substring(0,100));
                 }
             }
             if(title.isEmpty())
