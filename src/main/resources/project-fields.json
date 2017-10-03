@@ -10,7 +10,7 @@
     {"name":"project", "title":"", "fieldType":"str_tokenized", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"AttributeFieldAnalyzer", "jpath":""},
     {"name":"links", "title":"", "fieldType":"long", "isRetrived":"true", "isExpand":"false", "isSort":"true", "analyzer":"", "jpath":""},
     {"name":"files", "title":"", "fieldType":"long", "isRetrived":"true", "isExpand":"false", "isSort":"true", "analyzer":"", "jpath":""},
-    {"name":"release_date", "title":"", "fieldType":"long", "isRetrived":"true", "isExpand":"false", "isSort":"true", "analyzer":"AttributeFieldAnalyzer", "jpath":""},
+    {"name":"release_date", "title":"", "fieldType":"str_untokenized", "isRetrived":"true", "isExpand":"false", "isSort":"true", "analyzer":"AttributeFieldAnalyzer", "jpath":""},
     {"name":"id", "title":"", "fieldType":"str_untokenized", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"", "jpath":""}
   ],
   "hecatos":

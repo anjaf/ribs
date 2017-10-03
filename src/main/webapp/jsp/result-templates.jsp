@@ -22,7 +22,7 @@
 
         <div class="meta-data">
             <span class="accession">{{accession}}</span>
-            <span class="release-date">{{epochToDate release_date}}</span>
+            <span class="release-date">{{formatDate release_date}}</span>
             {{#ifCond type '!=' 'project'}}
                 {{#ifCond links '!=' 0}}
                     <span class="release-links">

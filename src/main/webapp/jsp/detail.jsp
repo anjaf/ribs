@@ -40,7 +40,7 @@
                 <div id="release-date-download">
                     <span class="release-date">
                         {{#if releaseDate}}
-                        Release Date: <span  id="orcid-publication-year">{{releaseDate}}</span>
+                        Release Date: <span  id="orcid-publication-year">{{formatDate releaseDate}}</span>
                         {{else}}
                             <i class="fa fa-lock" aria-hidden="true"></i> Private
                         {{/if}}

@@ -15,6 +15,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -223,14 +224,14 @@ public class ConfigurableIndexService implements IndexService {
 
                 long releaseDateLong = 0L;
                 if(json.has("rtime"))
-                    releaseDateLong = Long.valueOf(json.get("rtime").asText());
+                    releaseDateLong = Long.valueOf(json.get("rtime").asText())*1000;
                 if(releaseDateLong==0L) {
                     Calendar calendar = Calendar.getInstance();
                     if(!String.valueOf(valueMap.get(BioStudiesField.ACCESS)).contains("public"))
                         calendar.set(2050, 0, 1);
                     releaseDateLong = calendar.getTimeInMillis();
                 }
-                valueMap.put(BioStudiesField.RELEASE_DATE.toString(), releaseDateLong);
+                valueMap.put(BioStudiesField.RELEASE_DATE.toString(), DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
 
                 String project = "";
                 if(json.has("attributes")) {
@@ -301,6 +302,8 @@ public class ConfigurableIndexService implements IndexService {
                             value = String.valueOf(valueMap.get(field));
                             Field unTokenizeField = new Field(String.valueOf(field), value, BioStudiesFieldType.TYPE_NOT_ANALYZED);
                             doc.add(unTokenizeField);
+                            if(curNode.get("isSort")!=null && curNode.get("isSort").textValue().equalsIgnoreCase("true"))
+                                doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef( valueMap.get(field).toString())));
                             break;
                         case "long":
                             doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));

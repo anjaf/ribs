@@ -207,6 +207,10 @@ function registerHelpers() {
         }
     });
 
+    Handlebars.registerHelper('formatDate', function(v) {
+        return (new Date(v)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+    });
+
     Handlebars.registerHelper('accToLink', function(val) {
         if (!val) return '';
         return accToLink(val);

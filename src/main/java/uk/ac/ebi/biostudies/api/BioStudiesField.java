@@ -22,7 +22,7 @@ public enum BioStudiesField {
     PROJECT("project", "", BioStudiesFieldType.STRING_TOKENIZED, false, false, false, new AttributeFieldAnalyzer()),
     LINKS("links", "", BioStudiesFieldType.LONG, true, false, true, null),
     FILES("files", "", BioStudiesFieldType.LONG, true, false, true, null),
-    RELEASE_DATE("release_date", "", BioStudiesFieldType.LONG, true, false, true, new AttributeFieldAnalyzer()),
+    RELEASE_DATE("release_date", "", BioStudiesFieldType.STRING_TOKENIZED, true, false, true, new AttributeFieldAnalyzer()),
     ID("id", "", BioStudiesFieldType.STRING_UNTOKENIZED, false, false, false, null),
     ORGAN("organ", "Organ", BioStudiesFieldType.FACET, false, true, false, null),
     TECHNOLOGY("technology", "Assay Technology Type", BioStudiesFieldType.FACET, false, true, true, null),
