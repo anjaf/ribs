@@ -82,10 +82,8 @@ public class ConfigurableIndexService implements IndexService {
         String inputStudiesFile = System.getProperty("java.io.tmpdir")+"/";
         if(fileName!=null && !fileName.isEmpty())
             inputStudiesFile = inputStudiesFile +fileName;
-//            inputStudiesFile = indexConfig.getStudiesFileDirectory()+fileName;
         else
             inputStudiesFile = inputStudiesFile + Constants.STUDIES_JSON_FILE;
-//            inputStudiesFile = indexConfig.getStudiesInputFile();
         int counter = 0;
         try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFile), "UTF-8")) {
             JsonFactory factory = new JsonFactory();
@@ -157,6 +155,8 @@ public class ConfigurableIndexService implements IndexService {
         if (isNotBlank(sourceLocation)) {
             if (jsonFileName != null && !jsonFileName.isEmpty())
                 sourceLocation = sourceLocation.replaceAll(Constants.STUDIES_JSON_FILE, jsonFileName);
+            else
+                jsonFileName = Constants.STUDIES_JSON_FILE;
             File srcFile = new File(sourceLocation);
             File destFile = new File(System.getProperty("java.io.tmpdir"), jsonFileName);
             logger.info("Making a local copy  of {} at {}", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
@@ -271,14 +271,18 @@ public class ConfigurableIndexService implements IndexService {
         }
 
         private void extractWithJsonPath(ReadContext jsonPathContext, JsonNode json, Map<String, Object> valueMap, JsonNode fieldMetadataNode){
-            String result;
-            if(jsonPathContext==null)
-                jsonPathContext = JsonPath.parse(json.toString());
+            String result="n/a";
             try {
-                List<String> resultData = jsonPathContext.read(json.get("jpath").asText());
-                result = String.join(",", resultData);
-            }catch (ClassCastException e){
-                result = jsonPathContext.read(json.get("jpath").asText());
+                if (jsonPathContext == null)
+                    jsonPathContext = JsonPath.parse(json.toString());
+                try {
+                    List<String> resultData = jsonPathContext.read(fieldMetadataNode.get("jpath").asText());
+                    result = String.join(",", resultData);
+                } catch (ClassCastException e) {
+                    result = jsonPathContext.read(json.get("jpath").asText());
+                }
+            }catch (NullPointerException e){
+                //it means this document has no value for this field so do nothing
             }
             valueMap.put(fieldMetadataNode.get("name").asText(), result);
         }
