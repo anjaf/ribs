@@ -25,5 +25,9 @@
   [
     {"name":"expFactor", "title":"Experimental Factor", "fieldType":"facet", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"", "jpath":""},
     {"name":"exp", "title":"Experimental Factor", "fieldType":"str_untokenized", "isRetrived":"true", "isExpand":"false", "isSort":"false", "analyzer":"AttributeFieldAnalyzer", "jpath":""}
+  ],
+  "europepmc":
+  [
+    {"name":"fund", "title":"Funding Agency", "fieldType":"facet", "isRetrived":"false", "isExpand":"false", "isSort":"false", "analyzer":"", "jpath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value"}
   ]
 }
