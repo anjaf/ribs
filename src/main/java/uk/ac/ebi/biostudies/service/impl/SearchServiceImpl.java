@@ -151,10 +151,14 @@ public class SearchServiceImpl implements SearchService {
         ObjectNode response = mapper.createObjectNode();
         SortField.Type sortFieldType = extractFieldType(sortBy);
         boolean shouldReverse = extractSortOrder(sortOrder, sortBy);
-
-        SortField sortField = sortFieldType==SortField.Type.LONG
-                ? new SortedNumericSortField (sortBy, sortFieldType, shouldReverse)
-                : new SortField(sortBy, sortFieldType, shouldReverse);
+        SortField sortField;
+        if(sortBy.equalsIgnoreCase(Constants.RELEVANCE))
+            sortField = new SortField (null, SortField.Type.SCORE, shouldReverse);
+        else {
+            sortField = sortFieldType == SortField.Type.LONG
+                    ? new SortedNumericSortField(sortBy, sortFieldType, shouldReverse)
+                    : new SortField(sortBy, sortFieldType, shouldReverse);
+        }
         Sort sort = new Sort( sortField );
 
         try {
@@ -209,7 +213,9 @@ public class SearchServiceImpl implements SearchService {
 
     private SortField.Type extractFieldType(String sortBy){
         try{
-            if(!sortBy.isEmpty()) {
+            if(sortBy == null || sortBy.isEmpty() || sortBy.equalsIgnoreCase("relevance"))
+                return SortField.Type.LONG;
+            else{
                 BioStudiesField field = BioStudiesField.valueOf(sortBy.toUpperCase());
                 return field.getType().toString().toLowerCase().contains("string") ? SortField.Type.STRING : SortField.Type.LONG;
             }
