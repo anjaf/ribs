@@ -248,7 +248,7 @@ public class ConfigurableIndexService implements IndexService {
                 if(indexManager.indexDetails.findValue(project.toLowerCase())!=null && json.has("section") && json.get("section").has("attributes")) {
                     JsonNode attNodes = json.get("section").get("attributes");
                     for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(project.toLowerCase())){
-                            if(fieldMetadataNode.get("jpath").asText().isEmpty()){
+                            if( !fieldMetadataNode.has("jpath") || fieldMetadataNode.get("jpath").asText().isEmpty()){
                                 value = StreamSupport.stream(attNodes.spliterator(), false)
                                         .filter(jsonNode ->
                                                 jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase(fieldMetadataNode.get("title").asText()))
@@ -306,7 +306,7 @@ public class ConfigurableIndexService implements IndexService {
                             value = String.valueOf(valueMap.get(field));
                             Field unTokenizeField = new Field(String.valueOf(field), value, BioStudiesFieldType.TYPE_NOT_ANALYZED);
                             doc.add(unTokenizeField);
-                            if(curNode.get("isSort")!=null && curNode.get("isSort").textValue().equalsIgnoreCase("true"))
+                            if(curNode.has ("isSortable") && curNode.get("isSortable").textValue().equalsIgnoreCase("true"))
                                 doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef( valueMap.get(field).toString())));
                             break;
                         case "long":

@@ -177,7 +177,7 @@ public class SearchServiceImpl implements SearchService {
                     Document doc = reader.document(hits.scoreDocs[i].doc);
                     for (String field : indexManager.getAllValidFields().keySet()) {
                         JsonNode fieldData = indexManager.getAllValidFields().get(field);
-                        if (fieldData.get("isRetrived").asText().equalsIgnoreCase("false")) continue;
+                        if (fieldData.get("isRetrieved").asText().equalsIgnoreCase("false")) continue;
                         switch (fieldData.get("fieldType").asText()) {
                             case "long":
                                 docNode.put(field, Long.parseLong(doc.get(field)));
