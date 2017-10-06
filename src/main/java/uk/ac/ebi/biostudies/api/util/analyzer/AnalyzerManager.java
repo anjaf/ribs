@@ -25,8 +25,8 @@ public class AnalyzerManager {
     public void init(Map<String, JsonNode> allFields){
         for(String key:allFields.keySet()){
             JsonNode curField = allFields.get(key);
-            String analyzer = curField.get("analyzer").asText();
-            String expand = curField.get("isExpand").asText();
+            String analyzer = curField.has("analyzer") ? curField.get("analyzer").asText() : null;
+            String expand = curField.get("isExpanded").asText();
             if(analyzer!=null && !analyzer.isEmpty()) {
                 analyzer="uk.ac.ebi.biostudies.api.util.analyzer."+analyzer;
                 Class<?> clazz = null;
