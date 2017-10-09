@@ -41,7 +41,7 @@ public class TaxonomyManager {
     public void init(){
         facetsConfig = new FacetsConfig();
         //TODO delete this
-        facetsConfig.setMultiValued("fund", true);
+        facetsConfig.setMultiValued("fundingagency", true);
         for(BioStudiesField bioStudiesField:BioStudiesField.values())
             if(bioStudiesField.getType()== BioStudiesFieldType.FACET)
                 if(bioStudiesField.isExpand())

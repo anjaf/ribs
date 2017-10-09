@@ -29,7 +29,8 @@ public enum BioStudiesField {
     DATATYPE("dataType", "Data Type", BioStudiesFieldType.FACET, false, true, false, null),
     COMPOUND("compound", "Compound", BioStudiesFieldType.FACET, false, true, false, null),
     RAWPROCESSED("rawProcessed", "Raw/Processed", BioStudiesFieldType.FACET, false, true, false, null),
-    EXPRIMENTFACTOR("expFactor", "Experimental Factor", BioStudiesFieldType.FACET, false, true, false, null)
+    EXPRIMENTFACTOR("expFactor", "Experimental Factor", BioStudiesFieldType.FACET, false, true, false, null),
+    FUNDING_AGENCY("fundingagency", "Funding Agency", BioStudiesFieldType.FACET, false, true, false, null)
     ;
 
     private final String name;

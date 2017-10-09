@@ -104,7 +104,10 @@ function showError(error) {
 function showProjectBanner(data) {
     var templateSource = $('script#project-banner-template').html();
     var template = Handlebars.compile(templateSource);
-    var projectObj={logo:contextPath+'/files/'+data.accno+'/'+data.section.files[0][0].path};
+    var projectObj={};
+    try {
+        projectObj = {logo: contextPath + '/files/' + data.accno + '/' + data.section.files[0][0].path};
+    } catch(e){}
     $(data.section.attributes).each(function () {
         projectObj[this.name.toLowerCase()] = this.value
     })
