@@ -19,6 +19,7 @@ import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.service.FacetService;
+import uk.ac.ebi.biostudies.service.TextService;
 
 import java.io.IOException;
 import java.util.*;
@@ -38,8 +39,8 @@ public class FacetServiceImpl implements FacetService {
     TaxonomyManager taxonomyManager;
     @Autowired
     SecurityQueryBuilder securityQueryBuilder;
-
-
+    @Autowired
+    TextService textService;
     private JsonNode hecatosFacets;
 
 
@@ -91,7 +92,7 @@ public class FacetServiceImpl implements FacetService {
             List<ObjectNode> children = new ArrayList<>();
             for(LabelAndValue labelVal :fcResult.labelValues){
                 ObjectNode child = mapper.createObjectNode();
-                child.put("name", labelVal.label);
+                child.put("name",  textService.getNormalisedString(labelVal.label));
                 child.put("hits", labelVal.value.intValue());
                 children.add(child);
             }
