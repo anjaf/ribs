@@ -68,9 +68,11 @@ public class SearchServiceImpl implements SearchService {
 
     private static Query excludeCompound;
     private static QueryParser parser;
+
     @PostConstruct
     void init(){
         parser = new QueryParser(BioStudiesField.TYPE.toString(), BioStudiesField.TYPE.getAnalyzer());
+        parser.setSplitOnWhitespace(true);
         try {
             excludeCompound = parser.parse("type:compound");
         } catch (ParseException e) {
@@ -107,6 +109,7 @@ public class SearchServiceImpl implements SearchService {
 
     private Query applyFacets(Query query, JsonNode facets, String prjName){
         QueryParser searchPrjParser = new QueryParser(BioStudiesField.PROJECT.toString(), BioStudiesField.PROJECT.getAnalyzer());
+        searchPrjParser.setSplitOnWhitespace(true);
         BooleanQuery.Builder bqBuilder = new BooleanQuery.Builder();
         bqBuilder.add(query, BooleanClause.Occur.MUST);
         try {
@@ -164,7 +167,7 @@ public class SearchServiceImpl implements SearchService {
         try {
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
             int hitsPerPage = pageSize;
-            int to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
+            long to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
             response.put("page", page);
             response.put("pageSize", hitsPerPage);
             response.put("totalHits", hits.totalHits);
@@ -242,6 +245,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public boolean isAccessible(String accession) {
         QueryParser parser = new QueryParser(BioStudiesField.ACCESSION.toString(), BioStudiesField.ACCESSION.getAnalyzer());
+        parser.setSplitOnWhitespace(true);
         Query query = null;
         try {
             query = parser.parse(BioStudiesField.ACCESSION.toString()+":"+accession);
@@ -264,6 +268,7 @@ public class SearchServiceImpl implements SearchService {
         }
         Analyzer analyzer = analyzerManager.getPerFieldAnalyzerWrapper();
         QueryParser parser = new BioStudiesQueryParser(fields, analyzer);
+        parser.setSplitOnWhitespace(true);
         ObjectNode response = mapper.createObjectNode();
         try {
             logger.debug("User queryString: {}",queryString);

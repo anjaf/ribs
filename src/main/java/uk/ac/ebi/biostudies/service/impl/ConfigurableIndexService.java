@@ -132,6 +132,7 @@ public class ConfigurableIndexService implements IndexService {
         if(accession==null || accession.isEmpty())
             return;
         QueryParser parser = new QueryParser(BioStudiesField.ACCESSION.toString(), BioStudiesField.ACCESSION.getAnalyzer());
+        parser.setSplitOnWhitespace(true);
         String strquery = BioStudiesField.ACCESSION.toString()+":"+accession;
         Query query = parser.parse(strquery);
         indexManager.getIndexWriter().deleteDocuments(query);

@@ -21,6 +21,7 @@ public class SecurityQueryBuilder {
 
     public Query applySecurity(Query originalQuery) throws Throwable {
         QueryParser queryParser = new QueryParser(BioStudiesField.ACCESS.toString(), BioStudiesField.ACCESS.getAnalyzer());
+        queryParser.setSplitOnWhitespace(true);
         BooleanQuery.Builder queryBilder = new BooleanQuery.Builder();
         StringBuilder securityClause= new StringBuilder();
         User currentUser = Session.getCurrentUser();

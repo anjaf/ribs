@@ -50,7 +50,7 @@ public class FacetServiceImpl implements FacetService {
         List<FacetResult> allResults = new ArrayList();
         try {
             query = securityQueryBuilder.applySecurity(query);
-            FacetsCollector.search(indexManager.getIndexSearcher(), query, 10, facetsCollector);
+            FacetsCollector.search(indexManager.getIndexSearcher(), query, 20, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             for (BioStudiesField field:BioStudiesField.values()) {
                 if(field.getType()== BioStudiesFieldType.FACET) {
@@ -69,6 +69,7 @@ public class FacetServiceImpl implements FacetService {
     @Override
     public JsonNode getDefaultFacetTemplate(String prjName){
         QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), new SimpleAnalyzer());
+        qp.setSplitOnWhitespace(true);
         Query query = null;
         try {
             query = qp.parse(BioStudiesField.PROJECT+":"+prjName);
