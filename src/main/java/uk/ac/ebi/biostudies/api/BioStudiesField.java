@@ -30,7 +30,7 @@ public enum BioStudiesField {
     COMPOUND("compound", "Compound", BioStudiesFieldType.FACET, false, true, false, null),
     RAWPROCESSED("rawProcessed", "Raw/Processed", BioStudiesFieldType.FACET, false, true, false, null),
     EXPRIMENTFACTOR("expFactor", "Experimental Factor", BioStudiesFieldType.FACET, false, true, false, null),
-    FUNDING_AGENCY("fundingagency", "Funding Agency", BioStudiesFieldType.FACET, false, true, false, null)
+    FUNDINGAGENCY("fundingagency", "Funding Agency", BioStudiesFieldType.FACET, false, true, false, null)
     ;
 
     private final String name;
