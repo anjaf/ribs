@@ -84,7 +84,6 @@ ul#search-results li {
 
 .facet-label {
     display: initial;
-    word-break: break-all;
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;

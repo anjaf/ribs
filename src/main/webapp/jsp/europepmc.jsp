@@ -5,6 +5,12 @@
 <t:generic>
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/search.css" type="text/css">
+        <style>
+            .facet-label , .facet-label span{
+                text-transform: uppercase;
+                font-size: 9pt;
+            }
+        </style>
     </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
         <ul class="breadcrumbs">
