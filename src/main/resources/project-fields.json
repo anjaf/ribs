@@ -15,18 +15,18 @@
   ],
   "hecatos":
   [
-    {"name":"organ", "title":"Organ", "fieldType":"facet", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
-    {"name":"technology", "title":"Assay Technology Type", "fieldType":"facet", "isRetrieved":"false", "isExpanded":"false", "isSortable":"true"},
-    {"name":"dataType", "title":"Data Type", "fieldType":"facet", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
-    {"name":"compound", "title":"Compound", "fieldType":"facet", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
-    {"name":"rawProcessed", "title":"Raw/Processed", "fieldType":"facet", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"}
+    {"name":"organ", "title":"Organ", "fieldType":"facet", "multiValued":"true"},
+    {"name":"technology", "title":"Assay Technology Type", "fieldType":"facet", "multiValued":"true"},
+    {"name":"dataType", "title":"Data Type", "fieldType":"facet", "multiValued":"true"},
+    {"name":"compound", "title":"Compound", "fieldType":"facet", "multiValued":"true"},
+    {"name":"rawProcessed", "title":"Raw/Processed", "fieldType":"facet", "multiValued":"true"}
   ],
   "arrayexpress":
   [
-    {"name":"expFactor", "title":"Experimental Factor", "fieldType":"facet", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
+    {"name":"expFactor", "title":"Experimental Factor", "fieldType":"facet", "multiValued":"true"},
     {"name":"exp", "title":"Experimental Factor", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"false", "analyzer":"AttributeFieldAnalyzer"}
   ],
   "europepmc": [
-    {"name":"fundingagency", "title":"Funding Agency", "fieldType":"facet", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false", "jpath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value"}
+    {"name":"fundingagency", "title":"Funding Agency", "fieldType":"facet", "jpath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":"true"}
   ]
 }

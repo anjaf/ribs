@@ -25,6 +25,8 @@ public class AnalyzerManager {
     public void init(Map<String, JsonNode> allFields){
         for(String key:allFields.keySet()){
             JsonNode curField = allFields.get(key);
+            if(curField.get("fieldType").asText().equalsIgnoreCase("facet"))
+                continue;
             String analyzer = curField.has("analyzer") ? curField.get("analyzer").asText() : null;
             String expand = curField.get("isExpanded").asText();
             if(analyzer!=null && !analyzer.isEmpty()) {
