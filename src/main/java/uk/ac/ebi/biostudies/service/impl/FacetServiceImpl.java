@@ -14,8 +14,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostudies.api.BioStudiesField;
-import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.service.FacetService;
@@ -52,9 +51,9 @@ public class FacetServiceImpl implements FacetService {
             query = securityQueryBuilder.applySecurity(query);
             FacetsCollector.search(indexManager.getIndexSearcher(), query, 20, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
-            for (BioStudiesField field:BioStudiesField.values()) {
-                if(field.getType()== BioStudiesFieldType.FACET) {
-                    allResults.add(facets.getTopChildren(20, field.toString()));
+            for (JsonNode field:indexManager.getAllValidFields().values()) {
+                if(field.get("fieldType").asText().equalsIgnoreCase("facet")) {
+                    allResults.add(facets.getTopChildren(20, field.get("name").asText()));
                 }
             }
         } catch (IOException e) {
@@ -68,11 +67,11 @@ public class FacetServiceImpl implements FacetService {
 
     @Override
     public JsonNode getDefaultFacetTemplate(String prjName){
-        QueryParser qp = new QueryParser(BioStudiesField.PROJECT.toString(), new SimpleAnalyzer());
+        QueryParser qp = new QueryParser(Constants.PROJECT, new SimpleAnalyzer());
         qp.setSplitOnWhitespace(true);
         Query query = null;
         try {
-            query = qp.parse(BioStudiesField.PROJECT+":"+prjName);
+            query = qp.parse(Constants.PROJECT+":"+prjName);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -86,7 +85,6 @@ public class FacetServiceImpl implements FacetService {
             if(!validFacets.contains(fcResult.dim))
                 continue;
             ObjectNode facet = mapper.createObjectNode();
-            //BioStudiesField field = BioStudiesField.getFacet(fcResult.dim);
             JsonNode facetNode = indexManager.getAllValidFields().get(fcResult.dim);
             facet.put("title", facetNode.get("title").asText());
             facet.put("name", facetNode.get("name").asText());
@@ -109,15 +107,15 @@ public class FacetServiceImpl implements FacetService {
 
 
     @Override
-    public Query addFacetDrillDownFilters(Query primaryQuery, Map<BioStudiesField, List<String>> userSelectedDimValues){
+    public Query addFacetDrillDownFilters(Query primaryQuery, Map<JsonNode, List<String>> userSelectedDimValues){
         DrillDownQuery drillDownQuery = new DrillDownQuery(taxonomyManager.getFacetsConfig(), primaryQuery);
-        for(BioStudiesField facet: userSelectedDimValues.keySet()) {
-            if (facet==null || facet.getType() != BioStudiesFieldType.FACET)
+        for(JsonNode facet: userSelectedDimValues.keySet()) {
+            if (facet==null || !facet.get("fieldType").asText().equalsIgnoreCase("facet"))
                 continue;
             List<String> listSelectedValues = userSelectedDimValues.get(facet);
             if(listSelectedValues!=null)
                 for(String value:listSelectedValues)
-                    drillDownQuery.add(facet.toString(), value);
+                    drillDownQuery.add(facet.get("name").asText(), value.toLowerCase());
         }
         return drillDownQuery;
     }

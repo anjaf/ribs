@@ -17,6 +17,7 @@
 
 package uk.ac.ebi.biostudies.efo;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.index.*;
@@ -26,8 +27,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.arrayexpress.utils.efo.EFONode;
 import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
-import uk.ac.ebi.biostudies.api.BioStudiesField;
-import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
 import uk.ac.ebi.biostudies.efo.autocompletion.AutocompleteData;
 import uk.ac.ebi.biostudies.efo.autocompletion.AutocompleteStore;
 import uk.ac.ebi.biostudies.config.IndexManager;
@@ -117,17 +116,17 @@ public class Autocompletion {
 
     public void rebuild() throws IOException {
         getStore().clear();
-        List<BioStudiesField> numericalFieldNameTitle = new ArrayList();
+        List<JsonNode> numericalFieldNameTitle = new ArrayList();
         //Add the fields that you want autoComplete be Applied
-        for(BioStudiesField bsField:BioStudiesField.values()) {
-            if(bsField.isExpand())
+        for(JsonNode bsField:indexManager.getAllValidFields().values()) {
+            if(bsField.has("isExpanded") && bsField.get("isExpanded").asBoolean()==true)
                 numericalFieldNameTitle.add(bsField);
         }
 
         // adding field terms (for all non-numerical fields) and names (if there is a description)
-        for (BioStudiesField field : numericalFieldNameTitle) {
-            String fieldTitle = field.toString();
-            String fieldName = field.toString();
+        for (JsonNode field : numericalFieldNameTitle) {
+            String fieldTitle = field.get("name").asText();
+            String fieldName = fieldTitle;
             if (null != fieldTitle && fieldTitle.length() > 0) {
                 getStore().addData(
                         new AutocompleteData(
@@ -137,8 +136,8 @@ public class Autocompletion {
                         )
                 );
             }
-            BioStudiesFieldType fieldType = field.getType();
-            if (fieldType!=BioStudiesFieldType.LONG) {
+            String fieldType = field.get("fieldType").asText();
+            if (fieldType.equalsIgnoreCase("str_tokenized")) {
                 List<String> terms = getTerms(fieldName, "content".equals(fieldName) ? 10 : 1);
                 for (String term : terms ) {
                     getStore().addData(

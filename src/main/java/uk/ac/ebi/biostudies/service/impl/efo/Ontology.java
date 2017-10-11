@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.arrayexpress.utils.efo.EFOLoader;
 import uk.ac.ebi.arrayexpress.utils.efo.EFONode;
 import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
-import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.efo.*;
 import uk.ac.ebi.biostudies.config.EFOConfig;
 

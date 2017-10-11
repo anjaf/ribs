@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.*;
 import org.apache.lucene.facet.FacetField;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -19,9 +20,8 @@ import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostudies.api.BioStudiesField;
-import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
 import uk.ac.ebi.biostudies.api.util.Constants;
+import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.schedule.jobs.ReloadOntologyJob;
@@ -50,6 +50,13 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 @Scope("singleton")
 
 public class ConfigurableIndexService implements IndexService {
+
+    public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
+    static {
+        TYPE_NOT_ANALYZED.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
+        TYPE_NOT_ANALYZED.setTokenized(false);
+        TYPE_NOT_ANALYZED.setStored(true);
+    }
 
     private Logger logger = LogManager.getLogger(ConfigurableIndexService.class.getName());
 
@@ -131,9 +138,9 @@ public class ConfigurableIndexService implements IndexService {
     public void deleteDoc(String accession) throws Exception{
         if(accession==null || accession.isEmpty())
             return;
-        QueryParser parser = new QueryParser(BioStudiesField.ACCESSION.toString(), BioStudiesField.ACCESSION.getAnalyzer());
+        QueryParser parser = new QueryParser(Constants.ACCESSION, new AttributeFieldAnalyzer());
+        String strquery = Constants.ACCESSION+":"+accession;
         parser.setSplitOnWhitespace(true);
-        String strquery = BioStudiesField.ACCESSION.toString()+":"+accession;
         Query query = parser.parse(strquery);
         indexManager.getIndexWriter().deleteDocuments(query);
         indexManager.getIndexWriter().commit();
@@ -183,14 +190,14 @@ public class ConfigurableIndexService implements IndexService {
 
         @Override
         public void run() {
-            Map<String, Object> valueMap = new HashMap<>(BioStudiesField.values().length);
+            Map<String, Object> valueMap = new HashMap<>();
             try {
-                valueMap.put( BioStudiesField.ID.toString(), json.get("accno").textValue() );
-                valueMap.put( BioStudiesField.ACCESSION.toString(), valueMap.get(BioStudiesField.ID.toString()));
-                valueMap.put( BioStudiesField.TYPE.toString(), json.get("section").get("type").textValue().toLowerCase());
-                valueMap.put( BioStudiesField.TITLE.toString(), getTitle(json, (String)valueMap.get(BioStudiesField.ACCESSION.toString())));
+                valueMap.put( Constants.ID, json.get("accno").textValue() );
+                valueMap.put( Constants.ACCESSION, valueMap.get(Constants.ID));
+                valueMap.put( Constants.TYPE, json.get("section").get("type").textValue().toLowerCase());
+                valueMap.put( Constants.TITLE, getTitle(json, (String)valueMap.get(Constants.ACCESSION)));
 
-                valueMap.put( BioStudiesField.FILES.toString(), json.findValues("files").stream().mapToLong(
+                valueMap.put( Constants.FILES, json.findValues("files").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("path").size()
                         ).sum()
                 );
@@ -201,8 +208,8 @@ public class ConfigurableIndexService implements IndexService {
                 content.append(json.findValues("files").stream().map(jsonNode -> jsonNode.findValuesAsText("path").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
                 content.append(" ");
                 content.append(json.findValues("links").stream().map(jsonNode -> jsonNode.findValuesAsText("url").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
-                valueMap.put( BioStudiesField.CONTENT.toString(), content.toString());
-                valueMap.put( BioStudiesField.LINKS.toString(), json.findValues("links").stream().mapToLong(
+                valueMap.put( Constants.CONTENT, content.toString());
+                valueMap.put( Constants.LINKS, json.findValues("links").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("url").size()
                         ).sum()
                 );
@@ -213,13 +220,13 @@ public class ConfigurableIndexService implements IndexService {
                                     jsonNode.has("type") && jsonNode.get("type").textValue().equalsIgnoreCase("Author") && jsonNode.get("attributes").isArray() && jsonNode.get("attributes").get(0).get("name").asText().equalsIgnoreCase("Name"))
                             .map(authorNode -> authorNode.get("attributes").get(0).get("value").asText()).collect(Collectors.joining(", "));
                 }
-                valueMap.put( BioStudiesField.AUTHORS.toString(), author);
+                valueMap.put( Constants.AUTHORS, author);
 
                 String access = !json.has("accessTags") ? "" :
                         StreamSupport.stream(json.get("accessTags").spliterator(),false)
                                 .map( s-> s.textValue())
                                 .collect(Collectors.joining(" "));
-                valueMap.put( BioStudiesField.ACCESS.toString(), access.replaceAll("~", ""));
+                valueMap.put( Constants.ACCESS, access.replaceAll("~", ""));
 
                 String value="";
 
@@ -228,11 +235,11 @@ public class ConfigurableIndexService implements IndexService {
                     releaseDateLong = Long.valueOf(json.get("rtime").asText())*1000;
                 if(releaseDateLong==0L) {
                     Calendar calendar = Calendar.getInstance();
-                    if(!String.valueOf(valueMap.get(BioStudiesField.ACCESS)).contains("public"))
+                    if(!String.valueOf(valueMap.get(Constants.ACCESS)).contains("public"))
                         calendar.set(2050, 0, 1);
                     releaseDateLong = calendar.getTimeInMillis();
                 }
-                valueMap.put(BioStudiesField.RELEASE_DATE.toString(), DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
+                valueMap.put(Constants.RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
 
                 String project = "";
                 if(json.has("attributes")) {
@@ -242,7 +249,7 @@ public class ConfigurableIndexService implements IndexService {
                             .map(s -> s.get("value").textValue())
                             .collect(Collectors.joining(","));
                 }
-                valueMap.put(BioStudiesField.PROJECT.toString(), project);
+                valueMap.put(Constants.PROJECT, project);
 
                 //extract facets
                 ReadContext jsonPathContext = null;
@@ -305,7 +312,7 @@ public class ConfigurableIndexService implements IndexService {
                             break;
                         case "str_untokenized":
                             value = String.valueOf(valueMap.get(field));
-                            Field unTokenizeField = new Field(String.valueOf(field), value, BioStudiesFieldType.TYPE_NOT_ANALYZED);
+                            Field unTokenizeField = new Field(String.valueOf(field), value, TYPE_NOT_ANALYZED);
                             doc.add(unTokenizeField);
                             if(curNode.has ("isSortable") && curNode.get("isSortable").textValue().equalsIgnoreCase("true"))
                                 doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef( valueMap.get(field).toString())));
@@ -318,14 +325,14 @@ public class ConfigurableIndexService implements IndexService {
                             addFacet(String.valueOf(valueMap.get(field)), field, doc);
                     }
                 }catch(Exception ex){
-                    logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(BioStudiesField.ACCESSION.toString())), ex);
+                    logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(Constants.ACCESSION)), ex);
                 }
 
 
             }
 
             Document facetedDocument = taxonomyManager.getFacetsConfig().build(taxonomyManager.getTaxonomyWriter() ,doc);
-            writer.updateDocument(new Term(BioStudiesField.ID.toString(), valueMap.get(BioStudiesField.ACCESSION.toString()).toString()), facetedDocument);
+            writer.updateDocument(new Term(Constants.ID, valueMap.get(Constants.ACCESSION).toString()), facetedDocument);
 
         }
 

@@ -10,20 +10,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.queryparser.simple.SimpleQueryParser;
 import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import uk.ac.ebi.biostudies.api.BioStudiesField;
 import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
+import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.efo.EFOExpandedHighlighter;
 import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
@@ -71,7 +69,7 @@ public class SearchServiceImpl implements SearchService {
 
     @PostConstruct
     void init(){
-        parser = new QueryParser(BioStudiesField.TYPE.toString(), BioStudiesField.TYPE.getAnalyzer());
+        parser = new QueryParser(Constants.TYPE, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         try {
             excludeCompound = parser.parse("type:compound");
@@ -108,18 +106,18 @@ public class SearchServiceImpl implements SearchService {
     }
 
     private Query applyFacets(Query query, JsonNode facets, String prjName){
-        QueryParser searchPrjParser = new QueryParser(BioStudiesField.PROJECT.toString(), BioStudiesField.PROJECT.getAnalyzer());
+        QueryParser searchPrjParser = new QueryParser(Constants.PROJECT, new AttributeFieldAnalyzer());
         searchPrjParser.setSplitOnWhitespace(true);
         BooleanQuery.Builder bqBuilder = new BooleanQuery.Builder();
         bqBuilder.add(query, BooleanClause.Occur.MUST);
         try {
-            String prjSearch = "("+BioStudiesField.PROJECT+":"+prjName+")";
+            String prjSearch = "("+Constants.PROJECT+":"+prjName+")";
             Query searchInPrj = searchPrjParser.parse(prjSearch);
             bqBuilder.add(searchInPrj, BooleanClause.Occur.MUST);
         } catch (ParseException e) {
             logger.debug(e);
         }
-        Map<BioStudiesField, List<String>> selectedFacets = new HashMap<>();
+        Map<JsonNode, List<String>> selectedFacets = new HashMap<>();
         if(facets!=null){
             Iterator<String> fieldNamesIterator = facets.fieldNames();
             String dim="";
@@ -128,7 +126,7 @@ public class SearchServiceImpl implements SearchService {
                     dim = fieldNamesIterator.next();
                     if(dim==null)
                         continue;
-                    BioStudiesField field = BioStudiesField.valueOf(dim.toUpperCase());
+                    JsonNode field = indexManager.getAllValidFields().get(dim);
                     JsonNode arrNode = facets.get(dim);
                     List<String> facetNames = new ArrayList<>();
                     if(arrNode==null)
@@ -180,7 +178,7 @@ public class SearchServiceImpl implements SearchService {
                     Document doc = reader.document(hits.scoreDocs[i].doc);
                     for (String field : indexManager.getAllValidFields().keySet()) {
                         JsonNode fieldData = indexManager.getAllValidFields().get(field);
-                        if (fieldData.get("isRetrieved").asText().equalsIgnoreCase("false")) continue;
+                        if (!fieldData.has("isRetrieved") || fieldData.get("isRetrieved").asText().equalsIgnoreCase("false")) continue;
                         switch (fieldData.get("fieldType").asText()) {
                             case "long":
                                 docNode.put(field, Long.parseLong(doc.get(field)));
@@ -191,13 +189,13 @@ public class SearchServiceImpl implements SearchService {
                         }
                     }
                     docNode.put("isPublic",
-                            (" " + doc.get(String.valueOf(BioStudiesField.ACCESS) + " ")).toLowerCase().contains(" public ")
+                            (" " + doc.get(Constants.ACCESS + " ")).toLowerCase().contains(" public ")
                     );
 
                     if (doHighlight) {
-                        docNode.put(String.valueOf(BioStudiesField.CONTENT),
-                                efoExpandedHighlighter.highlightQuery(query, BioStudiesField.CONTENT.toString(),
-                                        doc.get(BioStudiesField.CONTENT.toString()),
+                        docNode.put(Constants.CONTENT,
+                                efoExpandedHighlighter.highlightQuery(query, Constants.CONTENT,
+                                        doc.get(Constants.CONTENT),
                                         true
                                 )
                         );
@@ -219,8 +217,8 @@ public class SearchServiceImpl implements SearchService {
             if(sortBy == null || sortBy.isEmpty() || sortBy.equalsIgnoreCase("relevance"))
                 return SortField.Type.LONG;
             else{
-                BioStudiesField field = BioStudiesField.valueOf(sortBy.toUpperCase());
-                return field.getType().toString().toLowerCase().contains("string") ? SortField.Type.STRING : SortField.Type.LONG;
+                JsonNode field = indexManager.getAllValidFields().get(sortBy.toLowerCase());
+                return field.get("fieldType").asText().toLowerCase().contains("str") ? SortField.Type.STRING : SortField.Type.LONG;
             }
         }
         catch (Exception e){
@@ -244,11 +242,11 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public boolean isAccessible(String accession) {
-        QueryParser parser = new QueryParser(BioStudiesField.ACCESSION.toString(), BioStudiesField.ACCESSION.getAnalyzer());
+        QueryParser parser = new QueryParser(Constants.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         Query query = null;
         try {
-            query = parser.parse(BioStudiesField.ACCESSION.toString()+":"+accession);
+            query = parser.parse(Constants.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query);
             return indexManager.getIndexSearcher().count(result)>0;
         } catch (Throwable ex){

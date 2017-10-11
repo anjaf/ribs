@@ -87,7 +87,7 @@ public class IndexManager {
                 efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
             efoIndexReader = DirectoryReader.open(efoIndexWriter);
             efoIndexSearcher = new IndexSearcher(getEfoIndexReader());
-            taxonomyManager.init();
+            taxonomyManager.init(AllFields.values());
             autocompletion.rebuild();
 
         }catch (Throwable error){

@@ -7,7 +7,8 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostudies.api.BioStudiesField;
+import uk.ac.ebi.biostudies.api.util.Constants;
+import uk.ac.ebi.biostudies.api.util.analyzer.AccessFieldAnalyzer;
 import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.auth.User;
 
@@ -20,7 +21,7 @@ public class SecurityQueryBuilder {
     private Logger logger = LogManager.getLogger(SecurityQueryBuilder.class.getName());
 
     public Query applySecurity(Query originalQuery) throws Throwable {
-        QueryParser queryParser = new QueryParser(BioStudiesField.ACCESS.toString(), BioStudiesField.ACCESS.getAnalyzer());
+        QueryParser queryParser = new QueryParser(Constants.ACCESS, new AccessFieldAnalyzer());
         queryParser.setSplitOnWhitespace(true);
         BooleanQuery.Builder queryBilder = new BooleanQuery.Builder();
         StringBuilder securityClause= new StringBuilder();

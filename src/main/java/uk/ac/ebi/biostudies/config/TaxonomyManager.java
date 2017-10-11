@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostudies.config;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.facet.FacetsConfig;
@@ -13,11 +14,10 @@ import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostudies.api.BioStudiesField;
-import uk.ac.ebi.biostudies.api.BioStudiesFieldType;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 
 /**
  * Created by ehsan on 09/03/2017.
@@ -38,14 +38,13 @@ public class TaxonomyManager {
 //    @Autowired //to force spring first init main index readers then begin creating taxonomy readers
 //    IndexManager indexManager;
 
-    public void init(){
+    public void init(Collection<JsonNode> allFields){
         facetsConfig = new FacetsConfig();
-        //TODO delete this
-        facetsConfig.setMultiValued("fundingagency", true);
-        for(BioStudiesField bioStudiesField:BioStudiesField.values())
-            if(bioStudiesField.getType()== BioStudiesFieldType.FACET)
-                if(bioStudiesField.isExpand())
-                    getFacetsConfig().setMultiValued(bioStudiesField.toString(), true);
+
+        for(JsonNode jsonNode : allFields)
+            if(jsonNode.get("fieldType").textValue().equalsIgnoreCase("facet"))
+                if(jsonNode.get("multiValued").asBoolean() == true)
+                    getFacetsConfig().setMultiValued(jsonNode.get("name").asText(), true);
 
         try {
             taxoDirectory = FSDirectory.open(new File(indexConfig.getFacetDirectory()).toPath());

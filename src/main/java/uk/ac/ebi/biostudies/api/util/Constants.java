@@ -20,4 +20,10 @@ public interface Constants {
     String STUDIES_JSON_FILE = "studies.json";
     String JSON_UNICODE_MEDIA_TYPE = MediaType.APPLICATION_JSON_UTF8_VALUE;
     String STRING_UNICODE_MEDIA_TYPE = MediaType.TEXT_PLAIN_VALUE+";charset=UTF-8";
+    String ID = "id";
+    String TYPE = "type";
+    String CONTENT = "content";
+    String ACCESS = "access";
+    String PROJECT = "project";
+
 }

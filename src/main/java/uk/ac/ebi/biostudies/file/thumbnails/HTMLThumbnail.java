@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class HTMLThumbnail implements IThumbnail{
 
@@ -40,7 +41,7 @@ public class HTMLThumbnail implements IThumbnail{
     }
     @Override
     public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException{
-        String html = FileUtils.readFileToString(new File(sourceFilePath));
+        String html = FileUtils.readFileToString(new File(sourceFilePath), StandardCharsets.UTF_8);
         JEditorPane jep = new JEditorPane("text/html", html) {
             @Override
             public boolean getScrollableTracksViewportWidth()
