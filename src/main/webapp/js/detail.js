@@ -946,10 +946,7 @@ function updateSelectedFiles(inc)
                 : selectedFilesCount>1 ? ' all '+selectedFilesCount : ''));
     }
 
-    if (selectedFilesCount==totalRows)
-        $("#select-all-files").prop('checked', true);
-    else
-        $("#select-all-files").removeProp('checked');
+    $("#select-all-files").prop('checked', selectedFilesCount==totalRows);
 
 }
 
