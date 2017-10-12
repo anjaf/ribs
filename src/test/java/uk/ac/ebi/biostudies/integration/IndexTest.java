@@ -45,7 +45,7 @@ public class IndexTest {
     public void BTestIndexing() throws Exception {
         TestUtils.login(integProps.getBaseUrl(), integProps.getUsername(), integProps.getPassword());
         IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"api/v1/index/reload/testJson.json");
-        Thread.sleep(10000);
+        Thread.sleep(30000);
         assertTrue(IntegrationTestSuite.driver.getPageSource().contains("Indexing started"));
         TestUtils.validIndexIsloaded(integProps.getBaseUrl());
         TestUtils.logout(integProps.getBaseUrl());
@@ -56,7 +56,7 @@ public class IndexTest {
         IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"api/v1/index/reload/smallJson.json");
         Thread.sleep(10000);
         IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"studies?query=NUMBER12345");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
+        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".accession")));
         assertTrue(IntegrationTestSuite.driver.findElement(By.cssSelector(".accession")).getAttribute("innerText").contains("S-EPMC3343805"));
         TestUtils.logout(integProps.getBaseUrl());
@@ -76,7 +76,7 @@ public class IndexTest {
     public void ETestDeleteDocument() throws Exception{
         TestUtils.login(integProps.getBaseUrl(), integProps.getUsername(), integProps.getPassword());
         IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"api/v1/index/delete/S-EPMC3343805");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
+        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
         IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"studies?query=S-EPMC3343805");
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".alert")));
         assertTrue(IntegrationTestSuite.driver.findElement(By.cssSelector("#renderedContent")).getAttribute("innerText").contains("no results"));
