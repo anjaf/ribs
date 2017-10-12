@@ -62,13 +62,12 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/studies/{accession:.+}").setViewName("detail");
         registry.addViewController("/studies/{accession:.+}/").setViewName("detail");
 
-        registry.addViewController("/hecatos/studies/").setViewName("hecatos");
-        registry.addViewController("/hecatos/studies").setViewName("hecatos");
-        registry.addViewController("/europepmc/studies/").setViewName("europepmc");
-        registry.addViewController("/europepmc/studies").setViewName("europepmc");
-
-
-        registry.addViewController("/{^(hecatos|europepmc)}/studies").setViewName("search");
+        String [] facetedProjects = {"hecatos","europepmc"};
+        for (String project: facetedProjects) {
+            registry.addViewController("/"+project+"/studies/").setViewName("facetedsearch");
+            registry.addViewController("/"+project+"/studies").setViewName("facetedsearch");
+        }
+        registry.addViewController("/{project:.+}/studies").setViewName("search");
 
 
         registry.addViewController("/{project:.+}/studies/{accession:.+}").setViewName("detail");
