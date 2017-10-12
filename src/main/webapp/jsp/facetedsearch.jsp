@@ -5,12 +5,6 @@
 <t:generic>
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/search.css" type="text/css">
-        <style>
-            .facet-label , .facet-label span{
-                text-transform: uppercase;
-                font-size: 9pt;
-            }
-        </style>
     </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
         <ul class="breadcrumbs">
@@ -104,8 +98,8 @@
                         <ul>
                         {{#each children}}
                             <li>
-                                <label class="facet-label" for="{{../name}}:{{name}}">
-                                    <input class="facet-value" type="checkbox" name="facets" value="{{../name}}:{{name}}" id="{{../name}}:{{name}}"/>
+                                <label class="facet-label" for="{{../value}}:{{value}}">
+                                    <input class="facet-value" type="checkbox" name="facets" value="{{../value}}:{{value}}" id="{{../name}}:{{name}}"/>
                                     <span>{{name}}</span>
                                     <span class="facet-hits">({{hits}})</span>
                                 </label>
