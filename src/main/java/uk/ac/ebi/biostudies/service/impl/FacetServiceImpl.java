@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.facet.*;
 import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -15,6 +14,7 @@ import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
+import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.service.FacetService;
@@ -67,7 +67,7 @@ public class FacetServiceImpl implements FacetService {
 
     @Override
     public JsonNode getDefaultFacetTemplate(String prjName){
-        QueryParser qp = new QueryParser(Constants.PROJECT, new SimpleAnalyzer());
+        QueryParser qp = new QueryParser(Constants.PROJECT, new AttributeFieldAnalyzer());
         qp.setSplitOnWhitespace(true);
         Query query = null;
         try {
