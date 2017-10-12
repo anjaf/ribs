@@ -243,7 +243,7 @@ public class SearchTest {
     @Test
     public void testReleasedAscendingSort() throws Exception{
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 4);
+        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
         new Select(driver.findElement(By.id("sort-by"))).selectByVisibleText("Released");
         driver.findElement(By.id("sort-asc")).click();
