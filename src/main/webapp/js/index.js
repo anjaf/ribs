@@ -32,6 +32,11 @@ function registerHelpers() {
         return this.name
     });
 
+    Handlebars.registerHelper('formatNumber', function(s) {
+        return formatNumber(s);
+    });
+
+
     Handlebars.registerHelper('eachStudy', function(key, val, arr, options) {
         var mod = arr.reduce(function(r, i) {
             r[i[key]] = r[i[key]] || [];

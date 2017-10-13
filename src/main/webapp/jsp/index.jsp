@@ -12,7 +12,7 @@
                 <h5 id="studyCountStats">
                     <a href="?query=type:Study" title="Browse BioStudies">
                         <span class="icon icon-functional home-icon-small" id="studiesIcon" data-icon="b"></span>
-                        <span id="studyCount">{{totalHits}} studies</span>
+                        <span id="studyCount">{{formatNumber totalHits}} studies</span>
                     </a>
                 </h5>
                 <h5 id="projectCountStats">

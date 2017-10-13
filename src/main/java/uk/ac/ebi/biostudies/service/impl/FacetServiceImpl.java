@@ -92,6 +92,7 @@ public class FacetServiceImpl implements FacetService {
             for(LabelAndValue labelVal :fcResult.labelValues){
                 ObjectNode child = mapper.createObjectNode();
                 child.put("name",  textService.getNormalisedString(labelVal.label));
+                child.put("value",  labelVal.label);
                 child.put("hits", labelVal.value.intValue());
                 children.add(child);
             }

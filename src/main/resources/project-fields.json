@@ -36,7 +36,7 @@
   [
     {"name":"organ", "title":"Organ", "fieldType":"facet", "multiValued":"true"},
     {"name":"organism", "title":"Organism", "fieldType":"facet", "multiValued":"true"},
-    {"name":"toxicityDomain", "title":"toxicity Domain", "fieldType":"facet", "multiValued":"true"},
+    {"name":"toxicityDomain", "title":"Toxicity Domain", "fieldType":"facet", "multiValued":"true"},
     {"name":"compound", "title":"Compound", "fieldType":"facet", "multiValued":"true"}
   ]
 }
