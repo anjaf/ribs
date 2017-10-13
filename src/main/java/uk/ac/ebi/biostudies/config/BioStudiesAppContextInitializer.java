@@ -1,8 +1,7 @@
-package uk.ac.ebi.biostudies.configuration;
+package uk.ac.ebi.biostudies.config;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 import uk.ac.ebi.biostudies.auth.CookieFilter;
-import uk.ac.ebi.biostudies.auth.AdminFilter;
 
 import javax.servlet.Filter;
 

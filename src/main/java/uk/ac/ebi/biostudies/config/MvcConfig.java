@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostudies.configuration;
+package uk.ac.ebi.biostudies.config;
 
 /**
  * Created by ehsan on 23/02/2017.
@@ -62,7 +62,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/studies/{accession:.+}").setViewName("detail");
         registry.addViewController("/studies/{accession:.+}/").setViewName("detail");
 
-        String [] facetedProjects = {"hecatos","europepmc","eu-toxrisk"}; //TODO: Add to config
+        String [] facetedProjects = {"hecatos","europepmc","eu-toxrisk","arrayexpress"}; //TODO: Add to config
         for (String project: facetedProjects) {
             registry.addViewController("/"+project+"/studies/").setViewName("facetedsearch");
             registry.addViewController("/"+project+"/studies").setViewName("facetedsearch");
