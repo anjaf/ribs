@@ -124,3 +124,7 @@ function showProjectBanner(data) {
     //fix breadcrumbs
     $('ul.breadcrumbs').children().first().next().html('<li><a href="/biostudies/'+project+'/studies">'+projectObj.title+'</a></li>')
 }
+
+function formatNumber(s) {
+    return new Number(s).toLocaleString();
+}

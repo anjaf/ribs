@@ -39,6 +39,7 @@ function showResults(params) {
                     var templateSource = $('script#facet-list-template').html();
                     var template = Handlebars.compile(templateSource);
                     data.selectedFacets = params.facets ? params.facets.split(",") : [];
+                    data.project = project;
                     var html = template(data);
                     $('#facets').html(html);
                     postRenderFacets(data,params);
@@ -57,6 +58,10 @@ function registerHelpers(params) {
         var template = Handlebars.compile($('script#result-template').html());
         o.project = project;
         return template(o);
+    });
+
+    Handlebars.registerHelper('formatNumber', function(s) {
+        return s.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
     });
 
     Handlebars.registerHelper('pager', function(o) {
@@ -111,9 +116,9 @@ function registerHelpers(params) {
                 }
                 prms.page = arr[i];
                 if (arr[i]==page) {
-                    ul += '<li class="current">' + arr[i] + '</li>';
+                    ul += '<li class="current">' + formatNumber(arr[i]) + '</li>';
                 } else {
-                    ul += '<li><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms) + '" aria-label="Page ' + arr[i] + '">' + arr[i] + '</a></li>';
+                    ul += '<li><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms) + '" aria-label="Page ' + arr[i] + '">' + formatNumber(arr[i]) + '</a></li>';
                 }
             };
         }
@@ -122,9 +127,9 @@ function registerHelpers(params) {
             prms.page = page+1;
             ul += '<li class="pagination-next"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
         }
-        ul += '<li class="result-count"> (Showing ' + ((o.data.root.page-1)*20+1) + '-'
-            + (o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
-            +' of ' + o.data.root.totalHits + ' results)</li>';
+        ul += '<li class="result-count"> (Showing ' + formatNumber((o.data.root.page-1)*20+1) + ' ‒ '
+            + formatNumber(o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
+            +' of ' + formatNumber(o.data.root.totalHits) + ' results)</li>';
         ul += '</ul>'
         return new Handlebars.SafeString(ul);
     });

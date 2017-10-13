@@ -92,16 +92,16 @@
         </script>
         <script id='facet-list-template' type='text/x-handlebars-template'>
             <form>
-                <div id="facet">
+                <div id="facet" class="{{project}}-facets">
                     {{#each this}}
                         <div class="facet-name">{{title}}</div>
                         <ul>
                         {{#each children}}
                             <li>
-                                <label class="facet-label" for="{{../value}}:{{value}}">
-                                    <input class="facet-value" type="checkbox" name="facets" value="{{../value}}:{{value}}" id="{{../name}}:{{name}}"/>
+                                <label class="facet-label" for="{{../name}}:{{value}}">
+                                    <input class="facet-value" type="checkbox" name="facets" value="{{../name}}:{{value}}" id="{{../name}}:{{value}}"/>
                                     <span>{{name}}</span>
-                                    <span class="facet-hits">({{hits}})</span>
+                                    <span class="facet-hits">{{formatNumber hits}}</span>
                                 </label>
                             </li>
                         {{/each}}

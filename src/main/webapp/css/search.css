@@ -92,8 +92,13 @@ ul#search-results li {
     -ms-user-select: none;
     color: #267799;
     line-height: inherit;
-    font-size: 8pt;
+    font-size: 9pt;
+    text-transform: capitalize;
+}
+
+.EuropePMC-facets .facet-label {
     text-transform: uppercase;
+    font-size: 8pt;
 }
 
 .facet-label input{
@@ -103,7 +108,8 @@ ul#search-results li {
 
 .facet-hits {
     color: #aaaaaa;
-    font-size: 8pt;
+    font-size: 7pt;
+    padding-left: 3pt;
 }
 
 

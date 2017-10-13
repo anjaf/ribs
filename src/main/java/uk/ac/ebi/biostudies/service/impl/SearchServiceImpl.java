@@ -189,7 +189,7 @@ public class SearchServiceImpl implements SearchService {
                         }
                     }
                     docNode.put("isPublic",
-                            (" " + doc.get(Constants.ACCESS + " ")).toLowerCase().contains(" public ")
+                            (" " + doc.get(Constants.ACCESS) + " ").toLowerCase().contains(" public ")
                     );
 
                     if (doHighlight) {

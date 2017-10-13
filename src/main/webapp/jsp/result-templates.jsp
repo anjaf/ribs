@@ -22,7 +22,9 @@
 
         <div class="meta-data">
             <span class="accession">{{accession}}</span>
-            <span class="release-date">{{formatDate release_date}}</span>
+            {{#ifCond release_date '!=' '20500101'}}
+                <span class="release-date">{{formatDate release_date}}</span>
+            {{/ifCond}}
             {{#ifCond type '!=' 'project'}}
                 {{#ifCond links '!=' 0}}
                     <span class="release-links">
@@ -42,6 +44,9 @@
                         {{/ifCond}}
                     </span>
                 {{/ifCond}}
+            {{/ifCond}}
+            {{#ifCond isPublic '==' false}}
+                <span>🔒 Private</span>
             {{/ifCond}}
         </div>
     </div>
