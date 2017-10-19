@@ -1,7 +1,6 @@
 package uk.ac.ebi.biostudies.controller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.api.util.HttpTools;
 import uk.ac.ebi.biostudies.auth.User;
-import uk.ac.ebi.biostudies.auth.UserSecurity;
+import uk.ac.ebi.biostudies.auth.UserSecurityService;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -29,7 +27,7 @@ public class Authentication {
 
 
     @Autowired
-    UserSecurity users;
+    UserSecurityService users;
 
     @RequestMapping(value="/auth")
     public void login( HttpServletRequest request, HttpServletResponse response) throws Exception{

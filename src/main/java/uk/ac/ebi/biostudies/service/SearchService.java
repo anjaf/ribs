@@ -19,5 +19,6 @@ public interface SearchService {
     String getKeywords(String query, String field, Integer limit);
     String getEfoTree(String query);
     boolean isAccessible(String accession);
+    boolean isAccessible(String accession, String seckey);
 }
 

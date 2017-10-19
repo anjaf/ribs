@@ -28,8 +28,8 @@ public class Study {
 
     @RequestMapping(value = "/studies/{accession:.+}", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
     //TODO: stream file directly
-    public ResponseEntity<String> search(@PathVariable("accession") String accession)  {
-        if(!searchService.isAccessible(accession)) {
+    public ResponseEntity<String> getStudy(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
+        if(!searchService.isAccessible(accession, seckey)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
         }

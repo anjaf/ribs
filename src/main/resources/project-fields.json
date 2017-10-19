@@ -11,7 +11,8 @@
     {"name":"links", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"files", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"release_date", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
-    {"name":"id", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"}
+    {"name":"id", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
+    {"name":"seckey", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"}
   ],
   "hecatos":
   [

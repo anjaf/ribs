@@ -114,8 +114,9 @@ public class ConfigurableIndexService implements IndexService {
 
                 JsonNode submission = mapper.readTree(parser);
                 executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager));
-                if(++counter%1000==0)
+                if(++counter%1000==0) {
                     logger.info("{} docs indexed", counter);
+                }
             }
 
             executorService.shutdown();
@@ -193,6 +194,7 @@ public class ConfigurableIndexService implements IndexService {
             Map<String, Object> valueMap = new HashMap<>();
             try {
                 valueMap.put( Constants.ID, json.get("accno").textValue() );
+                valueMap.put( Constants.SECRET_KEY, json.has("seckey") ? json.get("seckey").textValue() : null );
                 valueMap.put( Constants.ACCESSION, valueMap.get(Constants.ID));
                 valueMap.put( Constants.TYPE, json.get("section").get("type").textValue().toLowerCase());
                 valueMap.put( Constants.TITLE, getTitle(json, (String)valueMap.get(Constants.ACCESSION)));
@@ -364,7 +366,7 @@ public class ConfigurableIndexService implements IndexService {
                 }
             }
             if(title.isEmpty())
-                logger.error("title is empty accession: {1}", accession);
+                logger.error("title is empty accession: {0}", accession);
             return title;
         }
     }

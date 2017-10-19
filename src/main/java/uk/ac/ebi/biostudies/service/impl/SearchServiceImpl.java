@@ -242,12 +242,17 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public boolean isAccessible(String accession) {
+        return isAccessible(accession, null);
+    }
+
+    @Override
+    public boolean isAccessible(String accession, String seckey) {
         QueryParser parser = new QueryParser(Constants.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         Query query = null;
         try {
             query = parser.parse(Constants.ACCESSION+":"+accession);
-            Query result = securityQueryBuilder.applySecurity(query);
+            Query result = securityQueryBuilder.applySecurity(query, seckey);
             return indexManager.getIndexSearcher().count(result)>0;
         } catch (Throwable ex){
             logger.error("Problem in checking security", ex);

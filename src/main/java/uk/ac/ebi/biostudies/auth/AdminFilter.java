@@ -25,7 +25,7 @@ public class AdminFilter implements Filter {
 
 
     @Autowired
-    UserSecurity users;
+    UserSecurityService users;
 
     @Autowired
     private SecurityConfig securityConfig;

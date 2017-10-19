@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.api.util.Constants;
-import uk.ac.ebi.biostudies.auth.UserSecurity;
+import uk.ac.ebi.biostudies.auth.UserSecurityService;
 import uk.ac.ebi.biostudies.service.IndexService;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
@@ -32,7 +32,7 @@ public class Index {
     IndexService indexService;
 
     @Autowired
-    UserSecurity userSecurity;
+    UserSecurityService userSecurity;
 
     /**
      * Method handling HTTP GET requests. The returned object will be sent
