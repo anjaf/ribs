@@ -5,7 +5,7 @@
     // Prepare template
     var template = Handlebars.compile($('script#stats-template').html());
 
-    $.getJSON( contextPath + "/api/v1/search",{query:'type:Study',pageSize:5,sortby:'release_date'}, function( data ) {
+    $.getJSON( contextPath + "/api/v1/search",{query:'type:Study',pageSize:5,sortBy:'release_date',sortOrder:'descending'}, function( data ) {
          if (data) {
              var totalCount = data.totalHits + (data.totalHits == 1 ? ' study' : ' studies');
              $('#template').html(template(data));
