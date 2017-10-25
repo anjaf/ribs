@@ -2,6 +2,8 @@ package uk.ac.ebi.biostudies.service.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -21,38 +23,56 @@ public class SecurityQueryBuilder {
     private Logger logger = LogManager.getLogger(SecurityQueryBuilder.class.getName());
 
     public Query applySecurity(Query originalQuery) throws Throwable {
+        return applySecurity(originalQuery, null);
+    }
+
+    public Query applySecurity(Query originalQuery, String seckey) throws Throwable {
         QueryParser queryParser = new QueryParser(Constants.ACCESS, new AccessFieldAnalyzer());
         queryParser.setSplitOnWhitespace(true);
-        BooleanQuery.Builder queryBilder = new BooleanQuery.Builder();
+        BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
         StringBuilder securityClause= new StringBuilder();
         User currentUser = Session.getCurrentUser();
         if(currentUser!=null && currentUser.isSuperUser())
             return originalQuery;
-        int counter = 0;
-        if(currentUser!=null && currentUser.getAllow()!=null && currentUser.getAllow().length>0)
-            for(String allow:currentUser.getAllow()){
-                securityClause.append(allow.toLowerCase());
-                if(++counter<currentUser.getAllow().length)// check to find out is the length correct or not
-                    securityClause.append(" OR ");
-            }
-        else
-            securityClause.append("public");
 
-        Query query = queryParser.parse(securityClause.toString());
-        queryBilder.add(query, BooleanClause.Occur.MUST);
+
+        int counter = 0;
+        if(currentUser!=null && currentUser.getAllow()!=null && currentUser.getAllow().length>0) {
+             String.join(" OR ", currentUser.getAllow());
+        } else {
+            securityClause.append("public");
+        }
+        Query allowQuery = queryParser.parse(securityClause.toString());
+
+
+        // allow if there's a secret key present
+        if (seckey!=null && seckey!="") {
+            QueryParser secretQueryParser = new QueryParser(Constants.SECRET_KEY, new KeywordAnalyzer());
+            secretQueryParser.setSplitOnWhitespace(true);
+            Query secretKeyQuery = secretQueryParser.parse(seckey);
+
+            BooleanQuery booleanQuery = new BooleanQuery.Builder().
+                    add(secretKeyQuery, BooleanClause.Occur.SHOULD)
+                    .add(allowQuery, BooleanClause.Occur.SHOULD)
+                    .build();
+            queryBuilder.add(booleanQuery, BooleanClause.Occur.MUST);
+        } else {
+            queryBuilder.add(allowQuery, BooleanClause.Occur.MUST);
+        }
+
         counter = 0;
         securityClause = new StringBuilder();
         if(currentUser!=null && currentUser.getDeny()!=null && currentUser.getDeny().length>0) {
-            for (String deny : currentUser.getDeny()) {
-                securityClause.append(deny);
-                if (++counter < currentUser.getDeny().length)// check to find out is the length correct or not
-                    securityClause.append(" OR ");
-            }
-            query = queryParser.parse(securityClause.toString());
-            queryBilder.add(query, BooleanClause.Occur.MUST_NOT);
+            String.join(" OR ", currentUser.getAllow());
+            Query denyQuery = queryParser.parse(securityClause.toString());
+            queryBuilder.add(denyQuery, BooleanClause.Occur.MUST_NOT);
         }
-        logger.debug("security query: {}", queryBilder.build().toString());
-        queryBilder.add(originalQuery, BooleanClause.Occur.MUST);
-        return queryBilder.build();
+
+
+        queryBuilder.add(originalQuery, BooleanClause.Occur.MUST);
+        Query finalQuery = queryBuilder.build();
+        logger.debug("security query: {}", finalQuery.toString());
+
+        return finalQuery;
     }
 }

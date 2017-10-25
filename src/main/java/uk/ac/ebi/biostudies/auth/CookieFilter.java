@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostudies.auth;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +8,7 @@ import uk.ac.ebi.biostudies.api.util.CookieMap;
 import uk.ac.ebi.biostudies.api.util.HttpTools;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * Created by ehsan on 15/03/2017.
@@ -22,7 +19,7 @@ public class CookieFilter implements Filter {
 
 
     @Autowired
-    UserSecurity users;
+    UserSecurityService users;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {

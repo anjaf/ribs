@@ -112,7 +112,7 @@ $.fn.groupBy = function(fn) {
     // Prepare template
     var templateSource = $('script#study-template').html();
     var template = Handlebars.compile(templateSource);
-    var url = window.location.href;
+    var url = window.location.pathname;
     url = url.replace('/studies/','/api/v1/studies/').replace(project,'');
     $.getJSON(url,params, function (data) {
         // set accession

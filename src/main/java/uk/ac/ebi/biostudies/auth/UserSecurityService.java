@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class UserSecurity {
+public class UserSecurityService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Cache<Object, Object> passwordCache;
 
@@ -42,7 +42,7 @@ public class UserSecurity {
     @Autowired
     private SecurityConfig securityConfig;
 
-    public UserSecurity() {
+    public UserSecurityService() {
         // TODO: move password cache timeout to config file
         passwordCache = CacheBuilder.newBuilder()
                 .expireAfterAccess(60, TimeUnit.MINUTES)
