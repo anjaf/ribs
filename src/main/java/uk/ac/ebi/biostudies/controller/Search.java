@@ -84,7 +84,7 @@ public class Search {
     }
 
     @RequestMapping(value = "/{project}/facets", produces = JSON_UNICODE_MEDIA_TYPE , method = RequestMethod.GET)
-    public String getDefaultFacets(@PathVariable String project) throws Exception{
-        return facetService.getDefaultFacetTemplate(project).toString();
+    public String getDefaultFacets(@PathVariable String project, @RequestParam(value="query", required=false, defaultValue = "") String queryString) throws Exception{
+        return facetService.getDefaultFacetTemplate(project, queryString).toString();
     }
 }
