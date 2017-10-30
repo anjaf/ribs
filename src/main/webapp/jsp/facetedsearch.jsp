@@ -92,6 +92,7 @@
         </script>
         <script id='facet-list-template' type='text/x-handlebars-template'>
             <form>
+                <input type="hidden" id="facet-query" name="query" value=""/>
                 <div id="facet" class="{{project}}-facets">
                     {{#each this}}
                         <div class="facet-name">{{title}}</div>
@@ -107,9 +108,6 @@
                         {{/each}}
                         </ul>
                     {{/each}}
-                    <div class="update-button">
-                        <button type="submit" class="icon icon-functional update-icon" data-icon="1">Update</button>
-                    </div>
                 </div>
             </form>
         </script>

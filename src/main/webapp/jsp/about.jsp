@@ -18,17 +18,12 @@
         <p class="justify">The BioStudies database holds descriptions of biological studies, links to data from
             these studies in other databases at EMBL-EBI or outside, as well as data that do not fit in the
             structured archives at EMBL-EBI. The database accepts submissions via an online tool, or in a simple tab-delimited format.
-            It also enables authors to submit supplementary information and link to it from the publication. See McEntyre J. et al., 2015. <a href="http://europepmc.org/abstract/MED/26700850">The BioStudies database</a>.
+            It also enables authors to submit supplementary information and link to it from the publication.
         </p>
 
          <h3 class="icon icon-generic" data-icon="P">Publications / How to cite</h3>
         <ul>
-            <li><strong>Citing BioStudies database</strong>: please use the following publication:
-                McEntyre J. et al., 2015. <a href="http://europepmc.org/abstract/MED/26700850">The BioStudies database</a>.
-            </li>
-            <li>
-                <strong>Citing BioStudies submission in your manuscript</strong>: please include your experiment accession number and the URL to BioStudies home page,
-                http://www.ebi.ac.uk/biostudies. e.g. "Data are available in the BioStudies database (http://www.ebi.ac.uk/biostudies) under accession number S-EPMC5090800."
+            <li>Ugis Sarkans, Mikhail Gostev, Awais Athar, Ehsan Behrangi, Olga Melnichuk, Ahmed Ali, Jasmine Minguet, Juan Camillo Rada, Catherine Snow, Andrew Tikhonov, Alvis Brazma, Johanna McEntyre; <a href="https://doi.org/10.1093/nar/gkx965" target="_blank">The BioStudies database—one stop shop for all data supporting a life sciences study</a>, Nucleic Acids Research, 2017.
             </li>
         </ul>
 

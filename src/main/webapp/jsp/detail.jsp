@@ -338,16 +338,13 @@
             </div>
         </script>
 
-        <script id='valqual-template' type='text/x-handlebars-template'>{{#ifArray this}}
-                {{&renderOntologySubAttribute this}}
-                {{#eachSubAttribute this}}
+        <script id='valqual-template' type='text/x-handlebars-template'>{{#ifArray this}}{{&renderOntologySubAttribute this}}{{#eachSubAttribute this}}
                     {{#if @first}}<i class="fa fa-info-circle sub-attribute-info"></i><span class="sub-attribute">{{/if}}
                     <span class="sub-attribute-title">{{name}}:</span>
                     <span>{{value}}</span>
                     <br/>
                     {{#if @last}}</span>{{/if}}
-                {{/eachSubAttribute}}
-        {{/ifArray}}</script>
+                {{/eachSubAttribute}}{{/ifArray}}</script>
 
 
 

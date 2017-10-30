@@ -42,7 +42,6 @@ function showResults(params) {
                     data.project = project;
                     var html = template(data);
                     $('#facets').html(html);
-                    postRenderFacets(data,params);
                 }).fail(function (error) {
                     showError(error);
                 }).done( function (data) {
@@ -259,12 +258,18 @@ function postRender(data, params) {
 }
 
 function postRenderFacets(data, params) {
-    // check the currently selected face
+
+    // check the currently selected face, if any
     if (params.facets) {
         $(params.facets.split(",")).each(function () {
             $('input[id="'+this+'"]').attr('checked','checked');
         })
     }
 
+    // set query string in facets
+    $('#facet-query').val(params.query);
+
+    // resubmit form when facets are changed
+    $('input.facet-value').change(function(){ $(this).parents('form:first').submit() });
 }
 
