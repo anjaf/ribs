@@ -53,7 +53,7 @@ public class SearchTest {
         driver.get(integProps.getBaseUrl() + "/studies/");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 120);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".result-count")));
-        WebElement searchBox = driver.findElement (By.id("query"));
+        WebElement searchBox = driver.findElement (By.cssSelector("#query"));
         searchBox.click();
         searchBox.sendKeys("dna");
         wait.until(ExpectedConditions.visibilityOfElementLocated (By.cssSelector(".ac_inner")));
@@ -136,8 +136,9 @@ public class SearchTest {
     public void testFilesDescendingSort() throws Exception{
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("sort-by")));
-        new Select(driver.findElement(By.id("sort-by"))).selectByVisibleText("Files");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-by")));
+        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-files")));
         List<WebElement> list = driver.findElements(By.cssSelector(".release-files"));
         Integer [] values = new Integer[list.size()];
         for(int i=0; i < values.length; i++) {
@@ -152,10 +153,10 @@ public class SearchTest {
     public void testFilesAscendingSort() throws Exception{
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("sort-by")));
-        new Select(driver.findElement(By.id("sort-by"))).selectByVisibleText("Files");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("sort-by")));
-        driver.findElement(By.id("sort-asc")).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-by")));
+        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-asc")));
+        driver.findElement(By.cssSelector("#sort-asc")).click();
         WebDriverWait wait2 = new WebDriverWait(IntegrationTestSuite.driver, 2);
         wait2.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-files")));
         List<WebElement> list = driver.findElements(By.cssSelector(".release-files"));
@@ -172,9 +173,9 @@ public class SearchTest {
     public void testLinksDescendingSort() throws Exception{
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("sort-by")));
-        new Select(driver.findElement(By.id("sort-by"))).selectByVisibleText("Links");
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("sort-by")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-by")));
+        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-links")));
         List<WebElement> list = driver.findElements(By.cssSelector(".release-links"));
         Integer [] values = new Integer[list.size()];
         for(int i=0; i < values.length; i++) {
@@ -189,8 +190,9 @@ public class SearchTest {
     public void testLinksAscendingSort() throws Exception{
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 4);
-        new Select(driver.findElement(By.id("sort-by"))).selectByVisibleText("Links");
-        driver.findElement(By.id("sort-asc")).click();
+        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-asc")));
+        driver.findElement(By.cssSelector("#sort-asc")).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-links")));
         List<WebElement> list = driver.findElements(By.cssSelector(".release-links"));
         Integer [] values = new Integer[list.size()];
@@ -207,7 +209,7 @@ public class SearchTest {
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 4);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
-        new Select(driver.findElement(By.id("sort-by"))).selectByVisibleText("Released");
+        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
         List<WebElement> list = driver.findElements(By.cssSelector(".release-date"));
         Date [] values = new Date[list.size()];
@@ -245,8 +247,9 @@ public class SearchTest {
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
-        new Select(driver.findElement(By.id("sort-by"))).selectByVisibleText("Released");
-        driver.findElement(By.id("sort-asc")).click();
+        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-asc")));
+        driver.findElement(By.cssSelector("#sort-asc")).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
         List<WebElement> list = driver.findElements(By.cssSelector(".release-date"));
         Date [] values = new Date[list.size()];
@@ -293,8 +296,8 @@ public class SearchTest {
         assertTrue(pages.startsWith("(Showing"));
         String accession  = driver.findElement(By.cssSelector(".accession")).getAttribute("innerText").trim();
         driver.findElement(By.cssSelector(".title a")).click();
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.id("orcid-accession")));
-        assertEquals(accession, driver.findElement(By.id("orcid-accession")).getAttribute("innerText").trim());
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#orcid-accession")));
+        assertEquals(accession, driver.findElement(By.cssSelector("#orcid-accession")).getAttribute("innerText").trim());
     }
 
 }

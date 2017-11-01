@@ -35,7 +35,7 @@ function showResults(params) {
         $('#left-column').slideDown("fast", function () {
             // fill facets
             if ($('#hasFacets').length) {
-                $.getJSON(contextPath + "/api/v1/" + project + "/facets", function (data) {
+                $.getJSON(contextPath + "/api/v1/" + project + "/facets", params, function (data) {
                     var templateSource = $('script#facet-list-template').html();
                     var template = Handlebars.compile(templateSource);
                     data.selectedFacets = params.facets ? params.facets.split(",") : [];
