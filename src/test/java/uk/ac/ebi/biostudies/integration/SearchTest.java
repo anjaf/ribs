@@ -190,6 +190,7 @@ public class SearchTest {
     public void testLinksAscendingSort() throws Exception{
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 4);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-asc")));
         driver.findElement(By.cssSelector("#sort-asc")).click();
@@ -208,7 +209,7 @@ public class SearchTest {
     public void testReleasedDescendingSort() throws Exception{
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 4);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
         List<WebElement> list = driver.findElements(By.cssSelector(".release-date"));
@@ -246,7 +247,7 @@ public class SearchTest {
     public void testReleasedAscendingSort() throws Exception{
         driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".release-date")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#sort-asc")));
         driver.findElement(By.cssSelector("#sort-asc")).click();
