@@ -387,14 +387,32 @@ function registerHelpers() {
          $.each(authors, function (i,o) {
              var author = {}
              $.each(o.attributes, function (i, v) {
-                 author[v.name] = v.value;
+                 if (!author[v.name]) {
+                     author[v.name] = v.value;
+                 } else if ($.isArray(author[v.name])) {
+                     author[v.name].push(v.value);
+                 } else {
+                     author[v.name] = [author[v.name], v.value];
+                 }
              });
              if (author.affiliation) {
-                 if (!orgToNumberMap[author.affiliation]) {
-                     orgToNumberMap[author.affiliation] = orgNumber++;
-                     orgOrder.push(author.affiliation);
+                 if ($.isArray(author.affiliation)) {
+                     var affiliations = [];
+                     $(author.affiliation).each(function (i,aff) {
+                         if (!orgToNumberMap[aff]) {
+                             orgToNumberMap[aff] = orgNumber++;
+                             orgOrder.push(aff);
+                         }
+                         affiliations.push({org:aff, affiliationNumber:orgToNumberMap[aff]});
+                     })
+                     author.affiliation = affiliations;
+                 } else {
+                     if (!orgToNumberMap[author.affiliation]) {
+                         orgToNumberMap[author.affiliation] = orgNumber++;
+                         orgOrder.push(author.affiliation);
+                     }
+                     author.affiliationNumber = orgToNumberMap[author.affiliation];
                  }
-                 author.affiliationNumber = orgToNumberMap[author.affiliation]
              }
             var data = Handlebars.createFrame(options.data);
             data.first = i==0, data.last = i==(authors.length-1), data.index = i, data.left = authors.length-10;
@@ -759,10 +777,15 @@ function handleOrganisations() {
     $('#bs-authors li .author').hover(
         function () {
             $(this).addClass('highlight-author')
-            $('#'+$('.org-link',this).data('affiliation')).addClass('highlight-author')
+            $('.org-link',this).each(function () {
+                $('#'+$(this).data('affiliation')).addClass('highlight-author');
+            })
+
         }, function () {
             $(this).removeClass('highlight-author')
-            $('#'+$('.org-link',this).data('affiliation')).removeClass('highlight-author')
+            $('.org-link',this).each(function () {
+                $('#'+$(this).data('affiliation')).removeClass('highlight-author');
+            })
         }
     )
 

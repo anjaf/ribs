@@ -68,7 +68,13 @@
                             <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} ><span class="author">
                         <span itemscope itemtype="http://schema.org/Person"><span itemprop="name">{{Name}}</span></span>
                                     {{#if affiliation}}
-                                        <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
+                                        {{#ifArray affiliation}}
+                                            {{#each affiliation}}
+                                                <sup><a class="org-link" data-affiliation="{{org}}">{{affiliationNumber}}</a></sup>
+                                            {{/each}}
+                                        {{else}}
+                                            <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
+                                        {{/ifArray}}
                                     {{/if}}
                                 </span>
                             </li>
