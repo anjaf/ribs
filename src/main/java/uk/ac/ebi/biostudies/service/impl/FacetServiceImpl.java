@@ -4,29 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.facet.*;
 import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
-import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
-import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
-import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
 import uk.ac.ebi.biostudies.service.FacetService;
+import uk.ac.ebi.biostudies.service.QueryService;
 import uk.ac.ebi.biostudies.service.TextService;
 
 import java.io.IOException;
@@ -53,8 +43,8 @@ public class FacetServiceImpl implements FacetService {
     TextService textService;
     @Autowired
     AnalyzerManager analyzerManager;
-
-    private JsonNode hecatosFacets;
+    @Autowired
+    QueryService queryService;
 
 
     @Override
@@ -81,28 +71,12 @@ public class FacetServiceImpl implements FacetService {
 
     @Override
     public JsonNode getDefaultFacetTemplate(String prjName, String queryString){
-        String[] fields = indexConfig.getIndexFields();
-        ObjectMapper mapper = new ObjectMapper();
-        if (StringUtils.isEmpty(queryString)) {
-            queryString = "*:*";
-        }
-        Analyzer analyzer = analyzerManager.getPerFieldAnalyzerWrapper();
-        QueryParser parser = new BioStudiesQueryParser(fields, analyzer);
-        parser.setSplitOnWhitespace(true);
-
-
-        QueryParser qp = new QueryParser(Constants.PROJECT, new AttributeFieldAnalyzer());
-        qp.setSplitOnWhitespace(true);
         Query query = null;
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            query = qp.parse(Constants.PROJECT+":"+prjName);
-            Query queryOne = parser.parse(queryString);
-            BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
-            queryBuilder.add(query, BooleanClause.Occur.MUST);
-            queryBuilder.add(queryOne, BooleanClause.Occur.MUST);
-            query = queryBuilder.build();
-        } catch (ParseException e) {
-            logger.debug("problem in parsing query {}", query.toString(), e);
+            query = queryService.makeQuery(queryString, prjName).getKey();
+        } catch (NullPointerException e) {
+            logger.debug("problem in parsing query {}", queryString, e);
         }
         List<FacetResult> facetResults = getFacetsForQuery(query);
         List<ObjectNode> list = new ArrayList<>();

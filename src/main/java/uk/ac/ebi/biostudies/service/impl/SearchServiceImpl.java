@@ -8,7 +8,6 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -17,7 +16,6 @@ import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
@@ -28,6 +26,7 @@ import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
 import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.FacetService;
+import uk.ac.ebi.biostudies.service.QueryService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.config.IndexManager;
 
@@ -63,6 +62,8 @@ public class SearchServiceImpl implements SearchService {
     AnalyzerManager analyzerManager;
     @Autowired
     SecurityQueryBuilder securityQueryBuilder;
+    @Autowired
+    QueryService queryService;
 
     private static Query excludeCompound;
     private static QueryParser parser;
@@ -98,25 +99,7 @@ public class SearchServiceImpl implements SearchService {
         return new MutablePair<>(query, null);
     }
 
-    private Query excludeCompoundStudies(Query originalQuery){
-        BooleanQuery.Builder excludeBuilder = new BooleanQuery.Builder();
-        excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
-        excludeBuilder.add(excludeCompound, BooleanClause.Occur.MUST_NOT);
-        return  excludeBuilder.build();
-    }
-
-    private Query applyFacets(Query query, JsonNode facets, String prjName){
-        QueryParser searchPrjParser = new QueryParser(Constants.PROJECT, new AttributeFieldAnalyzer());
-        searchPrjParser.setSplitOnWhitespace(true);
-        BooleanQuery.Builder bqBuilder = new BooleanQuery.Builder();
-        bqBuilder.add(query, BooleanClause.Occur.MUST);
-        try {
-            String prjSearch = "("+Constants.PROJECT+":"+prjName+")";
-            Query searchInPrj = searchPrjParser.parse(prjSearch);
-            bqBuilder.add(searchInPrj, BooleanClause.Occur.MUST);
-        } catch (ParseException e) {
-            logger.debug(e);
-        }
+    private Query applyFacets(Query query, JsonNode facets){
         Map<JsonNode, List<String>> selectedFacets = new HashMap<>();
         if(facets!=null){
             Iterator<String> fieldNamesIterator = facets.fieldNames();
@@ -142,7 +125,7 @@ public class SearchServiceImpl implements SearchService {
                 }
             }
         }
-        return  facetService.addFacetDrillDownFilters(bqBuilder.build(), selectedFacets);
+        return  facetService.addFacetDrillDownFilters(query, selectedFacets);
     }
 
     private ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder, boolean doHighlight){
@@ -262,32 +245,23 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public String search(String queryString, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
-        String[] fields = indexConfig.getIndexFields();
         ObjectMapper mapper = new ObjectMapper();
         boolean doHighlight = true;
         if (StringUtils.isEmpty(queryString)) {
-            queryString = "*:*";
             doHighlight = false;
         }
-        Analyzer analyzer = analyzerManager.getPerFieldAnalyzerWrapper();
-        QueryParser parser = new BioStudiesQueryParser(fields, analyzer);
-        parser.setSplitOnWhitespace(true);
         ObjectNode response = mapper.createObjectNode();
+        Pair<Query, EFOExpansionTerms> resultPair = queryService.makeQuery(queryString, prjName);
         try {
-            logger.debug("User queryString: {}",queryString);
-            Query query = parser.parse(queryString);
-            Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query);
-            Query expandedQuery = excludeCompoundStudies(queryEFOExpansionTermsPair.getKey());
-            Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
-            logger.debug("Lucene query: {}",queryAfterSecurity.toString());
+            Query queryAfterSecurity = resultPair.getKey();
             if(selectedFacets!=null && prjName!=null && !prjName.isEmpty()){
-                queryAfterSecurity = applyFacets(queryAfterSecurity, selectedFacets, prjName);
+                queryAfterSecurity = applyFacets(queryAfterSecurity, selectedFacets);
                 logger.debug("Lucene after facet query: {}",queryAfterSecurity.toString());
             }
-            response = applySearchOnQuery(queryAfterSecurity,page, pageSize, sortBy, sortOrder, doHighlight);
+            response = applySearchOnQuery(queryAfterSecurity, page, pageSize, sortBy, sortOrder, doHighlight);
 
             // add expansion
-            EFOExpansionTerms expansionTerms =  queryEFOExpansionTermsPair.getValue();
+            EFOExpansionTerms expansionTerms =  resultPair.getValue();
             if (expansionTerms!=null) {
                 ArrayNode expandedEfoTerms = mapper.createArrayNode();
                 expansionTerms.efo.forEach(s -> expandedEfoTerms.add(s));
