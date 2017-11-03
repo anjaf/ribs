@@ -25,27 +25,27 @@ $.fn.groupBy = function(fn) {
 !function(d) {
 
     linkMap = {
-        'pmc':'http://europepmc.org/articles/{0}',
-        'pmid':'http://europepmc.org/abstract/MED/{0}',
+        'pmc':'https://europepmc.org/articles/{0}',
+        'pmid':'https://europepmc.org/abstract/MED/{0}',
         'doi':'https://dx.doi.org/{0}',
         'chembl':'https://www.ebi.ac.uk/chembldb/compound/inspect/{0}',
-        'ega':'http://www.ebi.ac.uk/ega/studies/{0}',
+        'ega':'https://www.ebi.ac.uk/ega/studies/{0}',
         'uniprot':'http://www.uniprot.org/uniprot/{0}',
-        'ena':'http://www.ebi.ac.uk/ena/data/view/{0}',
-        'arrayexpress files':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
-        'arrayexpress':'http://www.ebi.ac.uk/arrayexpress/experiments/{0}',
+        'ena':'https://www.ebi.ac.uk/ena/data/view/{0}',
+        'arrayexpress files':'https://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
+        'arrayexpress':'https://www.ebi.ac.uk/arrayexpress/experiments/{0}',
         'dbsnp':'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
-        'pdbe':'http://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
+        'pdbe':'https://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
         'pfam':'http://pfam.xfam.org/family/{0}',
         'omim':'http://omim.org/entry/{0}',
-        'interpro':'http://www.ebi.ac.uk/interpro/entry/{0}',
+        'interpro':'https://www.ebi.ac.uk/interpro/entry/{0}',
         'nucleotide':'http://www.ncbi.nlm.nih.gov/nuccore/{0}',
         'geo':'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={0}',
-        'intact':'http://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc={0}',
+        'intact':'https://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc={0}',
         'biostudies':'https://www.ebi.ac.uk/biostudies/studies/{0}',
         'biostudies search':'https://www.ebi.ac.uk/biostudies/studies/search.html?query={0}',
         'go':'http://amigo.geneontology.org/amigo/term/{0}',
-        'chebi':'http://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}',
+        'chebi':'https://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}',
         'bioproject':'https://www.ncbi.nlm.nih.gov/bioproject/{0}',
         'biosamples':'https://www.ebi.ac.uk/biosamples/samples/{0}',
         'chemagora':'http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/{0}',
@@ -345,15 +345,11 @@ function registerHelpers() {
 
     Handlebars.registerHelper('eachLinkTable', function(options) {
         var ret = '';
-        var links = findall(this,'links');
-        var groupsByColumns = $(links).groupBy(function (obj) {
-            var att_fp = $.unique($.map(obj.attributes, function (attr) { return attr.name}).sort()).join('|')
-            return att_fp
-        });
-        var keys = Object.keys(groupsByColumns), data = Handlebars.createFrame(options.data);
-        $.each(keys, function(i,key) {
-            data.first = i==0, data.last = i==(keys.length-1), data.index = i, data.indexPlusOne = i+1;
-            ret = ret + options.fn({links: groupsByColumns[key]},{data:data});
+        var linkTables = findall(this,'links', false);
+        var data = Handlebars.createFrame(options.data);
+        $.each(linkTables, function(i,linkTable) {
+            data.first = i==0, data.last = i==(linkTables.length-1), data.index = i, data.indexPlusOne = i+1;
+            ret = ret + options.fn({links: $.isArray(linkTable) ? linkTable : [linkTable] },{data:data});
         });
         return ret;
     });
@@ -538,7 +534,7 @@ function findall(obj,k,unroll){ // works only for files and links
 
                 $.each(obj[k], function () {
                     $.each($.isArray(this) ? this : [this], function () {
-                        if (accno) {
+                        if (accno && type !="Study") {
                             this.attributes = this.attributes || [];
                             this.attributes.splice(0, 0, {
                                 'name': 'Section',
@@ -715,7 +711,7 @@ function handleSectionArtifacts() {
         }
     });
     $(".toggle-files, .toggle-links, .toggle-tables").each(function () {
-        var type = $(this).hasClass("toggle-files") ? "file(s)" : $(this).hasClass("toggle-links") ? "link(s)" : "table";
+        var type = $(this).hasClass("toggle-files") ? "(s)" : $(this).hasClass("toggle-links") ? "link(s)" : "table";
         $(this).html('<i class="fa fa-caret-right"></i> show ' + type + ($(this).data('total') == '1' ? '' : 's'));
     });
 
