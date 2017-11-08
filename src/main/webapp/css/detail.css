@@ -428,5 +428,6 @@ a.thumbnail-icon {
     position:relative;
     transform-style: flat;
     z-index:1000;
+    background-color: white;
 }
 

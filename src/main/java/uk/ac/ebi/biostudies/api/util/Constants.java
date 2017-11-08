@@ -26,5 +26,5 @@ public interface Constants {
     String ACCESS = "access";
     String PROJECT = "project";
     String SECRET_KEY = "seckey";
-
+    String LINK_TYPE = "linktype";
 }

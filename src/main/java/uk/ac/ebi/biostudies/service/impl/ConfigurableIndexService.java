@@ -114,7 +114,7 @@ public class ConfigurableIndexService implements IndexService {
 
                 JsonNode submission = mapper.readTree(parser);
                 executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager));
-                if(++counter%1000==0) {
+                if(++counter % 10000==0) {
                     logger.info("{} docs indexed", counter);
                 }
             }
@@ -126,8 +126,6 @@ public class ConfigurableIndexService implements IndexService {
             indexManager.refreshIndexSearcherAndReader();
             taxonomyManager.refreshTaxonomyReader();
             logger.info("indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
-//            jnode=facetService.getHecatosFacets();
-//            logger.debug(j JsonNodenode.toString());
         }
         catch (Throwable error){
             logger.error("problem in parsing biostudies.json file", error);
@@ -211,6 +209,17 @@ public class ConfigurableIndexService implements IndexService {
                 content.append(" ");
                 content.append(json.findValues("links").stream().map(jsonNode -> jsonNode.findValuesAsText("url").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
                 valueMap.put( Constants.CONTENT, content.toString());
+
+                String linkType = json.findValues("links")
+                        .stream()
+                        .flatMap ( jsonNode ->  StreamSupport.stream(jsonNode.spliterator(), false).flatMap( j-> StreamSupport.stream(j.spliterator(), false)) )
+                        .map( link-> {
+                            return link.findParents("name").stream().map( a-> {
+                                return (a.get("name").textValue().equalsIgnoreCase("Type")) ? a.get("value").textValue() : "";
+                            }).collect(Collectors.joining(" "));
+
+                        }).collect(Collectors.joining(" "));
+                valueMap.put(Constants.LINK_TYPE, linkType.isEmpty() ? null : linkType );
                 valueMap.put( Constants.LINKS, json.findValues("links").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("url").size()
                         ).sum()
