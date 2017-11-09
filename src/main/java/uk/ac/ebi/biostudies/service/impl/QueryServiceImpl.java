@@ -45,6 +45,7 @@ public class QueryServiceImpl implements QueryService {
 
 
     private static Query excludeCompound;
+    private static Query excludeProject;
     private static QueryParser parser;
 
     @PostConstruct
@@ -53,6 +54,7 @@ public class QueryServiceImpl implements QueryService {
         parser.setSplitOnWhitespace(true);
         try {
             excludeCompound = parser.parse("type:compound");
+            excludeProject = parser.parse("type:project");
         } catch (ParseException e) {
             logger.error(e);
         }
@@ -74,6 +76,8 @@ public class QueryServiceImpl implements QueryService {
             Query query = parser.parse(queryString);
             Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query);
             Query expandedQuery = excludeCompoundStudies(queryEFOExpansionTermsPair.getKey());
+            if(!queryString.toLowerCase().contains("type:project"))
+                expandedQuery = excludeProjects(expandedQuery);
             if(!StringUtils.isEmpty(projectName))
                 expandedQuery = applyProjectFilter(expandedQuery, projectName);
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
@@ -114,6 +118,13 @@ public class QueryServiceImpl implements QueryService {
         BooleanQuery.Builder excludeBuilder = new BooleanQuery.Builder();
         excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
         excludeBuilder.add(excludeCompound, BooleanClause.Occur.MUST_NOT);
+        return  excludeBuilder.build();
+    }
+
+    private Query excludeProjects(Query originalQuery){
+        BooleanQuery.Builder excludeBuilder = new BooleanQuery.Builder();
+        excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
+        excludeBuilder.add(excludeProject, BooleanClause.Occur.MUST_NOT);
         return  excludeBuilder.build();
     }
 
