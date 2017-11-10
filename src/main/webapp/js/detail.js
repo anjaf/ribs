@@ -459,7 +459,7 @@ function registerHelpers() {
         return ret;
     });
 
-    Handlebars.registerHelper('publication', function(obj, options) {
+    Handlebars.registerHelper('renderPublication', function(obj, options) {
         var publication = {}
         if (!obj.subsections) return '';
         var pubs = obj.subsections.filter(function (o) {
@@ -485,6 +485,11 @@ function registerHelpers() {
                 publication.URLs.push(url);
             }
         }
+        $( $.map(pubs[0].links, function (v) {
+           return v;
+        })).each(function(i,link){
+            publication.URLs.push(getURL(link.url, link.attributes.filter( function (v,i) { return    v.name=='Type';   })[0].value.toLowerCase()));
+        });
 
         if (!publication.URLs.length) delete publication.URLs
 
@@ -531,7 +536,7 @@ function findall(obj,k,unroll){ // works only for files and links
         if (key===k) {
             if (!obj.root) {
                 var accno = obj.accno, type = obj['type'];
-
+                if (type=='Publication') continue;
                 $.each(obj[k], function () {
                     $.each($.isArray(this) ? this : [this], function () {
                         if (accno && type !="Study") {
@@ -1096,7 +1101,7 @@ function handleORCIDIntegration() {
         new Date( Date.parse($('#orcid-publication-year').text())).getFullYear(),
         document.location.origin + contextPath+"/studies/"+accession,
         null, // description
-        null // db name
+        'BIOSTUDIES' // db name
     );
     thorApplicationNamespace.addWorkIdentifier('other-id', accession);
     thorApplicationNamespace.loadClaimingInfo();

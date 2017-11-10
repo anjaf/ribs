@@ -128,7 +128,7 @@ public class ConfigurableIndexService implements IndexService {
             logger.info("indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
         }
         catch (Throwable error){
-            logger.error("problem in parsing biostudies.json file", error);
+            logger.error("problem in parsing "+ fileName , error);
         }
     }
 

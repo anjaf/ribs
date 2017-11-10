@@ -115,7 +115,7 @@
 
 
                     <!-- Publication -->
-                    {{publication this}}
+                    {{renderPublication this}}
 
                     <!-- Funding -->
                     {{#eachFunder this}}
