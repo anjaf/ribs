@@ -1,4 +1,4 @@
-var filesTable, selectedFilesCount=0, totalRows=0, linksTable;
+var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource;
 
 String.format = function() {
     var s = arguments[0];
@@ -847,8 +847,7 @@ function formatPageHtml() {
     //handle escape key on fullscreen
     $(document).on('keydown',function ( e ) {
         if ( e.keyCode === 27 ) {
-            $('.table-expander','.fullscreen').click();
-            $('#right-column-expander','.fullscreen').click();
+            closeFullScreen();
         }
     });
 
@@ -910,6 +909,7 @@ function handleAnchors() {
     });
     // handle clicks on file filters in section
     $("a[data-files-id]").click( function() {
+        expansionSource = $(this).data('files-id');
         $('#all-files-expander').click();
         filesTable.column(3).search('^'+$(this).data('files-id')+'$',true,false).draw();
     });
@@ -928,6 +928,7 @@ function handleAnchors() {
     });
     // handle clicks on link filters in section
     $("a[data-links-id]").click( function() {
+        expansionSource = $(this).data('links-id');
         $('#all-links-expander').click();
         linksTable.column(':contains(Section)').search('^'+$(this).data('links-id')+'$',true,false).draw();
     });
@@ -1141,6 +1142,10 @@ function handleOntologyLinks() {
 function closeFullScreen() {
     $('.table-expander','.fullscreen').click();
     $('#right-column-expander','.fullscreen').click();
+    if (expansionSource) {
+        openHREF('#'+expansionSource);
+        expansionSource = null;
+    }
 }
 
 function handleORCIDIntegration() {
