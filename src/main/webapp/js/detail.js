@@ -1,4 +1,4 @@
-var filesTable, selectedFilesCount=0, totalRows=0;
+var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource;
 
 String.format = function() {
     var s = arguments[0];
@@ -148,12 +148,17 @@ function registerHelpers() {
                                                 : e.value);
     });
 
-    Handlebars.registerHelper('linkWithName', function(val, obj) {
-        if (obj==null) return;
+    Handlebars.registerHelper('renderLinkTableRow', function(val, obj) {
+        if (obj==null) return new Handlebars.SafeString('<td></td>');
         var e = obj.filter( function(o) { return o['name']==val})[0];
-        if (e==undefined) return '' ;
+        if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
         var value = val.toLowerCase()=='type' && linkTypeMap[e.value.toLowerCase()] ? linkTypeMap[e.value.toLowerCase()] : e.value;
-        return new Handlebars.SafeString( e.url ? '<a href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')+'">'+ value+'</a>' : value);
+        return new Handlebars.SafeString( e.url ?
+            '<td'+ ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'') + '><a href="'
+            + e.url
+            + (e.url[0]!='#' ? '" target="_blank"':'"')
+            + (e.title ? ' title="'+e.title+'"' : '')
+            +'>'+ value+'</a></td>' : '<td>'+value+'</td>');
     });
 
     Handlebars.registerHelper('renderFileTableRow', function(val, obj) {
@@ -274,12 +279,37 @@ function registerHelpers() {
         }
     });
 
+    Handlebars.registerHelper('setLinkTableHeaders', function(o) {
+        if (this && this.length) {
+            var names = ['Name'];
+            var hsh = {'Name':1};
+            $.each(this, function (i, v) {
+                v.attributes = v.attributes || [];
+                v.attributes.push({"name": "Name", "value": v.url});
+                $.each(v.attributes, function (i, v) {
+                    if (!(v.name in hsh)) {
+                        names.push(v.name);
+                        hsh[v.name] = 1;
+                    }
+                })
+            });
+            this.linkHeaders = names;
+        }
+    });
+
+
     Handlebars.registerHelper('main-file-table', function() {
         var o = findall(this,'files');
         var template = Handlebars.compile($('script#main-file-table').html());
         return template(o);
     });
 
+
+    Handlebars.registerHelper('main-link-table', function(o) {
+        var o = findall(this,'links');
+        var template = Handlebars.compile($('script#main-link-table').html());
+        return template(o);
+    });
 
     Handlebars.registerHelper('main-orcid-claimer', function(o,k) {
         var template = Handlebars.compile($('script#main-orcid-claimer').html());
@@ -354,10 +384,6 @@ function registerHelpers() {
         return ret;
     });
 
-    Handlebars.registerHelper('main-link-table', function(o) {
-        var template = Handlebars.compile($('script#main-link-table').html());
-        return template(o.data.root);
-    });
 
     Handlebars.registerHelper('asString', function() {
         console.log(this)
@@ -459,7 +485,7 @@ function registerHelpers() {
         return ret;
     });
 
-    Handlebars.registerHelper('publication', function(obj, options) {
+    Handlebars.registerHelper('renderPublication', function(obj, options) {
         var publication = {}
         if (!obj.subsections) return '';
         var pubs = obj.subsections.filter(function (o) {
@@ -485,6 +511,11 @@ function registerHelpers() {
                 publication.URLs.push(url);
             }
         }
+        $( $.map(pubs[0].links, function (v) {
+           return v;
+        })).each(function(i,link){
+            publication.URLs.push(getURL(link.url, link.attributes.filter( function (v,i) { return    v.name=='Type';   })[0].value.toLowerCase()));
+        });
 
         if (!publication.URLs.length) delete publication.URLs
 
@@ -531,16 +562,18 @@ function findall(obj,k,unroll){ // works only for files and links
         if (key===k) {
             if (!obj.root) {
                 var accno = obj.accno, type = obj['type'];
-
+                if (type=='Publication') continue;
                 $.each(obj[k], function () {
                     $.each($.isArray(this) ? this : [this], function () {
                         if (accno && type !="Study") {
                             this.attributes = this.attributes || [];
+                            var targetId = accToLink(accno);
                             this.attributes.splice(0, 0, {
                                 'name': 'Section',
-                                'search': accToLink(accno),
+                                'search': targetId,
                                 'value': type,
-                                'url': '#' + accToLink(accno)
+                                'url': '#' + targetId,
+                                'title' : accno
                             });
                         }
                     });
@@ -565,7 +598,7 @@ function postRender() {
     drawSubsections();
     createDataTables();
     createMainFileTable();
-    createLinkTables();
+    createMainLinkTable();
     showRightColumn();
     handleSectionArtifacts();
     handleTableExpansion();
@@ -606,7 +639,7 @@ function createMainFileTable() {
         "order": [[1, "asc"]],
         "dom": "rlftpi",
         "infoCallback": function( settings, start, end, max, total, out ) {
-            return (total== max) ? out : out +' <a class="section-button" id="clear-filter" onclick="clearFilter();return false;">' +
+            return (total== max) ? out : out +' <a class="section-button" id="clear-filter" onclick="clearFileFilter();return false;">' +
                 '<span class="fa-stack bs-icon-fa-stack">' +
                 '<i class="fa fa-filter fa-stack-1x"></i>' +
                 '<i class="fa-stack-1x filter-cross">×</i>' +
@@ -614,6 +647,36 @@ function createMainFileTable() {
         }
     });
 }
+
+function createMainLinkTable() {
+
+    //create external links for known link types
+    var typeIndex = $('thead tr th',$("#link-list")).map(function(i,v) {if ( $(v).text().toLowerCase()=='type') return i;}).filter(isFinite)[0];
+    $("tr",$("#link-list")).each( function (i,row) {
+        if (i==0) return;
+        var type =  $($('td',row)[typeIndex]).text().toLowerCase();
+        var url = getURL($($('td',row)[0]).text(), type);
+        if (url) {
+            $($('td',row)[0]).wrapInner('<a href="'+ url.url +'" target="_blank">');
+        }
+        $($('td',row)[0]).addClass("overflow-name-column");
+    });
+
+    //format the right column tables
+    linksTable = $("#link-list").DataTable({
+        "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+        "dom": "rlftpi",
+        "infoCallback": function( settings, start, end, max, total, out ) {
+        return (total== max) ? out : out +' <a class="section-button" id="clear-filter" onclick="clearLinkFilter();return false;">' +
+            '<span class="fa-stack bs-icon-fa-stack">' +
+            '<i class="fa fa-filter fa-stack-1x"></i>' +
+            '<i class="fa-stack-1x filter-cross">×</i>' +
+            '</span> show all links</a>';
+        }
+    });
+
+}
+
 
 function getURL(accession, type) {
     if (!type) {
@@ -641,36 +704,6 @@ function getURL(accession, type) {
     return url ?  {url:url, type:type, text:accession} : null;
 }
 
-function createLinkTables() {
-
-    //handle links
-    $(".link-list").each(function () {
-        //create external links for known link types
-        var typeIndex = $('thead tr th',$(this)).map(function(i,v) {if ( $(v).text().toLowerCase()=='type') return i;}).filter(isFinite)[0];
-        $("tr",this).each( function (i,row) {
-            if (i==0) return;
-            var type =  $($('td',row)[typeIndex]).text().toLowerCase();
-            var url = getURL($($('td',row)[0]).text(), type);
-            if (url) {
-                $($('td',row)[0]).wrapInner('<a href="'+ url.url +'" target="_blank">');
-            }
-            $($('td',row)[0]).addClass("overflow-name-column");
-        });
-
-    });
-
-    //format the right column tables
-    $("#right-column .link-list").DataTable({
-        "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
-        "dom": "rlftpi"
-    });
-
-    //format section tables
-    $("#bs-content .link-list").DataTable({
-        "dom": "t",
-        paging: false
-    });
-}
 
 
 function drawSubsections() {
@@ -814,8 +847,7 @@ function formatPageHtml() {
     //handle escape key on fullscreen
     $(document).on('keydown',function ( e ) {
         if ( e.keyCode === 27 ) {
-            $('.table-expander','.fullscreen').click();
-            $('#right-column-expander','.fullscreen').click();
+            closeFullScreen();
         }
     });
 
@@ -863,7 +895,7 @@ function handleAnchors() {
         $('#left-column').slideDown();
     }
 
-    // handle clicks on file filters in section
+    // add file filter button for section
     $(filesTable.column(':contains(Section)').nodes()).each( function(){
         var divId = $(this).data('search');
         if (divId !='' ) {
@@ -875,10 +907,32 @@ function handleAnchors() {
             }
         }
     });
+    // handle clicks on file filters in section
     $("a[data-files-id]").click( function() {
+        expansionSource = $(this).data('files-id');
         $('#all-files-expander').click();
         filesTable.column(3).search('^'+$(this).data('files-id')+'$',true,false).draw();
     });
+
+    // add file filter button for section
+    $(linksTable.column(':contains(Section)').nodes()).each( function(){
+        var divId = $(this).data('search');
+        if (divId !='' ) {
+            var bar = $('#' + divId + '> .bs-name > .section-title-bar');
+            if (!$('a[data-links-id="' + divId + '"]', bar).length) {
+                bar.append('<a class="section-button" data-links-id="'
+                    + divId + '"><i class="fa fa-filter"></i> show links in this section</a>'
+                );
+            }
+        }
+    });
+    // handle clicks on link filters in section
+    $("a[data-links-id]").click( function() {
+        expansionSource = $(this).data('links-id');
+        $('#all-links-expander').click();
+        linksTable.column(':contains(Section)').search('^'+$(this).data('links-id')+'$',true,false).draw();
+    });
+
 
     //handle author list expansion
     $('#bs-authors li span.more').click(function () {
@@ -990,9 +1044,14 @@ function downloadFiles(files) {
     $(submissionForm).submit();
 }
 
-function clearFilter() {
+function clearFileFilter() {
     filesTable.search('').columns().search('').draw();
 }
+
+function clearLinkFilter() {
+    linksTable.search('').columns().search('').draw();
+}
+
 
 function handleThumbnails() {
     $(filesTable.column(1).nodes()).each(function () {
@@ -1054,6 +1113,7 @@ function handleSubattributes() {
 }
 
 function handleOntologyLinks() {
+    return;
 // handle ontology links
     $("span[data-term-id][data-ontology]").each(function () {
         var ont = $(this).data('ontology').toLowerCase();
@@ -1082,6 +1142,10 @@ function handleOntologyLinks() {
 function closeFullScreen() {
     $('.table-expander','.fullscreen').click();
     $('#right-column-expander','.fullscreen').click();
+    if (expansionSource) {
+        openHREF('#'+expansionSource);
+        expansionSource = null;
+    }
 }
 
 function handleORCIDIntegration() {
@@ -1096,7 +1160,7 @@ function handleORCIDIntegration() {
         new Date( Date.parse($('#orcid-publication-year').text())).getFullYear(),
         document.location.origin + contextPath+"/studies/"+accession,
         null, // description
-        null // db name
+        'BIOSTUDIES' // db name
     );
     thorApplicationNamespace.addWorkIdentifier('other-id', accession);
     thorApplicationNamespace.loadClaimingInfo();

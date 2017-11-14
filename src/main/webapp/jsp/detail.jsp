@@ -115,7 +115,7 @@
 
 
                     <!-- Publication -->
-                    {{publication this}}
+                    {{renderPublication this}}
 
                     <!-- Funding -->
                     {{#eachFunder this}}
@@ -174,12 +174,11 @@
                     {{#ifHasAttribute 'Title' this.attributes}}
                         {{valueWithName 'Title' this.attributes}}
                     {{else}}
-                        {{type}}
+                        {{type}} <span class="section-acc"><i class="fa fa-map-pin"></i> {{accno}}</span>
                     {{/ifHasAttribute}}
                     <span class="section-title-bar"></span>
                 </div>
                 <div class="has-child-section">
-                    {{&section-link-tables}}
                     {{#if subsections}}
                         {{#each subsections}}
                             {{#ifArray this}}
@@ -290,59 +289,39 @@
         </script>
 
         <script id='main-link-table' type='text/x-handlebars-template'>
-            {{#eachLinkTable}}
+            {{setLinkTableHeaders}}
+            {{#if this.linkHeaders}}
             <section>
-                <div class="table-caption">
-                    <span class="widge-title"><i class="fa fa-download"></i> Linked Information</span>
-                    <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
-                </div>
-                {{&link-table this}}
-            </section>
-            {{/eachLinkTable}}
-        </script>
-
-        <script id='section-link-tables' type='text/x-handlebars-template'>
-            {{#if this.links}}
-            <section>
-                <a class="show-more toggle-links" data-total="1"><i class="fa fa-caret-right"></i> show link table</a>
-                <div class="bs-section-links">
-                    {{#eachLinkTable}}
-                    <div class="bs-section-link-table">
-                        <div class="table-caption">
-                            Link Table {{@indexPlusOne}}
-                            <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
-                        </div>
-                        {{&link-table this}}
+                <div id="link-list-container">
+                    <div class="table-caption">
+                        <span class="widge-title"><i class="fa fa-external-link"></i> Linked Information</span>
+                        <span class="fa fa-expand fa-icon table-expander" id="all-links-expander" title="Click to expand"/>
                     </div>
-                    {{/eachLinkTable}}
+                    <div class="table-wrapper">
+                        <table id="link-list" class="stripe compact hover">
+                            <thead>
+                            <tr>
+                                {{#each linkHeaders}}
+                                <th>{{this}}</th>
+                                {{/each}}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {{#each this}}
+                            <tr>
+                                {{#each ../linkHeaders}}
+                                    {{renderLinkTableRow this ../attributes}}
+                                {{/each}}
+                            </tr>
+                            {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
             {{/if}}
         </script>
 
-        <script id='link-table' type='text/x-handlebars-template'>
-            <div class="link-filters"></div>
-            <div class="table-wrapper">
-                <table class="link-list" class="stripe compact hover">
-                    <thead>
-                    <tr>
-                        {{#each linkHeaders}}
-                        <th>{{this}}</th>
-                        {{/each}}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {{#each this.links}}
-                    <tr>
-                        {{#each ../linkHeaders}}
-                        <td>{{linkWithName this ../attributes}}</td>
-                        {{/each}}
-                    </tr>
-                    {{/each}}
-                    </tbody>
-                </table>
-            </div>
-        </script>
 
         <script id='valqual-template' type='text/x-handlebars-template'>{{#ifArray this}}{{&renderOntologySubAttribute this}}{{#eachSubAttribute this}}
                     {{#if @first}}<i class="fa fa-info-circle sub-attribute-info"></i><span class="sub-attribute">{{/if}}
