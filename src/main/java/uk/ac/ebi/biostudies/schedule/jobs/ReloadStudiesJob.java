@@ -38,7 +38,7 @@ public class ReloadStudiesJob {
     @Autowired
     IndexService indexService;
 
-//    @Scheduled(cron = "${bs.studies.reload}")
+    @Scheduled(cron = "${bs.studies.reload}")
     public void doExecute() throws Exception {
         try {
             // check preferences and if source location is defined, use that
