@@ -144,6 +144,8 @@ public class SearchServiceImpl implements SearchService {
                     : new SortField(sortBy, sortFieldType, shouldReverse);
         }
         Sort sort = new Sort( sortField );
+        if(sortBy.equalsIgnoreCase(Constants.RELEASE_DATE))
+            sort = new Sort(sortField, new SortField(Constants.CREATION_TIME, SortField.Type.STRING, shouldReverse));
 
         try {
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);

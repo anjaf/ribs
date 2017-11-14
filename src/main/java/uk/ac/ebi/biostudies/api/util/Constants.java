@@ -27,4 +27,5 @@ public interface Constants {
     String PROJECT = "project";
     String SECRET_KEY = "seckey";
     String LINK_TYPE = "linktype";
+    String CREATION_TIME = "ctime";
 }
