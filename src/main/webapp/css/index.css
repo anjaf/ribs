@@ -80,6 +80,18 @@
     background: #CDF7DF;
 }
 
+#linksIcon:before {
+    color: #0378bc;
+    border: 1px solid #0378bc;
+    background: #e3f3fb;
+}
+
+#filesIcon:before {
+    color: #ee1d25;
+    border: 1px solid #ee1d25;
+    background: #ffe3e4;
+}
+
 
 #latestIcon:before {
     color: #E4753D;
@@ -91,16 +103,12 @@
     padding-bottom:36px;
 }
 
-#studyCountStats, #projectCountStats, #latest {
-    display: none;
-}
-
 #stats h5, #latest h5 {
     line-height: 36px;
     color: #555;
 }
 
-#studyCountStats, #projectCountStats, #latest {
+#studyCountStats, #projectCountStats, #latest, #fileCountStats, #linkCountStats {
     display: none;
     margin-top:20px;
 }

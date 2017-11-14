@@ -21,6 +21,18 @@
                         <span id="projectCount">{{projects}} projects</span>
                     </a>
                 </h5>
+                <h5 id="fileCountStats">
+                    <a href="studies/" title="Browse BioStudies">
+                        <span class="icon fa fa-files-o home-icon-small" id="filesIcon" ></span>
+                        <span id="fileCount"></span>
+                    </a>
+                </h5>
+                <h5 id="linkCountStats">
+                    <a href="studies/" title="Browse BioStudies">
+                        <span class="icon fa fa-link home-icon-small" id="linksIcon" ></span>
+                        <span id="linkCount"></span>
+                    </a>
+                </h5>
             </div>
             <div class="columns medium-9" id="latest">
                 <h5>

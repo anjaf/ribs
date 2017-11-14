@@ -18,6 +18,7 @@ public interface SearchService {
     String getDetailFile(String accessionNumber) throws IOException;
     String getKeywords(String query, String field, Integer limit);
     String getEfoTree(String query);
+    String getFieldStats() throws IOException;
     boolean isAccessible(String accession);
     boolean isAccessible(String accession, String seckey);
 }

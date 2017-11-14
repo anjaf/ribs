@@ -87,4 +87,14 @@ public class Search {
     public String getDefaultFacets(@PathVariable String project, @RequestParam(value="query", required=false, defaultValue = "") String queryString) throws Exception{
         return facetService.getDefaultFacetTemplate(project, queryString).toString();
     }
+
+    @ApiOperation(value = "Returns index stats", notes = "Returns stats for indexed fields", response = ObjectNode.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Stats for indexed fields", response = ObjectNode.class)
+    })
+    @PublicRESTMethod
+    @RequestMapping(value = "/stats", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    public String getStats() throws Exception {
+        return searchService.getFieldStats();
+    }
 }

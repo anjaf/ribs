@@ -299,4 +299,22 @@ public class SearchServiceImpl implements SearchService {
         String result = new String(buff, "UTF-8");
         return result;
     }
+
+    @Override
+    public String getFieldStats() throws IOException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode response = mapper.createObjectNode();
+        IndexSearcher searcher = indexManager.getIndexSearcher();
+
+        DocValuesStats.SortedLongDocValuesStats  fileStats = new DocValuesStats.SortedLongDocValuesStats ("files");
+        searcher.search(new MatchAllDocsQuery(), new DocValuesStatsCollector(fileStats));
+        response.put("files", fileStats.sum());
+
+        DocValuesStats.SortedLongDocValuesStats  linkStats = new DocValuesStats.SortedLongDocValuesStats ("links");
+        searcher.search(new MatchAllDocsQuery(), new DocValuesStatsCollector(linkStats));
+        response.put("links", linkStats.sum());
+
+        return response.toString();
+    }
 }

@@ -14,8 +14,17 @@
 
              $.getJSON( contextPath + "/api/v1/search",{query:'type:Project'}, function( data ) {
                  if (data && data.totalHits && data.totalHits>0) {
-                     $('#projectCount').text(data.totalHits + (data.totalHits == 1 ? ' project' : ' projects'));
+                     $('#projectCount').text(formatNumber(data.totalHits) + (data.totalHits == 1 ? ' project' : ' projects'));
                      $('#projectCountStats').fadeIn();
+                 }
+             });
+
+             $.getJSON( contextPath + "/api/v1/stats", function( data ) {
+                 if (data && data.files && data.links) {
+                     $('#fileCount').text(formatNumber(data.files)+ ' files');
+                     $('#fileCountStats').fadeIn();
+                     $('#linkCount').text(formatNumber(data.links)+ ' links');
+                     $('#linkCountStats').fadeIn();
                  }
              });
          }
