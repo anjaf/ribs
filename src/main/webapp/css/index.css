@@ -108,8 +108,10 @@
     color: #555;
 }
 
-#studyCountStats, #projectCountStats, #latest, #fileCountStats, #linkCountStats {
+#latest {
     display: none;
+}
+#studyCountStats, #projectCountStats, #latestHeading, #fileCountStats, #linkCountStats {
     margin-top:20px;
 }
 

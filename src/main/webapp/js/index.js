@@ -2,32 +2,64 @@
 
     registerHelpers();
 
-    // Prepare template
-    var template = Handlebars.compile($('script#stats-template').html());
 
+    var projectAnimation = $({countNum: $('#projectCount').text()}).animate({countNum: 1}, {
+        duration: 10000,
+        easing:'swing',
+        step: function(now) {
+            $('#projectCount').text(formatNumber(Math.floor(this.countNum)));
+        },
+        complete: function() {
+            $('#projectCount').text(formatNumber(this.countNum)+'+');
+        }
+    });
+    $.getJSON( contextPath + "/api/v1/search",{query:'type:Project'}, function( data ) {
+        if (data && data.totalHits && data.totalHits>0) {
+            projectAnimation.stop();
+            $('#projectCount').text(formatNumber(data.totalHits));
+        }
+    });
+
+    var statsAnimation = $({countNum: $('#linkCount').text()}).animate({countNum: 1000000}, {
+        duration: 5000,
+        easing:'swing',
+        step: function(now) {
+            $('#fileCount').text(formatNumber(Math.floor(this.countNum)));
+            $('#linkCount').text(formatNumber(Math.floor(this.countNum)));
+        },
+        complete: function() {
+            $('#fileCount').text(formatNumber(this.countNum)+'+');
+            $('#linkCount').text(formatNumber(this.countNum)+'+');
+        }
+    });
+    $.getJSON( contextPath + "/api/v1/stats", function( data ) {
+        if (data && data.files && data.links) {
+            statsAnimation.stop();
+            $('#fileCount').text(formatNumber(data.files));
+            $('#linkCount').text(formatNumber(data.links));
+        }
+    });
+
+    var studyAnimation = $({countNum: $('#studyCount').text()}).animate({countNum: 1000000}, {
+        duration: 5000,
+        easing:'swing',
+        step: function(now) {
+            $('#studyCount').text(formatNumber(Math.floor(this.countNum)));
+        },
+        complete: function() {
+            $('#studyCount').text(formatNumber(this.countNum)+'+');
+        }
+    });
     $.getJSON( contextPath + "/api/v1/search",{query:'type:Study -release_date:20500101',pageSize:5,sortBy:'release_date',sortOrder:'descending'}, function( data ) {
-         if (data) {
-             var totalCount = data.totalHits + (data.totalHits == 1 ? ' study' : ' studies');
-             $('#template').html(template(data));
-             $('#latest').slideDown();
-             $('#studyCountStats').fadeIn();
-
-             $.getJSON( contextPath + "/api/v1/search",{query:'type:Project'}, function( data ) {
-                 if (data && data.totalHits && data.totalHits>0) {
-                     $('#projectCount').text(formatNumber(data.totalHits) + (data.totalHits == 1 ? ' project' : ' projects'));
-                     $('#projectCountStats').fadeIn();
-                 }
-             });
-
-             $.getJSON( contextPath + "/api/v1/stats", function( data ) {
-                 if (data && data.files && data.links) {
-                     $('#fileCount').text(formatNumber(data.files)+ ' files');
-                     $('#fileCountStats').fadeIn();
-                     $('#linkCount').text(formatNumber(data.links)+ ' links');
-                     $('#linkCountStats').fadeIn();
-                 }
-             });
-         }
+        if (data) {
+            // Prepare template
+            var template = Handlebars.compile($('script#latest-studies-template').html());
+            $('#latest').html(template(data));
+            $('#latestLoader').hide();
+            $('#latest').slideDown();
+            studyAnimation.stop();
+            $('#studyCount').text(formatNumber(data.totalHits));
+        }
 
     });
 

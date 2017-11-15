@@ -291,13 +291,14 @@
 <script src='${contextPath}/js/jquery.cookie.js'></script>
 <script src='${contextPath}/js/jquery.caret-range-1.0.js'></script>
 <script src='${contextPath}/js/jquery.autocomplete.js'></script>
+
 <!-- shared variables -->
 <script>
     var contextPath = '${contextPath}';
     var parts = $.grep('${pathname}'.replace(contextPath+'/','').split('/'),function(a) {return a!=''});
     var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
 </script>
-
+<script src='${contextPath}/js/common.js'></script>
 <!-- Google Analytics details... -->
 <!-- Change UA-XXXXX-X to be your site's ID -->
 <!--
@@ -330,6 +331,5 @@
             for you.</p>
     </section>
 </script>
-<script src='${contextPath}/js/common.js'></script>
 </body>
 </html>
