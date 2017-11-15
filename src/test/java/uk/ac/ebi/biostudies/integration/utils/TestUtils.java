@@ -43,12 +43,8 @@ public class TestUtils {
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#projectCount")));
         String prjCount = IntegrationTestSuite.driver.findElement(By.id("projectCount")).getText();
-        System.out.println("prj num: "+prjCount);
-        String[] tokens = prjCount.split(" ");
-        assertThat(tokens.length, equalTo(2));
-        int count = Integer.valueOf(tokens[0]);
+        int count = Integer.valueOf(prjCount);
         assertThat(count, greaterThan(0));
-        assertThat(tokens[1], equalTo("projects"));
     }
 
     public static void indexBigFile(){

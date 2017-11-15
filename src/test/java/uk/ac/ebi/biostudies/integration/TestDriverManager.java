@@ -45,14 +45,11 @@ public class TestDriverManager {
             @Override
             public Boolean apply(WebDriver d) {
                 String result = d.findElement(By.id("projectCount")).getText();
-                return result.contains("projects");
+                return result.length()>0 ;
             }
         });
         String prjCount = IntegrationTestSuite.driver.findElement(By.id("projectCount")).getText();
-        String[] tokens = prjCount.split(" ");
-        assertThat(tokens.length, equalTo(2));
-        int count = Integer.valueOf(tokens[0]);
+        int count = Integer.valueOf(prjCount);
         assertThat(count, greaterThan(0));
-        assertThat(tokens[1], equalTo("projects"));
     }
 }

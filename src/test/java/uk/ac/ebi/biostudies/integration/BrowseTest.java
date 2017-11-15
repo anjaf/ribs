@@ -40,7 +40,7 @@ public class BrowseTest {
             @Override
             public Boolean apply(WebDriver d) {
                 String result = d.findElement(By.id("projectCount")).getText();
-                return result.contains("projects");
+                return result.length()>0;
             }
         });
         IntegrationTestSuite.driver.findElement(By.cssSelector("#login-button")).click();
