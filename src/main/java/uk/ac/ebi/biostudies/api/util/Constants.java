@@ -28,4 +28,5 @@ public interface Constants {
     String SECRET_KEY = "seckey";
     String LINK_TYPE = "linktype";
     String CREATION_TIME = "ctime";
+    String RDATE_LONG = "rdatelong";
 }

@@ -250,6 +250,7 @@ public class ConfigurableIndexService implements IndexService {
 
                 if(json.has("rtime"))
                     releaseDateLong = Long.valueOf(json.get("rtime").asText())*1000;
+                valueMap.put(Constants.RDATE_LONG, releaseDateLong);
                 if(releaseDateLong==0L) {
                     Calendar calendar = Calendar.getInstance();
                     if(!String.valueOf(valueMap.get(Constants.ACCESS)).contains("public"))

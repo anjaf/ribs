@@ -50,7 +50,7 @@
             $('#studyCount').text(formatNumber(this.countNum)+'+');
         }
     });
-    $.getJSON( contextPath + "/api/v1/search",{query:'type:Study -release_date:20500101',pageSize:5,sortBy:'release_date',sortOrder:'descending'}, function( data ) {
+    $.getJSON( contextPath + "/api/v1/latest", function( data ) {
         if (data) {
             // Prepare template
             var template = Handlebars.compile($('script#latest-studies-template').html());

@@ -55,6 +55,18 @@ public class Search {
 //        return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
     }
 
+
+    @ApiOperation(value = "Returns latest studies", notes = "", response = ObjectNode.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "JsonObject contains latest study results", response = ObjectNode.class)
+    })
+    @PublicRESTMethod
+    @RequestMapping(value = "/latest", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    public String getLatestStudies() throws Exception
+    {
+        return searchService.search(URLDecoder.decode("type:Study -release_date:20500101", String.valueOf(UTF_8)), null, null, 1, 5, "rdatelong", "descending");
+    }
+
     @ApiOperation(value = "Returns results for selected facets", notes = "Returns results for selected facets by user interface", response = ObjectNode.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Search results for selected facets", response = ObjectNode.class)
