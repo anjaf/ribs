@@ -258,7 +258,7 @@ public class ConfigurableIndexService implements IndexService {
                     releaseDateLong = calendar.getTimeInMillis();
                 }
                 valueMap.put(Constants.RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
-
+                valueMap.put(Constants.YEAR, DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
                 String project = "";
                 if(json.has("attributes")) {
                     project = StreamSupport.stream(json.get("attributes").spliterator(), false)
@@ -268,9 +268,14 @@ public class ConfigurableIndexService implements IndexService {
                             .collect(Collectors.joining(","));
                 }
                 valueMap.put(Constants.PROJECT, project);
+                ReadContext jsonPathContext = null;
+                for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue("public")){
+                    if( fieldMetadataNode.has("jpath") &&  !fieldMetadataNode.get("jpath").asText().isEmpty()){
+                        extractWithJsonPath(jsonPathContext, json, valueMap, fieldMetadataNode);
+                    }
+                }
 
                 //extract facets
-                ReadContext jsonPathContext = null;
                 if(indexManager.indexDetails.findValue(project.toLowerCase())!=null && json.has("section") && json.get("section").has("attributes")) {
                     JsonNode attNodes = json.get("section").get("attributes");
                     for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(project.toLowerCase())){

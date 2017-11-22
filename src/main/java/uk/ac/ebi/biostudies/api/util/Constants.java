@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 public interface Constants {
     String RELEASE_DATE = "release_date";
     String RELEVANCE = "relevance";
+    String YEAR = "year";
 
     String SORT_ORDER = "sortorder";
     String ASCENDING = "ascending";

@@ -15,7 +15,9 @@
     {"name":"release_date", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"ctime", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"id", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
-    {"name":"seckey", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"}
+    {"name":"seckey", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
+    {"name":"projectFacet", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"false"},
+    {"name":"year", "title":"Year", "fieldType":"facet", "multiValued":"false"}
   ],
   "hecatos":
   [
@@ -31,7 +33,6 @@
     {"name":"exp", "title":"Experimental Factor", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"false", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"organism", "title":"Organism", "jpath":"$..subsections[?(@.type==\"Singleton values\")].attributes[?(@.name==\"Characteristics[organism]\")].value", "fieldType":"facet", "multiValued":"true"},
     {"name":"studyType", "title":"Study type", "fieldType":"facet", "multiValued":"true"}
-
   ],
   "europepmc": [
     {"name":"fundingagency", "title":"Funding Agency", "fieldType":"facet", "jpath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":"true"}

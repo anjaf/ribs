@@ -66,7 +66,6 @@ public class FacetServiceImpl implements FacetService {
             logger.debug("problem in applying security in creating facetresults for this query {}", query, e);
         }
         return allResults;
-        //                searcher.search(new MatchAllDocsQuery(), facetsCollector); new MatchAllDocsQuery()
     }
 
     @Override
@@ -80,7 +79,7 @@ public class FacetServiceImpl implements FacetService {
         }
         List<FacetResult> facetResults = getFacetsForQuery(query);
         List<ObjectNode> list = new ArrayList<>();
-        Set<String> validFacets = indexManager.getAllValidFields().keySet();
+        Set<String> validFacets = indexManager.getProjectRelatedFields(prjName.toLowerCase());
         for(FacetResult fcResult:facetResults){
             if(fcResult==null)
                 continue;

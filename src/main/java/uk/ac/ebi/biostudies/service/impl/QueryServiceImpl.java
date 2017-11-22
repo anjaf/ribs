@@ -78,7 +78,7 @@ public class QueryServiceImpl implements QueryService {
             Query expandedQuery = excludeCompoundStudies(queryEFOExpansionTermsPair.getKey());
             if(!queryString.toLowerCase().contains("type:project"))
                 expandedQuery = excludeProjects(expandedQuery);
-            if(!StringUtils.isEmpty(projectName))
+            if(!StringUtils.isEmpty(projectName) && !projectName.equalsIgnoreCase("public"))
                 expandedQuery = applyProjectFilter(expandedQuery, projectName);
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
             logger.debug("Lucene query: {}",queryAfterSecurity.toString());
