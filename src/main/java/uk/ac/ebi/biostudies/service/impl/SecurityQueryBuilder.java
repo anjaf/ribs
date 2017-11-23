@@ -38,7 +38,7 @@ public class SecurityQueryBuilder {
 
         int counter = 0;
         if(currentUser!=null && currentUser.getAllow()!=null && currentUser.getAllow().length>0) {
-             String.join(" OR ", currentUser.getAllow());
+            securityClause.append( String.join(" OR ", currentUser.getAllow() ));
         } else {
             securityClause.append("public");
         }
