@@ -55,6 +55,14 @@
                                 <p></p>
                             </section>
                         {{/if}}
+                        {{#if suggestion}}
+                            <h3>Did you mean...</h3>
+                            <ul id="spell-suggestions">
+                            {{#each suggestion}}
+                                <li> {{dynamicLink this}} </li>
+                            {{/each}}
+                            </ul>
+                        {{/if}}
                     {{/if}}
 
                 </div>

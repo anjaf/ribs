@@ -143,6 +143,10 @@ function registerHelpers(params) {
         return (new Date(v.substr(0,4)+'-'+v.substr(4,2)+'-'+v.substr(6,2))).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
     });
 
+    Handlebars.registerHelper('dynamicLink', function(query) {
+        var link = '<a href="studies?query='+query+'" >'+query+'</a>';
+        return new Handlebars.SafeString(link);
+    });
 
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 

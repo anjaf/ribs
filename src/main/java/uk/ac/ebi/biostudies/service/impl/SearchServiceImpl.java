@@ -10,9 +10,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
+import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.SpellChecker;
+import org.apache.lucene.store.RAMDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -67,7 +71,6 @@ public class SearchServiceImpl implements SearchService {
 
     private static Query excludeCompound;
     private static QueryParser parser;
-
     @PostConstruct
     void init(){
         parser = new QueryParser(Constants.TYPE, new AttributeFieldAnalyzer());
@@ -128,7 +131,7 @@ public class SearchServiceImpl implements SearchService {
         return  facetService.addFacetDrillDownFilters(query, selectedFacets);
     }
 
-    private ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder, boolean doHighlight){
+    private ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder, boolean doHighlight, String queryString){
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
         ObjectMapper mapper = new ObjectMapper();
@@ -189,6 +192,10 @@ public class SearchServiceImpl implements SearchService {
                 }
                 response.set("hits", docs);
                 logger.debug(hits.totalHits + " hits");
+            }
+            else{
+                String[]spells = indexManager.getSpellChecker().suggestSimilar(queryString, 5);
+                response.set("suggestion", mapper.valueToTree(Arrays.asList(spells)));
             }
         }
         catch(Throwable error){
@@ -260,7 +267,7 @@ public class SearchServiceImpl implements SearchService {
                 queryAfterSecurity = applyFacets(queryAfterSecurity, selectedFacets);
                 logger.debug("Lucene after facet query: {}",queryAfterSecurity.toString());
             }
-            response = applySearchOnQuery(queryAfterSecurity, page, pageSize, sortBy, sortOrder, doHighlight);
+            response = applySearchOnQuery(queryAfterSecurity, page, pageSize, sortBy, sortOrder, doHighlight, queryString);
 
             // add expansion
             EFOExpansionTerms expansionTerms =  resultPair.getValue();

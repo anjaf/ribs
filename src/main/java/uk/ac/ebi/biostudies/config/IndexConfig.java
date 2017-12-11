@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostudies.config;
 
 import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.store.Directory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -58,6 +59,9 @@ public class IndexConfig {
 
     @Value("${indexer.stopwords}")
     private String stopwords;
+
+    @Value("${indexer.spellchecker-location}")
+    private String spellcheckerLocation;
 
     public static CharArraySet STOP_WORDS;
 
@@ -127,4 +131,7 @@ public class IndexConfig {
         return queueSize;
     }
 
+    public String getSpellcheckerLocation() {
+        return spellcheckerLocation;
+    }
 }

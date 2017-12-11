@@ -9,12 +9,16 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.spell.LuceneDictionary;
+import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
@@ -61,6 +65,7 @@ public class IndexManager {
     AnalyzerManager analyzerManager;
     @Autowired
     Autocompletion autocompletion;
+    private SpellChecker spellChecker;
 
 
     @PostConstruct
@@ -89,6 +94,8 @@ public class IndexManager {
             efoIndexSearcher = new IndexSearcher(getEfoIndexReader());
             taxonomyManager.init(AllFields.values());
             autocompletion.rebuild();
+            spellChecker = new SpellChecker(FSDirectory.open(Paths.get(indexConfig.getSpellcheckerLocation())));
+            spellChecker.indexDictionary(new LuceneDictionary(getIndexReader(), Constants.CONTENT), new IndexWriterConfig(), false);
 
         }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);
@@ -203,5 +210,9 @@ public class IndexManager {
 
     public IndexWriter getEfoIndexWriter() {
         return efoIndexWriter;
+    }
+
+    public SpellChecker getSpellChecker() {
+        return spellChecker;
     }
 }
