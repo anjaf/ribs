@@ -284,7 +284,7 @@ public class ConfigurableIndexService implements IndexService {
                                         .filter(jsonNode ->
                                                 jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase(fieldMetadataNode.get("title").asText()))
                                         .map(s->s.get("value").textValue() )
-                                        .collect(Collectors.joining(","));
+                                        .collect(Collectors.joining("£"));
                                 valueMap.put(fieldMetadataNode.get("name").asText(), value);
                             }
                             else{
@@ -363,7 +363,7 @@ public class ConfigurableIndexService implements IndexService {
             if(value==null || value.isEmpty()) {
                 value = "n/a";
             }
-            for(String subVal:value.split(",")) {
+            for(String subVal:value.split("£")) {
                 doc.add(new FacetField(fieldName, subVal.trim().toLowerCase()));
             }
         }
