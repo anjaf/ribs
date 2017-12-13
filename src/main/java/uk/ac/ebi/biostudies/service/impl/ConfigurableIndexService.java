@@ -251,14 +251,11 @@ public class ConfigurableIndexService implements IndexService {
                 if(json.has("rtime"))
                     releaseDateLong = Long.valueOf(json.get("rtime").asText())*1000;
                 valueMap.put(Constants.RDATE_LONG, releaseDateLong);
-                if(releaseDateLong==0L) {
-                    Calendar calendar = Calendar.getInstance();
-                    if(!String.valueOf(valueMap.get(Constants.ACCESS)).contains("public"))
-                        calendar.set(2050, 0, 1);
-                    releaseDateLong = calendar.getTimeInMillis();
+                if(releaseDateLong==0L && !String.valueOf(valueMap.get(Constants.ACCESS)).contains("public")) {
+                        releaseDateLong = 2524664024570L; // 2015-01-01
                 }
                 valueMap.put(Constants.RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
-                valueMap.put(Constants.YEAR, DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
+                valueMap.put(Constants.YEAR, releaseDateLong==2524664024570L ? null :  DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
                 String project = "";
                 if(json.has("attributes")) {
                     project = StreamSupport.stream(json.get("attributes").spliterator(), false)
