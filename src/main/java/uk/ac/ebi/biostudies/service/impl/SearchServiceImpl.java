@@ -193,10 +193,11 @@ public class SearchServiceImpl implements SearchService {
                 response.set("hits", docs);
                 logger.debug(hits.totalHits + " hits");
             }
+            /*
             else{
                 String[]spells = indexManager.getSpellChecker().suggestSimilar(queryString, 5);
                 response.set("suggestion", mapper.valueToTree(Arrays.asList(spells)));
-            }
+            }*/
         }
         catch(Throwable error){
             logger.error("problem in searching this query {}", query, error);
