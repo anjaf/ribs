@@ -95,7 +95,11 @@
                 <input type="hidden" id="facet-query" name="query" value=""/>
                 <div id="facet" class="{{project}}-facets">
                     {{#each this}}
-                        <div class="facet-name">{{title}}</div>
+                    <div class="facet-name">{{title}}
+                        {{#ifCond children.length '==' 20 }}
+                        <span class="facet-top">(Top 20)</span>
+                        {{/ifCond}}
+                    </div>
                         <ul>
                         {{#each children}}
                             <li>
