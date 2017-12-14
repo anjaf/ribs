@@ -23,6 +23,7 @@
     <meta name="MobileOptimized" content="width" />
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#70BDBD"> <!-- Android Chrome mobile browser tab color -->
+    <meta http-equiv="pragma" content="no-cache" />
 
     <!-- If you link to any other sites frequently, consider optimising performance with a DNS prefetch -->
     <link rel="dns-prefetch" href="//embl.de" />
