@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queries.mlt.MoreLikeThis;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
@@ -304,7 +305,17 @@ public class SearchServiceImpl implements SearchService {
         byte[] buff = new byte[length];
         reader.read(buff);
         String result = new String(buff, "UTF-8");
-        return result;
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(result);
+
+        Integer docNum = getDocumentByAccession(accessionNumber);
+        try {
+            if(docNum!=null)
+                getSimilarStudies(docNum, (ObjectNode) node, mapper);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return node.toString();
     }
 
     @Override
@@ -323,5 +334,42 @@ public class SearchServiceImpl implements SearchService {
         response.put("links", linkStats.sum());
 
         return response.toString();
+    }
+
+    private void getSimilarStudies(int docNumber, ObjectNode objectNode, ObjectMapper mapper) throws ParseException, IOException {
+        int maxHits = 4;
+        MoreLikeThis mlt = new MoreLikeThis(indexManager.getIndexReader());
+        mlt.setFieldNames(new String[]{Constants.CONTENT, Constants.TITLE, Constants.PROJECT});
+        mlt.setAnalyzer(analyzerManager.getPerFieldAnalyzerWrapper());
+        Query likeQuery = mlt.like( docNumber);
+        TopDocs mltDocs = indexManager.getIndexSearcher().search( likeQuery , maxHits);
+        String[] titles = new String[mltDocs.scoreDocs.length];
+        String[] accessions = new String[mltDocs.scoreDocs.length];
+        ArrayNode similars = mapper.createArrayNode();
+        for (int i = 1; i < mltDocs.scoreDocs.length; i++) {
+            ObjectNode study = mapper.createObjectNode();
+            study.set(Constants.ACCESSION, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.ACCESSION)));
+            study.set(Constants.TITLE, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.TITLE)));
+            similars.add(study);
+        }
+        if (mltDocs.totalHits>1) {
+            objectNode.set("similarStudies", similars);
+        }
+    }
+
+    private Integer getDocumentByAccession(String accession){
+        QueryParser parser = new QueryParser(Constants.ACCESSION, new AttributeFieldAnalyzer());
+        parser.setSplitOnWhitespace(true);
+        Query query = null;
+        try {
+            query = parser.parse(Constants.ACCESSION+":"+accession);
+            Query result = securityQueryBuilder.applySecurity(query, null);
+            TopDocs topDocs = indexManager.getIndexSearcher().search(result, 1);
+            if(topDocs.totalHits>0)
+                return topDocs.scoreDocs[0].doc;
+        } catch (Throwable ex){
+            logger.error("Problem in checking security", ex);
+        }
+        return null;
     }
 }

@@ -35,7 +35,8 @@
                 <div id="right-column">
                     {{&main-file-table}}
                     {{&main-link-table}}
-                    {{&main-orcid-claimer}}
+                    {{{main-similar-studies}}}
+                    {{{main-orcid-claimer}}}
                 </div>
                 <div id="release-date-download">
                     <span class="release-date">
@@ -316,6 +317,31 @@
                             {{/each}}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </section>
+            {{/if}}
+        </script>
+
+        <script id='main-similar-studies' type='text/x-handlebars-template'>
+            {{#if data.root.similar}}
+            <section>
+                <div id="similar-study-container">
+                    <div class="table-caption">
+                        <span class="widge-title"><i class="fa fa-magic"></i> Similar Studies</span>
+                        <span class="fa fa-expand fa-icon table-expander" id="similar-studies-expander" title="Click to expand"/>
+                    </div>
+                    <div class="table-wrapper">
+                        <ul class="recommendations">
+                            {{#each data.root.similar}}
+                                <li class="browse-study-title">
+                                    {{renderSimilarStudiesLink this}}
+                                    <span class="browse-study-accession">
+                                        {{this.accession}}
+                                    </span>
+                                </li>
+                            {{/each}}
+                        </ul>
                     </div>
                 </div>
             </section>

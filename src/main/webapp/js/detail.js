@@ -122,6 +122,7 @@ $.fn.groupBy = function(fn) {
         data.section.root = rootPath.length ? rootPath[0].value : '';
         var releaseDate = data.attributes.filter( function (v,i) { return    v.name=='ReleaseDate';   });
         data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
+        data.section.similar = data.similarStudies;
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();
@@ -180,6 +181,12 @@ function registerHelpers() {
                  )
             +'</td>'
         );
+    });
+
+    Handlebars.registerHelper('renderSimilarStudiesLink', function(study) {
+        var basepart = location.host.indexOf('biostudies')>0? location.host: location.host+'/biostudies';
+        var link = '<a href="'+basepart+'/studies/'+study.accession+'">'+study.title+'</a>';
+        return new Handlebars.SafeString(link);
     });
 
     Handlebars.registerHelper('ifHasAttribute', function(val, obj, options) {
@@ -308,6 +315,11 @@ function registerHelpers() {
     Handlebars.registerHelper('main-link-table', function(o) {
         var o = findall(this,'links');
         var template = Handlebars.compile($('script#main-link-table').html());
+        return template(o);
+    });
+
+    Handlebars.registerHelper('main-similar-studies', function(o) {
+        var template = Handlebars.compile($('script#main-similar-studies').html());
         return template(o);
     });
 
