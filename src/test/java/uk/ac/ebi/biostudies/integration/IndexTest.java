@@ -79,6 +79,7 @@ public class IndexTest {
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
         IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"studies?query=S-EPMC3343805");
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".alert")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#renderedContent")));
         assertTrue(IntegrationTestSuite.driver.findElement(By.cssSelector("#renderedContent")).getAttribute("innerText").contains("no results"));
         TestUtils.logout(integProps.getBaseUrl());
     }
