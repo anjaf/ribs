@@ -8,6 +8,8 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -319,7 +321,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public String getFieldStats() throws IOException {
+    public String getFieldStats() throws Exception {
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode response = mapper.createObjectNode();
@@ -328,6 +330,14 @@ public class SearchServiceImpl implements SearchService {
         DocValuesStats.SortedLongDocValuesStats  fileStats = new DocValuesStats.SortedLongDocValuesStats ("files");
         searcher.search(new MatchAllDocsQuery(), new DocValuesStatsCollector(fileStats));
         response.put("files", fileStats.sum());
+
+        Query timeQuery = new QueryParser(Constants.ACCESSION, new KeywordAnalyzer()).parse(Constants.ACCESSION+":@endtime");
+        TopDocs timeResult = searcher.search(timeQuery, 1);
+        if(timeResult.scoreDocs.length>0) {
+           String time = indexManager.getIndexReader().document(timeResult.scoreDocs[0].doc).get("time");
+           response.put("time", time);
+        }else
+            response.put("time", "N/A");
 
         DocValuesStats.SortedLongDocValuesStats  linkStats = new DocValuesStats.SortedLongDocValuesStats ("links");
         searcher.search(new MatchAllDocsQuery(), new DocValuesStatsCollector(linkStats));

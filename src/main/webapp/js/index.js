@@ -38,6 +38,7 @@
             $('#fileCount').text(formatNumber(data.files));
             $('#linkCount').text(formatNumber(data.links));
         }
+        $('#lastUpdateTime').text(data.time);
     });
 
     var studyAnimation = $({countNum: $('#studyCount').text()}).animate({countNum: 1000000}, {

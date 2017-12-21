@@ -13,6 +13,7 @@ import org.apache.lucene.document.*;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
@@ -84,6 +85,7 @@ public class ConfigurableIndexService implements IndexService {
     @Override
     public void indexAll(String fileName) {
         Long startTime = System.currentTimeMillis();
+        String endTime = null;
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
         String inputStudiesFile = System.getProperty("java.io.tmpdir")+"/";
@@ -118,7 +120,16 @@ public class ConfigurableIndexService implements IndexService {
                     logger.info("{} docs indexed", counter);
                 }
             }
+            while(token!=JsonToken.END_OBJECT){
+                if(token.name().equalsIgnoreCase("field_name") && parser.getText().equalsIgnoreCase("@endTime")) {
+                    endTime = parser.nextTextValue();
+                    break;
+                }
+                token = parser.nextToken();
+            }
 
+            if(endTime!=null)
+                indexEndTime(endTime);
             executorService.shutdown();
             executorService.awaitTermination(5, TimeUnit.HOURS);
             taxonomyManager.commitTaxonomy();
@@ -386,6 +397,17 @@ public class ConfigurableIndexService implements IndexService {
             if(title.isEmpty())
                 logger.error("title is empty accession: {0}", accession);
             return title;
+        }
+    }
+
+    private  void indexEndTime(String endTime){
+        Document doc = new Document();
+        doc.add(new TextField("time", endTime, Field.Store.YES));
+        doc.add(new TextField(Constants.ACCESSION, "@endtime", Field.Store.YES));
+        try {
+            indexManager.getIndexWriter().updateDocument(new Term(Constants.ID, "@endtime"), doc);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

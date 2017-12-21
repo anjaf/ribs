@@ -69,6 +69,12 @@
                                 <span id="studyCount">100000</span> studies
                             </a>
                         </h5>
+                        <h5 id="lastUpdate">
+                            <a href="" title="LastUpdate">
+                                <span class="icon fa fa-clock-o home-icon-small" id="lastUpdateIcon"></span>
+                                <span id="lastUpdateTime">N/A</span>
+                            </a>
+                        </h5>
                     </div>
                     <div class="columns medium-9">
                         <h5 id="latestHeading">
