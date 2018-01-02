@@ -103,6 +103,10 @@
     color: #E4753D;
     border: 1px solid #E4753D;
     background: #FFEBD5;
+    width: 33px;
+    height: 34px;
+    display: inline-block;
+    padding-left: 9px;
 }
 
 #secondary {
@@ -125,6 +129,11 @@
     /* content: "\25AA"; */
     color: #466B7D;
     padding-right: 10px;
+}
+
+#lastUpdateTime {
+    font-size: 8pt;
+    color: #aaa;
 }
 
 #latestList{

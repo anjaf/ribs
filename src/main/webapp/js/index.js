@@ -33,12 +33,13 @@
         }
     });
     $.getJSON( contextPath + "/api/v1/stats", function( data ) {
-        if (data && data.files && data.links) {
+        if (data && data.files && data.links && data.time) {
             statsAnimation.stop();
             $('#fileCount').text(formatNumber(data.files));
             $('#linkCount').text(formatNumber(data.links));
+            $('#lastUpdateTime').hide().text('(Updated: '+ new Date(data.time).toLocaleTimeString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' }) +")");
         }
-        $('#lastUpdateTime').text(data.time);
+
     });
 
     var studyAnimation = $({countNum: $('#studyCount').text()}).animate({countNum: 1000000}, {
@@ -60,6 +61,7 @@
             $('#latest').slideDown();
             studyAnimation.stop();
             $('#studyCount').text(formatNumber(data.totalHits));
+            $('#lastUpdateTime').slideDown();
         }
 
     });

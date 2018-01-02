@@ -69,19 +69,14 @@
                                 <span id="studyCount">100000</span> studies
                             </a>
                         </h5>
-                        <h5 id="lastUpdate">
-                            <a href="" title="LastUpdate">
-                                <span class="icon fa fa-clock-o home-icon-small" id="lastUpdateIcon"></span>
-                                <span id="lastUpdateTime">N/A</span>
-                            </a>
-                        </h5>
                     </div>
                     <div class="columns medium-9">
                         <h5 id="latestHeading">
                             <a href="#" title="Latest studies">
-                                <span class="icon icon-functional home-icon-small" id="latestIcon" data-icon="n"></span>
+                                <span class="icon fa fa-clock-o home-icon-small" id="latestIcon"></span>
                                 Latest
                             </a>
+                            <span id="lastUpdateTime"></span>
                         </h5>
                         <div id="latestLoader" style="text-align: center"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>
                         <div id="latest"></div>
