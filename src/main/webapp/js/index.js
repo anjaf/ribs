@@ -33,11 +33,17 @@
         }
     });
     $.getJSON( contextPath + "/api/v1/stats", function( data ) {
-        if (data && data.files && data.links && data.time) {
+        if (data && data.files && data.links) {
             statsAnimation.stop();
             $('#fileCount').text(formatNumber(data.files));
             $('#linkCount').text(formatNumber(data.links));
-            $('#lastUpdateTime').hide().text('(Updated: '+ new Date(data.time).toLocaleTimeString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' }) +")");
+            if (data.time) {
+                $('#lastUpdateTime').hide().text('(Updated: ' + new Date(data.time).toLocaleTimeString("en-gb", {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }) + ")");
+            }
         }
 
     });
