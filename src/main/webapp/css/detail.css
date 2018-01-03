@@ -449,3 +449,7 @@ a.thumbnail-icon {
     font-size: 8pt;
     color: #929292;
 }
+
+.widge-title .fa:before, .widge-title  .icon:before {
+    color:#aaa;
+}

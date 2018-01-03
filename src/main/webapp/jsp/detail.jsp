@@ -328,7 +328,7 @@
             <section>
                 <div id="similar-study-container">
                     <div class="table-caption">
-                        <span class="widge-title"><i class="fa fa-magic"></i> Similar Studies</span>
+                        <span class="widge-title"><i class="icon icon-functional" data-icon="O"></i> Similar Studies</span>
                         <span class="fa fa-expand fa-icon table-expander" id="similar-studies-expander" title="Click to expand"/>
                     </div>
                     <div class="table-wrapper">
