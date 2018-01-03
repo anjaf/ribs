@@ -49,7 +49,9 @@ $.fn.groupBy = function(fn) {
         'bioproject':'https://www.ncbi.nlm.nih.gov/bioproject/{0}',
         'biosamples':'https://www.ebi.ac.uk/biosamples/samples/{0}',
         'chemagora':'http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/{0}',
-        'compound':'https://www.ebi.ac.uk/biostudies/studies/{0}'
+        'compound':'https://www.ebi.ac.uk/biostudies/studies/{0}',
+        'rfam':'http://rfam.org/family/{0}',
+        'rnacentral':'http://rnacentral.org/rna/{0}'
     };
 
     reverseLinkMap = {
@@ -76,7 +78,9 @@ $.fn.groupBy = function(fn) {
         '^amigo.geneontology.org/amigo/term/(.*)':'GO',
         '^www.ebi.ac.uk/chebi/searchId.do?chebiId=(.*)':'ChEBI',
         '^www.ncbi.nlm.nih.gov/bioproject/(.*)':'BioProject',
-        '^www.ebi.ac.uk/biosamples/samples/(.*)':'BioSamples'
+        '^www.ebi.ac.uk/biosamples/samples/(.*)':'BioSamples',
+        '^rfam.org/family/(.*)':'Rfam',
+        '^rnacentral.org/rna/(.*)':'RNAcentral'
     };
 
     linkTypeMap = {
@@ -98,7 +102,9 @@ $.fn.groupBy = function(fn) {
         'bioproject': 'BioProject',
         'biosample': 'BioSamples',
         'compound':'Compound',
-        'chemagora':'ChemAgora'
+        'chemagora':'ChemAgora',
+        'rfam':'Rfam',
+        'rnacentral':'RNAcentral'
     };
 
     orgOrder= [];
@@ -526,7 +532,7 @@ function registerHelpers() {
         $( $.map(pubs[0].links, function (v) {
            return v;
         })).each(function(i,link){
-            publication.URLs.push(getURL(link.url, link.attributes.filter( function (v,i) { return    v.name=='Type';   })[0].value.toLowerCase()));
+            publication.URLs.push(getURL(link.url, link.attributes.filter( function (v,i) { return    v.name=='Type';   })[0].value));
         });
 
         if (!publication.URLs.length) delete publication.URLs
