@@ -96,7 +96,7 @@ function showError(error) {
 
     var html = errorTemplate(data);
     $('#renderedContent').html(html);
-    $('.breadcrumbs li:last').contents().last().replaceWith('Error');
+    $('.breadcrumbs li:last').contents().last().replaceWith(' Error');
     updateTitleFromBreadCrumbs();
 }
 

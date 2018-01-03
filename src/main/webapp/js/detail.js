@@ -51,7 +51,8 @@ $.fn.groupBy = function(fn) {
         'chemagora':'http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/{0}',
         'compound':'https://www.ebi.ac.uk/biostudies/studies/{0}',
         'rfam':'http://rfam.org/family/{0}',
-        'rnacentral':'http://rnacentral.org/rna/{0}'
+        'rnacentral':'http://rnacentral.org/rna/{0}',
+        'nct':'https://clinicaltrials.gov/ct2/show/{0}'
     };
 
     reverseLinkMap = {
@@ -80,7 +81,8 @@ $.fn.groupBy = function(fn) {
         '^www.ncbi.nlm.nih.gov/bioproject/(.*)':'BioProject',
         '^www.ebi.ac.uk/biosamples/samples/(.*)':'BioSamples',
         '^rfam.org/family/(.*)':'Rfam',
-        '^rnacentral.org/rna/(.*)':'RNAcentral'
+        '^rnacentral.org/rna/(.*)':'RNAcentral',
+        '^clinicaltrials.gov/ct2/show/(.*)':'nct'
     };
 
     linkTypeMap = {
@@ -104,7 +106,8 @@ $.fn.groupBy = function(fn) {
         'compound':'Compound',
         'chemagora':'ChemAgora',
         'rfam':'Rfam',
-        'rnacentral':'RNAcentral'
+        'rnacentral':'RNAcentral',
+        'nct':'NCT'
     };
 
     orgOrder= [];
