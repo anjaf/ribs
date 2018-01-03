@@ -64,7 +64,7 @@
                             </ul>
                         {{/if}}
                     {{/if}}
-
+                    {{&pager}}
                 </div>
             </div>
             <div class="clearboth"></div>
