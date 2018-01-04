@@ -8,18 +8,12 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queries.mlt.MoreLikeThis;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
-import org.apache.lucene.search.spell.LuceneDictionary;
-import org.apache.lucene.search.spell.SpellChecker;
-import org.apache.lucene.store.RAMDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -308,12 +302,18 @@ public class SearchServiceImpl implements SearchService {
         reader.read(buff);
         String result = new String(buff, "UTF-8");
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readTree(result);
+        ObjectNode node = (ObjectNode) mapper.readTree(result);
+        ArrayNode accesses = (ArrayNode) node.get("accessTags");
+        boolean isPublic = false;
+        if(accesses!=null)
+            isPublic = accesses.toString().toLowerCase().contains("public");
+
+        node.put("isPublic", isPublic);
 
         Integer docNum = getDocumentByAccession(accessionNumber);
         try {
             if(docNum!=null)
-                getSimilarStudies(docNum, (ObjectNode) node, mapper);
+                getSimilarStudies(docNum,  node, mapper);
         } catch (ParseException e) {
             e.printStackTrace();
         }

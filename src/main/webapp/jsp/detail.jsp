@@ -55,9 +55,11 @@
                         &lt;XML&gt;</a><a href="${contextPath}/files/{{accno}}/{{accno}}.pagetab.tsv" target="_blank"
                                           title="Download Study as PageTab" class="source-icon source-icon-pagetab"
                                           data-icon="=">→PageTab↲</a>
+                        {{#ifCond isPublic '==' true}}
                         <a href="ftp://ftp.biostudies.ebi.ac.uk/pub/{{root}}" target="_blank"
                             title="Open FTP Folder" class="source-icon source-icon-ftp" data-icon="="><i
                             class="fa fa-cloud-download"></i>FTP</a>
+                        {{/ifCond}}
                     </div>
                 </div>
                 <div id="bs-content">
