@@ -132,6 +132,7 @@ $.fn.groupBy = function(fn) {
         var releaseDate = data.attributes.filter( function (v,i) { return    v.name=='ReleaseDate';   });
         data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
         data.section.similar = data.similarStudies;
+        data.section.isPublic = data.isPublic;
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();
