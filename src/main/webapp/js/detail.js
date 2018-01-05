@@ -131,8 +131,6 @@ $.fn.groupBy = function(fn) {
         data.section.root = rootPath.length ? rootPath[0].value : '';
         var releaseDate = data.attributes.filter( function (v,i) { return    v.name=='ReleaseDate';   });
         data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
-        data.section.similar = data.similarStudies;
-        data.section.isPublic = data.isPublic;
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();
@@ -193,12 +191,6 @@ function registerHelpers() {
         );
     });
 
-    Handlebars.registerHelper('renderSimilarStudiesLink', function(study) {
-        var basepart = location.host.indexOf('biostudies')>0? location.host: location.host+'/biostudies';
-        var link = '<a href="'+basepart+'/studies/'+study.accession+'">'+study.title+'</a>';
-        return new Handlebars.SafeString(link);
-    });
-
     Handlebars.registerHelper('ifHasAttribute', function(val, obj, options) {
         var ret = false;
         if (obj!=null) {
@@ -239,7 +231,7 @@ function registerHelpers() {
     });
 
     Handlebars.registerHelper('ifRenderable', function(arr,options) {
-        var specialSections = ['author', 'organization', 'funding', 'publication'];
+        var specialSections = ['author', 'organization','organisation', 'funding', 'publication'];
 
         if(arr.type &&  $.inArray(arr.type.toLowerCase(),specialSections) < 0) {
             return options.fn(this);
@@ -325,11 +317,6 @@ function registerHelpers() {
     Handlebars.registerHelper('main-link-table', function(o) {
         var o = findall(this,'links');
         var template = Handlebars.compile($('script#main-link-table').html());
-        return template(o);
-    });
-
-    Handlebars.registerHelper('main-similar-studies', function(o) {
-        var template = Handlebars.compile($('script#main-similar-studies').html());
         return template(o);
     });
 
@@ -419,7 +406,7 @@ function registerHelpers() {
         // make an org map
         if (!obj.subsections) return '';
 
-        $.each(obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='organization';}), function (i,o) {
+        $.each(obj.subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation') ;}), function (i,o) {
             var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
             orgs[o.accno] = orgName[0].value ;
         });
@@ -471,7 +458,7 @@ function registerHelpers() {
         if (!obj.subsections) return '';
 
         // make an org map
-        $.each(obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='organization';}), function (i,o) {
+        $.each(obj.subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation');}), function (i,o) {
             var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
             orgs[o.accno] = orgName[0].value ;
         });
@@ -631,6 +618,7 @@ function postRender() {
     handleSubattributes();
     handleOntologyLinks();
     handleORCIDIntegration();
+    handleSimilarStudies();
     handleImageURLs();
     handleThumbnails(); //keep this as the last call
 }
@@ -1135,8 +1123,7 @@ function handleSubattributes() {
 }
 
 function handleOntologyLinks() {
-    return;
-// handle ontology links
+    // handle ontology links
     $("span[data-term-id][data-ontology]").each(function () {
         var ont = $(this).data('ontology').toLowerCase();
         var termId = $(this).data('term-id');
@@ -1169,7 +1156,16 @@ function closeFullScreen() {
         expansionSource = null;
     }
 }
-
+function handleSimilarStudies() {
+    var accession = $('#accession').text();
+    var url = window.location.pathname;
+    url = url.replace('/studies/','/api/v1/studies/').replace(project,'')+"/similar";
+    $.getJSON(url, function (data) {
+        var templateSource = $('script#main-similar-studies').html();
+        var template = Handlebars.compile(templateSource);
+        $('#right-column').append(template(data.similarStudies));
+    })
+}
 function handleORCIDIntegration() {
     if (typeof thorApplicationNamespace === "undefined") {
         $('#orc-id-claimer-section').hide();

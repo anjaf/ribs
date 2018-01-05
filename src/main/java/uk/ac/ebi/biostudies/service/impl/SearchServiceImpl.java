@@ -15,6 +15,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import uk.ac.ebi.biostudies.api.util.Constants;
@@ -290,34 +291,12 @@ public class SearchServiceImpl implements SearchService {
         return  response.toString();
     }
 
+
     @Override
-    public String getDetailFile(String accessionNumber) throws IOException {
-        String path = StudyUtils.getPartitionedPath(accessionNumber);
-        File file = new File(indexConfig.getRepositoryPath() + path + "/"+accessionNumber+".json");
-        if (!file.exists()) {
-            throw new FileNotFoundException("Study "+accessionNumber+" not found!");        }
-        int length = (int)file.length();
-        FileInputStream reader  = new FileInputStream(file);
-        byte[] buff = new byte[length];
-        reader.read(buff);
-        String result = new String(buff, "UTF-8");
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode node = (ObjectNode) mapper.readTree(result);
-        ArrayNode accesses = (ArrayNode) node.get("accessTags");
-        boolean isPublic = false;
-        if(accesses!=null)
-            isPublic = accesses.toString().toLowerCase().contains("public");
-
-        node.put("isPublic", isPublic);
-
-        Integer docNum = getDocumentByAccession(accessionNumber);
-        try {
-            if(docNum!=null)
-                getSimilarStudies(docNum,  node, mapper);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return node.toString();
+    public InputStreamResource getStudyAsStream(String accession) throws IOException {
+        String path = StudyUtils.getPartitionedPath(accession);
+        FileInputStream fileInputStream = new FileInputStream(indexConfig.getRepositoryPath() + path + "/"+accession+".json");
+        return new InputStreamResource(fileInputStream);
     }
 
     @Override
@@ -345,25 +324,28 @@ public class SearchServiceImpl implements SearchService {
         return response.toString();
     }
 
-    private void getSimilarStudies(int docNumber, ObjectNode objectNode, ObjectMapper mapper) throws ParseException, IOException {
+    @Override
+    public ObjectNode getSimilarStudies(String accession) throws Exception {
         int maxHits = 4;
         MoreLikeThis mlt = new MoreLikeThis(indexManager.getIndexReader());
         mlt.setFieldNames(new String[]{Constants.CONTENT, Constants.TITLE, Constants.PROJECT});
         mlt.setAnalyzer(analyzerManager.getPerFieldAnalyzerWrapper());
+        ObjectMapper mapper = new ObjectMapper();
+        Integer docNumber = getDocumentByAccession(accession);
         Query likeQuery = mlt.like( docNumber);
         TopDocs mltDocs = indexManager.getIndexSearcher().search( likeQuery , maxHits);
-        String[] titles = new String[mltDocs.scoreDocs.length];
-        String[] accessions = new String[mltDocs.scoreDocs.length];
-        ArrayNode similars = mapper.createArrayNode();
+        ArrayNode similarStudies = mapper.createArrayNode();
         for (int i = 1; i < mltDocs.scoreDocs.length; i++) {
             ObjectNode study = mapper.createObjectNode();
             study.set(Constants.ACCESSION, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.ACCESSION)));
             study.set(Constants.TITLE, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.TITLE)));
-            similars.add(study);
+            similarStudies.add(study);
         }
+        ObjectNode result = mapper.createObjectNode();
         if (mltDocs.totalHits>1) {
-            objectNode.set("similarStudies", similars);
+            result.set ("similarStudies", similarStudies);
         }
+        return result;
     }
 
     private Integer getDocumentByAccession(String accession){
@@ -381,4 +363,6 @@ public class SearchServiceImpl implements SearchService {
         }
         return null;
     }
+
+
 }

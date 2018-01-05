@@ -3,6 +3,7 @@ package uk.ac.ebi.biostudies.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,20 +28,34 @@ public class Study {
     SearchService searchService;
 
     @RequestMapping(value = "/studies/{accession:.+}", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
-    //TODO: stream file directly
     public ResponseEntity<String> getStudy(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
         if(!searchService.isAccessible(accession, seckey)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
         }
-        String result = null;
+        InputStreamResource result;
         try {
-            result = searchService.getDetailFile(accession.replace("..",""));
+            result = searchService.getStudyAsStream(accession.replace("..",""));
         } catch (IOException e) {
             logger.error(e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
         }
-        return ResponseEntity.ok(result);
+        return new ResponseEntity(result, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/studies/{accession:.+}/similar", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
+    public ResponseEntity<String> getSimilarStudies(@PathVariable("accession") String accession)  {
+        try {
+            if(searchService.isAccessible(accession)) {
+                ResponseEntity result =  new ResponseEntity(searchService.getSimilarStudies(accession.replace("..","")), HttpStatus.OK);
+                return result;
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON).body("{\"similarStudies\":[]}");
+
     }
 }

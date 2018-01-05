@@ -35,7 +35,6 @@
                 <div id="right-column">
                     {{&main-file-table}}
                     {{&main-link-table}}
-                    {{{main-similar-studies}}}
                     {{{main-orcid-claimer}}}
                 </div>
                 <div id="release-date-download">
@@ -55,11 +54,11 @@
                         &lt;XML&gt;</a><a href="${contextPath}/files/{{accno}}/{{accno}}.pagetab.tsv" target="_blank"
                                           title="Download Study as PageTab" class="source-icon source-icon-pagetab"
                                           data-icon="=">→PageTab↲</a>
-                        {{#ifCond isPublic '==' true}}
+                        {{#if releaseDate}}
                         <a href="ftp://ftp.biostudies.ebi.ac.uk/pub/{{root}}" target="_blank"
                             title="Open FTP Folder" class="source-icon source-icon-ftp" data-icon="="><i
                             class="fa fa-cloud-download"></i>FTP</a>
-                        {{/ifCond}}
+                        {{/if}}
                     </div>
                 </div>
                 <div id="bs-content">
@@ -283,7 +282,7 @@
                             </tbody>
                         </table>
                         <div>
-                            <span id="selected-file-text"></span><a id="download-selected-files">Download all</a><br/><br/>
+                            <span id="selected-file-text"></span><a id="download-selected-files">Download all</a>
                         </div>
                     </div>
                 </div>
@@ -326,7 +325,7 @@
         </script>
 
         <script id='main-similar-studies' type='text/x-handlebars-template'>
-            {{#if data.root.similar}}
+            {{#ifArray this}}
             <section>
                 <div id="similar-study-container">
                     <div class="table-caption">
@@ -335,11 +334,11 @@
                     </div>
                     <div class="table-wrapper">
                         <ul class="recommendations">
-                            {{#each data.root.similar}}
+                            {{#each this}}
                                 <li class="browse-study-title">
-                                    {{renderSimilarStudiesLink this}}
+                                    <a href="${contextPath}/studies/{{accession}}">{{title}}</a>
                                     <span class="browse-study-accession">
-                                        {{this.accession}}
+                                        {{accession}}
                                     </span>
                                 </li>
                             {{/each}}
@@ -347,7 +346,7 @@
                     </div>
                 </div>
             </section>
-            {{/if}}
+            {{/ifArray}}
         </script>
 
 

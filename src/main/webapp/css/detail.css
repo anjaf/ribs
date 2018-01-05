@@ -203,7 +203,7 @@ ul#bs-orgs {
     color: #888;
 }
 
-#right-column > section:not(:first-child) {
+#right-column  section:not(:first-child) {
     border-top: 1px dotted #c9e4f3;
     padding-top: 20px;
     margin-top: 20px;
