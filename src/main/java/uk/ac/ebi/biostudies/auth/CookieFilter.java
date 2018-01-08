@@ -8,6 +8,7 @@ import uk.ac.ebi.biostudies.api.util.CookieMap;
 import uk.ac.ebi.biostudies.api.util.HttpTools;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -45,6 +46,8 @@ public class CookieFilter implements Filter {
         } catch (Throwable x) {
             logger.error("problem happend in security filter");
         }
+        if(response instanceof HttpServletResponse)
+            ((HttpServletResponse)response).setHeader("Cache-Control","no-cache");
         filterChain.doFilter(servletRequest, response);
     }
 

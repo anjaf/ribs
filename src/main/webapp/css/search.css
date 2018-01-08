@@ -170,3 +170,9 @@ ul#search-results li {
     color: #999;
     display: block;
 }
+
+span.facet-top {
+    font-size: 7pt;
+    font-weight: normal;
+    color: #aaaaaa;
+}
