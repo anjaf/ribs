@@ -46,13 +46,14 @@ public class Search {
     @PublicRESTMethod
     @RequestMapping(value = "/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String search(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
+                                        @RequestParam(value="facets", required=false) String facets,
                                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
                                         @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
                                         @RequestParam(value="sortBy", required=false, defaultValue = "relevance") String sortBy,
                                         @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder
     ) throws Exception {
-        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), null, null, page, pageSize, sortBy, sortOrder);
-//        return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+        ObjectNode selectedFacets = checkSelectedFacets(facets);
+        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, null, page, pageSize, sortBy, sortOrder);
     }
 
 
@@ -80,18 +81,7 @@ public class Search {
                                            @RequestParam(value="sortBy", required=false, defaultValue = "relevance") String sortBy,
                                            @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder,
                                            @PathVariable String project) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode selectedFacets = mapper.createObjectNode();
-        if (facets!=null) {
-            for (String facet : StringUtils.split(facets, ",")) {
-                String[] parts = facet.split(":");
-                if (parts.length != 2) continue;
-                if (!selectedFacets.has(parts[0])) {
-                    selectedFacets.set(parts[0], mapper.createArrayNode());
-                }
-                ((ArrayNode) selectedFacets.get(parts[0])).add(parts[1]);
-            }
-        }
+        ObjectNode selectedFacets = checkSelectedFacets(facets);
         return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project, page, pageSize, sortBy, sortOrder);
     }
 
@@ -108,5 +98,21 @@ public class Search {
     @RequestMapping(value = "/stats", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String getStats() throws Exception {
         return searchService.getFieldStats();
+    }
+
+    private ObjectNode checkSelectedFacets(String facets){
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode selectedFacets = mapper.createObjectNode();
+        if (facets!=null) {
+            for (String facet : StringUtils.split(facets, ",")) {
+                String[] parts = facet.split(":");
+                if (parts.length != 2) continue;
+                if (!selectedFacets.has(parts[0])) {
+                    selectedFacets.set(parts[0], mapper.createArrayNode());
+                }
+                ((ArrayNode) selectedFacets.get(parts[0])).add(parts[1]);
+            }
+        }
+        return selectedFacets;
     }
 }
