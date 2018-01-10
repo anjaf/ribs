@@ -36,8 +36,7 @@
                     {{/if}}
                 </div>
                 <div class="small-12 columns">
-                    <div id="facets" class="small-3 columns">
-                    </div>
+                    <div id="facets" class="small-3 columns"></div>
                     <div class="small-9 columns">
                         {{#ifCond query '&&' hits}}
                             <h4 class="clearboth">Search results for <span class="query">{{query}}</span></h4>
@@ -82,7 +81,6 @@
                         {{/if}}
                     </div>
                 </div>
-            </div>
             </div>
             <div class="clearboth"></div>
         </script>

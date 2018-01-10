@@ -13,7 +13,6 @@ import org.apache.lucene.document.*;
 import org.apache.lucene.facet.FacetField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
@@ -260,14 +259,15 @@ public class ConfigurableIndexService implements IndexService {
                     creationDateLong = Long.valueOf(json.get(Constants.CREATION_TIME).asText())*1000;
                 valueMap.put( Constants.CREATION_TIME, DateTools.timeToString(creationDateLong, DateTools.Resolution.DAY));
 
-                if(json.has("rtime"))
-                    releaseDateLong = Long.valueOf(json.get("rtime").asText())*1000;
+                if(json.has("rtime")) {
+                    releaseDateLong = Long.valueOf(json.get("rtime").asText()) * 1000;
+                }
                 valueMap.put(Constants.RDATE_LONG, releaseDateLong);
                 if(releaseDateLong==0L && !String.valueOf(valueMap.get(Constants.ACCESS)).contains("public")) {
-                        releaseDateLong = 2524664024570L; // 2015-01-01
+                        releaseDateLong = Long.MAX_VALUE;
                 }
                 valueMap.put(Constants.RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
-                valueMap.put(Constants.YEAR, releaseDateLong==2524664024570L ? null :  DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
+                valueMap.put(Constants.YEAR, (releaseDateLong==Long.MAX_VALUE || releaseDateLong==0) ? Constants.NA :  DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
                 String project = "";
                 if(json.has("attributes")) {
                     project = StreamSupport.stream(json.get("attributes").spliterator(), false)
@@ -306,12 +306,13 @@ public class ConfigurableIndexService implements IndexService {
 
                 updateDocument(valueMap);
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.error("problem in indexing accession {}", json.get("accno").textValue(), e );
             }
         }
 
         private void extractWithJsonPath(ReadContext jsonPathContext, JsonNode json, Map<String, Object> valueMap, JsonNode fieldMetadataNode){
-            String result="n/a";
+            String result= Constants.NA;
             try {
                 if (jsonPathContext == null)
                     jsonPathContext = JsonPath.parse(json.toString());
@@ -370,7 +371,7 @@ public class ConfigurableIndexService implements IndexService {
 
         private void addFacet(String value, String fieldName, Document doc){
             if(value==null || value.isEmpty()) {
-                value = "n/a";
+                value = Constants.NA;
             }
             for(String subVal:value.split("£")) {
                 doc.add(new FacetField(fieldName, subVal.trim().toLowerCase()));

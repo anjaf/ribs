@@ -315,7 +315,6 @@ public class SearchServiceImpl implements SearchService {
         searcher.search(new MatchAllDocsQuery(), new DocValuesStatsCollector(linkStats));
         response.put("links", linkStats.sum());
 
-        System.out.println(indexManager.getIndexWriter().getLiveCommitData());
         indexManager.getIndexWriter().getLiveCommitData().forEach(entry -> {
            if (entry.getKey().equalsIgnoreCase("@endTimeTS")) {
                response.put("time", Long.parseLong(entry.getValue()) );

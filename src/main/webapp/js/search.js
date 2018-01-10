@@ -34,20 +34,18 @@ function showResults(params) {
     }).done( function () {
         $('#left-column').slideDown("fast", function () {
             // fill facets
-            if ($('#hasFacets').length) {
-                $.getJSON(contextPath + "/api/v1/" + project + "/facets", params, function (data) {
-                    var templateSource = $('script#facet-list-template').html();
-                    var template = Handlebars.compile(templateSource);
-                    data.selectedFacets = params.facets ? params.facets.split(",") : [];
-                    data.project = project;
-                    var html = template(data);
-                    $('#facets').html(html);
-                }).fail(function (error) {
-                    showError(error);
-                }).done( function (data) {
-                    postRenderFacets(data, params);
-                });
-            }
+            $.getJSON(contextPath + "/api/v1/" + (project||"public") + "/facets", params, function (data) {
+                var templateSource = $('script#facet-list-template').html();
+                var template = Handlebars.compile(templateSource);
+                data.selectedFacets = params.facets ? params.facets.split(",") : [];
+                data.project = project;
+                var html = template(data);
+                $('#facets').html(html);
+            }).fail(function (error) {
+                showError(error);
+            }).done( function (data) {
+                postRenderFacets(data, params);
+            });
         })
     });
 }
@@ -126,11 +124,22 @@ function registerHelpers(params) {
             prms.page = page+1;
             ul += '<li class="pagination-next"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
         }
-        ul += '<li class="result-count"> (Showing ' + formatNumber((o.data.root.page-1)*20+1) + ' ‒ '
-            + formatNumber(o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
-            +' of ' + formatNumber(o.data.root.totalHits) + ' results)</li>';
+        // ul += '<li class="result-count"> (Showing ' + formatNumber((o.data.root.page-1)*20+1) + ' ‒ '
+        //     + formatNumber(o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
+        //     +' of ' + formatNumber(o.data.root.totalHits) + ' results)</li>';
         ul += '</ul>'
         return new Handlebars.SafeString(ul);
+    });
+
+    Handlebars.registerHelper('resultcount', function(o) {
+        if (!o.data.root.page || !o.data.root.pageSize || !o.data.root.totalHits ) {
+            return '';
+        }
+        var spn = '<span class="result-count">'
+             + formatNumber((o.data.root.page-1)*20+1) + ' ‒ '
+             + formatNumber(o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
+             +' of ' + formatNumber(o.data.root.totalHits) + ' results</li>';
+        return new Handlebars.SafeString(spn);
     });
 
     Handlebars.registerHelper('asString', function(v) {

@@ -58,13 +58,13 @@
                             </a>
                         </h5>
                         <h5 id="projectCountStats">
-                            <a href="studies/?query=type:Project" title="Browse BioStudies">
+                            <a href="projects" title="Browse BioStudies">
                                 <span class="icon icon-functional home-icon-small" id="projectsIcon" data-icon="A"></span>
                                 <span id="projectCount">4</span> projects
                             </a>
                         </h5>
                         <h5 id="studyCountStats">
-                            <a href="?query=type:Study" title="Browse BioStudies">
+                            <a href="studies/" title="Browse BioStudies">
                                 <span class="icon icon-functional home-icon-small" id="studiesIcon" data-icon="b"></span>
                                 <span id="studyCount">100000</span> studies
                             </a>

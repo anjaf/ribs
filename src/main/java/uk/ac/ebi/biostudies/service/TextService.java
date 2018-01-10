@@ -22,7 +22,6 @@ public class TextService {
 
     @PostConstruct
     void init() {
-        System.out.println(env.getProperty("nih"));
         logger.debug("Initialising TextService");
     }
 

@@ -30,4 +30,7 @@ public interface Constants {
     String LINK_TYPE = "linktype";
     String CREATION_TIME = "ctime";
     String RDATE_LONG = "rdatelong";
+    String NA = "n/a";
+
+
 }

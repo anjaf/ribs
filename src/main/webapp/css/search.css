@@ -7,8 +7,14 @@ ul#search-results {
     clear: both;
 }
 
+
 ul#search-results li {
     padding: 15px 0;
+}
+
+.project-container {
+    margin: 1.5em 0pt;
+    text-align: center;
 }
 
 .search-result .meta-data {
@@ -36,11 +42,11 @@ ul#search-results li {
 
 #sort-by {
     width:auto;
-    font-size: 0.875rem;
+    font-size: 9pt;
 }
 #sort-by-div {
     float: right;
-    font-size: 0.875rem;
+    font-size: 9pt;
 }
 
 #pager {
@@ -53,9 +59,8 @@ ul#search-results li {
 
 
 #sorting-links a {
-    padding: 11px 12px;
+    padding: 9px 11px;
     border: 1px solid #999999;
-    height: 2.4375rem;
 }
 
 #sorting-links a.selected {
@@ -175,4 +180,8 @@ span.facet-top {
     font-size: 7pt;
     font-weight: normal;
     color: #aaaaaa;
+}
+select {
+    height: inherit;
+    margin: inherit;
 }
