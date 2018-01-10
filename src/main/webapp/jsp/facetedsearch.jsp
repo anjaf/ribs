@@ -64,6 +64,14 @@
                                         Your search for {{query}} returned no results.</h3>
                                     <p></p>
                                 </section>
+                                {{#if suggestion}}
+                                <h3>Did you mean...</h3>
+                                <ul id="spell-suggestions">
+                                    {{#each suggestion}}
+                                    <li> {{dynamicLink this}} </li>
+                                    {{/each}}
+                                </ul>
+                                {{/if}}
                             {{else}}
                                 <section>
                                     <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>

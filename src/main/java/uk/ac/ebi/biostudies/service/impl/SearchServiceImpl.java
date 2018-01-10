@@ -262,7 +262,7 @@ public class SearchServiceImpl implements SearchService {
         Pair<Query, EFOExpansionTerms> resultPair = queryService.makeQuery(queryString, prjName);
         try {
             Query queryAfterSecurity = resultPair.getKey();
-            if(selectedFacets!=null && prjName!=null && !prjName.isEmpty()){
+            if(selectedFacets!=null){
                 queryAfterSecurity = applyFacets(queryAfterSecurity, selectedFacets);
                 logger.debug("Lucene after facet query: {}",queryAfterSecurity.toString());
             }
