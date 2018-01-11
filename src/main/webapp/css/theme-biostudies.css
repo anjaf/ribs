@@ -77,7 +77,9 @@ a.tag:hover { color: #fff; }
 div#local-masthead, #ebi_search .button, .pagination .current {
     background-color: #75C8EC;
 }
-
+.pagination li {
+    font-size: 9pt;
+}
 .pagination a, .pagination button{
     margin: 0 0.5rem;
 }

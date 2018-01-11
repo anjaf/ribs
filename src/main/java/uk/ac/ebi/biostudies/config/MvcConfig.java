@@ -57,16 +57,18 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/zip").setViewName("zip");
         registry.addViewController("/zip/*").setViewName("zip");
 
+        registry.addViewController("/projects").setViewName("projects");
+        registry.addViewController("/projects/").setViewName("projects");
         registry.addViewController("/studies").setViewName("search");
         registry.addViewController("/studies/*").setViewName("search");
         registry.addViewController("/studies/{accession:.+}").setViewName("detail");
         registry.addViewController("/studies/{accession:.+}/").setViewName("detail");
 
-        String [] facetedProjects = {"hecatos","europepmc","eu-toxrisk","arrayexpress"}; //TODO: Add to config
+        /*String [] facetedProjects = {"hecatos","europepmc","eu-toxrisk","arrayexpress"}; //TODO: Add to config
         for (String project: facetedProjects) {
-            registry.addViewController("/"+project+"/studies/").setViewName("facetedsearch");
-            registry.addViewController("/"+project+"/studies").setViewName("facetedsearch");
-        }
+            registry.addViewController("/"+project+"/studies/").setViewName("search");
+            registry.addViewController("/"+project+"/studies").setViewName("search");
+        }*/
         registry.addViewController("/{project:.+}/studies").setViewName("search");
         registry.addViewController("/{project:.+}/studies/").setViewName("search");
 

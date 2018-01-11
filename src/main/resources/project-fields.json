@@ -16,8 +16,8 @@
     {"name":"ctime", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"id", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"seckey", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
-    {"name":"projectFacet", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"false"},
-    {"name":"year", "title":"Year", "fieldType":"facet", "multiValued":"false"}
+    {"name":"project", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"false"},
+    {"name":"year", "title":"Released", "fieldType":"facet", "multiValued":"false"}
   ],
   "hecatos":
   [
