@@ -259,11 +259,11 @@ public class ConfigurableIndexService implements IndexService {
                     creationDateLong = Long.valueOf(json.get(Constants.CREATION_TIME).asText())*1000;
                 valueMap.put( Constants.CREATION_TIME, DateTools.timeToString(creationDateLong, DateTools.Resolution.DAY));
 
-                if(json.has("rtime")) {
-                    releaseDateLong = Long.valueOf(json.get("rtime").asText()) * 1000;
+                if(json.has(Constants.RELEASE_TIME)) {
+                    releaseDateLong = Long.valueOf(json.get(Constants.RELEASE_TIME).asText()) * 1000;
                 }
                 valueMap.put(Constants.RDATE_LONG, releaseDateLong);
-                if(releaseDateLong==0L && !String.valueOf(valueMap.get(Constants.ACCESS)).contains("public")) {
+                if(releaseDateLong==0L && !String.valueOf(valueMap.get(Constants.ACCESS)).contains(Constants.PUBLIC)) {
                         releaseDateLong = Long.MAX_VALUE;
                 }
                 valueMap.put(Constants.RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
@@ -278,7 +278,7 @@ public class ConfigurableIndexService implements IndexService {
                 }
                 valueMap.put(Constants.PROJECT, project);
                 ReadContext jsonPathContext = null;
-                for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue("public")){
+                for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(Constants.PUBLIC)){
                     if( fieldMetadataNode.has("jpath") &&  !fieldMetadataNode.get("jpath").asText().isEmpty()){
                         extractWithJsonPath(jsonPathContext, json, valueMap, fieldMetadataNode);
                     }

@@ -2,6 +2,7 @@ package uk.ac.ebi.biostudies.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.index.DirectoryReader;
@@ -158,7 +159,7 @@ public class IndexManager {
             JsonNode curFieldsArray = indexDetails.get(key);
             for(JsonNode curField:curFieldsArray){
                 AllFields.put(curField.get("name").asText(), curField);
-                if(key.equalsIgnoreCase("public"))
+                if(key.equalsIgnoreCase(Constants.PUBLIC))
                     publicFields.add(curField.get("name").asText());
                 else
                     curPrjRelatedFields.add(curField.get("name").asText());
@@ -171,7 +172,7 @@ public class IndexManager {
 
     public Set<String> getProjectRelatedFields(String prjName){
         if(!projectRelatedFields.containsKey(prjName))
-            return projectRelatedFields.get("public");
+            return projectRelatedFields.get(Constants.PUBLIC);
         else
             return projectRelatedFields.get(prjName);
     }

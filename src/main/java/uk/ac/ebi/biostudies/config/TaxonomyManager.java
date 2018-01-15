@@ -14,6 +14,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +32,7 @@ public class TaxonomyManager {
     private TaxonomyReader taxonomyReader;
     private FacetsConfig facetsConfig;
     private Directory taxoDirectory;
+    public JsonNode PROJECT_FACET;
 
     @Autowired
     IndexConfig indexConfig;
@@ -41,10 +43,16 @@ public class TaxonomyManager {
     public void init(Collection<JsonNode> allFields){
         facetsConfig = new FacetsConfig();
 
-        for(JsonNode jsonNode : allFields)
-            if(jsonNode.get("fieldType").textValue().equalsIgnoreCase("facet"))
-                if(jsonNode.get("multiValued").asBoolean() == true)
+        for (JsonNode jsonNode : allFields) {
+            if (jsonNode.get("fieldType").textValue().equalsIgnoreCase("facet")) {
+                if (jsonNode.get("multiValued").asBoolean() == true) {
                     getFacetsConfig().setMultiValued(jsonNode.get("name").asText(), true);
+                }
+                if (jsonNode.get("name").textValue().equalsIgnoreCase(Constants.PROJECT)) {
+                    PROJECT_FACET = jsonNode;
+                }
+            }
+        }
 
         try {
             taxoDirectory = FSDirectory.open(new File(indexConfig.getFacetDirectory()).toPath());

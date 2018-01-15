@@ -7,6 +7,7 @@ import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
@@ -40,7 +41,7 @@ public class SecurityQueryBuilder {
         if(currentUser!=null && currentUser.getAllow()!=null && currentUser.getAllow().length>0) {
             securityClause.append( String.join(" OR ", currentUser.getAllow() ));
         } else {
-            securityClause.append("public");
+            securityClause.append(Constants.PUBLIC);
         }
         Query allowQuery = queryParser.parse(securityClause.toString());
 
@@ -68,10 +69,13 @@ public class SecurityQueryBuilder {
             queryBuilder.add(denyQuery, BooleanClause.Occur.MUST_NOT);
         }
 
+        Query finalQuery=null;
+        if (originalQuery!=null) {
+            queryBuilder.add(originalQuery, BooleanClause.Occur.MUST);
+            finalQuery = queryBuilder.build();
+        }
 
-        queryBuilder.add(originalQuery, BooleanClause.Occur.MUST);
-        Query finalQuery = queryBuilder.build();
-        logger.debug("security query: {}", finalQuery.toString());
+        logger.debug("security query: {}", finalQuery);
 
         return finalQuery;
     }

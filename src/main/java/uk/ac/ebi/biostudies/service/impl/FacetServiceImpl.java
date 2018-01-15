@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.lucene.facet.*;
 import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
@@ -80,20 +82,22 @@ public class FacetServiceImpl implements FacetService {
         List<FacetResult> facetResults = getFacetsForQuery(query);
         List<ObjectNode> list = new ArrayList<>();
         Set<String> validFacets = indexManager.getProjectRelatedFields(prjName.toLowerCase());
-        for(FacetResult fcResult:facetResults){
-            if(fcResult==null)
+        for (FacetResult fcResult : facetResults) {
+            if (fcResult == null || !validFacets.contains(fcResult.dim)) {
                 continue;
-            if(!validFacets.contains(fcResult.dim))
-                continue;
+            }
             ObjectNode facet = mapper.createObjectNode();
             JsonNode facetNode = indexManager.getAllValidFields().get(fcResult.dim);
+            if (!prjName.equalsIgnoreCase(Constants.PUBLIC) && facetNode == taxonomyManager.PROJECT_FACET) {
+                continue;
+            }
             facet.put("title", facetNode.get("title").asText());
             facet.put("name", facetNode.get("name").asText());
             List<ObjectNode> children = new ArrayList<>();
-            for(LabelAndValue labelVal :fcResult.labelValues){
+            for (LabelAndValue labelVal : fcResult.labelValues) {
                 ObjectNode child = mapper.createObjectNode();
-                child.put("name",  textService.getNormalisedString(labelVal.label));
-                child.put("value",  labelVal.label);
+                child.put("name", textService.getNormalisedString(labelVal.label));
+                child.put("value", labelVal.label);
                 child.put("hits", labelVal.value.intValue());
                 children.add(child);
             }

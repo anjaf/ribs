@@ -31,6 +31,7 @@ public interface Constants {
     String CREATION_TIME = "ctime";
     String RDATE_LONG = "rdatelong";
     String NA = "n/a";
-
+    String PUBLIC = "public";
+    String RELEASE_TIME = "rtime";
 
 }

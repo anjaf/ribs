@@ -98,7 +98,6 @@ ul#search-results li {
     color: #267799;
     line-height: inherit;
     font-size: 9pt;
-    text-transform: capitalize;
 }
 
 .EuropePMC-facets .facet-label {

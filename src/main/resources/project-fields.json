@@ -7,7 +7,6 @@
     {"name":"title", "title":"", "fieldType":"str_tokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"ExperimentTextAnalyzer"},
     {"name":"authors", "title":"", "fieldType":"str_tokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"content", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"true", "isSortable":"false", "analyzer":"ExperimentTextAnalyzer"},
-    {"name":"project", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"linktype", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"links", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"rdatelong", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},

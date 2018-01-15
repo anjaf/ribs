@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostudies.service.impl;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -19,11 +20,16 @@ import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
+import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
 import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
+import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.QueryService;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -42,7 +48,10 @@ public class QueryServiceImpl implements QueryService {
     AnalyzerManager analyzerManager;
     @Autowired
     SecurityQueryBuilder securityQueryBuilder;
-
+    @Autowired
+    FacetService facetService;
+    @Autowired
+    TaxonomyManager taxonomyManager;
 
     private static Query excludeCompound;
     private static Query excludeProject;
@@ -76,20 +85,23 @@ public class QueryServiceImpl implements QueryService {
             Query query = parser.parse(queryString);
             Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query);
             Query expandedQuery = excludeCompoundStudies(queryEFOExpansionTermsPair.getKey());
-            if(!queryString.toLowerCase().contains("type:project"))
+            if(!queryString.toLowerCase().contains("type:project")) {
                 expandedQuery = excludeProjects(expandedQuery);
-            if(!StringUtils.isEmpty(projectName) && !projectName.equalsIgnoreCase("public"))
+            }
+            if(!StringUtils.isEmpty(projectName) && !projectName.equalsIgnoreCase(Constants.PUBLIC)) {
                 expandedQuery = applyProjectFilter(expandedQuery, projectName);
+            }
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
             logger.debug("Lucene query: {}",queryAfterSecurity.toString());
             finalQuery =  new MutablePair<>(queryAfterSecurity, queryEFOExpansionTermsPair.getValue());
-        }catch (Throwable ex){
+        } catch (Throwable ex){
             logger.error(ex);
         }
         return finalQuery;
     }
 
     public Query applyProjectFilter(Query query, String prjName){
+        /*
         QueryParser searchPrjParser = new QueryParser(Constants.PROJECT, new AttributeFieldAnalyzer());
         searchPrjParser.setSplitOnWhitespace(true);
         BooleanQuery.Builder bqBuilder = new BooleanQuery.Builder();
@@ -102,6 +114,10 @@ public class QueryServiceImpl implements QueryService {
             logger.debug(e);
         }
         return bqBuilder.build();
+        */
+        HashMap hm = new HashMap();
+        hm.put(taxonomyManager.PROJECT_FACET, Lists.newArrayList(prjName));
+        return facetService.addFacetDrillDownFilters(query, hm);
     }
 
     public Pair<Query, EFOExpansionTerms> expandQuery(Query query){
