@@ -13,10 +13,12 @@
     {"name":"files", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"release_date", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"ctime", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
+    {"name":"mtime", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"id", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"seckey", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"project", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"false"},
-    {"name":"year", "title":"Released", "fieldType":"facet", "multiValued":"false"}
+    {"name":"year", "title":"Released", "fieldType":"facet", "multiValued":"false"},
+    {"name":"mtimeFacet", "title":"Modified in", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"}
   ],
   "hecatos":
   [

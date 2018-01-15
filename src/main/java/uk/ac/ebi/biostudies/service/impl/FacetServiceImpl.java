@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
+import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
@@ -58,7 +59,10 @@ public class FacetServiceImpl implements FacetService {
             FacetsCollector.search(indexManager.getIndexSearcher(), query, 20, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             for (JsonNode field:indexManager.getAllValidFields().values()) {
-                if(field.get("fieldType").asText().equalsIgnoreCase("facet")) {
+                if(field.get("fieldType").asText().equalsIgnoreCase("facet")){
+                    if(field.has("isPrivate") && field.get("isPrivate").asBoolean()==true && Session.getCurrentUser()==null) {
+                        continue;
+                    }
                     allResults.add(facets.getTopChildren(20, field.get("name").asText()));
                 }
             }

@@ -33,5 +33,6 @@ public interface Constants {
     String NA = "n/a";
     String PUBLIC = "public";
     String RELEASE_TIME = "rtime";
-
+    String MODIFICATION_TIME="mtime";
+    String MODIFICATION_TIME_FACET="mtimeFacet";
 }

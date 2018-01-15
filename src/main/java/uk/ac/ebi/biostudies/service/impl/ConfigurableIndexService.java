@@ -254,10 +254,18 @@ public class ConfigurableIndexService implements IndexService {
 
                 long releaseDateLong = 0L;
                 long creationDateLong = 0L;
+                long modificationTimeLong = 0L;
 
                 if(json.has(Constants.CREATION_TIME))
                     creationDateLong = Long.valueOf(json.get(Constants.CREATION_TIME).asText())*1000;
                 valueMap.put( Constants.CREATION_TIME, DateTools.timeToString(creationDateLong, DateTools.Resolution.DAY));
+
+                if(json.has(Constants.MODIFICATION_TIME)) {
+                    modificationTimeLong = Long.valueOf(json.get(Constants.MODIFICATION_TIME).asText()) * 1000;
+                    valueMap.put(Constants.MODIFICATION_TIME, modificationTimeLong);
+                    valueMap.put(Constants.MODIFICATION_TIME_FACET, DateTools.timeToString(modificationTimeLong, DateTools.Resolution.YEAR));
+                }
+
 
                 if(json.has(Constants.RELEASE_TIME)) {
                     releaseDateLong = Long.valueOf(json.get(Constants.RELEASE_TIME).asText()) * 1000;
