@@ -82,7 +82,7 @@
                             </li>
                             {{#if @last}}
                                 {{#ifCond @index '>=' 10}}
-                                    <li><span class="more">+ {{@left}} more</span></li>
+                                    <li><span class="more" id="expand-authors">+ {{@left}} more</span></li>
                                 {{/ifCond}}
                             {{/if}}
                         {{/eachAuthor}}

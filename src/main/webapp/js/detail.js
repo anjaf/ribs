@@ -816,15 +816,21 @@ function handleOrganisations() {
     $('#bs-authors li .author').hover(
         function () {
             $(this).addClass('highlight-author')
+            var isVisible = false;
             $('.org-link',this).each(function () {
                 $('#'+$(this).data('affiliation')).addClass('highlight-author');
+                isVisible |= $('#'+$(this).data('affiliation')+':visible').length>0;
             })
+            if (!isVisible) {
+                $('#expand-orgs').addClass('highlight-author');
+            }
 
         }, function () {
             $(this).removeClass('highlight-author')
             $('.org-link',this).each(function () {
                 $('#'+$(this).data('affiliation')).removeClass('highlight-author');
             })
+            $('#expand-orgs').removeClass('highlight-author');
         }
     )
 
@@ -834,9 +840,13 @@ function handleOrganisations() {
             if ($('span.more',$(this)).length) return;
             $(this).addClass('highlight-author')
             $('.org-link[data-affiliation="'+this.id+'"]').parent().parent().addClass('highlight-author')
+            if($('.highlight-author:visible').length==1) {
+                $('#expand-authors').addClass('highlight-author')
+            }
         }, function () {
             $(this).removeClass('highlight-author')
             $('.org-link[data-affiliation="'+this.id+'"]').parent().parent().removeClass('highlight-author')
+            $('#expand-authors').removeClass('highlight-author')
         }
     )
 }
