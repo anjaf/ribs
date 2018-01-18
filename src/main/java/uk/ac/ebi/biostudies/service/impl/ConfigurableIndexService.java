@@ -327,7 +327,7 @@ public class ConfigurableIndexService implements IndexService {
                     jsonPathContext = JsonPath.parse(json.toString());
                 try {
                     List<String> resultData = jsonPathContext.read(fieldMetadataNode.get("jpath").asText());
-                    result = String.join(",", resultData);
+                    result = String.join("£", resultData);
                 } catch (ClassCastException e) {
                     result = jsonPathContext.read(json.get("jpath").asText());
                 }
