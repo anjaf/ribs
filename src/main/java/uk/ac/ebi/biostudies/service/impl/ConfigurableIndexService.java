@@ -258,24 +258,25 @@ public class ConfigurableIndexService implements IndexService {
 
                 if(json.has(Constants.CREATION_TIME))
                     creationDateLong = Long.valueOf(json.get(Constants.CREATION_TIME).asText())*1000;
-                valueMap.put( Constants.CREATION_TIME, DateTools.timeToString(creationDateLong, DateTools.Resolution.DAY));
+//                valueMap.put( Constants.CREATION_TIME, DateTools.timeToString(creationDateLong, DateTools.Resolution.DAY));
+                valueMap.put(Constants.CREATION_TIME, creationDateLong);
 
                 if(json.has(Constants.MODIFICATION_TIME)) {
                     modificationTimeLong = Long.valueOf(json.get(Constants.MODIFICATION_TIME).asText()) * 1000;
                     valueMap.put(Constants.MODIFICATION_TIME, modificationTimeLong);
-                    valueMap.put(Constants.MODIFICATION_TIME_FACET, DateTools.timeToString(modificationTimeLong, DateTools.Resolution.YEAR));
+                    valueMap.put(Constants.MODIFICATION_YEAR_FACET, DateTools.timeToString(modificationTimeLong, DateTools.Resolution.YEAR));
                 }
 
 
                 if(json.has(Constants.RELEASE_TIME)) {
                     releaseDateLong = Long.valueOf(json.get(Constants.RELEASE_TIME).asText()) * 1000;
                 }
-                valueMap.put(Constants.RDATE_LONG, releaseDateLong);
+                valueMap.put(Constants.RELEASE_TIME, releaseDateLong);
                 if(releaseDateLong==0L && !String.valueOf(valueMap.get(Constants.ACCESS)).contains(Constants.PUBLIC)) {
                         releaseDateLong = Long.MAX_VALUE;
                 }
                 valueMap.put(Constants.RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
-                valueMap.put(Constants.YEAR, (releaseDateLong==Long.MAX_VALUE || releaseDateLong==0) ? Constants.NA :  DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
+                valueMap.put(Constants.RELEASED_YEAR_FACET, (releaseDateLong==Long.MAX_VALUE || releaseDateLong==0) ? Constants.NA :  DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
                 String project = "";
                 if(json.has("attributes")) {
                     project = StreamSupport.stream(json.get("attributes").spliterator(), false)

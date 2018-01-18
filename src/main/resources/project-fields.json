@@ -9,16 +9,16 @@
     {"name":"content", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"true", "isSortable":"false", "analyzer":"ExperimentTextAnalyzer"},
     {"name":"linktype", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"links", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
-    {"name":"rdatelong", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"files", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"release_date", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
-    {"name":"ctime", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
+    {"name":"ctime", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"mtime", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
+    {"name":"rtime", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"id", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"seckey", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"project", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"false"},
-    {"name":"year", "title":"Released", "fieldType":"facet", "multiValued":"false"},
-    {"name":"mtimeFacet", "title":"Modified in", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"}
+    {"name":"released_year", "title":"Released", "fieldType":"facet", "multiValued":"false"},
+    {"name":"modification_year", "title":"Modified", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"}
   ],
   "hecatos":
   [

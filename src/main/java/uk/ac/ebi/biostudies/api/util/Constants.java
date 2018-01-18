@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 public interface Constants {
     String RELEASE_DATE = "release_date";
     String RELEVANCE = "relevance";
-    String YEAR = "year";
+    String RELEASED_YEAR_FACET = "released_year";
 
     String SORT_ORDER = "sortorder";
     String ASCENDING = "ascending";
@@ -28,11 +28,10 @@ public interface Constants {
     String PROJECT = "project";
     String SECRET_KEY = "seckey";
     String LINK_TYPE = "linktype";
-    String CREATION_TIME = "ctime";
-    String RDATE_LONG = "rdatelong";
     String NA = "n/a";
     String PUBLIC = "public";
     String RELEASE_TIME = "rtime";
     String MODIFICATION_TIME="mtime";
-    String MODIFICATION_TIME_FACET="mtimeFacet";
+    String CREATION_TIME = "ctime";
+    String MODIFICATION_YEAR_FACET="modification_year";
 }
