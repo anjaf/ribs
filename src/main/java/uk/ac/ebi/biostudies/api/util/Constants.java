@@ -34,4 +34,7 @@ public interface Constants {
     String MODIFICATION_TIME="mtime";
     String CREATION_TIME = "ctime";
     String MODIFICATION_YEAR_FACET="modification_year";
+    String DEFAULT_VALUE = "defaultValue";
+    String IS_VISIBLE = "visible";
+    String IS_PRIVATE = "is";
 }

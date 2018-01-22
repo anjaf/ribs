@@ -364,7 +364,7 @@ public class ConfigurableIndexService implements IndexService {
                             doc.add(new StoredField(String.valueOf(field), valueMap.get(field).toString()));
                             break;
                         case "facet":
-                            addFacet(String.valueOf(valueMap.get(field)), field, doc);
+                            addFacet(String.valueOf(valueMap.get(field)), field, doc, curNode);
                     }
                 }catch(Exception ex){
                     logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(Constants.ACCESSION)), ex);
@@ -378,11 +378,14 @@ public class ConfigurableIndexService implements IndexService {
 
         }
 
-        private void addFacet(String value, String fieldName, Document doc){
+        private void addFacet(String value, String fieldName, Document doc, JsonNode facetConfig){
             if(value==null || value.isEmpty()) {
                 value = Constants.NA;
             }
             for(String subVal:value.split("£")) {
+                if(subVal.equalsIgnoreCase(Constants.NA) && facetConfig.has(Constants.DEFAULT_VALUE)){
+                    subVal = facetConfig.get(Constants.DEFAULT_VALUE).textValue();
+                }
                 doc.add(new FacetField(fieldName, subVal.trim().toLowerCase()));
             }
         }

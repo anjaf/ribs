@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.Strings;
 import org.apache.lucene.facet.*;
 import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.search.Query;
@@ -49,6 +48,8 @@ public class FacetServiceImpl implements FacetService {
     @Autowired
     QueryService queryService;
 
+    final int FACET_LIMIT = 21;
+
 
     @Override
     public List<FacetResult> getFacetsForQuery(Query query) {
@@ -56,14 +57,14 @@ public class FacetServiceImpl implements FacetService {
         List<FacetResult> allResults = new ArrayList();
         try {
             query = securityQueryBuilder.applySecurity(query);
-            FacetsCollector.search(indexManager.getIndexSearcher(), query, 20, facetsCollector);
+            FacetsCollector.search(indexManager.getIndexSearcher(), query, FACET_LIMIT, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             for (JsonNode field:indexManager.getAllValidFields().values()) {
                 if(field.get("fieldType").asText().equalsIgnoreCase("facet")){
                     if(field.has("isPrivate") && field.get("isPrivate").asBoolean()==true && Session.getCurrentUser()==null) {
                         continue;
                     }
-                    allResults.add(facets.getTopChildren(20, field.get("name").asText()));
+                    allResults.add(facets.getTopChildren(FACET_LIMIT, field.get("name").asText()));
                 }
             }
         } catch (IOException e) {
@@ -95,10 +96,20 @@ public class FacetServiceImpl implements FacetService {
             if (!prjName.equalsIgnoreCase(Constants.PUBLIC) && facetNode == taxonomyManager.PROJECT_FACET) {
                 continue;
             }
+            boolean invisNA = false;
+            String naDefaultStr = Constants.NA;
+            if(facetNode.has(Constants.IS_VISIBLE) && facetNode.get(Constants.IS_VISIBLE).asBoolean()==false)
+                invisNA = true;
+            if(facetNode.has(Constants.DEFAULT_VALUE))
+                naDefaultStr = facetNode.get(Constants.DEFAULT_VALUE).asText();
             facet.put("title", facetNode.get("title").asText());
             facet.put("name", facetNode.get("name").asText());
             List<ObjectNode> children = new ArrayList<>();
             for (LabelAndValue labelVal : fcResult.labelValues) {
+                if(invisNA && labelVal.label.equalsIgnoreCase(naDefaultStr))
+                    continue;
+                if(children.size()==FACET_LIMIT)
+                    break;
                 ObjectNode child = mapper.createObjectNode();
                 child.put("name", textService.getNormalisedString(labelVal.label));
                 child.put("value", labelVal.label);
