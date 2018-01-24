@@ -100,10 +100,10 @@
                     {{#each this}}
                     <div class="facet-name">{{title}}
                         {{#ifCond children.length '==' 20 }}
-                            <div class="facet-top"><span> TOP 20</span><a class="facet-more" data-facet="{{name}}">SHOW ALL</a></div>
+                            <div class="facet-top"><span> TOP 20</span> <a class="facet-more" data-facet="{{name}}">show all</a></div>
                         {{/ifCond}}
                     </div>
-                    <ul>
+                    <ul id="facet_{{name}}">
                         {{#each children}}
                         <li>
                             <label class="facet-label" for="{{../name}}:{{value}}">
@@ -170,7 +170,8 @@
         </script>
        <script id='all-facets-template' type='text/x-handlebars-template'>
            <div class="allfacets fullscreen">
-               <form>
+               <form id="all-facet-form">
+                   <input type="hidden" value="{{existing}}" name="facets"/>
                    <a href="#" id="close-facet-search">CLOSE</a>
                    <input id="facet-search" type="search" title="Search" placeholder="Start typing to search" />
                    <button id="facet-search-button" type="submit">
@@ -181,13 +182,16 @@
                        <br/>
                        Update
                    </button>
+                   <!--label class="facet-label" for="all-check" style="display:inherit">
+                       <input type="checkbox" class="facet-value" id="all-check" style="margin:0"/>
+                       <span style="vertical-align: middle">Select all</span>
+                    </label-->
                    <ul>
-                       {{#each children}}
+                       {{#each facets.children}}
                        <li>
-                           <label class="facet-label" for="all-{{../name}}:{{value}}">
-                               <input class="facet-value" type="checkbox" name="facets" value="{{../name}}:{{value}}" id="all-{{../name}}:{{value}}"/>
+                           <label class="facet-label" for="all-{{../facets.name}}:{{value}}">
+                               <input class="facet-value" type="checkbox" name="facets" value="{{../facets.name}}:{{value}}" id="all-{{../facets.name}}:{{value}}"/>
                                <span>{{name}}</span>
-                               <!--span class="facet-hits">{{formatNumber hits}}</span-->
                            </label>
                        </li>
                        {{/each}}

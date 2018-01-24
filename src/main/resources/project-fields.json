@@ -7,7 +7,7 @@
     {"name":"title", "title":"", "fieldType":"str_tokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"ExperimentTextAnalyzer"},
     {"name":"authors", "title":"", "fieldType":"str_tokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"content", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"true", "isSortable":"false", "analyzer":"ExperimentTextAnalyzer"},
-    {"name":"linktype", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
+    {"name":"link_type", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"links", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"files", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"release_date", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
@@ -24,25 +24,25 @@
   [
     {"name":"organ", "title":"Organ", "fieldType":"facet", "multiValued":"true"},
     {"name":"technology", "title":"Assay Technology Type", "fieldType":"facet", "multiValued":"true"},
-    {"name":"dataType", "title":"Data Type", "fieldType":"facet", "multiValued":"true"},
+    {"name":"data_type", "title":"Data Type", "fieldType":"facet", "multiValued":"true"},
     {"name":"compound", "title":"Compound", "fieldType":"facet", "multiValued":"true"},
-    {"name":"rawProcessed", "title":"Raw/Processed", "fieldType":"facet", "multiValued":"true"}
+    {"name":"raw_or_processed", "title":"Raw/Processed", "fieldType":"facet", "multiValued":"true"}
   ],
   "arrayexpress":
   [
-    {"name":"expFactor", "title":"Experimental Factor", "fieldType":"facet", "multiValued":"true"},
     {"name":"exp", "title":"Experimental Factor", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"false", "analyzer":"AttributeFieldAnalyzer"},
+    {"name":"experimental_factor", "title":"Experimental Factor", "fieldType":"facet", "multiValued":"true"},
     {"name":"organism", "title":"Organism", "jpath":"$..subsections[?(@.type==\"Singleton values\")].attributes[?(@.name==\"Characteristics[organism]\")].value", "fieldType":"facet", "multiValued":"true"},
-    {"name":"studyType", "title":"Study type", "fieldType":"facet", "multiValued":"true"}
+    {"name":"study_type", "title":"Study type", "fieldType":"facet", "multiValued":"true"}
   ],
   "europepmc": [
-    {"name":"fundingagency", "title":"Funding Agency", "fieldType":"facet", "jpath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":"true"}
+    {"name":"funding_agency", "title":"Funding Agency", "fieldType":"facet", "jpath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":"true"}
   ],
   "eu-toxrisk":
   [
     {"name":"organ", "title":"Organ", "fieldType":"facet", "multiValued":"true"},
     {"name":"organism", "title":"Organism", "fieldType":"facet", "multiValued":"true"},
-    {"name":"toxicityDomain", "title":"Toxicity Domain", "fieldType":"facet", "multiValued":"true"},
+    {"name":"toxicity_domain", "title":"Toxicity Domain", "fieldType":"facet", "multiValued":"true"},
     {"name":"compound", "title":"Compound", "fieldType":"facet", "multiValued":"true"}
   ]
 }

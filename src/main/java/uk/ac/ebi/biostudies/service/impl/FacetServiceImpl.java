@@ -65,7 +65,7 @@ public class FacetServiceImpl implements FacetService {
                 return facetJSON;
             }
             FacetResult childrenFacets = facets.getTopChildren(Integer.MAX_VALUE, dimension);
-            ArrayNode children = mapper.createArrayNode();
+            List<JsonNode> children = new ArrayList<>();//mapper.createArrayNode();
             facetJSON.put("title", facet.get("title").asText());
             facetJSON.put("name", facet.get("name").asText());
 
@@ -79,7 +79,8 @@ public class FacetServiceImpl implements FacetService {
                 }
             }
             logger.debug("returning {} children", children.size());
-            facetJSON.set("children", children);
+            Collections.sort(children, Comparator.comparing(o -> o.get("name").textValue()));
+            facetJSON.set("children", mapper.createArrayNode().addAll(children));
 
 
         } catch (Exception e) {
@@ -157,7 +158,7 @@ public class FacetServiceImpl implements FacetService {
                 child.put("hits", labelVal.value.intValue());
                 children.add(child);
             }
-            //Collections.sort(children, Comparator.comparing(o -> o.get("name").textValue()));
+            Collections.sort(children, Comparator.comparing(o -> o.get("name").textValue()));
             ArrayNode childrenArray = mapper.createArrayNode();
             childrenArray.addAll(children);
             facet.set("children", childrenArray);

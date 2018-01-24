@@ -259,7 +259,7 @@ function registerHelpers() {
                 return v.name
             })
         })
-        this.headers = $.unique(names);
+        this.headers = Array.from(new Set(names));
         this.type = this[0].type
     });
 

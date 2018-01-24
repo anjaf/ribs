@@ -274,9 +274,31 @@ function postRenderFacets(data, params) {
 
     // check the currently selected face, if any
     if (params.facets) {
+        var facetMap = {};
+        var non20={};
         $(params.facets.split(",")).each(function () {
-            $('input[id="'+this+'"]').attr('checked','checked');
-        })
+            var parts = this.split(':');
+            var fkey = parts[0], fval = parts[1];
+            if (!facetMap[fkey]) facetMap[fkey] = [];
+            if ($('input[id="'+this+'"]').length) {
+                $('input[id="'+this+'"]').attr('checked','checked');
+                facetMap[fkey].push($('input[id="'+this+'"]').parent().parent().detach());
+                non20[this]=true;
+            } else {
+                if (!non20[this]) {
+                    facetMap[fkey].push($('<li><label class="facet-label" for="' + this + '">'
+                        + '<input class="facet-value" type="checkbox" checked="checked" name="facets" value="' + this + '" id="' + this + '"/>'
+                        + '<span>' + fval + '</span>'
+                        + '</label></li>'));
+                    non20[this]=true;
+                }
+            }
+        });
+
+        for (var key in facetMap) {
+            facetMap[key].sort(function(a,b){return a.text().trim()>b.text().trim() })
+            $('#facet_'+key).prepend(facetMap[key])
+        }
     }
 
     // set query string in facets
@@ -290,13 +312,15 @@ function postRenderFacets(data, params) {
         if (!project) return;
         $('body').append('<div id="blocker" class="blocker"></div>');
         $('body').append('<div id="facet-loader"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><div class="sr-only">Loading...</div></div>');
-        $.getJSON(contextPath+"/api/v1/"+project+'/facets/'+$(this).data('facet')+'/',{}, function(data) {
+        var thisFacet = $(this).data('facet');
+        $.getJSON(contextPath+"/api/v1/"+project+'/facets/'+thisFacet+'/',{}, function(data) {
             if ( !$('#facet-loader').length) return;
             $('#facet-loader').hide();
             var templateSource = $('script#all-facets-template').html();
             var template = Handlebars.compile(templateSource);
-            $('body').append(template(data));
+            $('body').append(template({facets:data, existing: !params.facets ? '' : params.facets.split(",").filter( function(v) { return v.indexOf(thisFacet)!=0; }).join(",")}));
             $('#facet-search').focus()
+            // add filter
             $('#facet-search').change( function(){
                 var filter = $(this).val();
                 if (filter) {
@@ -309,6 +333,7 @@ function postRenderFacets(data, params) {
                 $(this).change();
             });
 
+            //hook events
             $(".allfacets ul li input").change(function() {
                 toggleFacetSearch();
             });
@@ -323,6 +348,16 @@ function postRenderFacets(data, params) {
                     $('input[id="all-'+this+'"]', $(".allfacets ul li")).attr('checked','checked');
                 })
             }
+
+            //handle select all
+            $('#all-check').click(function () {
+                if ($("#all-check:checked").length) {
+                    $(".allfacets ul li input").attr('checked','checked')
+                } else {
+                    $(".allfacets ul li input").removeAttr('checked')
+                }
+            });
+
             toggleFacetSearch();
 
         });
@@ -337,7 +372,11 @@ function postRenderFacets(data, params) {
 }
 
 function toggleFacetSearch() {
-    $('#facet-search-button').css( "color", $(".allfacets ul li input:checked").length ?  "#267799" :"#eeeeee" );
+    if ($(".allfacets ul li input:checked").length>100) {
+        $("#facet-search-button").attr("disabled", "disabled")
+    } else {
+        $("#facet-search-button").removeAttr("disabled");
+    }
 }
 
 function closeFullScreen() {
