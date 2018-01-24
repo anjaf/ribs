@@ -284,5 +284,65 @@ function postRenderFacets(data, params) {
 
     // resubmit form when facets are changed
     $('input.facet-value').change(function(){ $(this).parents('form:first').submit() });
+
+    // handle show more
+    $('.facet-more').click(function() {
+        if (!project) return;
+        $('body').append('<div id="blocker" class="blocker"></div>');
+        $('body').append('<div id="facet-loader"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><div class="sr-only">Loading...</div></div>');
+        $.getJSON(contextPath+"/api/v1/"+project+'/facets/'+$(this).data('facet')+'/',{}, function(data) {
+            if ( !$('#facet-loader').length) return;
+            $('#facet-loader').hide();
+            var templateSource = $('script#all-facets-template').html();
+            var template = Handlebars.compile(templateSource);
+            $('body').append(template(data));
+            $('#facet-search').focus()
+            $('#facet-search').change( function(){
+                var filter = $(this).val();
+                if (filter) {
+                    $(".allfacets ul li").find("span:not(:contains(" + filter + "))").parent().hide();
+                    $(".allfacets ul li").find("span:contains(" + filter + ")").parent().show();
+                } else {
+                    $(".allfacets ul").find("li").show();
+                }
+            }).keyup(function () {
+                $(this).change();
+            });
+
+            $(".allfacets ul li input").change(function() {
+                toggleFacetSearch();
+            });
+
+            $('#close-facet-search').click( function () {
+                closeFullScreen();
+            });
+
+            // check the currently selected face, if any
+            if (params.facets) {
+                $(params.facets.split(",")).each(function () {
+                    $('input[id="all-'+this+'"]', $(".allfacets ul li")).attr('checked','checked');
+                })
+            }
+            toggleFacetSearch();
+
+        });
+    });
+
+    //handle escape key on fullscreen
+    $(document).on('keydown',function ( e ) {
+        if ( e.keyCode === 27 ) {
+            closeFullScreen();
+        }
+    });
 }
 
+function toggleFacetSearch() {
+    $('#facet-search-button').css( "color", $(".allfacets ul li input:checked").length ?  "#267799" :"#eeeeee" );
+}
+
+function closeFullScreen() {
+    $('#blocker').remove();
+    $('#facet-loader').remove();
+    $('.allfacets').remove();
+
+}

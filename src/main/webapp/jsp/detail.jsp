@@ -63,7 +63,7 @@
                 </div>
                 <div id="bs-content">
                     <div id="thumbnail"></div>
-                    <h4 id="orcid-title"  itemprop="name">{{valueWithName 'Title' attributes}}</h4>
+                    <h3 id="orcid-title"  itemprop="name">{{valueWithName 'Title' attributes}}</h3>
                     <!-- Authors -->
                     <ul id="bs-authors">
                         {{#eachAuthor this}}

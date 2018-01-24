@@ -80,6 +80,7 @@
                 </div>
             </div>
             <div class="clearboth"></div>
+            <div id="allfacets"></div>
         </script>
 
         <script id='project-banner-template' type='text/x-handlebars-template'>
@@ -95,12 +96,11 @@
         </script>
         <script id='facet-list-template' type='text/x-handlebars-template'>
             <form>
-                <input type="hidden" id="facet-query" name="query" value=""/>
                 <div id="facet" class="{{project}}-facets">
                     {{#each this}}
                     <div class="facet-name">{{title}}
                         {{#ifCond children.length '==' 20 }}
-                        <span class="facet-top">(Top 20)</span>
+                            <div class="facet-top"><span> TOP 20</span><a class="facet-more" data-facet="{{name}}">SHOW ALL</a></div>
                         {{/ifCond}}
                     </div>
                     <ul>
@@ -109,13 +109,14 @@
                             <label class="facet-label" for="{{../name}}:{{value}}">
                                 <input class="facet-value" type="checkbox" name="facets" value="{{../name}}:{{value}}" id="{{../name}}:{{value}}"/>
                                 <span>{{name}}</span>
-                                <span class="facet-hits">{{formatNumber hits}}</span>
+                                <!--span class="facet-hits">{{formatNumber hits}}</span-->
                             </label>
                         </li>
                         {{/each}}
                     </ul>
                     {{/each}}
                 </div>
+                <input type="hidden" id="facet-query" name="query" value=""/>
             </form>
         </script>
         <script id='result-template' type='text/x-handlebars-template'>
@@ -167,8 +168,34 @@
                 </div>
             </div>
         </script>
-        <script src="${contextPath}/js/search.js"></script>
-        <span id="hasFacets"></span>
+       <script id='all-facets-template' type='text/x-handlebars-template'>
+           <div class="allfacets fullscreen">
+               <form>
+                   <a href="#" id="close-facet-search">CLOSE</a>
+                   <input id="facet-search" type="search" title="Search" placeholder="Start typing to search" />
+                   <button id="facet-search-button" type="submit">
+                       <span class="fa-stack fa-2x">
+                          <i class="fa fa-search fa-stack-2x"></i>
+                          <i class="fa fa-check fa-stack-1x" style="margin-left:-3pt;margin-top:-1pt"></i>
+                       </span>
+                       <br/>
+                       Update
+                   </button>
+                   <ul>
+                       {{#each children}}
+                       <li>
+                           <label class="facet-label" for="all-{{../name}}:{{value}}">
+                               <input class="facet-value" type="checkbox" name="facets" value="{{../name}}:{{value}}" id="all-{{../name}}:{{value}}"/>
+                               <span>{{name}}</span>
+                               <!--span class="facet-hits">{{formatNumber hits}}</span-->
+                           </label>
+                       </li>
+                       {{/each}}
+                   </ul>
+           </form>
+           </div>
+       </script>
+       <script src="${contextPath}/js/search.js"></script>
     </jsp:attribute>
     <jsp:body>
         <div id="loader">
