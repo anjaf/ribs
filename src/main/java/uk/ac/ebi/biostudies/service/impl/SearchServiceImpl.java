@@ -253,6 +253,10 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public String search(String queryString, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
+        if(queryString.isEmpty() && sortBy.isEmpty())
+            sortBy= "release_date";
+        else if(sortBy.isEmpty())
+            sortBy = "relevance";
         ObjectMapper mapper = new ObjectMapper();
         boolean doHighlight = true;
         if (StringUtils.isEmpty(queryString)) {

@@ -50,7 +50,7 @@ public class Search {
                                         @RequestParam(value="facets", required=false) String facets,
                                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
                                         @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
-                                        @RequestParam(value="sortBy", required=false, defaultValue = "relevance") String sortBy,
+                                        @RequestParam(value="sortBy", required=false, defaultValue = "") String sortBy,
                                         @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder
     ) throws Exception {
         ObjectNode selectedFacets = checkSelectedFacets(facets);
@@ -79,7 +79,7 @@ public class Search {
                                            @RequestParam(value="facets", required=false) String facets,
                                            @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
                                            @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
-                                           @RequestParam(value="sortBy", required=false, defaultValue = "relevance") String sortBy,
+                                           @RequestParam(value="sortBy", required=false, defaultValue = "") String sortBy,
                                            @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder,
                                            @PathVariable String project) throws Exception {
         ObjectNode selectedFacets = checkSelectedFacets(facets);
