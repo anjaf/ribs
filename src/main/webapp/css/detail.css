@@ -453,3 +453,14 @@ a.thumbnail-icon {
 .widge-title .fa:before, .widge-title  .icon:before {
     color:#aaa;
 }
+
+.orcid {
+    border: 0;
+    height: 20px;
+    display: inline-block;
+}
+.orcid img {
+    margin: 4px;
+    width: 16px;
+    height: 16px;
+}

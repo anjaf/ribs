@@ -88,7 +88,7 @@ ul#search-results li {
 }
 
 .facet-label {
-    display: initial;
+    display: flex;
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
@@ -97,17 +97,17 @@ ul#search-results li {
     -ms-user-select: none;
     color: #267799;
     line-height: inherit;
-    font-size: 9pt;
 }
 
 .EuropePMC-facets .facet-label {
     text-transform: uppercase;
-    font-size: 8pt;
 }
 
 .facet-label input{
     margin: 0;
     vertical-align: middle;
+    margin-top: 4pt;
+    margin-right: 4pt;
 }
 
 .facet-hits {
@@ -175,12 +175,90 @@ ul#search-results li {
     display: block;
 }
 
-span.facet-top {
-    font-size: 7pt;
+.facet-top {
     font-weight: normal;
     color: #aaaaaa;
+    display: block;
+    height:15pt;
+    font-size: 7pt;
 }
 select {
     height: inherit;
     margin: inherit;
+}
+.facet-more {
+    margin-left: 5pt
+}
+
+#facet ul {
+    margin-left: 0.5rem;
+}
+
+#facet-loader {
+    z-index: 99999;
+    padding:5px;
+    height: auto;
+    max-height: 20% !important;
+    top:50%;
+    left:50%;
+    position: fixed;
+    background-color:white;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-clip: padding-box;
+}
+
+.fullscreen{
+    z-index: 99999;
+    padding:20pt;
+    width: 90% !important;
+    height: auto;
+    max-height: 90% !important;
+    top:5%;
+    left:5%;
+    position: fixed;
+    background-color:white;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-clip: padding-box;
+    overflow: auto;
+    text-align: center;
+}
+
+.blocker {
+    z-index: 99998;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.allfacets ul {
+    list-style-type: none;
+    column-count: 4;
+    padding:10pt;
+}
+
+#facet-search-button {
+    cursor:pointer;
+    margin:10pt;
+    outline: none;
+}
+
+#facet-search {
+    width:50%;
+    margin:auto;
+}
+#close-facet-search {
+    position: fixed;
+    right: 6%;
+    top: 5%;
+    color: #999;
+    font-size: 10pt;
+    padding: 5pt;
+    font-weight: bold;
 }

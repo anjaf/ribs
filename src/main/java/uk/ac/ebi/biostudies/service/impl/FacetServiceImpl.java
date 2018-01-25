@@ -11,6 +11,7 @@ import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import springfox.documentation.spring.web.json.Json;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.auth.Session;
@@ -48,23 +49,64 @@ public class FacetServiceImpl implements FacetService {
     @Autowired
     QueryService queryService;
 
-    final int FACET_LIMIT = 21;
+    public JsonNode getDimension(String project, String dimension) {
+        Query query = null;
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode facetJSON = mapper.createObjectNode();
+        FacetsCollector facetsCollector = new FacetsCollector();
+        try {
+            query = queryService.makeQuery(null, project).getKey();
+            query = securityQueryBuilder.applySecurity(query);
+            FacetsCollector.search(indexManager.getIndexSearcher(), query, Integer.MAX_VALUE, facetsCollector);
+            Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
+            Map<String, JsonNode> allValidFields = indexManager.getAllValidFields();
+            JsonNode facet =  allValidFields.containsKey(dimension) ? allValidFields.get(dimension) : null;
+            if(facet==null || facet.has("isPrivate") && facet.get("isPrivate").asBoolean()==true && Session.getCurrentUser()==null) {
+                return facetJSON;
+            }
+            FacetResult childrenFacets = facets.getTopChildren(Integer.MAX_VALUE, dimension);
+            List<JsonNode> children = new ArrayList<>();//mapper.createArrayNode();
+            facetJSON.put("title", facet.get("title").asText());
+            facetJSON.put("name", facet.get("name").asText());
 
+            if (childrenFacets!=null) {
+                for (LabelAndValue labelVal : childrenFacets.labelValues) {
+                    ObjectNode child = mapper.createObjectNode();
+                    child.put("name", textService.getNormalisedString(labelVal.label));
+                    child.put("value", labelVal.label);
+                    child.put("hits", labelVal.value.intValue());
+                    children.add(child);
+                }
+            }
+            logger.debug("returning {} children", children.size());
+            Collections.sort(children, Comparator.comparing(o -> o.get("name").textValue()));
+            facetJSON.set("children", mapper.createArrayNode().addAll(children));
+
+
+        } catch (Exception e) {
+            logger.debug("problem in parsing project {} dimension {}", project, dimension, e);
+        } catch (Throwable e) {
+            logger.debug("problem in parsing project {} dimension {}", project, dimension, e);
+        }
+
+        return facetJSON;
+    }
 
     @Override
-    public List<FacetResult> getFacetsForQuery(Query query) {
+    public List<FacetResult> getFacetsForQuery(Query query, int limit) {
         FacetsCollector facetsCollector = new FacetsCollector();
         List<FacetResult> allResults = new ArrayList();
         try {
             query = securityQueryBuilder.applySecurity(query);
-            FacetsCollector.search(indexManager.getIndexSearcher(), query, FACET_LIMIT, facetsCollector);
+            FacetsCollector.search(indexManager.getIndexSearcher(), query, limit, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             for (JsonNode field:indexManager.getAllValidFields().values()) {
                 if(field.get("fieldType").asText().equalsIgnoreCase("facet")){
+                    // Private fields (e.g.modification_year) are available only to users of a project with unreleased submissions e.g.
                     if(field.has("isPrivate") && field.get("isPrivate").asBoolean()==true && Session.getCurrentUser()==null) {
                         continue;
                     }
-                    allResults.add(facets.getTopChildren(FACET_LIMIT, field.get("name").asText()));
+                    allResults.add(facets.getTopChildren(limit, field.get("name").asText()));
                 }
             }
         } catch (IOException e) {
@@ -76,7 +118,7 @@ public class FacetServiceImpl implements FacetService {
     }
 
     @Override
-    public JsonNode getDefaultFacetTemplate(String prjName, String queryString){
+    public JsonNode getDefaultFacetTemplate(String prjName, String queryString, int limit){
         Query query = null;
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -84,7 +126,7 @@ public class FacetServiceImpl implements FacetService {
         } catch (NullPointerException e) {
             logger.debug("problem in parsing query {}", queryString, e);
         }
-        List<FacetResult> facetResults = getFacetsForQuery(query);
+        List<FacetResult> facetResults = getFacetsForQuery(query, limit);
         List<ObjectNode> list = new ArrayList<>();
         Set<String> validFacets = indexManager.getProjectRelatedFields(prjName.toLowerCase());
         for (FacetResult fcResult : facetResults) {
@@ -108,7 +150,7 @@ public class FacetServiceImpl implements FacetService {
             for (LabelAndValue labelVal : fcResult.labelValues) {
                 if(invisNA && labelVal.label.equalsIgnoreCase(naDefaultStr))
                     continue;
-                if(children.size()==FACET_LIMIT)
+                if(children.size()==limit)
                     break;
                 ObjectNode child = mapper.createObjectNode();
                 child.put("name", textService.getNormalisedString(labelVal.label));

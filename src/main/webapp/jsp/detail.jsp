@@ -63,7 +63,7 @@
                 </div>
                 <div id="bs-content">
                     <div id="thumbnail"></div>
-                    <h4 id="orcid-title"  itemprop="name">{{valueWithName 'Title' attributes}}</h4>
+                    <h3 id="orcid-title"  itemprop="name">{{valueWithName 'Title' attributes}}</h3>
                     <!-- Authors -->
                     <ul id="bs-authors">
                         {{#eachAuthor this}}
@@ -79,6 +79,9 @@
                                         {{/ifArray}}
                                     {{/if}}
                                 </span>
+                                {{#if ORCID}}
+                                    <a href="https://orcid.org/{{ORCID}}" target="_blank" title="Click to open ORCID profile: https://orcid.org/{{ORCID}}" class="orcid"><img alt="https://orcid.org/{{ORCID}}" src="${contextPath}/images/orcid.svg"/></a>
+                                {{/if}}
                             </li>
                             {{#if @last}}
                                 {{#ifCond @index '>=' 10}}
@@ -176,7 +179,7 @@
                     {{#ifHasAttribute 'Title' this.attributes}}
                         {{valueWithName 'Title' this.attributes}}
                     {{else}}
-                        {{type}} <span class="section-acc"><i class="fa fa-map-pin"></i> {{accno}}</span>
+                        {{type}}
                     {{/ifHasAttribute}}
                     <span class="section-title-bar"></span>
                 </div>

@@ -75,7 +75,7 @@ public class Search {
     })
     @PublicRESTMethod
     @RequestMapping(value = "/{project}/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getSelectedFacets(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
+    public String searchProject(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
                                            @RequestParam(value="facets", required=false) String facets,
                                            @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
                                            @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
@@ -87,8 +87,15 @@ public class Search {
     }
 
     @RequestMapping(value = "/{project}/facets", produces = JSON_UNICODE_MEDIA_TYPE , method = RequestMethod.GET)
-    public String getDefaultFacets(@PathVariable String project, @RequestParam(value="query", required=false, defaultValue = "") String queryString) throws Exception{
-        return facetService.getDefaultFacetTemplate(project, queryString).toString();
+    public String getDefaultFacets(@PathVariable String project,
+                                   @RequestParam(value="query", required=false, defaultValue = "") String queryString,
+                                   @RequestParam(value="limit", required=false, defaultValue = "20") Integer limit) throws Exception{
+        return facetService.getDefaultFacetTemplate(project, queryString, limit).toString();
+    }
+
+    @RequestMapping(value = "/{project}/facets/{dimension}/", produces = JSON_UNICODE_MEDIA_TYPE , method = RequestMethod.GET)
+    public String getDefaultFacets(@PathVariable String project, @PathVariable String dimension) throws Exception{
+        return facetService.getDimension(project, dimension).toString();
     }
 
     @ApiOperation(value = "Returns index stats", notes = "Returns stats for indexed fields", response = ObjectNode.class)
