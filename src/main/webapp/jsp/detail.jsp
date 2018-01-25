@@ -79,6 +79,9 @@
                                         {{/ifArray}}
                                     {{/if}}
                                 </span>
+                                {{#if ORCID}}
+                                    <a href="https://orcid.org/{{ORCID}}" target="_blank" title="Click to open ORCID profile: https://orcid.org/{{ORCID}}" class="orcid"><img alt="https://orcid.org/{{ORCID}}" src="${contextPath}/images/orcid.svg"/></a>
+                                {{/if}}
                             </li>
                             {{#if @last}}
                                 {{#ifCond @index '>=' 10}}
