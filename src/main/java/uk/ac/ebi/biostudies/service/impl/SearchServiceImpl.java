@@ -155,7 +155,7 @@ public class SearchServiceImpl implements SearchService {
             response.put("page", page);
             response.put("pageSize", hitsPerPage);
             response.put("totalHits", hits.totalHits);
-            response.put( "sortBy", sortBy);
+            response.put( "sortBy", sortBy.equalsIgnoreCase(Constants.RELEASE_TIME) ? Constants.RELEASE_DATE : sortBy);
             response.put( "sortOrder", sortOrder);
             if (hits.totalHits > 0) {
                 ArrayNode docs = mapper.createArrayNode();
@@ -257,6 +257,7 @@ public class SearchServiceImpl implements SearchService {
         boolean doHighlight = true;
         if (StringUtils.isEmpty(queryString)) {
             doHighlight = false;
+            sortBy = Constants.RELEASE_TIME;
         }
         ObjectNode response = mapper.createObjectNode();
         Pair<Query, EFOExpansionTerms> resultPair = queryService.makeQuery(queryString, prjName);

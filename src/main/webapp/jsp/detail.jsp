@@ -176,7 +176,7 @@
                     {{#ifHasAttribute 'Title' this.attributes}}
                         {{valueWithName 'Title' this.attributes}}
                     {{else}}
-                        {{type}} <span class="section-acc"><i class="fa fa-map-pin"></i> {{accno}}</span>
+                        {{type}}
                     {{/ifHasAttribute}}
                     <span class="section-title-bar"></span>
                 </div>
