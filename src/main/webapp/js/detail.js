@@ -1141,7 +1141,7 @@ function handleOntologyLinks() {
         $.ajax({
             async: true,
             context: this,
-            url: "//www.ebi.ac.uk/ols/api/ontologies/" + ont + "/terms",
+            url: "https://www.ebi.ac.uk/ols/api/ontologies/" + ont + "/terms",
             data: {short_form: termId, size: 1},
             success: function (data) {
                 if (data && data._embedded && data._embedded.terms && data._embedded.terms.length > 0) {
