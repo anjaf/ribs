@@ -260,7 +260,7 @@
                         <span class="fa fa-expand fa-icon table-expander" id="all-files-expander" title="Click to expand"/>
                     </div>
                     <div class="table-wrapper">
-                        <table id="file-list" class="stripe compact hover">
+                        <table id="file-list" class="stripe compact hover" width="100%">
                             <thead>
                             <tr>
                                 <th id="select-all-files-header">
@@ -303,7 +303,7 @@
                         <span class="fa fa-expand fa-icon table-expander" id="all-links-expander" title="Click to expand"/>
                     </div>
                     <div class="table-wrapper">
-                        <table id="link-list" class="stripe compact hover">
+                        <table id="link-list" class="stripe compact hover" width="100%">
                             <thead>
                             <tr>
                                 {{#each linkHeaders}}

@@ -931,7 +931,10 @@ function handleAnchors() {
     $("a[data-files-id]").click( function() {
         expansionSource = $(this).data('files-id');
         $('#all-files-expander').click();
-        filesTable.column(3).search('^'+$(this).data('files-id')+'$',true,false).draw();
+        filesTable.column(3).search('^'+$(this).data('files-id')+'$',true,false);
+        // hide empty columns
+        filesTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
+        filesTable.draw();
     });
 
     // add file filter button for section
@@ -950,7 +953,10 @@ function handleAnchors() {
     $("a[data-links-id]").click( function() {
         expansionSource = $(this).data('links-id');
         $('#all-links-expander').click();
-        linksTable.column(':contains(Section)').search('^'+$(this).data('links-id')+'$',true,false).draw();
+        linksTable.column(':contains(Section)').search('^'+$(this).data('links-id')+'$',true,false);
+        // hide empty columns
+        linksTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
+        linksTable.draw();
     });
 
 
@@ -1065,10 +1071,12 @@ function downloadFiles(files) {
 }
 
 function clearFileFilter() {
+    filesTable.columns().visible(true);
     filesTable.search('').columns().search('').draw();
 }
 
 function clearLinkFilter() {
+    linksTable.columns().visible(true);
     linksTable.search('').columns().search('').draw();
 }
 

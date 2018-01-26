@@ -113,7 +113,8 @@ ul#search-results li {
 .facet-hits {
     color: #aaaaaa;
     font-size: 7pt;
-    padding-left: 3pt;
+    padding-top: 4pt;
+    padding-left: 4pt
 }
 
 
