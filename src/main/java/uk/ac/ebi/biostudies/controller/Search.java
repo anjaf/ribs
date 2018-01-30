@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostudies.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -89,8 +90,10 @@ public class Search {
     @RequestMapping(value = "/{project}/facets", produces = JSON_UNICODE_MEDIA_TYPE , method = RequestMethod.GET)
     public String getDefaultFacets(@PathVariable String project,
                                    @RequestParam(value="query", required=false, defaultValue = "") String queryString,
+                                   @RequestParam(value="facets", required=false) String facets,
                                    @RequestParam(value="limit", required=false, defaultValue = "20") Integer limit) throws Exception{
-        return facetService.getDefaultFacetTemplate(project, queryString, limit).toString();
+        ObjectNode selectedFacets = checkSelectedFacets(facets);
+        return facetService.getDefaultFacetTemplate(project, queryString, limit, selectedFacets).toString();
     }
 
     @RequestMapping(value = "/{project}/facets/{dimension}/", produces = JSON_UNICODE_MEDIA_TYPE , method = RequestMethod.GET)

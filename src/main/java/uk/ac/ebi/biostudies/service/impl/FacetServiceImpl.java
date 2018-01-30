@@ -118,18 +118,29 @@ public class FacetServiceImpl implements FacetService {
     }
 
     @Override
-    public JsonNode getDefaultFacetTemplate(String prjName, String queryString, int limit){
-        Query query = null;
+    public JsonNode getDefaultFacetTemplate(String prjName, String queryString, int limit, JsonNode selectedFacets){
+        Query queryWithoutFacet = null;
+        Query queryAfterFacet = null;
+        int hits = 0;
         ObjectMapper mapper = new ObjectMapper();
         try {
-            query = queryService.makeQuery(queryString, prjName).getKey();
+            queryWithoutFacet = queryService.makeQuery(queryString, prjName).getKey();
+            queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
         } catch (NullPointerException e) {
             logger.debug("problem in parsing query {}", queryString, e);
         }
-        List<FacetResult> facetResults = getFacetsForQuery(query, limit);
+
+        List<FacetResult> facetResultsTemplate = getFacetsForQuery(queryWithoutFacet, limit);
+        List<FacetResult> facetResultsWithSelectedFacets = getFacetsForQuery(queryAfterFacet, limit);
+        HashMap<String, LabelAndValue> facetTemplateHash = new HashMap<>();
+        for(FacetResult fc:facetResultsWithSelectedFacets) {
+            if(fc!=null)
+                for(LabelAndValue lAndB : fc.labelValues)
+                    facetTemplateHash.put(fc.dim+lAndB.label, lAndB);
+        }
         List<ObjectNode> list = new ArrayList<>();
         Set<String> validFacets = indexManager.getProjectRelatedFields(prjName.toLowerCase());
-        for (FacetResult fcResult : facetResults) {
+        for (FacetResult fcResult : facetResultsTemplate) {
             if (fcResult == null || !validFacets.contains(fcResult.dim)) {
                 continue;
             }
@@ -155,7 +166,10 @@ public class FacetServiceImpl implements FacetService {
                 ObjectNode child = mapper.createObjectNode();
                 child.put("name", textService.getNormalisedString(labelVal.label));
                 child.put("value", labelVal.label);
-                child.put("hits", labelVal.value.intValue());
+                hits = 0;
+                if(facetTemplateHash.containsKey(fcResult.dim+labelVal.label))
+                    hits = facetTemplateHash.get(fcResult.dim+labelVal.label).value.intValue();
+                child.put("hits", hits);
                 children.add(child);
             }
             Collections.sort(children, Comparator.comparing(o -> o.get("name").textValue()));
@@ -181,5 +195,34 @@ public class FacetServiceImpl implements FacetService {
                     drillDownQuery.add(facet.get("name").asText(), value.toLowerCase());
         }
         return drillDownQuery;
+    }
+
+    public Query applyFacets(Query query, JsonNode facets){
+        Map<JsonNode, List<String>> selectedFacets = new HashMap<>();
+        if(facets!=null){
+            Iterator<String> fieldNamesIterator = facets.fieldNames();
+            String dim="";
+            while(fieldNamesIterator.hasNext()){
+                try {
+                    dim = fieldNamesIterator.next();
+                    if(dim==null)
+                        continue;
+                    JsonNode field = indexManager.getAllValidFields().get(dim);
+                    JsonNode arrNode = facets.get(dim);
+                    List<String> facetNames = new ArrayList<>();
+                    if(arrNode==null)
+                        continue;
+                    selectedFacets.put(field, facetNames);
+                    if(arrNode.isArray())
+                        for (final JsonNode objNode : arrNode)
+                        {
+                            facetNames.add(objNode.textValue());
+                        }
+                }catch (Throwable ex){
+                    logger.debug("Invalid facet: {}", dim, ex);
+                }
+            }
+        }
+        return  addFacetDrillDownFilters(query, selectedFacets);
     }
 }

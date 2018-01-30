@@ -100,35 +100,6 @@ public class SearchServiceImpl implements SearchService {
         return new MutablePair<>(query, null);
     }
 
-    private Query applyFacets(Query query, JsonNode facets){
-        Map<JsonNode, List<String>> selectedFacets = new HashMap<>();
-        if(facets!=null){
-            Iterator<String> fieldNamesIterator = facets.fieldNames();
-            String dim="";
-            while(fieldNamesIterator.hasNext()){
-                try {
-                    dim = fieldNamesIterator.next();
-                    if(dim==null)
-                        continue;
-                    JsonNode field = indexManager.getAllValidFields().get(dim);
-                    JsonNode arrNode = facets.get(dim);
-                    List<String> facetNames = new ArrayList<>();
-                    if(arrNode==null)
-                        continue;
-                    selectedFacets.put(field, facetNames);
-                    if(arrNode.isArray())
-                        for (final JsonNode objNode : arrNode)
-                        {
-                            facetNames.add(objNode.textValue());
-                        }
-                }catch (Throwable ex){
-                    logger.debug("Invalid facet: {}", dim, ex);
-                }
-            }
-        }
-        return  facetService.addFacetDrillDownFilters(query, selectedFacets);
-    }
-
     private ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder, boolean doHighlight, String queryString){
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
@@ -268,7 +239,7 @@ public class SearchServiceImpl implements SearchService {
         try {
             Query queryAfterSecurity = resultPair.getKey();
             if(selectedFacets!=null){
-                queryAfterSecurity = applyFacets(queryAfterSecurity, selectedFacets);
+                queryAfterSecurity = facetService.applyFacets(queryAfterSecurity, selectedFacets);
                 logger.debug("Lucene after facet query: {}",queryAfterSecurity.toString());
             }
             response = applySearchOnQuery(queryAfterSecurity, page, pageSize, sortBy, sortOrder, doHighlight, queryString);
