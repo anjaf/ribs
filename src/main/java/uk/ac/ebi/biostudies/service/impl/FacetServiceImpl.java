@@ -169,8 +169,10 @@ public class FacetServiceImpl implements FacetService {
                 hits = 0;
                 if(facetTemplateHash.containsKey(fcResult.dim+labelVal.label))
                     hits = facetTemplateHash.get(fcResult.dim+labelVal.label).value.intValue();
-                child.put("hits", hits);
-                children.add(child);
+                if (hits>0) {
+                    child.put("hits", hits);
+                    children.add(child);
+                }
             }
             Collections.sort(children, Comparator.comparing(o -> o.get("name").textValue()));
             ArrayNode childrenArray = mapper.createArrayNode();

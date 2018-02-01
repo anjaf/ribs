@@ -72,23 +72,22 @@ ul#search-results li {
     margin-top:10pt;
 }
 
-#facet ul  {
-    list-style-type: none;
-}
-
 .facet-value {
     margin: 0;
     cursor: pointer;
 }
 
 .facet-name {
-    color: #777;
-    font-size: 10pt;
-    font-weight: bold;
+    font-size: 12pt;
+    padding-top: 1em;
+}
+.top20 {
+    color: #575759;
+    font-size: 6pt;
+    vertical-align: text-top;
 }
 
-.facet-label {
-    display: flex;
+label.facet-label {
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
@@ -97,6 +96,12 @@ ul#search-results li {
     -ms-user-select: none;
     color: #267799;
     line-height: inherit;
+    font-size: 9pt;
+}
+
+
+ul.menu li {
+    margin-top: 0.2em;
 }
 
 .EuropePMC-facets .facet-label {
@@ -106,17 +111,19 @@ ul#search-results li {
 .facet-label input{
     margin: 0;
     vertical-align: middle;
-    margin-top: 4pt;
-    margin-right: 4pt;
 }
 
 .facet-hits {
     color: #aaaaaa;
-    font-size: 7pt;
-    padding-top: 4pt;
-    padding-left: 4pt
+    font-size: xx-small;
+    float: right;
+    margin-top: 3pt;
 }
 
+.all-facet-hits {
+    color: #aaaaaa;
+    font-size: xx-small;
+}
 
 .update-icon:before {
     color: #FFFFFF !important;
@@ -188,11 +195,9 @@ select {
     margin: inherit;
 }
 .facet-more {
-    margin-left: 5pt
-}
-
-#facet ul {
-    margin-left: 0.5rem;
+    float: right;
+    font-size: 9pt;
+    margin-top: 3px;
 }
 
 #facet-loader {
@@ -242,6 +247,7 @@ select {
     list-style-type: none;
     column-count: 4;
     padding:10pt;
+    text-align: start;
 }
 
 #facet-search-button {
