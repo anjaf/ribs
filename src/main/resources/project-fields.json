@@ -1,4 +1,8 @@
 {
+  "idr":
+  [
+    {"name":"study_type", "title":"Study Type", "fieldType":"facet", "multiValued":"true"}
+  ],
   "hecatos":
   [
     {"name":"organ", "title":"Organ", "fieldType":"facet", "multiValued":"true"},
