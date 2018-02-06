@@ -132,7 +132,7 @@ public class FacetServiceImpl implements FacetService {
 
         List<FacetResult> facetResultsTemplate = getFacetsForQuery(queryWithoutFacet, limit);
         List<FacetResult> facetResultsWithSelectedFacets = getFacetsForQuery(queryAfterFacet, limit);
-        HashMap<String, LabelAndValue> facetTemplateHash = new HashMap<>();
+        HashMap<String, LabelAndValue> facetTemplateHash = new LinkedHashMap<>();
         for(FacetResult fc:facetResultsWithSelectedFacets) {
             if(fc!=null)
                 for(LabelAndValue lAndB : fc.labelValues)
@@ -180,7 +180,7 @@ public class FacetServiceImpl implements FacetService {
             facet.set("children", childrenArray);
             list.add(facet);
         }
-        Collections.sort(list, Comparator.comparing(o -> o.get("title").textValue()));
+        //Collections.sort(list, Comparator.comparing(o -> o.get("title").textValue()));
         return mapper.createArrayNode().addAll(list);
     }
 

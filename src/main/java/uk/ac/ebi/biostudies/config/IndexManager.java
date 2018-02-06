@@ -46,8 +46,8 @@ public class IndexManager {
     private IndexReader efoIndexReader;
     private IndexSearcher efoIndexSearcher;
     private IndexWriter efoIndexWriter;
-    private Map<String, JsonNode> AllFields;
-    private Map<String, Set<String>> projectRelatedFields;
+    private Map<String, JsonNode> AllFields = new LinkedHashMap<>();
+    private Map<String, Set<String>> projectRelatedFields = new LinkedHashMap<>();
     public JsonNode indexDetails;
 
     private Logger logger = LogManager.getLogger(IndexManager.class.getName());
@@ -147,24 +147,21 @@ public class IndexManager {
 
     private void fillAllFields(){
         Iterator<String> fieldNames = indexDetails.fieldNames();
-        AllFields = new HashMap<>();
-        projectRelatedFields = new HashMap<>();
-        Set<String> publicFields = new HashSet<>();
-        Set<String> curPrjRelatedFields;
         while(fieldNames.hasNext()){
             String key = fieldNames.next();
-            curPrjRelatedFields = new HashSet<>();
+            Set<String> curPrjRelatedFields = new LinkedHashSet<>();
             JsonNode curFieldsArray = indexDetails.get(key);
             for(JsonNode curField:curFieldsArray){
                 AllFields.put(curField.get("name").asText(), curField);
-                if(key.equalsIgnoreCase(Constants.PUBLIC))
-                    publicFields.add(curField.get("name").asText());
-                else
-                    curPrjRelatedFields.add(curField.get("name").asText());
+                curPrjRelatedFields.add(curField.get("name").asText());
             }
-            curPrjRelatedFields.addAll(publicFields);
             projectRelatedFields.put(key, curPrjRelatedFields);
         }
+        projectRelatedFields.keySet().forEach(s -> {
+            if (s.equalsIgnoreCase(Constants.PUBLIC)) return;
+            projectRelatedFields.get(s).addAll(projectRelatedFields.get(Constants.PUBLIC));
+        });
+
     }
 
 
