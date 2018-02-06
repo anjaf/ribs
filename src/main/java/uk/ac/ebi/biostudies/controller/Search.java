@@ -91,7 +91,7 @@ public class Search {
     public String getDefaultFacets(@PathVariable String project,
                                    @RequestParam(value="query", required=false, defaultValue = "") String queryString,
                                    @RequestParam(value="facets", required=false) String facets,
-                                   @RequestParam(value="limit", required=false, defaultValue = "20") Integer limit) throws Exception{
+                                   @RequestParam(value="limit", required=false, defaultValue = ""+Constants.TOP_FACET_COUNT) Integer limit) throws Exception{
         ObjectNode selectedFacets = checkSelectedFacets(facets);
         return facetService.getDefaultFacetTemplate(project, queryString, limit, selectedFacets).toString();
     }

@@ -85,7 +85,7 @@ $.fn.groupBy = function(fn) {
         '^clinicaltrials.gov/ct2/show/(.*)':'nct'
     };
 
-    linkTypeMap = {
+    linkTypeMap = { //sync with normalised-text
         'sprot': 'UniProt',
         'gen': 'ENA',
         'arrayexpress': 'ArrayExpress',

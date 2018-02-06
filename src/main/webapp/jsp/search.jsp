@@ -101,8 +101,8 @@
                     <div class="facet-name">{{title}}
                         <a class="facet-more" data-facet="{{name}}">see all</a>
                     </div>
-                    {{#ifCond children.length '==' 20 }}
-                    <span class="top20">TOP 20</span>
+                    {{#ifCond children.length '>=' 10 }}
+                    <span class="top20">TOP 10</span>
                     {{/ifCond}}
                     <ul id="facet_{{name}}" class="menu vertical">
                         {{#each children}}

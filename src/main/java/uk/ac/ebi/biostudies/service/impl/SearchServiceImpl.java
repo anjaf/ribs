@@ -230,7 +230,7 @@ public class SearchServiceImpl implements SearchService {
             sortBy = "relevance";
         ObjectMapper mapper = new ObjectMapper();
         boolean doHighlight = true;
-        if (StringUtils.isEmpty(queryString)) {
+        if (StringUtils.isEmpty(queryString) && StringUtils.isEmpty(sortBy)) {
             doHighlight = false;
             sortBy = Constants.RELEASE_TIME;
         }

@@ -7,7 +7,6 @@
     {"name":"title", "title":"", "fieldType":"str_tokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"ExperimentTextAnalyzer"},
     {"name":"authors", "title":"", "fieldType":"str_tokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"content", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"true", "isSortable":"false", "analyzer":"ExperimentTextAnalyzer"},
-    {"name":"link_type", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"links", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"files", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"release_date", "title":"", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true", "analyzer":"AttributeFieldAnalyzer"},
@@ -18,7 +17,9 @@
     {"name":"seckey", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"project", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"false"},
     {"name":"released_year", "title":"Released", "fieldType":"facet", "multiValued":"false"},
-    {"name":"modification_year", "title":"Modified", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"}
+    {"name":"modification_year", "title":"Modified", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"},
+    {"name":"link_type", "title":"Link Type", "fieldType":"facet", "multiValued":"true", "jpath":"$..links..attributes[?(@.name=='Type')].value"},
+    {"name":"file_type", "title":"File Type", "fieldType":"facet", "multiValued":"true"}
   ],
   "hecatos":
   [

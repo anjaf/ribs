@@ -6,7 +6,7 @@
             .map(function(s) {
                     s = s.split("=")
                     v = decodeURIComponent(s[1]).split('+').join(' ');
-                    this[s[0]] =  this[s[0]] ? this[s[0]]+'|'+v : v;
+                    this[s[0]] =  this[s[0]] ? this[s[0]]+','+v : v;
                     return this;
                 }.bind({}));
     var params = split_params.length ? split_params[0] : {};
@@ -37,7 +37,7 @@ function showResults(params) {
             $.getJSON(contextPath + "/api/v1/" + (project||"public") + "/facets", params, function (data) {
                 var templateSource = $('script#facet-list-template').html();
                 var template = Handlebars.compile(templateSource);
-                data.selectedFacets = params.facets ? params.facets.split("|") : [];
+                data.selectedFacets = params.facets ? params.facets.split(",") : [];
                 data.project = project;
                 var html = template(data);
                 $('#facets').html(html);
@@ -276,19 +276,20 @@ function postRenderFacets(data, params) {
     if (params.facets) {
         var facetMap = {};
         var non20={};
-        $(params.facets.split("|")).each(function () {
+        $(params.facets.split(",")).each(function () {
             var parts = this.split(':');
             var fkey = parts[0], fval = parts[1];
             if (!facetMap[fkey]) facetMap[fkey] = [];
             if ($('input[id="'+this+'"]').length) {
                 $('input[id="'+this+'"]').attr('checked','checked');
+                //$('input[id="'+this+'"]').parent().parent().find('.facet-hits').hide();
                 facetMap[fkey].push($('input[id="'+this+'"]').parent().parent().detach());
                 non20[this]=true;
             } else {
                 if (!non20[this]) {
                     facetMap[fkey].push($('<li><label class="facet-label" for="' + this + '">'
                         + '<input class="facet-value" type="checkbox" checked="checked" name="facets" value="' + this + '" id="' + this + '"/>'
-                        + '<span>' + fval + '</span>'
+                        + ' <span>' + fval + '</span>'
                         + '</label></li>'));
                     non20[this]=true;
                 }
