@@ -97,6 +97,8 @@ label.facet-label {
     color: #267799;
     line-height: inherit;
     font-size: 9pt;
+    text-indent: -12pt;
+    margin-left: 12pt;
 }
 
 
