@@ -46,7 +46,7 @@
     {"name":"seckey", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"project", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"false"},
     {"name":"released_year", "title":"Released", "fieldType":"facet", "multiValued":"false"},
-    {"name":"modification_year", "title":"Modified", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"},
+    {"name":"modification_year", "title":"Created/Modified", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"},
     {"name":"link_type", "title":"Link Type", "fieldType":"facet", "multiValued":"true", "jpath":"$..links..attributes[?(@.name=='Type')].value"},
     {"name":"file_type", "title":"File Type", "fieldType":"facet", "multiValued":"true"}
   ]
