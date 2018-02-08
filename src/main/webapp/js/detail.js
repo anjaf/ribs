@@ -85,7 +85,7 @@ $.fn.groupBy = function(fn) {
         '^clinicaltrials.gov/ct2/show/(.*)':'nct'
     };
 
-    linkTypeMap = {
+    linkTypeMap = { //sync with normalised-text
         'sprot': 'UniProt',
         'gen': 'ENA',
         'arrayexpress': 'ArrayExpress',
@@ -930,6 +930,7 @@ function handleAnchors() {
     // handle clicks on file filters in section
     $("a[data-files-id]").click( function() {
         expansionSource = $(this).data('files-id');
+        clearFileFilter();
         $('#all-files-expander').click();
         filesTable.column(3).search('^'+$(this).data('files-id')+'$',true,false);
         // hide empty columns
@@ -952,6 +953,7 @@ function handleAnchors() {
     // handle clicks on link filters in section
     $("a[data-links-id]").click( function() {
         expansionSource = $(this).data('links-id');
+        clearLinkFilter();
         $('#all-links-expander').click();
         linksTable.column(':contains(Section)').search('^'+$(this).data('links-id')+'$',true,false);
         // hide empty columns

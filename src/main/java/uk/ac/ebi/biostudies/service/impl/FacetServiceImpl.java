@@ -11,6 +11,7 @@ import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import springfox.documentation.spring.web.json.Json;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.auth.Session;
@@ -154,6 +155,7 @@ public class FacetServiceImpl implements FacetService {
         int hits = 0;
         ObjectMapper mapper = new ObjectMapper();
         try {
+            queryWithoutFacet = queryService.makeQuery(queryString, prjName).getKey();
             queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
         } catch (NullPointerException e) {
             logger.debug("problem in parsing query {}", queryString, e);
@@ -208,7 +210,7 @@ public class FacetServiceImpl implements FacetService {
             facet.set("children", childrenArray);
             list.add(facet);
         }
-        Collections.sort(list, Comparator.comparing(o -> o.get("title").textValue()));
+        //Collections.sort(list, Comparator.comparing(o -> o.get("title").textValue()));
         return mapper.createArrayNode().addAll(list);
     }
 

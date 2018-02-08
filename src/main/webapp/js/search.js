@@ -6,7 +6,7 @@
             .map(function(s) {
                     s = s.split("=")
                     v = decodeURIComponent(s[1]).split('+').join(' ');
-                    this[s[0]] =  this[s[0]] ? this[s[0]]+','+v:v;
+                    this[s[0]] =  this[s[0]] ? this[s[0]]+','+v : v;
                     return this;
                 }.bind({}));
     var params = split_params.length ? split_params[0] : {};
@@ -282,13 +282,14 @@ function postRenderFacets(data, params) {
             if (!facetMap[fkey]) facetMap[fkey] = [];
             if ($('input[id="'+this+'"]').length) {
                 $('input[id="'+this+'"]').attr('checked','checked');
+                //$('input[id="'+this+'"]').parent().parent().find('.facet-hits').hide();
                 facetMap[fkey].push($('input[id="'+this+'"]').parent().parent().detach());
                 non20[this]=true;
             } else {
                 if (!non20[this]) {
                     facetMap[fkey].push($('<li><label class="facet-label" for="' + this + '">'
                         + '<input class="facet-value" type="checkbox" checked="checked" name="facets" value="' + this + '" id="' + this + '"/>'
-                        + '<span>' + fval + '</span>'
+                        + ' <span>' + fval + '</span>'
                         + '</label></li>'));
                     non20[this]=true;
                 }
@@ -309,28 +310,41 @@ function postRenderFacets(data, params) {
 
     // handle show more
     $('.facet-more').click(function() {
-        if (!project) return;
+        //if (!project) return;
         $('body').append('<div id="blocker" class="blocker"></div>');
         $('body').append('<div id="facet-loader"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><div class="sr-only">Loading...</div></div>');
         var thisFacet = $(this).data('facet');
-        $.getJSON(contextPath+"/api/v1/"+project+'/facets/'+thisFacet+'/',{}, function(data) {
+        $.getJSON(contextPath+"/api/v1/"+(project? project : 'public')+'/facets/'+thisFacet+'/',{}, function(data) {
             if ( !$('#facet-loader').length) return;
             $('#facet-loader').hide();
             var templateSource = $('script#all-facets-template').html();
             var template = Handlebars.compile(templateSource);
-            $('body').append(template({facets:data, existing: !params.facets ? '' : params.facets.split(",").filter( function(v) { return v.indexOf(thisFacet)!=0; }).join(",")}));
+            $('body').append(template({facets:data, existing: !params.facets ? '' : params.facets.split("|").filter( function(v) { return v.indexOf(thisFacet)!=0; }).join(",")}));
             $('#facet-search').focus()
+
+            //build lookup cache
+            var facetNames = [];
+            var facetListItems = $(".allfacets ul li");
+            for (var i = 0, len = data.children.length; i < len; i++) {
+                facetNames.push(data.children[i].name.toLowerCase());
+            }
+
             // add filter
+            searchWaitInterval = null;
             $('#facet-search').change( function(){
-                var filter = $(this).val();
-                if (filter) {
-                    $(".allfacets ul li").find("span:not(:contains(" + filter + "))").parent().hide();
-                    $(".allfacets ul li").find("span:contains(" + filter + ")").parent().show();
-                } else {
-                    $(".allfacets ul").find("li").show();
+                var filter = $('#facet-search').val().toLowerCase();
+                for (var i = 0, len = facetNames.length; i < len; i++) {
+                   if (facetNames[i].indexOf(filter)>=0)
+                       $(facetListItems[i]).show();
+                   else
+                       $(facetListItems[i]).hide();
                 }
             }).keyup(function () {
-                $(this).change();
+                var that = this;
+                clearInterval(searchWaitInterval);
+                searchWaitInterval = setTimeout(function(){
+                    $(that).change();
+                },200);
             });
 
             //hook events
@@ -344,7 +358,7 @@ function postRenderFacets(data, params) {
 
             // check the currently selected face, if any
             if (params.facets) {
-                $(params.facets.split(",")).each(function () {
+                $(params.facets.split("|")).each(function () {
                     $('input[id="all-'+this+'"]', $(".allfacets ul li")).attr('checked','checked');
                 })
             }

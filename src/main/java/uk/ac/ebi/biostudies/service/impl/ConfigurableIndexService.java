@@ -221,7 +221,7 @@ public class ConfigurableIndexService implements IndexService {
                 content.append(json.findValues("links").stream().map(jsonNode -> jsonNode.findValuesAsText("url").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
                 valueMap.put( Constants.CONTENT, content.toString());
 
-                String linkType = json.findValues("links")
+                /*String linkType = json.findValues("links")
                         .stream()
                         .flatMap ( jsonNode ->  StreamSupport.stream(jsonNode.spliterator(), false).flatMap( j-> StreamSupport.stream(j.spliterator(), false)) )
                         .map( link-> {
@@ -231,6 +231,7 @@ public class ConfigurableIndexService implements IndexService {
 
                         }).collect(Collectors.joining(" "));
                 valueMap.put(Constants.LINK_TYPE, linkType.isEmpty() ? null : linkType );
+                */
                 valueMap.put( Constants.LINKS, json.findValues("links").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("url").size()
                         ).sum()
@@ -286,6 +287,8 @@ public class ConfigurableIndexService implements IndexService {
                             .collect(Collectors.joining(","));
                 }
                 valueMap.put(Constants.PROJECT, project);
+
+
                 ReadContext jsonPathContext = null;
                 for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(Constants.PUBLIC)){
                     if( fieldMetadataNode.has("jpath") &&  !fieldMetadataNode.get("jpath").asText().isEmpty()){
@@ -311,6 +314,16 @@ public class ConfigurableIndexService implements IndexService {
 
                     }
                 }
+
+                if (jsonPathContext == null)
+                    jsonPathContext = JsonPath.parse(json.toString());
+                valueMap.put(Constants.FILE_TYPE, StreamSupport.stream(((List<String>) jsonPathContext.read("$..files.*.path")).spliterator(), false)
+                        .map(s-> {
+                            if(s==null) return Constants.NA;
+                            int k = s.lastIndexOf(".");
+                            return k>=0 ? s.substring(s.lastIndexOf(".") +1) : Constants.NA;
+                        }).collect(Collectors.joining("£"))
+                );
 
 
                 updateDocument(valueMap);

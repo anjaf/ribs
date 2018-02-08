@@ -99,17 +99,18 @@
                 <div id="facet" class="{{project}}-facets">
                     {{#each this}}
                     <div class="facet-name">{{title}}
-                        {{#ifCond children.length '==' 20 }}
-                            <div class="facet-top"><span> TOP 20</span> <a class="facet-more" data-facet="{{name}}">show all</a></div>
-                        {{/ifCond}}
+                        <a class="facet-more" data-facet="{{name}}">see all</a>
                     </div>
-                    <ul id="facet_{{name}}">
+                    {{#ifCond children.length '>=' 10 }}
+                    <span class="top20">TOP 10</span>
+                    {{/ifCond}}
+                    <ul id="facet_{{name}}" class="menu vertical">
                         {{#each children}}
                         <li>
+                            <span class="facet-hits"> {{formatNumber hits}}</span>
                             <label class="facet-label" for="{{../name}}:{{value}}">
                                 <input class="facet-value" type="checkbox" name="facets" value="{{../name}}:{{value}}" id="{{../name}}:{{value}}"/>
                                 <span>{{name}}</span>
-                                <span class="facet-hits">{{formatNumber hits}}</span>
                             </label>
                         </li>
                         {{/each}}
@@ -192,7 +193,7 @@
                            <label class="facet-label" for="all-{{../facets.name}}:{{value}}">
                                <input class="facet-value" type="checkbox" name="facets" value="{{../facets.name}}:{{value}}" id="all-{{../facets.name}}:{{value}}"/>
                                <span>{{name}}</span>
-                               <span class="facet-hits">{{formatNumber hits}}</span>
+                               <span class="all-facet-hits"> ({{formatNumber hits}}) </span>
                            </label>
                        </li>
                        {{/each}}

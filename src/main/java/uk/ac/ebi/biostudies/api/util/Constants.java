@@ -27,7 +27,7 @@ public interface Constants {
     String ACCESS = "access";
     String PROJECT = "project";
     String SECRET_KEY = "seckey";
-    String LINK_TYPE = "linktype";
+    String FILE_TYPE = "file_type";
     String NA = "n/a";
     String PUBLIC = "public";
     String RELEASE_TIME = "rtime";
@@ -37,4 +37,6 @@ public interface Constants {
     String DEFAULT_VALUE = "defaultValue";
     String IS_VISIBLE = "visible";
     String IS_PRIVATE = "is";
+
+    int TOP_FACET_COUNT = 10;
 }
