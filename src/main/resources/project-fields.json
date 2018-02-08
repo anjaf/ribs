@@ -15,7 +15,7 @@
   [
     {"name":"exp", "title":"Experimental Factor", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"false", "analyzer":"AttributeFieldAnalyzer"},
     {"name":"experimental_factor", "title":"Experimental Factor", "fieldType":"facet", "multiValued":"true"},
-    {"name":"organism", "title":"Organism", "jpath":"$..subsections[?(@.type==\"Singleton values\")].attributes[?(@.name==\"Characteristics[organism]\")].value", "fieldType":"facet", "multiValued":"true"},
+    {"name":"organism", "title":"Organism", "fieldType":"facet", "multiValued":"true"},
     {"name":"study_type", "title":"Study type", "fieldType":"facet", "multiValued":"true"}
   ],
   "europepmc": [
