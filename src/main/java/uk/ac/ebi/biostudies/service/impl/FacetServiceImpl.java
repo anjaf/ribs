@@ -11,7 +11,6 @@ import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import springfox.documentation.spring.web.json.Json;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.auth.Session;
@@ -93,13 +92,14 @@ public class FacetServiceImpl implements FacetService {
     }
 
     @Override
-    public List<FacetResult> getFacetsForQuery(Query query, int limit) {
+    public List<FacetResult> getFacetsForQuery(Query query, int limit, Map<String, Map<String, Integer>> selectedFacetFreq, JsonNode selectedFacets) {
         FacetsCollector facetsCollector = new FacetsCollector();
         List<FacetResult> allResults = new ArrayList();
+        Facets facets = null;
         try {
             query = securityQueryBuilder.applySecurity(query);
             FacetsCollector.search(indexManager.getIndexSearcher(), query, limit, facetsCollector);
-            Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
+            facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             for (JsonNode field:indexManager.getAllValidFields().values()) {
                 if(field.get("fieldType").asText().equalsIgnoreCase("facet")){
                     // Private fields (e.g.modification_year) are available only to users of a project with unreleased submissions e.g.
@@ -114,7 +114,37 @@ public class FacetServiceImpl implements FacetService {
         } catch (Throwable e) {
             logger.debug("problem in applying security in creating facetresults for this query {}", query, e);
         }
+       addLowFreqSelectedFacets(selectedFacetFreq, selectedFacets, facets);
         return allResults;
+    }
+
+    private void addLowFreqSelectedFacets( Map<String, Map<String, Integer>> selectedFacetFreq, JsonNode selectedFacets, Facets facets){
+        Iterator<String> fieldNamesIterator = selectedFacets.fieldNames();
+        String dim="";
+        String path ="";
+        int freq = 0;
+        while(fieldNamesIterator.hasNext()) {
+            dim = fieldNamesIterator.next();
+            if (facets ==null || dim == null)
+                continue;
+            ArrayNode field = (ArrayNode) selectedFacets.get(dim);
+            if (field == null)
+                continue;
+            Iterator<JsonNode> iterator = field.elements();
+            Map<String, Integer>freqForDim = selectedFacetFreq.get(dim)==null? new HashMap(): selectedFacetFreq.get(dim);
+            selectedFacetFreq.put(dim, freqForDim);
+            while (iterator.hasNext()) {
+                path = iterator.next().asText();
+                if(path==null || path.isEmpty())
+                    continue;
+                try {
+                    freq = facets.getSpecificValue(dim, path).intValue();
+                    freqForDim.put(path, freq);
+                } catch (Throwable e) {
+                    logger.debug("problem in getSpecificValue", e);
+                }
+            }
+        }
     }
 
     @Override
@@ -124,14 +154,13 @@ public class FacetServiceImpl implements FacetService {
         int hits = 0;
         ObjectMapper mapper = new ObjectMapper();
         try {
-            queryWithoutFacet = queryService.makeQuery(queryString, prjName).getKey();
             queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
         } catch (NullPointerException e) {
             logger.debug("problem in parsing query {}", queryString, e);
         }
 
-        List<FacetResult> facetResultsTemplate = getFacetsForQuery(queryWithoutFacet, limit);
-        List<FacetResult> facetResultsWithSelectedFacets = getFacetsForQuery(queryAfterFacet, limit);
+        Map<String, Map<String, Integer>> selectedFacetFreq = new HashMap<>();
+        List<FacetResult> facetResultsWithSelectedFacets = getFacetsForQuery(queryAfterFacet, limit, selectedFacetFreq, selectedFacets);
         HashMap<String, LabelAndValue> facetTemplateHash = new HashMap<>();
         for(FacetResult fc:facetResultsWithSelectedFacets) {
             if(fc!=null)
@@ -140,7 +169,7 @@ public class FacetServiceImpl implements FacetService {
         }
         List<ObjectNode> list = new ArrayList<>();
         Set<String> validFacets = indexManager.getProjectRelatedFields(prjName.toLowerCase());
-        for (FacetResult fcResult : facetResultsTemplate) {
+        for (FacetResult fcResult : facetResultsWithSelectedFacets) {
             if (fcResult == null || !validFacets.contains(fcResult.dim)) {
                 continue;
             }
@@ -158,17 +187,18 @@ public class FacetServiceImpl implements FacetService {
             facet.put("title", facetNode.get("title").asText());
             facet.put("name", facetNode.get("name").asText());
             List<ObjectNode> children = new ArrayList<>();
+            addSelectedFacetsToResponse(children, selectedFacetFreq.get(fcResult.dim));
             for (LabelAndValue labelVal : fcResult.labelValues) {
                 if(invisNA && labelVal.label.equalsIgnoreCase(naDefaultStr))
+                    continue;
+                if(selectedFacetFreq.containsKey(fcResult.dim) && selectedFacetFreq.get(fcResult.dim).containsKey(labelVal.label))
                     continue;
                 if(children.size()==limit)
                     break;
                 ObjectNode child = mapper.createObjectNode();
                 child.put("name", textService.getNormalisedString(labelVal.label));
                 child.put("value", labelVal.label);
-                hits = 0;
-                if(facetTemplateHash.containsKey(fcResult.dim+labelVal.label))
-                    hits = facetTemplateHash.get(fcResult.dim+labelVal.label).value.intValue();
+                hits = labelVal.value.intValue();
                 child.put("hits", hits);
                 children.add(child);
             }
@@ -182,6 +212,18 @@ public class FacetServiceImpl implements FacetService {
         return mapper.createArrayNode().addAll(list);
     }
 
+    private void addSelectedFacetsToResponse(List<ObjectNode> children, Map<String, Integer> freqMap){
+        if(freqMap == null)
+            return;
+        ObjectMapper mapper = new ObjectMapper();
+        for(String path:freqMap.keySet()){
+            ObjectNode child = mapper.createObjectNode();
+            child.put("name", textService.getNormalisedString(path));
+            child.put("value", path);
+            child.put("hits", freqMap.get(path));
+            children.add(child);
+        }
+    }
 
     @Override
     public Query addFacetDrillDownFilters(Query primaryQuery, Map<JsonNode, List<String>> userSelectedDimValues){
