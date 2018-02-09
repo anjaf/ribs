@@ -100,11 +100,11 @@
                     {{#each this}}
                     <div class="facet-name">{{title}}
                         <a class="facet-more" data-facet="{{name}}">see all</a>
+                        {{#ifCond children.length '>=' 10 }}
+                        <span class="top20">TOP 10</span>
+                        {{/ifCond}}
                     </div>
-                    {{#ifCond children.length '>=' 10 }}
-                    <span class="top20">TOP 10</span>
-                    {{/ifCond}}
-                    <ul id="facet_{{name}}" class="menu vertical">
+                    <ul id="facet_{{name}}" class="menu vertical clearboth">
                         {{#each children}}
                         <li>
                             <span class="facet-hits"> {{formatNumber hits}}</span>
