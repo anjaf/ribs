@@ -38,7 +38,23 @@
     width: 73%;
     color: #58585a;
     opacity: 0.1;
+    -webkit-animation-name: shake;
+    -webkit-animation-duration: 30s;
+    -webkit-transform-origin:50% 50%;
+    -webkit-animation-iteration-count: infinite;
 }
+@-webkit-keyframes shake {
+    0% { -webkit-transform: rotate(0deg); }
+    96% { -webkit-transform: rotate(0deg); }
+    97% { -webkit-transform: rotate(-3deg); }
+    98% { -webkit-transform: rotate(3deg); }
+    99% { -webkit-transform: rotate(-3deg); }
+    100% { -webkit-transform: rotate(0deg); }
+
+}
+
+
+
 #tagline {
     display: table-cell;
     vertical-align: middle;
