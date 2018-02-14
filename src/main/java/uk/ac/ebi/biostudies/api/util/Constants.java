@@ -15,7 +15,7 @@ public interface Constants {
     String DESCENDING = "descending";
     String ACCESSION = "accession";
     String TITLE = "title";
-    String AUTHORS = "authors";
+    String AUTHOR = "author";
     String LINKS = "links";
     String FILES = "files";
     String STUDIES_JSON_FILE = "studies.json";
@@ -28,6 +28,7 @@ public interface Constants {
     String PROJECT = "project";
     String SECRET_KEY = "seckey";
     String FILE_TYPE = "file_type";
+    String ORCID = "orcid";
     String NA = "n/a";
     String PUBLIC = "public";
     String RELEASE_TIME = "rtime";

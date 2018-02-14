@@ -80,11 +80,33 @@ ul#search-results li {
 .facet-name {
     font-size: 12pt;
     padding-top: 1em;
+    line-height: 11pt;
+    padding-bottom: 2pt;
 }
+
+.facet-name:not(:first-child) {
+    padding-bottom: 2pt;
+    padding-top: 1.5em;
+}
+.facet-name:not(:first-child):before {
+    border-top: 1px solid #f0f0f0;
+    content: '';
+    margin-bottom: 1.5em;
+    display: block;
+    width: 40%;
+    margin-left: 30%;
+}
+
+.facet-more {
+    float: right;
+    font-size: 8pt;
+}
+
 .top20 {
     color: #575759;
     font-size: 6pt;
-    vertical-align: text-top;
+    display: block;
+    margin: 3px 0 0 2px;
 }
 
 label.facet-label {
@@ -195,11 +217,6 @@ ul.menu li {
 select {
     height: inherit;
     margin: inherit;
-}
-.facet-more {
-    float: right;
-    font-size: 9pt;
-    margin-top: 3px;
 }
 
 #facet-loader {

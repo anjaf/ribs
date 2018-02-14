@@ -33,9 +33,7 @@ import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.config.IndexManager;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -190,7 +188,7 @@ public class SearchServiceImpl implements SearchService {
     }
     private boolean extractSortOrder(String sortOrder, String sortBy){
         if(sortOrder.isEmpty()) {
-            if (Constants.ACCESSION.equalsIgnoreCase(sortBy) || Constants.TITLE.equalsIgnoreCase(sortBy) || Constants.AUTHORS.equalsIgnoreCase(sortBy))
+            if (Constants.ACCESSION.equalsIgnoreCase(sortBy) || Constants.TITLE.equalsIgnoreCase(sortBy) || Constants.AUTHOR.equalsIgnoreCase(sortBy))
                 sortOrder = Constants.ASCENDING;
             else
                 sortOrder = Constants.DESCENDING;

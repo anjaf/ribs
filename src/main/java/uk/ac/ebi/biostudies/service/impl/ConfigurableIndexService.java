@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.*;
@@ -236,14 +237,29 @@ public class ConfigurableIndexService implements IndexService {
                         jsonNode -> jsonNode.findValues("url").size()
                         ).sum()
                 );
-                String author = "";
+                List<String> authors = new ArrayList<>();
+                List<String> orcids = new ArrayList<>();
                 if(json.get("section").has("subsections")) {
-                    author = StreamSupport.stream(json.get("section").get("subsections").spliterator(), false)
-                            .filter(jsonNode ->
-                                    jsonNode.has("type") && jsonNode.get("type").textValue().equalsIgnoreCase("Author") && jsonNode.get("attributes").isArray() && jsonNode.get("attributes").get(0).get("name").asText().equalsIgnoreCase("Name"))
-                            .map(authorNode -> authorNode.get("attributes").get(0).get("value").asText()).collect(Collectors.joining(", "));
+                    StreamSupport.stream(json.get("section").get("subsections").spliterator(), false)
+                            .filter(jsonNode -> jsonNode.has("type")
+                                                && jsonNode.get("type").textValue().equalsIgnoreCase("Author")
+                                                && jsonNode.has("attributes")
+                                                && jsonNode.get("attributes").isArray())
+                            .forEach( section-> {
+                                section.get("attributes").forEach(attr-> {
+                                    String name = attr.get("name").asText();
+                                    String value = attr.get("value").asText();
+                                    if (name.equalsIgnoreCase("Name")) {
+                                        authors.add(value);
+                                    } else if (name.equalsIgnoreCase("ORCID")) {
+                                        orcids.add(value);
+                                    }
+                                });
+                            }
+                    );
                 }
-                valueMap.put( Constants.AUTHORS, author);
+                valueMap.put( Constants.AUTHOR, StringUtils.join(authors," "));
+                valueMap.put( Constants.ORCID, StringUtils.join(orcids," "));
 
                 String access = !json.has("accessTags") ? "" :
                         StreamSupport.stream(json.get("accessTags").spliterator(),false)

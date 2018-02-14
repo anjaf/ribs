@@ -133,7 +133,7 @@ $.fn.groupBy = function(fn) {
         data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
-        postRender();
+        postRender(params);
     }).fail(function(error) {
         showError(error);
     });
@@ -602,7 +602,7 @@ function findall(obj,k,unroll){ // works only for files and links
     return  ret;
 }
 
-function postRender() {
+function postRender(params) {
     $('body').append('<div id="blocker"/><div id="tooltip"/>');
     drawSubsections();
     createDataTables();
@@ -614,7 +614,7 @@ function postRender() {
     handleOrganisations();
     handleFileDownloadSelection();
     formatPageHtml();
-    handleAnchors();
+    handleAnchors(params);
     handleSubattributes();
     handleOntologyLinks();
     handleORCIDIntegration();
@@ -906,7 +906,7 @@ function openHREF(href) {
 }
 
 
-function handleAnchors() {
+function handleAnchors(params) {
     // scroll to main anchor
     if (location.hash) {
         $('#left-column').show();
@@ -932,7 +932,7 @@ function handleAnchors() {
         expansionSource = $(this).data('files-id');
         clearFileFilter();
         $('#all-files-expander').click();
-        filesTable.column(3).search('^'+$(this).data('files-id')+'$',true,false);
+        filesTable.column(3).search('^'+ $(this).data('files-id')+'$',true,false);
         // hide empty columns
         filesTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
         filesTable.draw();
@@ -955,9 +955,9 @@ function handleAnchors() {
         expansionSource = $(this).data('links-id');
         clearLinkFilter();
         $('#all-links-expander').click();
-        linksTable.column(':contains(Section)').search('^'+$(this).data('links-id')+'$',true,false);
+        linksTable.column(':contains(Section)').search('^'+ accToLink($(this).data('links-id')) +'$',true,false);
         // hide empty columns
-        linksTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
+        linksTable.columns().every(function(){ if (linksTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
         linksTable.draw();
     });
 
@@ -983,13 +983,13 @@ function handleAnchors() {
 
 
 
-
+    */
     // add file search filter
     if (params['fs']) {
-        $('#right-column-expander').click();
+        $('#all-files-expander').click();
         filesTable.search(params['fs']).draw();
     }
-*/
+
 
 }
 
@@ -1174,6 +1174,8 @@ function closeFullScreen() {
     if (expansionSource) {
         openHREF('#'+expansionSource);
         expansionSource = null;
+        clearLinkFilter();
+        clearFileFilter();
     }
 }
 function handleSimilarStudies() {
