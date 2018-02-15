@@ -48,7 +48,7 @@
     {"name":"project", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"true"},
     {"name":"released_year", "title":"Released", "fieldType":"facet", "multiValued":"false"},
     {"name":"modification_year", "title":"Created/Modified", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"},
-    {"name":"link_type", "title":"Link Type", "fieldType":"facet", "multiValued":"true", "jpath":"$..links..attributes[?(@.name=='Type')].value"},
-    {"name":"file_type", "title":"File Type", "fieldType":"facet", "multiValued":"true"}
+    {"name":"link_type", "title":"Link Type", "fieldType":"facet", "multiValued":"true", "jpath":"$..links..attributes[?(@.name=='Type')].value", "visible":false },
+    {"name":"file_type", "title":"File Type", "fieldType":"facet", "multiValued":"true", "visible":false}
   ]
 }
