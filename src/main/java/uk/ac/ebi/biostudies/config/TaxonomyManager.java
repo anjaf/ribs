@@ -48,7 +48,7 @@ public class TaxonomyManager {
                 if (jsonNode.get("multiValued").asBoolean() == true) {
                     getFacetsConfig().setMultiValued(jsonNode.get("name").asText(), true);
                 }
-                if (jsonNode.get("name").textValue().equalsIgnoreCase(Constants.PROJECT)) {
+                if (jsonNode.get("name").textValue().equalsIgnoreCase(Constants.Facets.PROJECT)) {
                     PROJECT_FACET = jsonNode;
                 }
             }

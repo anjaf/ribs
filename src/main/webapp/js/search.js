@@ -6,7 +6,15 @@
             .map(function(s) {
                     s = s.split("=")
                     v = decodeURIComponent(s[1]).split('+').join(' ');
-                    this[s[0]] =  this[s[0]] ? this[s[0]]+','+v : v;
+                    if (this[s[0]]) {
+                        if ($.isArray(this[s[0]])) {
+                            this[s[0]].push(v)
+                        } else {
+                          this[s[0]] = [this[s[0]], v];
+                        }
+                    } else {
+                        this[s[0]] = v;
+                    }
                     return this;
                 }.bind({}));
     var params = split_params.length ? split_params[0] : {};
@@ -15,6 +23,14 @@
     showResults(params);
 }(document);
 
+function serialiseParams(params) {
+    var p = {};
+    $.each(params, function (k, v) {
+        $.each($.isArray(v) ? v : [v], function (i, s) {
+            p[key] = s;
+        });
+    });
+}
 
 function showResults(params) {
     // Prepare template
@@ -26,7 +42,6 @@ function showResults(params) {
         if(project) {
             data.project = project;
         }
-
         var html = template(data);
         $('#renderedContent').html(html);
 
@@ -37,8 +52,8 @@ function showResults(params) {
             $.getJSON(contextPath + "/api/v1/" + (project||"public") + "/facets", params, function (data) {
                 var templateSource = $('script#facet-list-template').html();
                 var template = Handlebars.compile(templateSource);
-                data.selectedFacets = params.facets ? params.facets.split(",") : [];
-                data.project = project;
+                data.project = (project||"public");
+                data.existing = getExistingParams(params, 'facet.');
                 var html = template(data);
                 $('#facets').html(html);
             }).fail(function (error) {
@@ -71,13 +86,13 @@ function registerHelpers(params) {
         var prms = $.extend({}, params);
         if (page>1) {
             prms.page = o.data.root.page-1;
-            ul += '<li class="pagination-previous"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
+            ul += '<li class="pagination-previous"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms, true)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
         }
 
         if (maxPage<=10) {
             for (var i = 1; i <= maxPage; i++) {
                 prms.page = i;
-                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
+                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms, true) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
             }
         } else {
             var arr;
@@ -115,14 +130,14 @@ function registerHelpers(params) {
                 if (arr[i]==page) {
                     ul += '<li class="current">' + formatNumber(arr[i]) + '</li>';
                 } else {
-                    ul += '<li><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms) + '" aria-label="Page ' + arr[i] + '">' + formatNumber(arr[i]) + '</a></li>';
+                    ul += '<li><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms, true) + '" aria-label="Page ' + arr[i] + '">' + formatNumber(arr[i]) + '</a></li>';
                 }
             };
         }
 
         if (o.data.root.page && o.data.root.pageSize &&  o.data.root.page*o.data.root.pageSize < o.data.root.totalHits) {
             prms.page = page+1;
-            ul += '<li class="pagination-next"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
+            ul += '<li class="pagination-next"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms, true)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
         }
         // ul += '<li class="result-count"> (Showing ' + formatNumber((o.data.root.page-1)*20+1) + ' ‒ '
         //     + formatNumber(o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
@@ -234,7 +249,7 @@ function postRender(data, params) {
     $('#sort-by').change(function (e) {
         params.sortBy = $(this).val();
         params.sortOrder = 'descending';
-        window.location = projectPath+'/studies/?' + $.param(params);
+        window.location = projectPath+'/studies/?' + $.param(params, true);
     });
     if (data.sortOrder=='ascending') {
         $('#sort-desc').removeClass('selected');
@@ -246,12 +261,12 @@ function postRender(data, params) {
     $('#sort-desc').click(function (e) {
         if ($(this).hasClass('selected')) return;
         params.sortOrder = 'descending';
-        window.location = projectPath+'/studies/?' + $.param(params);
+        window.location = projectPath+'/studies/?' + $.param(params, true);
     });
     $('#sort-asc').click(function (e) {
         if ($(this).hasClass('selected')) return;
         params.sortOrder = 'ascending';
-        window.location = projectPath+'/studies/?' + $.param(params);
+        window.location = projectPath+'/studies/?' + $.param(params, true);
     });
 
     // limit authors
@@ -273,37 +288,37 @@ function postRender(data, params) {
 function postRenderFacets(data, params) {
 
     // check the currently selected face, if any
-    if (params.facets) {
-        var facetMap = {};
-        var non20={};
-        $(params.facets.split(",")).each(function () {
-            var parts = this.split(':');
-            var fkey = parts[0], fval = parts[1];
+    var facetMap = {};
+    var non20 = {};
+    for (var fkey in params) {
+        if (fkey.toLowerCase().indexOf("facet.")!=0) continue;
+        $.each( $.isArray(params[fkey]) ? params[fkey] : [params[fkey]] , function () {
+            var fval= this, fid = (fkey + ':' + fval);
             if (!facetMap[fkey]) facetMap[fkey] = [];
-            if ($('input[id="'+this+'"]').length) {
-                $('input[id="'+this+'"]').attr('checked','checked');
-                //$('input[id="'+this+'"]').parent().parent().find('.facet-hits').hide();
-                facetMap[fkey].push($('input[id="'+this+'"]').parent().parent().detach());
-                non20[this]=true;
+            if ($('input[id="' + fid + '"]').length) {
+                $('input[id="' + fid + '"]').attr('checked', 'checked');
+                facetMap[fkey].push($('input[id="' + fid + '"]').parent().parent().detach());
+                non20[fkey] = true;
             } else {
-                if (!non20[this]) {
-                    facetMap[fkey].push($('<li><label class="facet-label" for="' + this + '">'
-                        + '<input class="facet-value" type="checkbox" checked="checked" name="facets" value="' + this + '" id="' + this + '"/>'
+                if (!non20[fkey]) {
+                    facetMap[fkey].push($('<li><label class="facet-label" for="' + fid + '">'
+                        + '<input class="facet-value" type="checkbox" checked="checked" name="'+ fkey +'" value="' + fval + '" id="' + fid + '"/>'
                         + ' <span>' + fval + '</span>'
                         + '</label></li>'));
-                    non20[this]=true;
+                    non20[fkey] = true;
                 }
             }
         });
 
-        for (var key in facetMap) {
-            facetMap[key].sort(function(a,b){return a.text().trim()>b.text().trim() })
-            $('#facet_'+key).prepend(facetMap[key])
-        }
     }
 
-    // set query string in facets
-    $('#facet-query').val(params.query);
+    for (var key in facetMap) {
+        facetMap[key].sort(function (a, b) {
+            return a.text().trim() > b.text().trim()
+        })
+        $('#facet_' + key.replace(".","\\.")).prepend(facetMap[key])
+    }
+
 
     // resubmit form when facets are changed
     $('input.facet-value').change(function(){ $(this).parents('form:first').submit() });
@@ -319,7 +334,8 @@ function postRenderFacets(data, params) {
             $('#facet-loader').hide();
             var templateSource = $('script#all-facets-template').html();
             var template = Handlebars.compile(templateSource);
-            $('body').append(template({facets:data, existing: !params.facets ? '' : params.facets.split("|").filter( function(v) { return v.indexOf(thisFacet)!=0; }).join(",")}));
+            var existing = getExistingParams(params, thisFacet);
+            $('body').append(template({facets:data, existing:  existing}));
             $('#facet-search').focus()
 
             //build lookup cache
@@ -383,6 +399,17 @@ function postRenderFacets(data, params) {
             closeFullScreen();
         }
     });
+}
+
+function getExistingParams(params, filter) {
+    var existing = [];
+    $.each(params, function (k,v) {
+        if (k.indexOf(filter)==0) return;
+        $.each($.isArray(v) ? v : [v], function (i,s) {
+            existing.push({key: k, value: s});
+        });
+    });
+    return existing;
 }
 
 function toggleFacetSearch() {

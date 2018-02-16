@@ -95,7 +95,7 @@
             </div>
         </script>
         <script id='facet-list-template' type='text/x-handlebars-template'>
-            <form>
+            <form id="facet-form">
                 <div id="facet" class="{{project}}-facets">
                     {{#each this}}
                     <div class="facet-name">{{title}}
@@ -109,7 +109,7 @@
                         <li>
                             <span class="facet-hits"> {{formatNumber hits}}</span>
                             <label class="facet-label" for="{{../name}}:{{value}}">
-                                <input class="facet-value" type="checkbox" name="facets" value="{{../name}}:{{value}}" id="{{../name}}:{{value}}"/>
+                                <input class="facet-value" type="checkbox" name="{{../name}}" value="{{value}}" id="{{../name}}:{{value}}"/>
                                 <span>{{name}}</span>
                             </label>
                         </li>
@@ -117,7 +117,9 @@
                     </ul>
                     {{/each}}
                 </div>
-                <input type="hidden" id="facet-query" name="query" value=""/>
+                {{#each existing}}
+                    <input type="hidden" name="{{key}}" value="{{value}}" />
+                {{/each}}
             </form>
         </script>
         <script id='result-template' type='text/x-handlebars-template'>
@@ -172,7 +174,9 @@
        <script id='all-facets-template' type='text/x-handlebars-template'>
            <div class="allfacets fullscreen">
                <form id="all-facet-form">
-                   <input type="hidden" value="{{existing}}" name="facets"/>
+                   {{#each existing}}
+                        <input type="hidden" name="{{key}}" value="{{value}}" />
+                   {{/each}}
                    <a href="#" id="close-facet-search">CLOSE</a>
                    <input id="facet-search" type="search" title="Search" placeholder="Start typing to search" />
                    <button id="facet-search-button" type="submit">
@@ -191,7 +195,7 @@
                        {{#each facets.children}}
                        <li>
                            <label class="facet-label" for="all-{{../facets.name}}:{{value}}">
-                               <input class="facet-value" type="checkbox" name="facets" value="{{../facets.name}}:{{value}}" id="all-{{../facets.name}}:{{value}}"/>
+                               <input class="facet-value" type="checkbox" name="{{../facets.name}}" value="{{value}}" id="all-{{../facets.name}}:{{value}}"/>
                                <span>{{name}}</span>
                                <span class="all-facet-hits"> ({{formatNumber hits}}) </span>
                            </label>

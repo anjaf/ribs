@@ -25,6 +25,7 @@ import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import springfox.documentation.spring.web.json.Json;
 import uk.ac.ebi.arrayexpress.utils.efo.EFONode;
 import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
 import uk.ac.ebi.biostudies.efo.autocompletion.AutocompleteData;
@@ -116,7 +117,7 @@ public class Autocompletion {
 
     public void rebuild() throws IOException {
         getStore().clear();
-        List<JsonNode> numericalFieldNameTitle = new ArrayList();
+        List<JsonNode> numericalFieldNameTitle = new ArrayList<JsonNode>();
         //Add the fields that you want autoComplete be Applied
         for(JsonNode bsField:indexManager.getAllValidFields().values()) {
             if(bsField.has("isExpanded") && bsField.get("isExpanded").asBoolean()==true)

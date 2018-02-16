@@ -69,7 +69,7 @@ public class SearchServiceImpl implements SearchService {
     private static QueryParser parser;
     @PostConstruct
     void init(){
-        parser = new QueryParser(Constants.TYPE, new AttributeFieldAnalyzer());
+        parser = new QueryParser(Constants.Fields.TYPE, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         try {
             excludeCompound = parser.parse("type:compound");
@@ -115,7 +115,7 @@ public class SearchServiceImpl implements SearchService {
         }
         Sort sort = new Sort( sortField );
         if(sortBy.equalsIgnoreCase(Constants.RELEASE_DATE))
-            sort = new Sort(sortField, new SortedNumericSortField(Constants.MODIFICATION_TIME, SortField.Type.LONG, shouldReverse));
+            sort = new Sort(sortField, new SortedNumericSortField(Constants.Fields.MODIFICATION_TIME, SortField.Type.LONG, shouldReverse));
 
         try {
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
@@ -124,7 +124,7 @@ public class SearchServiceImpl implements SearchService {
             response.put("page", page);
             response.put("pageSize", hitsPerPage);
             response.put("totalHits", hits.totalHits);
-            response.put( "sortBy", sortBy.equalsIgnoreCase(Constants.RELEASE_TIME) ? Constants.RELEASE_DATE : sortBy);
+            response.put( "sortBy", sortBy.equalsIgnoreCase(Constants.Fields.RELEASE_TIME) ? Constants.RELEASE_DATE : sortBy);
             response.put( "sortOrder", sortOrder);
             if (hits.totalHits > 0) {
                 ArrayNode docs = mapper.createArrayNode();
@@ -144,13 +144,13 @@ public class SearchServiceImpl implements SearchService {
                         }
                     }
                     docNode.put("isPublic",
-                            (" " + doc.get(Constants.ACCESS) + " ").toLowerCase().contains(" public ")
+                            (" " + doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public ")
                     );
 
                     if (doHighlight) {
-                        docNode.put(Constants.CONTENT,
-                                efoExpandedHighlighter.highlightQuery(query, Constants.CONTENT,
-                                        doc.get(Constants.CONTENT),
+                        docNode.put(Constants.Fields.CONTENT,
+                                efoExpandedHighlighter.highlightQuery(query, Constants.Fields.CONTENT,
+                                        doc.get(Constants.Fields.CONTENT),
                                         true
                                 )
                         );
@@ -188,7 +188,7 @@ public class SearchServiceImpl implements SearchService {
     }
     private boolean extractSortOrder(String sortOrder, String sortBy){
         if(sortOrder.isEmpty()) {
-            if (Constants.ACCESSION.equalsIgnoreCase(sortBy) || Constants.TITLE.equalsIgnoreCase(sortBy) || Constants.AUTHOR.equalsIgnoreCase(sortBy))
+            if (Constants.Fields.ACCESSION.equalsIgnoreCase(sortBy) || Constants.Fields.TITLE.equalsIgnoreCase(sortBy) || Constants.Fields.AUTHOR.equalsIgnoreCase(sortBy))
                 sortOrder = Constants.ASCENDING;
             else
                 sortOrder = Constants.DESCENDING;
@@ -207,11 +207,11 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public boolean isAccessible(String accession, String seckey) {
-        QueryParser parser = new QueryParser(Constants.ACCESSION, new AttributeFieldAnalyzer());
+        QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         Query query = null;
         try {
-            query = parser.parse(Constants.ACCESSION+":"+accession);
+            query = parser.parse(Constants.Fields.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query, seckey);
             return indexManager.getIndexSearcher().count(result)>0;
         } catch (Throwable ex){
@@ -230,7 +230,7 @@ public class SearchServiceImpl implements SearchService {
         boolean doHighlight = true;
         if (StringUtils.isEmpty(queryString) && StringUtils.isEmpty(sortBy)) {
             doHighlight = false;
-            sortBy = Constants.RELEASE_TIME;
+            sortBy = Constants.Fields.RELEASE_TIME;
         }
         ObjectNode response = mapper.createObjectNode();
         Pair<Query, EFOExpansionTerms> resultPair = queryService.makeQuery(queryString, prjName);
@@ -302,7 +302,7 @@ public class SearchServiceImpl implements SearchService {
     public ObjectNode getSimilarStudies(String accession) throws Exception {
         int maxHits = 4;
         MoreLikeThis mlt = new MoreLikeThis(indexManager.getIndexReader());
-        mlt.setFieldNames(new String[]{Constants.CONTENT, Constants.TITLE, Constants.PROJECT});
+        mlt.setFieldNames(new String[]{Constants.Fields.CONTENT, Constants.Fields.TITLE, Constants.Facets.PROJECT});
         mlt.setAnalyzer(analyzerManager.getPerFieldAnalyzerWrapper());
         ObjectMapper mapper = new ObjectMapper();
         Integer docNumber = getDocumentByAccession(accession);
@@ -311,8 +311,8 @@ public class SearchServiceImpl implements SearchService {
         ArrayNode similarStudies = mapper.createArrayNode();
         for (int i = 1; i < mltDocs.scoreDocs.length; i++) {
             ObjectNode study = mapper.createObjectNode();
-            study.set(Constants.ACCESSION, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.ACCESSION)));
-            study.set(Constants.TITLE, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.TITLE)));
+            study.set(Constants.Fields.ACCESSION, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.Fields.ACCESSION)));
+            study.set(Constants.Fields.TITLE, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.Fields.TITLE)));
             similarStudies.add(study);
         }
         ObjectNode result = mapper.createObjectNode();
@@ -323,11 +323,11 @@ public class SearchServiceImpl implements SearchService {
     }
 
     private Integer getDocumentByAccession(String accession){
-        QueryParser parser = new QueryParser(Constants.ACCESSION, new AttributeFieldAnalyzer());
+        QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         Query query = null;
         try {
-            query = parser.parse(Constants.ACCESSION+":"+accession);
+            query = parser.parse(Constants.Fields.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query, null);
             TopDocs topDocs = indexManager.getIndexSearcher().search(result, 1);
             if(topDocs.totalHits>0)
