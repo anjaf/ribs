@@ -23,18 +23,10 @@
                     <div class="small-10 columns">
                         {{#ifCond query '&&' hits}}
                             <h4 class="clearboth">Search results for <span class="query">{{query}}</span></h4>
-                        {{else}}
-                            {{#if facets}}
-                                <h4 class="clearboth">
-                                    Search results for
-                                    {{#each facets}}
-                                    <span class="query">{{@key}}:{{this}}</span>
-                                    {{/each}}
-                                </h4>
-                            {{/if}}
                         {{/ifCond}}
+
                         {{#if this.hits}}
-                            {{&resultcount}}
+                            <div class="clearboth" id="facet-filters"/>
                             <div id="sort-by-div">
                                 <span>Sort by:</span>
                                 <select id="sort-by">
@@ -47,6 +39,8 @@
                                     <a class="fa fa-angle-down" id="sort-desc"/><a class="fa fa-angle-up" id="sort-asc"/>
                                 </span>
                             </div>
+                            {{&resultcount}}
+
                             <ul id="search-results">
                                 {{#each this.hits}}
                                  <li>{{&result this}}</li>
@@ -98,23 +92,27 @@
             <form id="facet-form">
                 <div id="facet" class="{{project}}-facets">
                     {{#each this}}
-                    <div class="facet-name">{{title}}
-                        <a class="facet-more" data-facet="{{name}}">see all</a>
-                        {{#ifCond children.length '>=' 10 }}
-                        <span class="top20">TOP 10</span>
-                        {{/ifCond}}
-                    </div>
-                    <ul id="facet_{{name}}" class="menu vertical clearboth">
-                        {{#each children}}
-                        <li>
-                            <span class="facet-hits"> {{formatNumber hits}}</span>
-                            <label class="facet-label" for="{{../name}}:{{value}}">
-                                <input class="facet-value" type="checkbox" name="{{../name}}" value="{{value}}" id="{{../name}}:{{value}}"/>
-                                <span>{{name}}</span>
-                            </label>
-                        </li>
-                        {{/each}}
-                    </ul>
+                        {{#if this.children}}
+                            <div class="facet-name"><span class="facet-title">{{title}}</span>
+                                <a class="facet-more" data-facet="{{name}}">see all</a>
+                                {{#ifCond children.length '>=' 10 }}
+                                    <span class="top20">TOP 10</span>
+                                {{/ifCond}}
+                            </div>
+                            <ul id="facet_{{name}}" class="menu vertical clearboth">
+                                {{#each children}}
+                                    {{#ifCond hits '!=' 0}}
+                                    <li>
+                                        <span class="facet-hits"> {{formatNumber hits}}</span>
+                                        <label class="facet-label" for="{{../name}}:{{value}}">
+                                            <input class="facet-value" type="checkbox" name="{{../name}}" value="{{value}}" id="{{../name}}:{{value}}"/>
+                                            <span>{{name}}</span>
+                                        </label>
+                                    </li>
+                                    {{/ifCond}}
+                                {{/each}}
+                            </ul>
+                        {{/if}}
                     {{/each}}
                 </div>
                 {{#each existing}}

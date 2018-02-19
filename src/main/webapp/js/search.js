@@ -172,6 +172,10 @@ function registerHelpers(params) {
         return new Handlebars.SafeString(link);
     });
 
+    Handlebars.registerHelper('ifArray', function (v, options) {
+        return $.isArray(v) ? options.fn(this) : options.inverse(this);
+    });
+
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 
         switch (operator) {
@@ -287,38 +291,39 @@ function postRender(data, params) {
 
 function postRenderFacets(data, params) {
 
-    // check the currently selected face, if any
-    var facetMap = {};
-    var non20 = {};
-    for (var fkey in params) {
+    // check the currently selected facet, if any
+     for (var fkey in params) {
         if (fkey.toLowerCase().indexOf("facet.")!=0) continue;
         $.each( $.isArray(params[fkey]) ? params[fkey] : [params[fkey]] , function () {
             var fval= this, fid = (fkey + ':' + fval);
-            if (!facetMap[fkey]) facetMap[fkey] = [];
             if ($('input[id="' + fid + '"]').length) {
                 $('input[id="' + fid + '"]').attr('checked', 'checked');
-                facetMap[fkey].push($('input[id="' + fid + '"]').parent().parent().detach());
-                non20[fkey] = true;
-            } else {
-                if (!non20[fkey]) {
-                    facetMap[fkey].push($('<li><label class="facet-label" for="' + fid + '">'
-                        + '<input class="facet-value" type="checkbox" checked="checked" name="'+ fkey +'" value="' + fval + '" id="' + fid + '"/>'
-                        + ' <span>' + fval + '</span>'
-                        + '</label></li>'));
-                    non20[fkey] = true;
-                }
             }
         });
-
     }
 
-    for (var key in facetMap) {
-        facetMap[key].sort(function (a, b) {
-            return a.text().trim() > b.text().trim()
+    // put selected facets on top and add facet labels on top of results
+    var facetMap={};
+    $('li .facet-value:checked').each(function(){
+        var fkey = $(this).attr('name');
+        if (!facetMap[fkey]) facetMap[fkey] = [];
+        facetMap[fkey].push($(this).parent().parent().detach());
+    })
+
+    for (var key in facetMap  ) {
+        $('ul#facet_'+jqueryEncode(key)).prepend(facetMap[key]);
+        $('#facet-filters').append($('<span/>',{class:'facet-filter-label'}).text($('span.facet-title',$('ul#facet_'+jqueryEncode(key)).prev()).text().trim()));
+        $.each(facetMap[key], function(i,v) {
+            $('#facet-filters').append(
+                $('<span/>',{class:'facet-filter-value'})
+                    .text( $('label',$(v)).text().trim())
+                    .append($('<a/>',{class:'drop-facet', "data-facet-id":$('input',v).attr('id')}).text('✕') )
+            );
         })
-        $('#facet_' + key.replace(".","\\.")).prepend(facetMap[key])
     }
-
+    $('.drop-facet').bind('click', function(){
+       $('#'+jqueryEncode($(this).data('facet-id'))).click();
+    });
 
     // resubmit form when facets are changed
     $('input.facet-value').change(function(){ $(this).parents('form:first').submit() });
@@ -373,11 +378,13 @@ function postRenderFacets(data, params) {
             });
 
             // check the currently selected face, if any
-            if (params.facets) {
-                $(params.facets.split("|")).each(function () {
-                    $('input[id="all-'+this+'"]', $(".allfacets ul li")).attr('checked','checked');
-                })
-            }
+            for (var v in params){
+                if (v.indexOf(thisFacet)!=0) return;
+                $.each($.isArray(params[v]) ? params[v] : [params[v]], function (i,s) {
+                    $('input[id="all-'+v+':'+s+'"]', $(".allfacets ul li")).attr('checked','checked');
+                });
+
+            };
 
             //handle select all
             $('#all-check').click(function () {
@@ -425,4 +432,8 @@ function closeFullScreen() {
     $('#facet-loader').remove();
     $('.allfacets').remove();
 
+}
+
+function jqueryEncode(v) {
+    return v.replace( /(:|\.|\[|\]|,|=)/g, "\\$1" );
 }

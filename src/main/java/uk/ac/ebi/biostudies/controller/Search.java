@@ -121,11 +121,12 @@ public class Search {
         if (params!=null) {
             for (String facet: params.keySet()) {
                 if (!facet.toLowerCase().startsWith("facet.")) continue;
-                if (!selectedFacets.has( facet )) {
-                    selectedFacets.set(facet, mapper.createArrayNode());
+                String facetKey = StringUtils.remove(facet, "[]");
+                if (!selectedFacets.has( facetKey )) {
+                    selectedFacets.set(facetKey, mapper.createArrayNode());
                 }
                 for (String value: params.get(facet).stream().flatMap( v-> Arrays.stream(v.split(",")) ).collect(Collectors.toList()) ) {
-                    ((ArrayNode) selectedFacets.get(facet)).add ( value );
+                    ((ArrayNode) selectedFacets.get(facetKey)).add ( value );
                 }
             }
         }
