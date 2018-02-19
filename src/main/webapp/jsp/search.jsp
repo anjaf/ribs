@@ -93,7 +93,7 @@
                 <div id="facet" class="{{project}}-facets">
                     {{#each this}}
                         {{#if this.children}}
-                            <div class="facet-name"><span class="facet-title">{{title}}</span>
+                            <div class="facet-name"><span class="toggle-facet"><i class="fa fa-angle-down"/></span> <span class="facet-title">{{title}}</span>
                                 <a class="facet-more" data-facet="{{name}}">see all</a>
                                 {{#ifCond children.length '>=' 10 }}
                                     <span class="top20">TOP 10</span>

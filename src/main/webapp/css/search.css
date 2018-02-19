@@ -78,10 +78,11 @@ ul#search-results li {
 }
 
 .facet-name {
-    font-size: 12pt;
+    font-size: 11pt;
     padding-top: 1em;
     line-height: 11pt;
     padding-bottom: 2pt;
+    cursor: pointer;
 }
 
 .facet-name:not(:first-child) {
@@ -310,4 +311,9 @@ a.drop-facet {
     padding: 4pt;
     font-size: 6pt;
     vertical-align: middle
+}
+.toggle-facet {
+    color:#575759;
+    min-width: 7pt;
+    display: inline-block
 }

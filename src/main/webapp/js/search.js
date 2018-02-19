@@ -406,6 +406,17 @@ function postRenderFacets(data, params) {
             closeFullScreen();
         }
     });
+
+    //handle facet toggles
+    $('.facet-name').bind('click', function(){
+        var facetUL = $(this).next();
+        if (facetUL.is(':visible'))  {
+            facetUL.slideUp(100);
+        } else {
+            facetUL.slideDown(100);
+        }
+        $('.toggle-facet i', this).toggleClass('fa-angle-right fa-angle-down');
+    });
 }
 
 function getExistingParams(params, filter) {
@@ -421,7 +432,7 @@ function getExistingParams(params, filter) {
 
 function toggleFacetSearch() {
     if ($(".allfacets ul li input:checked").length>100) {
-        $("#facet-search-button").attr("disabled", "disabled")
+        $("#facet-search-button").attr("disabled", "disabled");
     } else {
         $("#facet-search-button").removeAttr("disabled");
     }
