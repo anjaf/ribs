@@ -306,10 +306,10 @@ public class SearchTest {
         WebDriverWait wait = new WebDriverWait(driver, 15);
         driver.get(integProps.getBaseUrl() + "/EuropePMC/studies");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
-        assertEquals("9,994", driver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText());
+        assertEquals("9,994", driver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
         driver.get(integProps.getBaseUrl() + "/EuropePMC/studies?facet.funding_agency=medical+research+council");
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
-        assertEquals("254", driver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText());
+        assertEquals("254", driver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
     }
 
 }
