@@ -36,7 +36,7 @@
                                     <option value="links">Links</option>
                                 </select>
                                 <span id="sorting-links">
-                                    <a class="fa fa-angle-down" id="sort-desc"/><a class="fa fa-angle-up" id="sort-asc"/>
+                                    <a id="sort-desc"><i class="fa fa-angle-down"/></a><a id="sort-asc"><i class="fa fa-angle-up"></i></a>
                                 </span>
                             </div>
                             {{&resultcount}}
@@ -77,17 +77,6 @@
             <div id="allfacets"></div>
         </script>
 
-        <script id='project-banner-template' type='text/x-handlebars-template'>
-            <div class="project-banner-content columns medium-12 clearfix row">
-                <span class="project-logo">
-                    <a class="no-border" href="{{url}}" target="_blank">
-                        <img src="{{logo}}"></a>
-                </span>
-                <span class="project-text">
-                    <span class="project-description">{{description}}</span>
-                </span>
-            </div>
-        </script>
         <script id='facet-list-template' type='text/x-handlebars-template'>
             <form id="facet-form">
                 <div id="facet" class="{{project}}-facets">
@@ -180,7 +169,7 @@
                    <button id="facet-search-button" type="submit">
                        <span class="fa-stack fa-2x">
                           <i class="fa fa-search fa-stack-2x"></i>
-                          <i class="fa fa-check fa-stack-1x" style="margin-left:-3pt;margin-top:-1pt"></i>
+                          <i class="fa fa-check fa-stack-1x" data-fa-transform="shrink-2 left-3 up-2"></i>
                        </span>
                        <br/>
                        Update

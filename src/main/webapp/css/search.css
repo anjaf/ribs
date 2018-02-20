@@ -48,7 +48,9 @@ ul#search-results li {
     float: right;
     font-size: 9pt;
 }
-
+#sorting-links {
+    display:inline-table;
+}
 #pager {
     float: left;
 }
@@ -59,7 +61,7 @@ ul#search-results li {
 
 
 #sorting-links a {
-    padding: 9px 11px;
+    padding: 8px 11px;
     border: 1px solid #999999;
 }
 
@@ -125,7 +127,7 @@ label.facet-label {
 }
 
 
-ul.menu li {
+#facet ul.menu li {
     margin-top: 0.2em;
 }
 
@@ -315,5 +317,5 @@ a.drop-facet {
 .toggle-facet {
     color:#575759;
     min-width: 7pt;
-    display: inline-block
+    display: inline-block;
 }

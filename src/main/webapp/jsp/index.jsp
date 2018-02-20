@@ -47,13 +47,13 @@
                     <div class="columns medium-3">
                         <h5 id="fileCountStats">
                             <a href="studies/" title="Browse BioStudies">
-                                <span class="icon fa fa-files-o home-icon-small" id="filesIcon" ></span>
+                                <span class="icon icon-generic home-icon-small" id="filesIcon" data-icon=";"></span>
                                 <span id="fileCount">100000</span> files
                             </a>
                         </h5>
                         <h5 id="linkCountStats">
                             <a href="studies/" title="Browse BioStudies">
-                                <span class="icon fa fa-link home-icon-small" id="linksIcon" ></span>
+                                <span class="icon icon-generic home-icon-small" id="linksIcon" data-icon="L"></span>
                                 <span id="linkCount">100000</span> links
                             </a>
                         </h5>
@@ -73,7 +73,7 @@
                     <div class="columns medium-9">
                         <h5 id="latestHeading">
                             <a href="#" title="Latest studies">
-                                <span class="icon fa fa-clock-o home-icon-small" id="latestIcon"></span>
+                                <span class="icon icon icon-generic home-icon-small" id="latestIcon" data-icon="{"></span>
                                 Latest
                             </a>
                             <span id="lastUpdateTime"></span>

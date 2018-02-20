@@ -74,7 +74,7 @@ a.tag:hover { color: #fff; }
     color: #fff;
     background: #666; }
 
-div#local-masthead, #ebi_search .button, .pagination .current {
+.masthead, #ebi_search .button, .pagination .current {
     background-color: #75C8EC;
 }
 .pagination li {

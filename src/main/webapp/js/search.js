@@ -415,7 +415,7 @@ function postRenderFacets(data, params) {
         } else {
             facetUL.slideDown(100);
         }
-        $('.toggle-facet i', this).toggleClass('fa-angle-right fa-angle-down');
+        $('.toggle-facet', this).find('[data-fa-i2svg]').toggleClass('fa-angle-right fa-angle-down');
     });
 }
 
