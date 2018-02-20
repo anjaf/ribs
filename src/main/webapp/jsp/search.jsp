@@ -154,6 +154,7 @@
                     {{/ifCond}}
                     {{#ifCond isPublic '==' false}}
                     <span>🔒 Private</span>
+                    <span>Modified: {{printDate mtime}}</span>
                     {{/ifCond}}
                 </div>
             </div>
