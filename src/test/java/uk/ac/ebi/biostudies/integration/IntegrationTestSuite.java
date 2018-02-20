@@ -17,10 +17,10 @@ import uk.ac.ebi.biostudies.integration.utils.IntegProps;
 
 @Suite.SuiteClasses({
         TestDriverManager.class,
+        IndexTest.class,
         DetailTest.class,
         BrowseTest.class,
-        SearchTest.class,
-        IndexTest.class
+        SearchTest.class
 })
 
 
