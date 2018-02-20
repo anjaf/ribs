@@ -321,8 +321,8 @@ function postRenderFacets(data, params) {
             $('#facet-filters').append(
                 $('<span/>',{class:'facet-filter-value'})
                     .text( $('label',$(v)).text().trim())
-                    .append($('<a/>',{class:'drop-facet', "data-facet-id":$('input',v).attr('id')}).text('✕') )
-            );
+
+            ).append($('<a/>',{class:'drop-facet', "data-facet-id":$('input',v).attr('id')}).text('✕') );
         })
     }
     $('.drop-facet').bind('click', function(){
@@ -333,7 +333,8 @@ function postRenderFacets(data, params) {
     $('input.facet-value').change(function(){ $(this).parents('form:first').submit() });
 
     // handle show more
-    $('.facet-more').click(function() {
+    $('.facet-more').click(function(e) {
+        e.stopPropagation();
         //if (!project) return;
         $('body').append('<div id="blocker" class="blocker"></div>');
         $('body').append('<div id="facet-loader"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><div class="sr-only">Loading...</div></div>');
@@ -450,5 +451,5 @@ function closeFullScreen() {
 }
 
 function jqueryEncode(v) {
-    return v.replace( /(:|\.|\[|\]|,|=)/g, "\\$1" );
+    return v.replace( /(\/|:|\.|\[|\]|,|=)/g, "\\$1" );
 }
