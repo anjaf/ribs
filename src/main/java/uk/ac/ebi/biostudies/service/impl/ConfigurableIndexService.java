@@ -269,7 +269,7 @@ public class ConfigurableIndexService implements IndexService {
                 }
 
 
-                if(json.has(Constants.RELEASE_TIME)) {
+                if(json.has(Constants.RELEASE_TIME) && !json.get(Constants.RELEASE_TIME).asText().equals("-1")) {
                     releaseDateLong = Long.valueOf(json.get(Constants.RELEASE_TIME).asText()) * 1000;
                 }
                 valueMap.put(Constants.RELEASE_TIME, releaseDateLong);
