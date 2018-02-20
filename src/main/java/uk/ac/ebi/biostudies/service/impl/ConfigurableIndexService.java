@@ -149,8 +149,8 @@ public class ConfigurableIndexService implements IndexService {
     public void deleteDoc(String accession) throws Exception{
         if(accession==null || accession.isEmpty())
             return;
-        QueryParser parser = new QueryParser(Constants.ACCESSION, new AttributeFieldAnalyzer());
-        String strquery = Constants.ACCESSION+":"+accession;
+        QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new AttributeFieldAnalyzer());
+        String strquery = Constants.Fields.ACCESSION+":"+accession;
         parser.setSplitOnWhitespace(true);
         Query query = parser.parse(strquery);
         indexManager.getIndexWriter().deleteDocuments(query);
@@ -203,13 +203,13 @@ public class ConfigurableIndexService implements IndexService {
         public void run() {
             Map<String, Object> valueMap = new HashMap<>();
             try {
-                valueMap.put( Constants.ID, json.get("accno").textValue() );
-                valueMap.put( Constants.SECRET_KEY, json.has("seckey") ? json.get("seckey").textValue() : null );
-                valueMap.put( Constants.ACCESSION, valueMap.get(Constants.ID));
-                valueMap.put( Constants.TYPE, json.get("section").get("type").textValue().toLowerCase());
-                valueMap.put( Constants.TITLE, getTitle(json, (String)valueMap.get(Constants.ACCESSION)));
+                valueMap.put( Constants.Fields.ID, json.get("accno").textValue() );
+                valueMap.put( Constants.Fields.SECRET_KEY, json.has("seckey") ? json.get("seckey").textValue() : null );
+                valueMap.put( Constants.Fields.ACCESSION, valueMap.get(Constants.Fields.ID));
+                valueMap.put( Constants.Fields.TYPE, json.get("section").get("type").textValue().toLowerCase());
+                valueMap.put( Constants.Fields.TITLE, getTitle(json, (String)valueMap.get(Constants.Fields.ACCESSION)));
 
-                valueMap.put( Constants.FILES, json.findValues("files").stream().mapToLong(
+                valueMap.put( Constants.Fields.FILES, json.findValues("files").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("path").size()
                         ).sum()
                 );
@@ -220,7 +220,7 @@ public class ConfigurableIndexService implements IndexService {
                 content.append(json.findValues("files").stream().map(jsonNode -> jsonNode.findValuesAsText("path").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
                 content.append(" ");
                 content.append(json.findValues("links").stream().map(jsonNode -> jsonNode.findValuesAsText("url").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
-                valueMap.put( Constants.CONTENT, content.toString());
+                valueMap.put( Constants.Fields.CONTENT, content.toString());
 
                 /*String linkType = json.findValues("links")
                         .stream()
@@ -233,7 +233,7 @@ public class ConfigurableIndexService implements IndexService {
                         }).collect(Collectors.joining(" "));
                 valueMap.put(Constants.LINK_TYPE, linkType.isEmpty() ? null : linkType );
                 */
-                valueMap.put( Constants.LINKS, json.findValues("links").stream().mapToLong(
+                valueMap.put( Constants.Fields.LINKS, json.findValues("links").stream().mapToLong(
                         jsonNode -> jsonNode.findValues("url").size()
                         ).sum()
                 );
@@ -258,14 +258,14 @@ public class ConfigurableIndexService implements IndexService {
                             }
                     );
                 }
-                valueMap.put( Constants.AUTHOR, StringUtils.join(authors," "));
-                valueMap.put( Constants.ORCID, StringUtils.join(orcids," "));
+                valueMap.put( Constants.Fields.AUTHOR, StringUtils.join(authors," "));
+                valueMap.put( Constants.Fields.ORCID, StringUtils.join(orcids," "));
 
                 String access = !json.has("accessTags") ? "" :
                         StreamSupport.stream(json.get("accessTags").spliterator(),false)
                                 .map( s-> s.textValue())
                                 .collect(Collectors.joining(" "));
-                valueMap.put( Constants.ACCESS, access.replaceAll("~", ""));
+                valueMap.put( Constants.Fields.ACCESS, access.replaceAll("~", ""));
 
                 String value="";
 
@@ -273,27 +273,27 @@ public class ConfigurableIndexService implements IndexService {
                 long creationDateLong = 0L;
                 long modificationTimeLong = 0L;
 
-                if(json.has(Constants.CREATION_TIME))
-                    creationDateLong = Long.valueOf(json.get(Constants.CREATION_TIME).asText())*1000;
+                if(json.has(Constants.Fields.CREATION_TIME))
+                    creationDateLong = Long.valueOf(json.get(Constants.Fields.CREATION_TIME).asText())*1000;
 //                valueMap.put( Constants.CREATION_TIME, DateTools.timeToString(creationDateLong, DateTools.Resolution.DAY));
-                valueMap.put(Constants.CREATION_TIME, creationDateLong);
+                valueMap.put(Constants.Fields.CREATION_TIME, creationDateLong);
 
-                if(json.has(Constants.MODIFICATION_TIME)) {
-                    modificationTimeLong = Long.valueOf(json.get(Constants.MODIFICATION_TIME).asText()) * 1000;
-                    valueMap.put(Constants.MODIFICATION_TIME, modificationTimeLong);
-                    valueMap.put(Constants.MODIFICATION_YEAR_FACET, DateTools.timeToString(modificationTimeLong, DateTools.Resolution.YEAR));
+                if(json.has(Constants.Fields.MODIFICATION_TIME)) {
+                    modificationTimeLong = Long.valueOf(json.get(Constants.Fields.MODIFICATION_TIME).asText()) * 1000;
+                    valueMap.put(Constants.Fields.MODIFICATION_TIME, modificationTimeLong);
+                    valueMap.put(Constants.Facets.MODIFICATION_YEAR_FACET, DateTools.timeToString(modificationTimeLong, DateTools.Resolution.YEAR));
                 }
 
 
-                if(json.has(Constants.RELEASE_TIME)) {
-                    releaseDateLong = Long.valueOf(json.get(Constants.RELEASE_TIME).asText()) * 1000;
+                if(json.has(Constants.Fields.RELEASE_TIME) && !json.get(Constants.Fields.RELEASE_TIME).asText().equals("-1")) {
+                    releaseDateLong = Long.valueOf(json.get(Constants.Fields.RELEASE_TIME).asText()) * 1000;
                 }
-                valueMap.put(Constants.RELEASE_TIME, releaseDateLong);
-                if(releaseDateLong==0L && !String.valueOf(valueMap.get(Constants.ACCESS)).contains(Constants.PUBLIC)) {
+                valueMap.put(Constants.Fields.RELEASE_TIME, releaseDateLong);
+                if(releaseDateLong==0L && !String.valueOf(valueMap.get(Constants.Fields.ACCESS)).contains(Constants.PUBLIC)) {
                         releaseDateLong = Long.MAX_VALUE;
                 }
                 valueMap.put(Constants.RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
-                valueMap.put(Constants.RELEASED_YEAR_FACET, (releaseDateLong==Long.MAX_VALUE || releaseDateLong==0) ? Constants.NA :  DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
+                valueMap.put(Constants.Facets.RELEASED_YEAR_FACET, (releaseDateLong==Long.MAX_VALUE || releaseDateLong==0) ? Constants.NA :  DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
                 String project = "";
                 if(json.has("attributes")) {
                     project = StreamSupport.stream(json.get("attributes").spliterator(), false)
@@ -302,7 +302,7 @@ public class ConfigurableIndexService implements IndexService {
                             .map(s -> s.get("value").textValue())
                             .collect(Collectors.joining(","));
                 }
-                valueMap.put(Constants.PROJECT, project);
+                valueMap.put(Constants.Facets.PROJECT, project);
 
 
                 ReadContext jsonPathContext = null;
@@ -321,7 +321,7 @@ public class ConfigurableIndexService implements IndexService {
                                         .filter(jsonNode ->
                                                 jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase(fieldMetadataNode.get("title").asText()))
                                         .map(s->s.get("value").textValue() )
-                                        .collect(Collectors.joining("£"));
+                                        .collect(Collectors.joining(Constants.Facets.DELIMITER));
                                 valueMap.put(fieldMetadataNode.get("name").asText(), value);
                             }
                             else{
@@ -331,15 +331,16 @@ public class ConfigurableIndexService implements IndexService {
                     }
                 }
 
-                if (jsonPathContext == null)
+                if (jsonPathContext == null) {
                     jsonPathContext = JsonPath.parse(json.toString());
-                valueMap.put(Constants.FILE_TYPE, StreamSupport.stream(((List<String>) jsonPathContext.read("$..files.*.path")).spliterator(), false)
-                        .map(s-> {
-                            if(s==null) return Constants.NA;
-                            int k = s.lastIndexOf(".");
-                            return k>=0 ? s.substring(s.lastIndexOf(".") +1) : Constants.NA;
-                        }).collect(Collectors.joining("£"))
-                );
+                    valueMap.put(Constants.Facets.FILE_TYPE, ((List<String>) jsonPathContext.read("$..files.*.path")).stream()
+                            .map(s -> {
+                                if (s == null) return Constants.NA;
+                                int k = s.lastIndexOf(".");
+                                return k >= 0 ? s.substring(s.lastIndexOf(".") + 1) : Constants.NA;
+                            }).collect(Collectors.joining(Constants.Facets.DELIMITER))
+                    );
+                }
 
 
                 updateDocument(valueMap);
@@ -356,7 +357,7 @@ public class ConfigurableIndexService implements IndexService {
                     jsonPathContext = JsonPath.parse(json.toString());
                 try {
                     List<String> resultData = jsonPathContext.read(fieldMetadataNode.get("jpath").asText());
-                    result = String.join("£", resultData);
+                    result = String.join(Constants.Facets.DELIMITER, resultData);
                 } catch (ClassCastException e) {
                     result = jsonPathContext.read(json.get("jpath").asText());
                 }
@@ -371,7 +372,7 @@ public class ConfigurableIndexService implements IndexService {
 
             //TODO: replace by classes if possible
             String value;
-            String prjName = (String)valueMap.get("project");
+            String prjName = (String)valueMap.get(Constants.Facets.PROJECT);
             for (String field: indexManager.getProjectRelatedFields(prjName.toLowerCase())) {
                 JsonNode curNode = indexManager.getAllValidFields().get(field);
                 String fieldType = curNode.get("fieldType").asText();
@@ -396,14 +397,14 @@ public class ConfigurableIndexService implements IndexService {
                             addFacet(String.valueOf(valueMap.get(field)), field, doc, curNode);
                     }
                 }catch(Exception ex){
-                    logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(Constants.ACCESSION)), ex);
+                    logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(Constants.Fields.ACCESSION)), ex);
                 }
 
 
             }
 
             Document facetedDocument = taxonomyManager.getFacetsConfig().build(taxonomyManager.getTaxonomyWriter() ,doc);
-            writer.updateDocument(new Term(Constants.ID, valueMap.get(Constants.ACCESSION).toString()), facetedDocument);
+            writer.updateDocument(new Term(Constants.Fields.ID, valueMap.get(Constants.Fields.ACCESSION).toString()), facetedDocument);
 
         }
 
@@ -411,7 +412,7 @@ public class ConfigurableIndexService implements IndexService {
             if(value==null || value.isEmpty()) {
                 value = Constants.NA;
             }
-            for(String subVal:value.split("£")) {
+            for(String subVal: org.apache.commons.lang3.StringUtils.split(value, Constants.Facets.DELIMITER)) {
                 if(subVal.equalsIgnoreCase(Constants.NA) && facetConfig.has(Constants.DEFAULT_VALUE)){
                     subVal = facetConfig.get(Constants.DEFAULT_VALUE).textValue();
                 }

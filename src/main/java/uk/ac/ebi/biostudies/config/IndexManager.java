@@ -94,7 +94,7 @@ public class IndexManager {
             taxonomyManager.init(AllFields.values());
             autocompletion.rebuild();
             spellChecker = new SpellChecker(FSDirectory.open(Paths.get(indexConfig.getSpellcheckerLocation())));
-            spellChecker.indexDictionary(new LuceneDictionary(getIndexReader(), Constants.CONTENT), new IndexWriterConfig(), false);
+            spellChecker.indexDictionary(new LuceneDictionary(getIndexReader(), Constants.Fields.CONTENT), new IndexWriterConfig(), false);
 
         }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);

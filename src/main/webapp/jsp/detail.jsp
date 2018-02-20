@@ -57,7 +57,7 @@
                         {{#if releaseDate}}
                         <a href="ftp://ftp.biostudies.ebi.ac.uk/pub/{{root}}" target="_blank"
                             title="Open FTP Folder" class="source-icon source-icon-ftp" data-icon="="><i
-                            class="fa fa-cloud-download"></i>FTP</a>
+                            class="fa fa-cloud-download-alt"></i>FTP</a>
                         {{/if}}
                     </div>
                 </div>
@@ -161,7 +161,7 @@
                 {{#if URLs}}
                     {{#each URLs}}
                         <span class="publication-link">
-                            <span class="publication-link-type"><i class="fa fa-external-link" aria-hidden="true"></i> {{type}}</span>
+                            <span class="publication-link-type"><i class="fa fa-external-link-alt" aria-hidden="true"></i> {{type}}</span>
                             <a href="{{url}}" target="_blank">{{text}}</a>
                         </span>
                     {{/each}}
@@ -224,7 +224,7 @@
                 <div class="bs-section-tables">
                     <div class="table-caption">
                         Table: {{this.type}}
-                        <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
+                        <span class="fa-icon table-expander" title="Click to expand"><i class="fa fa-expand"></i></span>
                     </div>
                     <div class="table-wrapper">
                         <table class="stripe compact hover section-table">
@@ -257,7 +257,7 @@
                 <div id="file-list-container">
                     <div class="table-caption">
                         <span class="widge-title"><i class="fa fa-download"></i> Download data files</span>
-                        <span class="fa fa-expand fa-icon table-expander" id="all-files-expander" title="Click to expand"/>
+                        <span class="fa-icon table-expander" id="all-files-expander" title="Click to expand"><i class="fa fa-expand"></i></span>
                     </div>
                     <div class="table-wrapper">
                         <table id="file-list" class="stripe compact hover" width="100%">
@@ -299,8 +299,8 @@
             <section>
                 <div id="link-list-container">
                     <div class="table-caption">
-                        <span class="widge-title"><i class="fa fa-external-link"></i> Linked Information</span>
-                        <span class="fa fa-expand fa-icon table-expander" id="all-links-expander" title="Click to expand"/>
+                        <span class="widge-title"><i class="fa fa-external-link-alt"></i> Linked Information</span>
+                        <span class="fa-icon table-expander" id="all-links-expander" title="Click to expand"><i class="fa fa-expand"></i></span>
                     </div>
                     <div class="table-wrapper">
                         <table id="link-list" class="stripe compact hover" width="100%">
@@ -333,7 +333,6 @@
                 <div id="similar-study-container">
                     <div class="table-caption">
                         <span class="widge-title"><i class="icon icon-functional" data-icon="O"></i> Similar Studies</span>
-                        <span class="fa fa-expand fa-icon table-expander" id="similar-studies-expander" title="Click to expand"/>
                     </div>
                     <div class="table-wrapper">
                         <ul class="recommendations">
@@ -354,7 +353,7 @@
 
 
         <script id='valqual-template' type='text/x-handlebars-template'>{{#ifArray this}}{{&renderOntologySubAttribute this}}{{#eachSubAttribute this}}
-                    {{#if @first}}<i class="fa fa-info-circle sub-attribute-info"></i><span class="sub-attribute">{{/if}}
+                    {{#if @first}}<span class="sub-attribute-info"><i class="fa fa-info-circle"></i></span><span class="sub-attribute">{{/if}}
                     <span class="sub-attribute-title">{{name}}:</span>
                     <span>{{value}}</span>
                     <br/>
@@ -366,8 +365,7 @@
         <script id='main-orcid-claimer' type='text/x-handlebars-template'>
             <section id="orc-id-claimer-section">
                 <div class="table-caption">
-                    <span class="widge-title"><img class="orcid-logo" src="${contextPath}/images/orcid.svg"></img>ORCID: Data claiming</span>
-                    <span class="fa fa-expand fa-icon table-expander" title="Click to expand"/>
+                    <span class="widge-title"><img class="orcid-logo" src="${contextPath}/images/orcid.svg" />ORCID: Data claiming</span>
                 </div>
                 <div class="thor_div_showIf_notSigned" style="display:none">
                     <div>

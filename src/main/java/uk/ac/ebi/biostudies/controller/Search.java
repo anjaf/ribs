@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostudies.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,12 +11,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -48,13 +50,13 @@ public class Search {
     @PublicRESTMethod
     @RequestMapping(value = "/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String search(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
-                                        @RequestParam(value="facets", required=false) String facets,
-                                        @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
-                                        @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
-                                        @RequestParam(value="sortBy", required=false, defaultValue = "") String sortBy,
-                                        @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder
+                         @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
+                         @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
+                         @RequestParam(value="sortBy", required=false, defaultValue = "") String sortBy,
+                         @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder,
+                         @RequestParam MultiValueMap<String,String> params
     ) throws Exception {
-        ObjectNode selectedFacets = checkSelectedFacets(facets);
+        ObjectNode selectedFacets = checkSelectedFacets(params);
         return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, null, page, pageSize, sortBy, sortOrder);
     }
 
@@ -77,22 +79,24 @@ public class Search {
     @PublicRESTMethod
     @RequestMapping(value = "/{project}/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String searchProject(@RequestParam(value="query", required=false, defaultValue = "") String queryString,
-                                           @RequestParam(value="facets", required=false) String facets,
-                                           @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
-                                           @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
-                                           @RequestParam(value="sortBy", required=false, defaultValue = "") String sortBy,
-                                           @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder,
-                                           @PathVariable String project) throws Exception {
-        ObjectNode selectedFacets = checkSelectedFacets(facets);
+                                @RequestParam(value="facets", required=false) String facets,
+                                @RequestParam(value="page", required=false, defaultValue = "1") Integer page,
+                                @RequestParam(value="pageSize", required=false, defaultValue = "20") Integer pageSize,
+                                @RequestParam(value="sortBy", required=false, defaultValue = "") String sortBy,
+                                @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder,
+                                @RequestParam MultiValueMap<String,String> params,
+                                @PathVariable String project) throws Exception {
+        ObjectNode selectedFacets = checkSelectedFacets(params);
         return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project, page, pageSize, sortBy, sortOrder);
     }
 
     @RequestMapping(value = "/{project}/facets", produces = JSON_UNICODE_MEDIA_TYPE , method = RequestMethod.GET)
     public String getDefaultFacets(@PathVariable String project,
                                    @RequestParam(value="query", required=false, defaultValue = "") String queryString,
-                                   @RequestParam(value="facets", required=false) String facets,
-                                   @RequestParam(value="limit", required=false, defaultValue = ""+Constants.TOP_FACET_COUNT) Integer limit) throws Exception{
-        ObjectNode selectedFacets = checkSelectedFacets(facets);
+                                   @RequestParam(value="limit", required=false, defaultValue = ""+Constants.TOP_FACET_COUNT) Integer limit,
+                                   @RequestParam MultiValueMap<String,String> params
+    ) throws Exception{
+        ObjectNode selectedFacets = checkSelectedFacets(params);
         return facetService.getDefaultFacetTemplate(project, queryString, limit, selectedFacets).toString();
     }
 
@@ -111,17 +115,19 @@ public class Search {
         return searchService.getFieldStats();
     }
 
-    private ObjectNode checkSelectedFacets(String facets){
+    private ObjectNode checkSelectedFacets(MultiValueMap<String, String> params){
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode selectedFacets = mapper.createObjectNode();
-        if (facets!=null) {
-            for (String facet : StringUtils.split(facets, ",")) {
-                String[] parts = facet.split(":");
-                if (parts.length != 2) continue;
-                if (!selectedFacets.has(parts[0])) {
-                    selectedFacets.set(parts[0], mapper.createArrayNode());
+        if (params!=null) {
+            for (String facet: params.keySet()) {
+                if (!facet.toLowerCase().startsWith("facet.")) continue;
+                String facetKey = StringUtils.remove(facet, "[]");
+                if (!selectedFacets.has( facetKey )) {
+                    selectedFacets.set(facetKey, mapper.createArrayNode());
                 }
-                ((ArrayNode) selectedFacets.get(parts[0])).add(parts[1]);
+                for (String value: params.get(facet).stream().flatMap( v-> Arrays.stream(v.split(",")) ).collect(Collectors.toList()) ) {
+                    ((ArrayNode) selectedFacets.get(facetKey)).add ( value );
+                }
             }
         }
         return selectedFacets;

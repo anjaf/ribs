@@ -87,6 +87,7 @@ a.show-less:hover {
     float:right;
     cursor: pointer;
     border: 0px;
+    padding-right: 3pt;
 }
 
 
@@ -450,7 +451,7 @@ a.thumbnail-icon {
     color: #929292;
 }
 
-.widge-title .fa:before, .widge-title  .icon:before {
+.widge-title svg, .widge-title  .icon:before {
     color:#aaa;
 }
 

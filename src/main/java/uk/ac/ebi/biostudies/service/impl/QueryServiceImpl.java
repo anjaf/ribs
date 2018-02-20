@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostudies.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -27,10 +28,7 @@ import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.QueryService;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class QueryServiceImpl implements QueryService {
@@ -59,7 +57,7 @@ public class QueryServiceImpl implements QueryService {
 
     @PostConstruct
     void init(){
-        parser = new QueryParser(Constants.TYPE, new AttributeFieldAnalyzer());
+        parser = new QueryParser(Constants.Fields.TYPE, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         try {
             excludeCompound = parser.parse("type:compound");
@@ -115,7 +113,7 @@ public class QueryServiceImpl implements QueryService {
         }
         return bqBuilder.build();
         */
-        HashMap hm = new HashMap();
+        Map<JsonNode, List<String>> hm = new HashMap<JsonNode, List<String>>();
         hm.put(taxonomyManager.PROJECT_FACET, Lists.newArrayList(prjName));
         return facetService.addFacetDrillDownFilters(query, hm);
     }

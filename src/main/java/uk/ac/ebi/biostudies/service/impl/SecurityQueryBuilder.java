@@ -28,7 +28,7 @@ public class SecurityQueryBuilder {
     }
 
     public Query applySecurity(Query originalQuery, String seckey) throws Throwable {
-        QueryParser queryParser = new QueryParser(Constants.ACCESS, new AccessFieldAnalyzer());
+        QueryParser queryParser = new QueryParser(Constants.Fields.ACCESS, new AccessFieldAnalyzer());
         queryParser.setSplitOnWhitespace(true);
         BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
         StringBuilder securityClause= new StringBuilder();
@@ -48,7 +48,7 @@ public class SecurityQueryBuilder {
 
         // allow if there's a secret key present
         if (seckey!=null && seckey!="") {
-            QueryParser secretQueryParser = new QueryParser(Constants.SECRET_KEY, new KeywordAnalyzer());
+            QueryParser secretQueryParser = new QueryParser(Constants.Fields.SECRET_KEY, new KeywordAnalyzer());
             secretQueryParser.setSplitOnWhitespace(true);
             Query secretKeyQuery = secretQueryParser.parse(seckey);
 

@@ -6,7 +6,15 @@
             .map(function(s) {
                     s = s.split("=")
                     v = decodeURIComponent(s[1]).split('+').join(' ');
-                    this[s[0]] =  this[s[0]] ? this[s[0]]+','+v : v;
+                    if (this[s[0]]) {
+                        if ($.isArray(this[s[0]])) {
+                            this[s[0]].push(v)
+                        } else {
+                          this[s[0]] = [this[s[0]], v];
+                        }
+                    } else {
+                        this[s[0]] = v;
+                    }
                     return this;
                 }.bind({}));
     var params = split_params.length ? split_params[0] : {};
@@ -15,6 +23,14 @@
     showResults(params);
 }(document);
 
+function serialiseParams(params) {
+    var p = {};
+    $.each(params, function (k, v) {
+        $.each($.isArray(v) ? v : [v], function (i, s) {
+            p[key] = s;
+        });
+    });
+}
 
 function showResults(params) {
     // Prepare template
@@ -26,7 +42,6 @@ function showResults(params) {
         if(project) {
             data.project = project;
         }
-
         var html = template(data);
         $('#renderedContent').html(html);
 
@@ -37,8 +52,8 @@ function showResults(params) {
             $.getJSON(contextPath + "/api/v1/" + (project||"public") + "/facets", params, function (data) {
                 var templateSource = $('script#facet-list-template').html();
                 var template = Handlebars.compile(templateSource);
-                data.selectedFacets = params.facets ? params.facets.split(",") : [];
-                data.project = project;
+                data.project = (project||"public");
+                data.existing = getExistingParams(params, 'facet.');
                 var html = template(data);
                 $('#facets').html(html);
             }).fail(function (error) {
@@ -71,13 +86,13 @@ function registerHelpers(params) {
         var prms = $.extend({}, params);
         if (page>1) {
             prms.page = o.data.root.page-1;
-            ul += '<li class="pagination-previous"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
+            ul += '<li class="pagination-previous"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms, true)+'" aria-label="Previous page">Previous <span class="show-for-sr">page</span></a></li>';
         }
 
         if (maxPage<=10) {
             for (var i = 1; i <= maxPage; i++) {
                 prms.page = i;
-                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
+                ul += '<li ' + (i == page ? 'class="current"' : '') + '><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms, true) + '" aria-label="Page ' + i + '">' + i + '</a></li>';
             }
         } else {
             var arr;
@@ -115,14 +130,14 @@ function registerHelpers(params) {
                 if (arr[i]==page) {
                     ul += '<li class="current">' + formatNumber(arr[i]) + '</li>';
                 } else {
-                    ul += '<li><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms) + '" aria-label="Page ' + arr[i] + '">' + formatNumber(arr[i]) + '</a></li>';
+                    ul += '<li><a href="'+contextPath+(project ? '/'+project : '')+'/studies?' + $.param(prms, true) + '" aria-label="Page ' + arr[i] + '">' + formatNumber(arr[i]) + '</a></li>';
                 }
             };
         }
 
         if (o.data.root.page && o.data.root.pageSize &&  o.data.root.page*o.data.root.pageSize < o.data.root.totalHits) {
             prms.page = page+1;
-            ul += '<li class="pagination-next"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
+            ul += '<li class="pagination-next"><a href="'+contextPath+(project ? '/'+project : '')+'/studies?'+$.param(prms, true)+'" aria-label="Next page">Next <span class="show-for-sr">page</span></a></li>';
         }
         // ul += '<li class="result-count"> (Showing ' + formatNumber((o.data.root.page-1)*20+1) + ' ‒ '
         //     + formatNumber(o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
@@ -152,9 +167,17 @@ function registerHelpers(params) {
         return (new Date(v.substr(0,4)+'-'+v.substr(4,2)+'-'+v.substr(6,2))).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
     });
 
+    Handlebars.registerHelper('printDate', function(v) {
+        return new Date(v).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+    });
+
     Handlebars.registerHelper('dynamicLink', function(query) {
         var link = '<a href="studies?query='+query+'" >'+query+'</a>';
         return new Handlebars.SafeString(link);
+    });
+
+    Handlebars.registerHelper('ifArray', function (v, options) {
+        return $.isArray(v) ? options.fn(this) : options.inverse(this);
     });
 
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
@@ -234,7 +257,7 @@ function postRender(data, params) {
     $('#sort-by').change(function (e) {
         params.sortBy = $(this).val();
         params.sortOrder = 'descending';
-        window.location = projectPath+'/studies/?' + $.param(params);
+        window.location = projectPath+'/studies/?' + $.param(params, true);
     });
     if (data.sortOrder=='ascending') {
         $('#sort-desc').removeClass('selected');
@@ -246,12 +269,12 @@ function postRender(data, params) {
     $('#sort-desc').click(function (e) {
         if ($(this).hasClass('selected')) return;
         params.sortOrder = 'descending';
-        window.location = projectPath+'/studies/?' + $.param(params);
+        window.location = projectPath+'/studies/?' + $.param(params, true);
     });
     $('#sort-asc').click(function (e) {
         if ($(this).hasClass('selected')) return;
         params.sortOrder = 'ascending';
-        window.location = projectPath+'/studies/?' + $.param(params);
+        window.location = projectPath+'/studies/?' + $.param(params, true);
     });
 
     // limit authors
@@ -272,38 +295,39 @@ function postRender(data, params) {
 
 function postRenderFacets(data, params) {
 
-    // check the currently selected face, if any
-    if (params.facets) {
-        var facetMap = {};
-        var non20={};
-        $(params.facets.split(",")).each(function () {
-            var parts = this.split(':');
-            var fkey = parts[0], fval = parts[1];
-            if (!facetMap[fkey]) facetMap[fkey] = [];
-            if ($('input[id="'+this+'"]').length) {
-                $('input[id="'+this+'"]').attr('checked','checked');
-                //$('input[id="'+this+'"]').parent().parent().find('.facet-hits').hide();
-                facetMap[fkey].push($('input[id="'+this+'"]').parent().parent().detach());
-                non20[this]=true;
-            } else {
-                if (!non20[this]) {
-                    facetMap[fkey].push($('<li><label class="facet-label" for="' + this + '">'
-                        + '<input class="facet-value" type="checkbox" checked="checked" name="facets" value="' + this + '" id="' + this + '"/>'
-                        + ' <span>' + fval + '</span>'
-                        + '</label></li>'));
-                    non20[this]=true;
-                }
+    // check the currently selected facet, if any
+     for (var fkey in params) {
+        if (fkey.toLowerCase().indexOf("facet.")!=0) continue;
+        $.each( $.isArray(params[fkey]) ? params[fkey] : [params[fkey]] , function () {
+            var fval= this, fid = (fkey + ':' + fval);
+            if ($('input[id="' + fid + '"]').length) {
+                $('input[id="' + fid + '"]').attr('checked', 'checked');
             }
         });
-
-        for (var key in facetMap) {
-            facetMap[key].sort(function(a,b){return a.text().trim()>b.text().trim() })
-            $('#facet_'+key).prepend(facetMap[key])
-        }
     }
 
-    // set query string in facets
-    $('#facet-query').val(params.query);
+    // put selected facets on top and add facet labels on top of results
+    var facetMap={};
+    $('li .facet-value:checked').each(function(){
+        var fkey = $(this).attr('name');
+        if (!facetMap[fkey]) facetMap[fkey] = [];
+        facetMap[fkey].push($(this).parent().parent().detach());
+    })
+
+    for (var key in facetMap  ) {
+        $('ul#facet_'+jqueryEncode(key)).prepend(facetMap[key]);
+        $('#facet-filters').append($('<span/>',{class:'facet-filter-label'}).text($('span.facet-title',$('ul#facet_'+jqueryEncode(key)).prev()).text().trim()));
+        $.each(facetMap[key], function(i,v) {
+            $('#facet-filters').append(
+                $('<span/>',{class:'facet-filter-value'})
+                    .text( $('label',$(v)).text().trim())
+                    .append($('<a/>',{class:'drop-facet', "data-facet-id":$('input',v).attr('id')}).text('✕') )
+            );
+        })
+    }
+    $('.drop-facet').bind('click', function(){
+       $('#'+jqueryEncode($(this).data('facet-id'))).click();
+    });
 
     // resubmit form when facets are changed
     $('input.facet-value').change(function(){ $(this).parents('form:first').submit() });
@@ -319,7 +343,8 @@ function postRenderFacets(data, params) {
             $('#facet-loader').hide();
             var templateSource = $('script#all-facets-template').html();
             var template = Handlebars.compile(templateSource);
-            $('body').append(template({facets:data, existing: !params.facets ? '' : params.facets.split("|").filter( function(v) { return v.indexOf(thisFacet)!=0; }).join(",")}));
+            var existing = getExistingParams(params, thisFacet);
+            $('body').append(template({facets:data, existing:  existing}));
             $('#facet-search').focus()
 
             //build lookup cache
@@ -357,11 +382,13 @@ function postRenderFacets(data, params) {
             });
 
             // check the currently selected face, if any
-            if (params.facets) {
-                $(params.facets.split("|")).each(function () {
-                    $('input[id="all-'+this+'"]', $(".allfacets ul li")).attr('checked','checked');
-                })
-            }
+            for (var v in params){
+                if (v.indexOf(thisFacet)!=0) return;
+                $.each($.isArray(params[v]) ? params[v] : [params[v]], function (i,s) {
+                    $('input[id="all-'+v+':'+s+'"]', $(".allfacets ul li")).attr('checked','checked');
+                });
+
+            };
 
             //handle select all
             $('#all-check').click(function () {
@@ -383,11 +410,33 @@ function postRenderFacets(data, params) {
             closeFullScreen();
         }
     });
+
+    //handle facet toggles
+    $('.facet-name').bind('click', function(){
+        var facetUL = $(this).next();
+        if (facetUL.is(':visible'))  {
+            facetUL.slideUp(100);
+        } else {
+            facetUL.slideDown(100);
+        }
+        $('.toggle-facet', this).find('[data-fa-i2svg]').toggleClass('fa-angle-right fa-angle-down');
+    });
+}
+
+function getExistingParams(params, filter) {
+    var existing = [];
+    $.each(params, function (k,v) {
+        if (k.indexOf(filter)==0) return;
+        $.each($.isArray(v) ? v : [v], function (i,s) {
+            existing.push({key: k, value: s});
+        });
+    });
+    return existing;
 }
 
 function toggleFacetSearch() {
     if ($(".allfacets ul li input:checked").length>100) {
-        $("#facet-search-button").attr("disabled", "disabled")
+        $("#facet-search-button").attr("disabled", "disabled");
     } else {
         $("#facet-search-button").removeAttr("disabled");
     }
@@ -398,4 +447,8 @@ function closeFullScreen() {
     $('#facet-loader').remove();
     $('.allfacets').remove();
 
+}
+
+function jqueryEncode(v) {
+    return v.replace( /(:|\.|\[|\]|,|=)/g, "\\$1" );
 }

@@ -1,32 +1,31 @@
 {
   "idr":
   [
-    {"name":"study_type", "title":"Study Type", "fieldType":"facet", "multiValued":"true"}
+    {"name":"facet.study_type", "title":"Study Type", "fieldType":"facet", "multiValued":"true"}
   ],
   "hecatos":
   [
-    {"name":"organ", "title":"Organ", "fieldType":"facet", "multiValued":"true"},
-    {"name":"technology", "title":"Assay Technology Type", "fieldType":"facet", "multiValued":"true"},
-    {"name":"data_type", "title":"Data Type", "fieldType":"facet", "multiValued":"true"},
-    {"name":"compound", "title":"Compound", "fieldType":"facet", "multiValued":"true"},
-    {"name":"raw_or_processed", "title":"Raw/Processed", "fieldType":"facet", "multiValued":"true"}
+    {"name":"facet.organ", "title":"Organ", "fieldType":"facet", "multiValued":"true"},
+    {"name":"facet.technology", "title":"Assay Technology Type", "fieldType":"facet", "multiValued":"true"},
+    {"name":"facet.data_type", "title":"Data Type", "fieldType":"facet", "multiValued":"true"},
+    {"name":"facet.compound", "title":"Compound", "fieldType":"facet", "multiValued":"true"},
+    {"name":"facet.raw_or_processed", "title":"Raw/Processed", "fieldType":"facet", "multiValued":"true"}
   ],
   "arrayexpress":
   [
-    {"name":"exp", "title":"Experimental Factor", "fieldType":"str_untokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"false", "analyzer":"AttributeFieldAnalyzer"},
-    {"name":"experimental_factor", "title":"Experimental Factor", "fieldType":"facet", "multiValued":"true"},
-    {"name":"organism", "title":"Organism", "fieldType":"facet", "multiValued":"true"},
-    {"name":"study_type", "title":"Study type", "fieldType":"facet", "multiValued":"true"}
+    {"name":"experimental_factor", "title":"Experimental Factor", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false", "analyzer":"AttributeFieldAnalyzer"},
+    {"name":"facet.experimental_factor", "title":"Experimental Factor", "fieldType":"facet", "multiValued":"true"}, {"name":"organism", "title":"Organism", "fieldType":"facet", "multiValued":"true"},
+    {"name":"facet.study_type", "title":"Study type", "fieldType":"facet", "multiValued":"true"}
   ],
   "europepmc": [
-    {"name":"funding_agency", "title":"Funding Agency", "fieldType":"facet", "jpath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":"true"}
+    {"name":"facet.funding_agency", "title":"Funding Agency", "fieldType":"facet", "jpath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":"true"}
   ],
   "eu-toxrisk":
   [
-    {"name":"organ", "title":"Organ", "fieldType":"facet", "multiValued":"true"},
-    {"name":"organism", "title":"Organism", "fieldType":"facet", "multiValued":"true"},
-    {"name":"toxicity_domain", "title":"Toxicity Domain", "fieldType":"facet", "multiValued":"true"},
-    {"name":"compound", "title":"Compound", "fieldType":"facet", "multiValued":"true"}
+    {"name":"facet.organ", "title":"Organ", "fieldType":"facet", "multiValued":"true"},
+    {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":"true"},
+    {"name":"facet.toxicity_domain", "title":"Toxicity Domain", "fieldType":"facet", "multiValued":"true"},
+    {"name":"facet.compound", "title":"Compound", "fieldType":"facet", "multiValued":"true"}
   ],
   "public":
   [
@@ -44,11 +43,11 @@
     {"name":"rtime", "title":"", "fieldType":"long", "isRetrieved":"true", "isExpanded":"false", "isSortable":"true"},
     {"name":"id", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
     {"name":"seckey", "title":"", "fieldType":"str_untokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false"},
-    {"name":"orcid", "title":"", "fieldType":"str_tokenized", "isRetrieved":"true", "isExpanded":"false", "isSortable":"false", "analyzer":"AccessFieldAnalyzer"},
-    {"name":"project", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"true"},
-    {"name":"released_year", "title":"Released", "fieldType":"facet", "multiValued":"false"},
-    {"name":"modification_year", "title":"Created/Modified", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"},
-    {"name":"link_type", "title":"Link Type", "fieldType":"facet", "multiValued":"true", "jpath":"$..links..attributes[?(@.name=='Type')].value"},
-    {"name":"file_type", "title":"File Type", "fieldType":"facet", "multiValued":"true"}
+    {"name":"orcid", "title":"", "fieldType":"str_tokenized", "isRetrieved":"false", "isExpanded":"false", "isSortable":"false", "analyzer":"AccessFieldAnalyzer"},
+    {"name":"facet.project", "title":"Project", "fieldType":"facet", "jpath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":"true"},
+    {"name":"facet.released_year", "title":"Released", "fieldType":"facet", "multiValued":"false"},
+    {"name":"facet.modification_year", "title":"Created/Modified", "fieldType":"facet", "multiValued":"false", "isPrivate":"true"},
+    {"name":"facet.link_type", "title":"Link Type", "fieldType":"facet", "multiValued":"true", "jpath":"$..links..attributes[?(@.name=='Type')].value", "visible":false },
+    {"name":"facet.file_type", "title":"File Type", "fieldType":"facet", "multiValued":"true", "visible":false}
   ]
 }

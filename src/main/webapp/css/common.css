@@ -17,6 +17,9 @@
 #content {
     padding-top: 0px;
 }
+#main-content-area {
+    padding:1em;
+}
 
 .breadcrumbs {
     padding-top: 0.5rem;
@@ -36,6 +39,10 @@
     position: relative;
     height: 0;
     z-index: 100;
+}
+
+#logout-button {
+    height: 27pt;
 }
 
 #login-form {

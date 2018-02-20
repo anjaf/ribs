@@ -48,7 +48,9 @@ ul#search-results li {
     float: right;
     font-size: 9pt;
 }
-
+#sorting-links {
+    display:inline-table;
+}
 #pager {
     float: left;
 }
@@ -59,7 +61,7 @@ ul#search-results li {
 
 
 #sorting-links a {
-    padding: 9px 11px;
+    padding: 8px 11px;
     border: 1px solid #999999;
 }
 
@@ -78,10 +80,11 @@ ul#search-results li {
 }
 
 .facet-name {
-    font-size: 12pt;
+    font-size: 11pt;
     padding-top: 1em;
     line-height: 11pt;
     padding-bottom: 2pt;
+    cursor: pointer;
 }
 
 .facet-name:not(:first-child) {
@@ -124,7 +127,7 @@ label.facet-label {
 }
 
 
-ul.menu li {
+#facet ul.menu li {
     margin-top: 0.2em;
 }
 
@@ -204,7 +207,7 @@ ul.menu li {
 .result-count {
     font-size: 9pt;
     color: #999;
-    display: block;
+    display: inline-block;
 }
 
 .facet-top {
@@ -287,4 +290,32 @@ select {
     font-size: 10pt;
     padding: 5pt;
     font-weight: bold;
+}
+#facet-filters {
+    float:left;
+    font-size:8pt;
+}
+
+.facet-filter-label:not(:first-child) {
+    margin-left: 8pt;
+    color: #575759;
+}
+
+.facet-filter-value {
+    margin-left: 3pt;
+    padding: 1pt 0pt 2pt 2pt;
+    border-radius: 2pt;
+    border: 1px solid var(--B2);
+    color: var(--B2);
+}
+a.drop-facet {
+    border: none;
+    padding: 4pt;
+    font-size: 6pt;
+    vertical-align: middle
+}
+.toggle-facet {
+    color:#575759;
+    min-width: 7pt;
+    display: inline-block;
 }

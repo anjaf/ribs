@@ -650,10 +650,10 @@ function createMainFileTable() {
         "dom": "rlftpi",
         "infoCallback": function( settings, start, end, max, total, out ) {
             return (total== max) ? out : out +' <a class="section-button" id="clear-filter" onclick="clearFileFilter();return false;">' +
-                '<span class="fa-stack bs-icon-fa-stack">' +
-                '<i class="fa fa-filter fa-stack-1x"></i>' +
-                '<i class="fa-stack-1x filter-cross">×</i>' +
-                '</span> show all files</a>';
+                '<span class="fa-layers fa-fw">'
+                +'<i class="fas fa-filter"></i>'
+                +'<span class="fa-layers-text" data-fa-transform="shrink-2 down-4 right-6">×</span>'
+                +'</span> show all files</a>';
         }
     });
 }
@@ -678,10 +678,10 @@ function createMainLinkTable() {
         "dom": "rlftpi",
         "infoCallback": function( settings, start, end, max, total, out ) {
         return (total== max) ? out : out +' <a class="section-button" id="clear-filter" onclick="clearLinkFilter();return false;">' +
-            '<span class="fa-stack bs-icon-fa-stack">' +
-            '<i class="fa fa-filter fa-stack-1x"></i>' +
-            '<i class="fa-stack-1x filter-cross">×</i>' +
-            '</span> show all links</a>';
+            '<span class="fa-layers fa-fw">'
+            +'<i class="fas fa-filter"></i>'
+            +'<span class="fa-layers-text" data-fa-transform="shrink-2 down-4 right-6">×</span>'
+            +'</span> show all links</a>';
         }
     });
 
@@ -718,18 +718,18 @@ function getURL(accession, type) {
 
 function drawSubsections() {
     // draw subsection and hide them
-    $(".indented-section").prepend('<span class="toggle-section fa-fw fa fa-caret-right fa-icon" title="Click to expand"/>')
+    $(".indented-section").prepend('<span class="toggle-section fa-icon" title="Click to expand"><i class="fa-fw fas fa-caret-right"></i></span>')
     $(".indented-section").next().hide();
 
     $('.toggle-section').parent().css('cursor', 'pointer');
     $('.toggle-section').parent().on('click', function () {
         var indented_section = $(this).parent().children().first().next();
         if (indented_section.css('display') == 'none') {
-            $(this).children().first().toggleClass('fa-caret-down').toggleClass('fa-caret-right').attr('title', 'Click to collapse');
+            $(this).children().first().find('[data-fa-i2svg]').toggleClass('fa-caret-down fa-caret-right').attr('title', 'Click to collapse');
             indented_section.show();
             //redrawTables(true);
         } else {
-            $(this).children().first().toggleClass('fa-caret-down').toggleClass('fa-caret-right').attr('title', 'Click to expand');
+            $(this).children().first().find('[data-fa-i2svg]').toggleClass('fa-caret-down fa-caret-right').attr('title', 'Click to expand');
             indented_section.hide();
             //redrawTables(true);
         }
@@ -783,7 +783,7 @@ function handleTableExpansion() {
     //table expansion
     $('.table-expander').click(function () {
         $('.fullscreen .table-wrapper').css('max-height','');
-        $(this).toggleClass('fa-close').toggleClass('fa-expand');
+        $(this).find('[data-fa-i2svg]').toggleClass('fa-compress fa-expand');
         $(this).attr('title', $(this).hasClass('fa-expand') ? 'Click to expand' : 'Click to close');
         $('html').toggleClass('stop-scrolling');
         $('#blocker').toggleClass('blocker');
@@ -1091,7 +1091,7 @@ function handleThumbnails() {
         if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
                 ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm']) >=0 ) {
             $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'
-                +contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'"><i class="fa fa-file-image-o"></i></a>')
+                +contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'"><i class="far fa-file-image"></i></a>')
         }
     })
 
