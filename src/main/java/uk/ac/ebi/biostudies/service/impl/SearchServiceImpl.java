@@ -37,6 +37,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
+import static uk.ac.ebi.biostudies.api.util.Constants.*;
+
 /**
  * Created by ehsan on 27/02/2017.
  */
@@ -69,7 +71,7 @@ public class SearchServiceImpl implements SearchService {
     private static QueryParser parser;
     @PostConstruct
     void init(){
-        parser = new QueryParser(Constants.Fields.TYPE, new AttributeFieldAnalyzer());
+        parser = new QueryParser(Fields.TYPE, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         try {
             excludeCompound = parser.parse("type:compound");
@@ -106,7 +108,7 @@ public class SearchServiceImpl implements SearchService {
         SortField.Type sortFieldType = extractFieldType(sortBy);
         boolean shouldReverse = extractSortOrder(sortOrder, sortBy);
         SortField sortField;
-        if(sortBy.equalsIgnoreCase(Constants.RELEVANCE))
+        if(sortBy.equalsIgnoreCase(RELEVANCE))
             sortField = new SortField (null, SortField.Type.SCORE, shouldReverse);
         else {
             sortField = sortFieldType == SortField.Type.LONG
@@ -114,8 +116,8 @@ public class SearchServiceImpl implements SearchService {
                     : new SortField(sortBy, sortFieldType, shouldReverse);
         }
         Sort sort = new Sort( sortField );
-        if(sortBy.equalsIgnoreCase(Constants.RELEASE_DATE))
-            sort = new Sort(sortField, new SortedNumericSortField(Constants.Fields.MODIFICATION_TIME, SortField.Type.LONG, shouldReverse));
+        if(sortBy.equalsIgnoreCase(RELEASE_DATE))
+            sort = new Sort(sortField, new SortedNumericSortField(Fields.MODIFICATION_TIME, SortField.Type.LONG, shouldReverse));
 
         try {
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
@@ -124,7 +126,7 @@ public class SearchServiceImpl implements SearchService {
             response.put("page", page);
             response.put("pageSize", hitsPerPage);
             response.put("totalHits", hits.totalHits);
-            response.put( "sortBy", sortBy.equalsIgnoreCase(Constants.Fields.RELEASE_TIME) ? Constants.RELEASE_DATE : sortBy);
+            response.put( "sortBy", sortBy.equalsIgnoreCase(Fields.RELEASE_TIME) ? RELEASE_DATE : sortBy);
             response.put( "sortOrder", sortOrder);
             if (hits.totalHits > 0) {
                 ArrayNode docs = mapper.createArrayNode();
@@ -133,9 +135,9 @@ public class SearchServiceImpl implements SearchService {
                     Document doc = reader.document(hits.scoreDocs[i].doc);
                     for (String field : indexManager.getAllValidFields().keySet()) {
                         JsonNode fieldData = indexManager.getAllValidFields().get(field);
-                        if (!fieldData.has("isRetrieved") || fieldData.get("isRetrieved").asText().equalsIgnoreCase("false")) continue;
-                        switch (fieldData.get("fieldType").asText()) {
-                            case "long":
+                        if (!fieldData.has(IndexEntryAttributes.RETRIEVED) || !fieldData.get(IndexEntryAttributes.RETRIEVED).asBoolean(false)) continue;
+                        switch (fieldData.get(IndexEntryAttributes.FIELD_TYPE).asText()) {
+                            case IndexEntryAttributes.FieldTypeValues.LONG:
                                 docNode.put(field, Long.parseLong(doc.get(field)));
                                 break;
                             default:
@@ -144,13 +146,13 @@ public class SearchServiceImpl implements SearchService {
                         }
                     }
                     docNode.put("isPublic",
-                            (" " + doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public ")
+                            (" " + doc.get(Fields.ACCESS) + " ").toLowerCase().contains(" public ")
                     );
 
                     if (doHighlight) {
-                        docNode.put(Constants.Fields.CONTENT,
-                                efoExpandedHighlighter.highlightQuery(query, Constants.Fields.CONTENT,
-                                        doc.get(Constants.Fields.CONTENT),
+                        docNode.put(Fields.CONTENT,
+                                efoExpandedHighlighter.highlightQuery(query, Fields.CONTENT,
+                                        doc.get(Fields.CONTENT),
                                         true
                                 )
                         );
@@ -188,13 +190,11 @@ public class SearchServiceImpl implements SearchService {
     }
     private boolean extractSortOrder(String sortOrder, String sortBy){
         if(sortOrder.isEmpty()) {
-            if (Constants.Fields.ACCESSION.equalsIgnoreCase(sortBy) || Constants.Fields.TITLE.equalsIgnoreCase(sortBy) || Constants.Fields.AUTHOR.equalsIgnoreCase(sortBy))
-                sortOrder = Constants.ASCENDING;
-            else
-                sortOrder = Constants.DESCENDING;
+            sortOrder  = (Fields.ACCESSION.equalsIgnoreCase(sortBy) || Fields.TITLE.equalsIgnoreCase(sortBy) || Fields.AUTHOR.equalsIgnoreCase(sortBy))
+                         ? SortOrder.ASCENDING : SortOrder.DESCENDING;
         }
-        boolean shouldReverse =  (Constants.DESCENDING.equalsIgnoreCase(sortOrder) ? true : false);
-        if (sortBy ==null || Constants.RELEVANCE.equalsIgnoreCase(sortBy) ) {
+        boolean shouldReverse =  (SortOrder.DESCENDING.equalsIgnoreCase(sortOrder) ? true : false);
+        if (sortBy ==null || RELEVANCE.equalsIgnoreCase(sortBy) ) {
             shouldReverse = !shouldReverse;
         }
         return shouldReverse;
@@ -207,11 +207,11 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public boolean isAccessible(String accession, String seckey) {
-        QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new AttributeFieldAnalyzer());
+        QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         Query query = null;
         try {
-            query = parser.parse(Constants.Fields.ACCESSION+":"+accession);
+            query = parser.parse(Fields.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query, seckey);
             return indexManager.getIndexSearcher().count(result)>0;
         } catch (Throwable ex){
@@ -222,16 +222,14 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public String search(String queryString, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
-        if(queryString.isEmpty() && sortBy.isEmpty())
-            sortBy= "release_date";
-        else if(sortBy.isEmpty())
-            sortBy = "relevance";
-        ObjectMapper mapper = new ObjectMapper();
         boolean doHighlight = true;
-        if (StringUtils.isEmpty(queryString) && StringUtils.isEmpty(sortBy)) {
+        if(queryString.isEmpty() && sortBy.isEmpty()) {
+            sortBy = Fields.RELEASE_TIME;
             doHighlight = false;
-            sortBy = Constants.Fields.RELEASE_TIME;
+        } else if(sortBy.isEmpty()) {
+            sortBy = RELEVANCE;
         }
+        ObjectMapper mapper = new ObjectMapper();
         ObjectNode response = mapper.createObjectNode();
         Pair<Query, EFOExpansionTerms> resultPair = queryService.makeQuery(queryString, prjName);
         try {
@@ -302,7 +300,7 @@ public class SearchServiceImpl implements SearchService {
     public ObjectNode getSimilarStudies(String accession) throws Exception {
         int maxHits = 4;
         MoreLikeThis mlt = new MoreLikeThis(indexManager.getIndexReader());
-        mlt.setFieldNames(new String[]{Constants.Fields.CONTENT, Constants.Fields.TITLE, Constants.Facets.PROJECT});
+        mlt.setFieldNames(new String[]{Fields.CONTENT, Fields.TITLE, Facets.PROJECT});
         mlt.setAnalyzer(analyzerManager.getPerFieldAnalyzerWrapper());
         ObjectMapper mapper = new ObjectMapper();
         Integer docNumber = getDocumentByAccession(accession);
@@ -311,8 +309,8 @@ public class SearchServiceImpl implements SearchService {
         ArrayNode similarStudies = mapper.createArrayNode();
         for (int i = 1; i < mltDocs.scoreDocs.length; i++) {
             ObjectNode study = mapper.createObjectNode();
-            study.set(Constants.Fields.ACCESSION, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.Fields.ACCESSION)));
-            study.set(Constants.Fields.TITLE, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Constants.Fields.TITLE)));
+            study.set(Fields.ACCESSION, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Fields.ACCESSION)));
+            study.set(Fields.TITLE, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Fields.TITLE)));
             similarStudies.add(study);
         }
         ObjectNode result = mapper.createObjectNode();
@@ -323,11 +321,11 @@ public class SearchServiceImpl implements SearchService {
     }
 
     private Integer getDocumentByAccession(String accession){
-        QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new AttributeFieldAnalyzer());
+        QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         Query query = null;
         try {
-            query = parser.parse(Constants.Fields.ACCESSION+":"+accession);
+            query = parser.parse(Fields.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query, null);
             TopDocs topDocs = indexManager.getIndexSearcher().search(result, 1);
             if(topDocs.totalHits>0)

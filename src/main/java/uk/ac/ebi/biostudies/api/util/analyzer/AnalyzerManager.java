@@ -6,9 +6,12 @@ import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static uk.ac.ebi.biostudies.api.util.Constants.*;
 
 /**
  * Created by ehsan on 27/03/2017.
@@ -25,13 +28,13 @@ public class AnalyzerManager {
     public void init(Map<String, JsonNode> allFields){
         for(String key:allFields.keySet()){
             JsonNode curField = allFields.get(key);
-            if(curField.get("fieldType").asText().equalsIgnoreCase("facet"))
+            if(curField.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.FACET))
                 continue;
-            String analyzer = curField.has("analyzer") ? curField.get("analyzer").asText() : null;
-            String expand = curField.get("isExpanded").asText();
+            String analyzer = curField.has(IndexEntryAttributes.ANALYZER) ? curField.get(IndexEntryAttributes.ANALYZER).asText() : null;
+            boolean expand = curField.get(IndexEntryAttributes.EXPANDED).asBoolean(false);
             if(analyzer!=null && !analyzer.isEmpty()) {
-                analyzer="uk.ac.ebi.biostudies.api.util.analyzer."+analyzer;
-                Class<?> clazz = null;
+                analyzer=  this.getClass().getPackage().getName() + "." + analyzer;
+                Class<?> clazz;
                 try {
                     clazz = Class.forName(analyzer);
                     Analyzer analyzerObj = (Analyzer) clazz.newInstance();
@@ -40,8 +43,9 @@ public class AnalyzerManager {
                     logger.error("cant create analyzer with name {1}", analyzer, e);
                 }
             }
-            if(expand!=null && expand.equalsIgnoreCase("true"))
+            if(expand) {
                 expandableFields.put(key, key);
+            }
         }
         perFieldAnalyzerWrapper = new PerFieldAnalyzerWrapper(new AttributeFieldAnalyzer(), perFieldAnalyzerMap);
     }
