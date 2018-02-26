@@ -131,6 +131,10 @@ $.fn.groupBy = function(fn) {
         data.section.root = rootPath.length ? rootPath[0].value : '';
         var releaseDate = data.attributes.filter( function (v,i) { return    v.name=='ReleaseDate';   });
         data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
+        var title = data.attributes.filter( function (v,i) { return    v.name=='Title';   });
+        if (!data.section.attributes.filter( function (v,i) { return    v.name=='Title';   }).length) {
+            data.section.attributes.push({name:'Title', value:title[0].value});
+        }
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender();
