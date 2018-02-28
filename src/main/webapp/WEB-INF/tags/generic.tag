@@ -219,6 +219,8 @@
 
 
 <footer>
+    <div id="elixir-banner" data-color="grey" data-name="BioStudies" data-description="BioStudies is a recommended ELIXIR Deposition Database" data-more-information-link="https://www.elixir-europe.org/platforms/data/elixir-deposition-databases" data-use-basic-styles="false"></div>
+    <script defer="defer" src="https://ebi.emblstatic.net/web_guidelines/EBI-Framework/v1.3/js/elixirBanner.js"></script>
     <div id="global-footer" class="global-footer">
         <nav id="global-nav-expanded" class="global-nav-expanded row">
             <!-- Footer will be automatically inserted by footer.js -->
