@@ -31,7 +31,7 @@ public class AnalyzerManager {
             if(curField.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.FACET))
                 continue;
             String analyzer = curField.has(IndexEntryAttributes.ANALYZER) ? curField.get(IndexEntryAttributes.ANALYZER).asText() : null;
-            boolean expand = curField.get(IndexEntryAttributes.EXPANDED).asBoolean(false);
+            boolean expand = curField.has(IndexEntryAttributes.EXPANDED) ? curField.get(IndexEntryAttributes.EXPANDED).asBoolean(false) : false;
             if(analyzer!=null && !analyzer.isEmpty()) {
                 analyzer=  this.getClass().getPackage().getName() + "." + analyzer;
                 Class<?> clazz;

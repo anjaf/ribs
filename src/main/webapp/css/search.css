@@ -311,7 +311,7 @@ select {
     line-height: normal;
     border-radius: 2pt;
     background-color: #f0f8ff;
-    display: inline-block;
+    display: inline-table;
     vertical-align: middle;
     padding: 0px;
     margin-bottom: 3pt;

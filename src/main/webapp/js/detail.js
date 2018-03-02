@@ -154,11 +154,21 @@ function registerHelpers() {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) return '';
-        return new Handlebars.SafeString( e.url ? '<a href="'
-                                                    + e.url
-                                                    + (e.url[0]!='#' ? '" target="_blank':'')
-                                                    +'">'+e.value+'</a>'
-                                                : e.value);
+        $.each(e.valqual, function(i,v){
+           if (v.name=='url') {
+               e.url = v.value;
+           }
+        });
+        var urls = [];
+        if (e.url) urls = e.url.indexOf(' | ')>=0 ? e.url.split(' | ') : [e.url];
+        var html = e.value.split(' | ').map( function(v, i) {
+           return ( urls[i] ? '<a href="'
+                + urls[i]
+                + (urls[i][0]!='#' ? '" target="_blank':'')
+                +'">'+v+'</a>'
+                : v)  })
+            .join(', ')
+        return new Handlebars.SafeString(html);
     });
 
     Handlebars.registerHelper('renderLinkTableRow', function(val, obj) {

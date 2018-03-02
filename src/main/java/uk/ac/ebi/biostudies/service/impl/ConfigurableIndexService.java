@@ -359,7 +359,8 @@ public class ConfigurableIndexService implements IndexService {
                     jsonPathContext = JsonPath.parse(json.toString());
                 try {
                     List<String> resultData = jsonPathContext.read(fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText());
-                    result = String.join(Facets.DELIMITER, resultData);
+                    result = String.join(fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.FACET)
+                            ?  Facets.DELIMITER: " ", resultData);
                 } catch (ClassCastException e) {
                     result = jsonPathContext.read(json.get(IndexEntryAttributes.JSON_PATH).asText());
                 }
