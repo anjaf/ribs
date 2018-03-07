@@ -61,13 +61,13 @@ public class FacetServiceImpl implements FacetService {
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             Map<String, JsonNode> allValidFields = indexManager.getAllValidFields();
             JsonNode facet =  allValidFields.containsKey(dimension) ? allValidFields.get(dimension) : null;
-            if(facet==null || facet.has("isPrivate") && facet.get("isPrivate").asBoolean()==true && Session.getCurrentUser()==null) {
+            if(facet==null || facet.has(Constants.IndexEntryAttributes.PRIVATE) && facet.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean()==true && Session.getCurrentUser()==null) {
                 return facetJSON;
             }
             FacetResult childrenFacets = facets.getTopChildren(Integer.MAX_VALUE, dimension);
             List<JsonNode> children = new ArrayList<>();//mapper.createArrayNode();
-            facetJSON.put("title", facet.get("title").asText());
-            facetJSON.put("name", facet.get("name").asText());
+            facetJSON.put("title", facet.get(Constants.IndexEntryAttributes.TITLE).asText());
+            facetJSON.put("name", facet.get(Constants.IndexEntryAttributes.NAME).asText());
 
             if (childrenFacets!=null) {
                 for (LabelAndValue labelVal : childrenFacets.labelValues) {
@@ -102,12 +102,12 @@ public class FacetServiceImpl implements FacetService {
             FacetsCollector.search(indexManager.getIndexSearcher(), query, limit, facetsCollector);
             facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             for (JsonNode field:indexManager.getAllValidFields().values()) {
-                if(field.get("fieldType").asText().equalsIgnoreCase("facet")){
+                if(field.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.FACET)){
                     // Private fields (e.g.modification_year) are available only to users of a project with unreleased submissions e.g.
-                    if(field.has("isPrivate") && field.get("isPrivate").asBoolean()==true && Session.getCurrentUser()==null) {
+                    if(field.has(Constants.IndexEntryAttributes.PRIVATE) && field.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean()==true && Session.getCurrentUser()==null) {
                         continue;
                     }
-                    allResults.add(facets.getTopChildren(limit, field.get("name").asText()));
+                    allResults.add(facets.getTopChildren(limit, field.get(Constants.IndexEntryAttributes.NAME).asText()));
                 }
             }
         } catch (IOException e) {
@@ -182,12 +182,12 @@ public class FacetServiceImpl implements FacetService {
             }
             boolean invisNA = false;
             String naDefaultStr = Constants.NA;
-            if(facetNode.has(Constants.IS_VISIBLE) && facetNode.get(Constants.IS_VISIBLE).asBoolean()==false)
+            if(facetNode.has(Constants.IndexEntryAttributes.VISIBLE) && facetNode.get(Constants.IndexEntryAttributes.VISIBLE).asBoolean()==false)
                 invisNA = true;
-            if(facetNode.has(Constants.DEFAULT_VALUE))
-                naDefaultStr = facetNode.get(Constants.DEFAULT_VALUE).asText();
-            facet.put("title", facetNode.get("title").asText());
-            facet.put("name", facetNode.get("name").asText());
+            if(facetNode.has(Constants.IndexEntryAttributes.DEFAULT_VALUE))
+                naDefaultStr = facetNode.get(Constants.IndexEntryAttributes.DEFAULT_VALUE).asText();
+            facet.put("title", facetNode.get(Constants.IndexEntryAttributes.TITLE).asText());
+            facet.put("name", facetNode.get(Constants.IndexEntryAttributes.NAME).asText());
             List<ObjectNode> children = new ArrayList<>();
             addSelectedFacetsToResponse(children, selectedFacetFreq.get(fcResult.dim));
             for (LabelAndValue labelVal : fcResult.labelValues) {
@@ -231,12 +231,12 @@ public class FacetServiceImpl implements FacetService {
     public Query addFacetDrillDownFilters(Query primaryQuery, Map<JsonNode, List<String>> userSelectedDimValues){
         DrillDownQuery drillDownQuery = new DrillDownQuery(taxonomyManager.getFacetsConfig(), primaryQuery);
         for(JsonNode facet: userSelectedDimValues.keySet()) {
-            if (facet==null || !facet.get("fieldType").asText().equalsIgnoreCase("facet"))
+            if (facet==null || !facet.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.FACET))
                 continue;
             List<String> listSelectedValues = userSelectedDimValues.get(facet);
             if(listSelectedValues!=null)
                 for(String value:listSelectedValues)
-                    drillDownQuery.add(facet.get("name").asText(), value.toLowerCase());
+                    drillDownQuery.add(facet.get(Constants.IndexEntryAttributes.NAME).asText(), value.toLowerCase());
         }
         return drillDownQuery;
     }

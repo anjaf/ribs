@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import springfox.documentation.spring.web.json.Json;
 import uk.ac.ebi.arrayexpress.utils.efo.EFONode;
 import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.efo.autocompletion.AutocompleteData;
 import uk.ac.ebi.biostudies.efo.autocompletion.AutocompleteStore;
 import uk.ac.ebi.biostudies.config.IndexManager;
@@ -120,13 +121,13 @@ public class Autocompletion {
         List<JsonNode> numericalFieldNameTitle = new ArrayList<JsonNode>();
         //Add the fields that you want autoComplete be Applied
         for(JsonNode bsField:indexManager.getAllValidFields().values()) {
-            if(bsField.has("isExpanded") && bsField.get("isExpanded").asBoolean()==true)
+            if(bsField.has(Constants.IndexEntryAttributes.EXPANDED) && bsField.get(Constants.IndexEntryAttributes.EXPANDED).asBoolean()==true)
                 numericalFieldNameTitle.add(bsField);
         }
 
         // adding field terms (for all non-numerical fields) and names (if there is a description)
         for (JsonNode field : numericalFieldNameTitle) {
-            String fieldTitle = field.get("name").asText();
+            String fieldTitle = field.get(Constants.IndexEntryAttributes.NAME).asText();
             String fieldName = fieldTitle;
             if (null != fieldTitle && fieldTitle.length() > 0) {
                 getStore().addData(
@@ -137,9 +138,9 @@ public class Autocompletion {
                         )
                 );
             }
-            String fieldType = field.get("fieldType").asText();
-            if (fieldType.equalsIgnoreCase("str_tokenized")) {
-                List<String> terms = getTerms(fieldName, "content".equals(fieldName) ? 10 : 1);
+            String fieldType = field.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText();
+            if (fieldType.equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.TOKENIZED_STRING)) {
+                List<String> terms = getTerms(fieldName, Constants.Fields.CONTENT.equals(fieldName) ? 10 : 1);
                 for (String term : terms ) {
                     getStore().addData(
                             new AutocompleteData(

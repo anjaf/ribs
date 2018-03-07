@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
+import static uk.ac.ebi.biostudies.api.util.Constants.*;
+
 /**
  * Created by ehsan on 09/03/2017.
  */
@@ -44,11 +46,11 @@ public class TaxonomyManager {
         facetsConfig = new FacetsConfig();
 
         for (JsonNode jsonNode : allFields) {
-            if (jsonNode.get("fieldType").textValue().equalsIgnoreCase("facet")) {
-                if (jsonNode.get("multiValued").asBoolean() == true) {
-                    getFacetsConfig().setMultiValued(jsonNode.get("name").asText(), true);
+            if (jsonNode.get(IndexEntryAttributes.FIELD_TYPE).textValue().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.FACET)) {
+                if (jsonNode.get(IndexEntryAttributes.MULTIVALUED).asBoolean() == true) {
+                    getFacetsConfig().setMultiValued(jsonNode.get(IndexEntryAttributes.NAME).asText(), true);
                 }
-                if (jsonNode.get("name").textValue().equalsIgnoreCase(Constants.Facets.PROJECT)) {
+                if (jsonNode.get(IndexEntryAttributes.NAME).textValue().equalsIgnoreCase(Facets.PROJECT)) {
                     PROJECT_FACET = jsonNode;
                 }
             }

@@ -420,6 +420,11 @@ a.thumbnail-icon {
     font-size: 10pt;
 }
 
+#orcid-title {
+    word-break: break-word;
+    word-wrap: break-word;
+}
+
 
 .url-image {
     max-height: 250px;

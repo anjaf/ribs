@@ -131,6 +131,10 @@ $.fn.groupBy = function(fn) {
         data.section.root = rootPath.length ? rootPath[0].value : '';
         var releaseDate = data.attributes.filter( function (v,i) { return    v.name=='ReleaseDate';   });
         data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
+        var title = data.attributes.filter( function (v,i) { return    v.name=='Title';   });
+        if (!data.section.attributes.filter( function (v,i) { return    v.name=='Title';   }).length) {
+            data.section.attributes.push({name:'Title', value:title[0].value});
+        }
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender(params);
@@ -150,11 +154,21 @@ function registerHelpers() {
         if (obj==null) return;
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) return '';
-        return new Handlebars.SafeString( e.url ? '<a href="'
-                                                    + e.url
-                                                    + (e.url[0]!='#' ? '" target="_blank':'')
-                                                    +'">'+e.value+'</a>'
-                                                : e.value);
+        $.each(e.valqual, function(i,v){
+           if (v.name=='url') {
+               e.url = v.value;
+           }
+        });
+        var urls = [];
+        if (e.url) urls = e.url.indexOf(' | ')>=0 ? e.url.split(' | ') : [e.url];
+        var html = e.value.split(' | ').map( function(v, i) {
+           return ( urls[i] ? '<a href="'
+                + urls[i]
+                + (urls[i][0]!='#' ? '" target="_blank':'')
+                +'">'+v+'</a>'
+                : v)  })
+            .join(', ')
+        return new Handlebars.SafeString(html);
     });
 
     Handlebars.registerHelper('renderLinkTableRow', function(val, obj) {

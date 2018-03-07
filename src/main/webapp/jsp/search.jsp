@@ -22,11 +22,10 @@
                     <div id="facets" class="small-2 columns"></div>
                     <div class="small-10 columns">
                         {{#ifCond query '&&' hits}}
-                            <h4 class="clearboth">Search results for <span class="query">{{query}}</span></h4>
+                            <h4 id="search-results-query">Search results for <span class="query">{{query}}</span></h4>
                         {{/ifCond}}
 
                         {{#if this.hits}}
-                            <div class="clearboth" id="facet-filters"/>
                             <div id="sort-by-div">
                                 <span>Sort by:</span>
                                 <select id="sort-by">
@@ -39,6 +38,9 @@
                                     <a id="sort-desc"><i class="fa fa-angle-down"/></a><a id="sort-asc"><i class="fa fa-angle-up"></i></a>
                                 </span>
                             </div>
+
+
+                            <div class="clearboth" id="facet-filters"/>
                             {{&resultcount}}
 
                             <ul id="search-results">
@@ -77,7 +79,17 @@
             <div id="allfacets"></div>
         </script>
 
-        <script id='facet-list-template' type='text/x-handlebars-template'>
+     <script id='facet-filters-template' type='text/x-handlebars-template'>
+         {{#each this}}
+            <span class="selected-facet-values">
+                <span class="facet-filter-label">{{name}}</span>
+            {{#each values}}
+                <span class="selected-facet-value"><span class="facet-filter-value">{{value}}</span><span class="drop-facet" data-facet-id="{{id}}">✕</span></span>
+            {{/each}}
+            </span>
+         {{/each}}
+     </script>
+     <script id='facet-list-template' type='text/x-handlebars-template'>
             <form id="facet-form">
                 <div id="facet" class="{{project}}-facets">
                     {{#each this}}
@@ -90,15 +102,13 @@
                             </div>
                             <ul id="facet_{{name}}" class="menu vertical clearboth">
                                 {{#each children}}
-                                    {{#ifCond hits '!=' 0}}
                                     <li>
                                         <span class="facet-hits"> {{formatNumber hits}}</span>
-                                        <label class="facet-label" for="{{../name}}:{{value}}">
-                                            <input class="facet-value" type="checkbox" name="{{../name}}" value="{{value}}" id="{{../name}}:{{value}}"/>
+                                        <label class="facet-label" for="facet-{{../name}}-{{@index}}">
+                                            <input class="facet-value" type="checkbox" name="{{../name}}" value="{{value}}" id="facet-{{../name}}-{{@index}}"/>
                                             <span>{{name}}</span>
                                         </label>
                                     </li>
-                                    {{/ifCond}}
                                 {{/each}}
                             </ul>
                         {{/if}}
@@ -175,17 +185,13 @@
                        <br/>
                        Update
                    </button>
-                   <!--label class="facet-label" for="all-check" style="display:inherit">
-                       <input type="checkbox" class="facet-value" id="all-check" style="margin:0"/>
-                       <span style="vertical-align: middle">Select all</span>
-                    </label-->
                    <ul>
                        {{#each facets.children}}
                        <li>
-                           <label class="facet-label" for="all-{{../facets.name}}:{{value}}">
-                               <input class="facet-value" type="checkbox" name="{{../facets.name}}" value="{{value}}" id="all-{{../facets.name}}:{{value}}"/>
+                           <label class="facet-label" for="all-{{@index}}">
+                               <input class="facet-value" type="checkbox" name="{{../facets.name}}" value="{{value}}" id="all-{{@index}}"/>
                                <span>{{name}}</span>
-                               <span class="all-facet-hits"> ({{formatNumber hits}}) </span>
+                               <span class="all-facet-hits"> {{formatNumber hits}}</span>
                            </label>
                        </li>
                        {{/each}}
