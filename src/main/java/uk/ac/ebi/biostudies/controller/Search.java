@@ -69,7 +69,7 @@ public class Search {
     @RequestMapping(value = "/latest", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String getLatestStudies() throws Exception
     {
-        return searchService.search(URLDecoder.decode("type:Study -release_date:20500101", String.valueOf(UTF_8)), null, null, 1, 5, "rdatelong", "descending");
+        return searchService.search(URLDecoder.decode(Constants.Fields.TYPE+":Study -"+Constants.RELEASE_DATE+":20500101", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.DESCENDING);
     }
 
     @ApiOperation(value = "Returns results for selected facets", notes = "Returns results for selected facets by user interface", response = ObjectNode.class)
