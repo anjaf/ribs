@@ -634,9 +634,31 @@ function postRender(params) {
     handleORCIDIntegration();
     handleSimilarStudies();
     handleImageURLs();
+    handleCitation();
     handleThumbnails(); //keep this as the last call
 }
 
+function handleCitation() {
+
+    const Cite = require('citation-js');
+    $('#cite').bind('click', function() {
+        var data = {};
+        data.id = $('#orcid-accession').text();
+        data.title = $('#orcid-title').text();
+        data.author = $('.author span[itemprop]').map( function() { return {'family':$(this).text()}}).toArray();
+        var published = new Date($('#orcid-publication-year').text());
+        data.issued = [{"date-parts": [ published.getFullYear(), published.getMonth(), published.getDate() ]}];
+        data.URL =  [window.location.href.split("?")[0].split("#")[0]];
+        data.publisher = 'BioStudies'
+        var cite = new Cite([data]);
+        var styles = ['citation-apa', 'citation-vancouver', 'citation-harvard1','bibtex'];
+        $.each(styles, function () {
+            $('#biostudies-citation #'+this).html(cite.get({format: 'string', type: 'html', style: this}));
+        });
+        $('#biostudies-citation').foundation('open');
+    })
+
+}
 function  showRightColumn() {
     if ($('#right-column').text().trim().length>0) {
         $('#right-column').show();

@@ -17,11 +17,35 @@
                 <span class="show-for-sr">Current: </span> <span id="accession">Loading</span>
             </li>
         </ul>
+        <div class="reveal" id="biostudies-citation" data-reveal>
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <table class="unstriped">
+                <tr>
+                    <td class="type">APA</td>
+                    <td id="citation-apa" class="value"></td>
+                </tr>
+                <tr>
+                    <td class="type">Vancouver</td>
+                    <td id="citation-vancouver" class="value"></td>
+                </tr>
+                <tr>
+                    <td class="type">Harvard</td>
+                    <td id="citation-harvard1" class="value"></td>
+                </tr>
+                <tr>
+                    <td class="type">BibTex</td>
+                    <td id="bibtex" class="value"></td>
+                </tr>
+            </table>
+        </div>
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
         <script src="${contextPath}/js/jquery.dataTables.js"></script>
         <script src="${contextPath}/js/jquery.highlight.js"></script>
+        <script src="https://cdn.rawgit.com/larsgw/citation.js/archive/citation.js/citation-0.3.4.min.js"></script>
         <script src="<spring:eval expression="@orcidConfig.getdataClaimingUrl()"/>"></script>
         <!-- Handlebars templates-->
         <script id='study-template' type='text/x-handlebars-template'>
@@ -59,6 +83,8 @@
                             title="Open FTP Folder" class="source-icon source-icon-ftp" data-icon="="><i
                             class="fa fa-cloud-download-alt"></i>FTP</a>
                         {{/if}}
+                        <a id="cite" title="Cite"  class="source-icon source-icon-cite openModal">
+                            [Cite]</a>
                     </div>
                 </div>
                 <div id="bs-content">
@@ -389,7 +415,6 @@
                 </div>
             </section>
         </script>
-
         <script src="${contextPath}/js/detail.js"></script>
     </jsp:attribute>
     <jsp:body>

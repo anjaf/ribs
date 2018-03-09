@@ -15,6 +15,11 @@
  *
  */
 
+body.is-reveal-open { /*avoid jumping of body to the left*/
+    overflow: hidden;
+    margin-right: 12pt;
+}
+
 .hidden , #bs-authors li.hidden, #bs-orgs li.hidden{
     display: none;
 }
@@ -230,6 +235,12 @@ ul#bs-orgs {
 
 #download-source {
     float: right;
+}
+
+.source-icon-cite:before, .source-icon-cite {
+    color: #FFFFFF !important;
+    background-color: #5489b5;
+    border: none !important;
 }
 
 .source-icon-json:before, .source-icon-json {
@@ -469,4 +480,21 @@ a.thumbnail-icon {
     margin: 4px;
     width: 16px;
     height: 16px;
+}
+
+#biostudies-citation{
+    font-size: 11pt;
+}
+
+#biostudies-citation .type {
+    color: #aaaaaa;
+    text-align: right;
+    vertical-align: top;
+}
+
+#biostudies-citation .value {
+    -webkit-user-select: all;
+    -moz-user-select: all;
+    -ms-user-select: all;
+    user-select: all;
 }
