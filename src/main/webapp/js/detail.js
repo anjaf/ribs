@@ -634,7 +634,7 @@ function postRender(params) {
     handleORCIDIntegration();
     handleSimilarStudies();
     handleImageURLs();
-    handleCitation();
+    //handleCitation();
     handleThumbnails(); //keep this as the last call
 }
 
