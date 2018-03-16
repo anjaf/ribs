@@ -60,8 +60,8 @@
                             title="Open FTP Folder" class="source-icon source-icon-ftp" data-icon="="><i
                             class="fa fa-cloud-download-alt"></i>FTP</a>
                         {{/if}}
-                        <a id="cite" title="Cite"  class="source-icon source-icon-cite openModal">
-                            [Cite]</a>
+                        <!--a id="cite" title="Cite"  class="source-icon source-icon-cite openModal">
+                            [Cite]</a-->
                     </div>
                 </div>
                 <div id="bs-content">
