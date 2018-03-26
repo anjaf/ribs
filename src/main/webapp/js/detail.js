@@ -1,4 +1,4 @@
-var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource;
+var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource, generatedID=0;
 
 String.format = function() {
     var s = arguments[0];
@@ -585,6 +585,9 @@ function findall(obj,k,unroll){ // works only for files and links
         if (key===k) {
             if (!obj.root) {
                 var accno = obj.accno, type = obj['type'];
+                if (!accno) {
+                    accno= obj.accno = 'genid'+ generatedID++;
+                }
                 if (type=='Publication') continue;
                 $.each(obj[k], function () {
                     $.each($.isArray(this) ? this : [this], function () {
