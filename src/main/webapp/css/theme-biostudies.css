@@ -78,7 +78,7 @@ a.tag:hover { color: #fff; }
     background-color: #75C8EC;
 }
 .pagination li {
-    font-size: 9pt;
+    font-size: 11pt;
 }
 .pagination a, .pagination button{
     margin: 0 0.5rem;

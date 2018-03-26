@@ -106,6 +106,7 @@ ul#search-results li {
 .facet-more {
     float: right;
     font-size: 8pt;
+    color: #58585a;
 }
 
 .top20 {
@@ -124,7 +125,7 @@ label.facet-label {
     -ms-user-select: none;
     color: #267799;
     line-height: inherit;
-    font-size: 9pt;
+    font-size: 11pt;
     text-indent: -12pt;
     margin-left: 12pt;
 }
