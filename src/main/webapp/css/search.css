@@ -86,12 +86,11 @@ ul#search-results li {
     font-size: 11pt;
     padding-top: 1em;
     line-height: 11pt;
-    padding-bottom: 2pt;
+    padding-bottom: 0.5em;
     cursor: pointer;
 }
 
 .facet-name:not(:first-child) {
-    padding-bottom: 2pt;
     padding-top: 1.5em;
 }
 .facet-name:not(:first-child):before {
@@ -114,6 +113,8 @@ ul#search-results li {
     font-size: 6pt;
     display: block;
     margin: 3px 0 0 2px;
+    text-indent: -2pt;
+
 }
 
 label.facet-label {
@@ -127,12 +128,19 @@ label.facet-label {
     line-height: inherit;
     font-size: 11pt;
     text-indent: -12pt;
-    margin-left: 12pt;
+    display: table-cell;
+    width: 90%;
 }
 
 
 #facet ul.menu li {
     margin-top: 0.2em;
+    display: table;
+    min-width: 100%;
+}
+
+#facet ul.menu li:hover {
+    background-color: #f0f0f0;
 }
 
 #facet_funding_agency .facet-label {
@@ -147,8 +155,14 @@ label.facet-label {
 .facet-hits {
     color: #aaaaaa;
     font-size: xx-small;
-    float: right;
+    text-align: right;
     margin-top: 3pt;
+    display: table-cell;
+    vertical-align: initial;
+}
+
+label.facet-label span {
+    width: 80%;
 }
 
 .all-facet-hits {
@@ -214,6 +228,11 @@ label.facet-label {
     display: inline-block;
 }
 
+.facet-title {
+    text-indent: -12pt;
+    display: inline-block;
+}
+
 .facet-top {
     font-weight: normal;
     color: #aaaaaa;
@@ -276,6 +295,10 @@ select {
     text-align: start;
 }
 
+.allfacets ul label.facet-label {
+    text-indent: initial;
+}
+
 #facet-search-button {
     cursor:pointer;
     margin:10pt;
@@ -336,4 +359,5 @@ select {
     color:#575759;
     min-width: 7pt;
     display: inline-block;
+    text-indent: -12pt;
 }

@@ -103,11 +103,11 @@
                             <ul id="facet_{{name}}" class="menu vertical clearboth">
                                 {{#each children}}
                                     <li>
-                                        <span class="facet-hits"> {{formatNumber hits}}</span>
                                         <label class="facet-label" for="facet-{{../name}}-{{@index}}">
                                             <input class="facet-value" type="checkbox" name="{{../name}}" value="{{value}}" id="facet-{{../name}}-{{@index}}"/>
                                             <span>{{name}}</span>
                                         </label>
+                                        <span class="facet-hits"> {{formatNumber hits}}</span>
                                     </li>
                                 {{/each}}
                             </ul>
