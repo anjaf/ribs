@@ -43,6 +43,10 @@ function showResults(params) {
 
     // do search
     $.getJSON(contextPath+(project ? "/api/v1/"+project+"/search" : "/api/v1/search"), params,function (data) {
+        if (params.first && data.hits) {
+            location.href= contextPath+'/studies/' +data.hits[0].accession;
+            return;
+        }
         if(project) {
             data.project = project;
         }
