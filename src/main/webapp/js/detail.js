@@ -529,10 +529,12 @@ function registerHelpers() {
         publication.accno = pubs[0].accno;
         if (publication.accno) {
             var url = getURL(publication.accno);
-            if (!url && (/^\d+$/).test(publication.accno)) {
-                publication.URLs.push(getURL('PMID'+publication.accno));
-            } else {
-                publication.URLs.push(url);
+            if (url!=null) {
+                if (/^\d+$/.test(publication.accno)) {
+                    publication.URLs.push(getURL('PMID' + publication.accno));
+                } else {
+                    publication.URLs.push(url);
+                }
             }
         }
         $( $.map(pubs[0].links, function (v) {
@@ -639,6 +641,7 @@ function postRender(params) {
     handleSimilarStudies();
     handleImageURLs();
     //handleCitation();
+    $('.has-child-section :not(visible) > section > .toggle-tables').click(); // expand tables for hidden sections
     handleThumbnails(); //keep this as the last call
 }
 
