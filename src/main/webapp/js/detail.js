@@ -970,10 +970,10 @@ function handleAnchors(params) {
     });
     // handle clicks on file filters in section
     $("a[data-files-id]").click( function() {
-        expansionSource = $(this).data('files-id');
+        expansionSource = ''+$(this).data('files-id');
         clearFileFilter();
         $('#all-files-expander').click();
-        filesTable.column(3).search('^'+ $(this).data('files-id')+'$',true,false);
+        filesTable.column(3).search('^'+ accToLink(expansionSource)+'$',true,false);
         // hide empty columns
         filesTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
         filesTable.draw();
@@ -993,10 +993,10 @@ function handleAnchors(params) {
     });
     // handle clicks on link filters in section
     $("a[data-links-id]").click( function() {
-        expansionSource = $(this).data('links-id');
+        expansionSource = ''+$(this).data('links-id');
         clearLinkFilter();
         $('#all-links-expander').click();
-        linksTable.column(':contains(Section)').search('^'+ accToLink($(this).data('links-id')) +'$',true,false);
+        linksTable.column(':contains(Section)').search('^'+ accToLink(expansionSource) +'$',true,false);
         // hide empty columns
         linksTable.columns().every(function(){ if (linksTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
         linksTable.draw();
