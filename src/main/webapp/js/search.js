@@ -161,7 +161,7 @@ function registerHelpers(params) {
         var spn = '<span class="result-count">'
              + formatNumber((o.data.root.page-1)*20+1) + ' ‒ '
              + formatNumber(o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
-             +' of ' + formatNumber(o.data.root.totalHits) + ' results</li>';
+             +' of ' + formatNumber(o.data.root.totalHits) + ' results</span>';
         return new Handlebars.SafeString(spn);
     });
 

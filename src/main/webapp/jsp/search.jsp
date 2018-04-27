@@ -22,7 +22,7 @@
                     <div id="facets" class="small-2 columns"></div>
                     <div class="small-10 columns">
                         {{#ifCond query '&&' hits}}
-                            <h4 id="search-results-query">Search results for <span class="query">{{query}}</span></h4>
+                            <div><h4 id="search-results-query">Search results for <span class="query">{{query}}</span></h4></div>
                         {{/ifCond}}
 
                         {{#if this.hits}}
@@ -121,22 +121,6 @@
         </script>
         <script id='result-template' type='text/x-handlebars-template'>
             <div class="search-result">
-                <div class="title" data-type="{{type}}" data-accession="{{accession}}">
-                    {{#if project}}
-                    <a href="${contextPath}/{{project}}/studies/{{accession}}">{{title}}</a>
-                    {{else}}
-                    <a href="${contextPath}/studies/{{accession}}">{{title}}</a>
-                    {{/if}}
-                </div>
-
-                {{#if authors}}
-                <div class="authors">{{authors}}</div>
-                {{/if}}
-
-                {{#if content}}
-                <div class="content">{{content}}</div>
-                {{/if}}
-
                 <div class="meta-data">
                     <span class="accession">{{accession}}</span>
                     {{#ifCond isPublic '==' true}}
@@ -167,6 +151,24 @@
                     <span>Modified: {{printDate mtime}}</span>
                     {{/ifCond}}
                 </div>
+
+                <div class="title" data-type="{{type}}" data-accession="{{accession}}">
+                    {{#if project}}
+                    <a href="${contextPath}/{{project}}/studies/{{accession}}">{{title}}</a>
+                    {{else}}
+                    <a href="${contextPath}/studies/{{accession}}">{{title}}</a>
+                    {{/if}}
+                </div>
+
+                {{#if authors}}
+                <div class="authors">{{authors}}</div>
+                {{/if}}
+
+                {{#if content}}
+                <div class="content">{{content}}</div>
+                {{/if}}
+
+
             </div>
         </script>
        <script id='all-facets-template' type='text/x-handlebars-template'>
