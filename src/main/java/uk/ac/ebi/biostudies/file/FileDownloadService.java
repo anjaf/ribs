@@ -71,28 +71,31 @@ public class FileDownloadService extends BaseDownloadServlet{
             }
 
             logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
-            File downloadFile = new File(indexConfig.getFileRootDir(), relativePath+ "/Files/" +name);
 
-            if (downloadFile.exists()) {
-                if (downloadFile.isDirectory()) {
-                    String forwardedParams = String.format("?files=%s",URLEncoder.encode(name, "UTF-8"));
-                    //TODO update the forward url
-                    request.getRequestDispatcher("/servlets/download/zip/"+ accession+forwardedParams ).forward(request, response);
-                    return null;
-                }
-                file = new RegularDownloadFile(downloadFile);
-            } else if (name.equalsIgnoreCase(accession+".json") || name.equalsIgnoreCase(accession+".xml") || name.equalsIgnoreCase(accession+".pagetab.tsv") ) {
-                file = new RegularDownloadFile(new File(indexConfig.getFileRootDir(), relativePath+ "/" +name));
+            if (name.equalsIgnoreCase(accession+".json") || name.equalsIgnoreCase(accession+".xml") || name.equalsIgnoreCase(accession+".pagetab.tsv") ) {
+                file = new RegularDownloadFile(new File(indexConfig.getFileRootDir(), relativePath + "/" + name));
             } else {
-                throw new DownloadServletException("Could not open "+ downloadFile.getAbsolutePath() );
-            }
+                File downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/" + name);
+                if (!downloadFile.exists()) { //TODO: Remove this bad^∞ hack
+                    logger.info( "{0} not found ", downloadFile.getAbsolutePath());
+                    downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
+                    logger.info( "Trying ", downloadFile.getAbsolutePath());
+                }
+                if (downloadFile.exists()) {
+                    if (downloadFile.isDirectory()) {
+                        String forwardedParams = String.format("?files=%s", URLEncoder.encode(name, "UTF-8"));
+                        //TODO update the forward url
+                        request.getRequestDispatcher("/servlets/download/zip/" + accession + forwardedParams).forward(request, response);
+                        return null;
+                    }
+                    file = new RegularDownloadFile(downloadFile);
 
-            // Check if trying to download a src file
-            if (file==null) {
-                if (name.equalsIgnoreCase(accession+".json")) {
-                    file = new RegularDownloadFile(new File(indexConfig.getFileRootDir(), relativePath+ "/" +name));
+                } else {
+                    throw new DownloadServletException("Could not open " + downloadFile.getAbsolutePath());
                 }
             }
+
+
         } catch (Exception x) {
             throw new DownloadServletException(x);
         }
