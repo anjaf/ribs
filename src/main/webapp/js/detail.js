@@ -1,4 +1,4 @@
-var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource, generatedID=0;
+var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource, generatedID=0, lastExpandedTable, sectionTables=[];
 
 String.format = function() {
     var s = arguments[0];
@@ -110,6 +110,8 @@ $.fn.groupBy = function(fn) {
         'rnacentral':'RNAcentral',
         'nct':'NCT'
     };
+
+    projectScripts = [{regex: /E-MTAB-*/, script: 'ArrayExpress.js'}];
 
     orgOrder= [];
 
@@ -641,8 +643,20 @@ function postRender(params) {
     handleSimilarStudies();
     handleImageURLs();
     //handleCitation();
-    $('.has-child-section :not(visible) > section > .toggle-tables').click(); // expand tables for hidden sections
+    handleProjectBasedScriptInjection();
     handleThumbnails(); //keep this as the last call
+
+}
+
+function handleProjectBasedScriptInjection() {
+    var acc = $('#accession').text();
+    $(projectScripts.filter(function (r) {
+        return r.regex.test(acc)
+    })).each(function (i,v) {
+        var scriptURL = contextPath + '/js/projects/' + v.script;
+        $.getScript(scriptURL);
+    });
+
 }
 
 function handleCitation() {
@@ -672,10 +686,11 @@ function  showRightColumn() {
 
 function createDataTables() {
     $(".section-table").each(function () {
-        $(this).DataTable({
+        var dt = $(this).DataTable({
             "dom": "t",
             paging: false
         });
+        sectionTables.push(dt);
     });
 }
 
@@ -821,8 +836,14 @@ function handleSectionArtifacts() {
 }
 
 function handleTableExpansion() {
+    $('#blocker').click(function () {
+        if (lastExpandedTable) {
+            $(lastExpandedTable).click();
+        }
+    });
     //table expansion
     $('.table-expander').click(function () {
+        lastExpandedTable = this;
         $('.fullscreen .table-wrapper').css('max-height','');
         $(this).find('[data-fa-i2svg]').toggleClass('fa-compress fa-expand');
         $(this).attr('title', $(this).hasClass('fa-expand') ? 'Click to expand' : 'Click to close');
@@ -834,6 +855,9 @@ function handleTableExpansion() {
         $('.table-wrapper').css('height', 'auto');
         $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px').css('top', '45%');
     });
+
+    $('.has-child-section :not(visible) > section > .toggle-tables').click(); // expand tables for hidden sections
+
 }
 
 function handleOrganisations() {

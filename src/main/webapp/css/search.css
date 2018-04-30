@@ -359,3 +359,7 @@ select {
     display: inline-block;
     text-indent: -12pt;
 }
+
+ul#facet_facet\2e method_name li label span {
+    word-break: break-all;
+}
