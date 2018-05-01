@@ -1,3 +1,4 @@
+// create links for sample number
 $(sectionTables).each(function () {
     var sampleColumn =  this.columns(function(i,d,n){ return $(n).text()=='No. of Samples' });
     if (!sampleColumn || !sampleColumn.length ||!sampleColumn.nodes()[0] ||  !sampleColumn.nodes()[0].length) return;
@@ -8,7 +9,6 @@ $(sectionTables).each(function () {
     })
 
 });
-
 $('a[data-file-data-search]').click( function () {
     expansionSource = ''+$(this).attr('id');
     clearFileFilter();
@@ -19,3 +19,14 @@ $('a[data-file-data-search]').click( function () {
     filesTable.draw();
     return false;
 })
+
+// formate MIAME score
+var $miameTitleDiv = $('.bs-name:contains("MIAME Score")');
+if ($miameTitleDiv.text().trim().toLowerCase()=='miame score') {
+    $miameTitleDiv.next().removeClass('has-child-section').css({'column-count':'5', 'width':'33%'});
+    $('.bs-name',$miameTitleDiv.next()).toggleClass('bs-name miame-score-title');
+    $('.miame-score-title').css('text-align','center').next().css('text-align','center').each(function() {
+        $(this).html($(this).text().trim()=='*' ? '<i class="fas fa-asterisk" data-fa-transform="shrink-8"></i>' : '<i class="fas fa-minus" data-fa-transform="shrink-8"></i>' )
+    })
+}
+
