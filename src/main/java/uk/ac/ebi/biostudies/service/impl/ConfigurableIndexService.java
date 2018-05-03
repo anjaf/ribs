@@ -272,9 +272,9 @@ public class ConfigurableIndexService implements IndexService {
         }
 
         private void extractContent(Map<String, Object> valueMap) {
-            StringBuilder content = new StringBuilder(String.join(" ", json.findValuesAsText("value")));
+            StringBuilder content = new StringBuilder(String.join(" ", json.get("accno").textValue()));
             content.append(" ");
-            content.append(String.join(" ", json.findValuesAsText("accno")));
+            content.append(String.join(" ", json.get("section").findValuesAsText("value")));
             content.append(" ");
             content.append(json.findValues("files").stream().map(jsonNode -> jsonNode.findValuesAsText("path").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
             content.append(" ");
