@@ -55,7 +55,7 @@ public class IndexTest {
         TestUtils.login(integProps.getBaseUrl(), integProps.getUsername(), integProps.getPassword());
         IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"api/v1/index/reload/smallJson.json");
         Thread.sleep(10000);
-        IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"studies?query=NUMBER12345");
+        IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"studies?query=S-EPMC3343805");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".accession")));
         assertTrue(IntegrationTestSuite.driver.findElement(By.cssSelector(".accession")).getAttribute("innerText").contains("S-EPMC3343805"));
