@@ -301,10 +301,10 @@ public class ConfigurableIndexService implements IndexService {
             if(json.has(Fields.RELEASE_TIME) && !json.get(Fields.RELEASE_TIME).asText().equals("-1")) {
                 releaseDateLong = Long.valueOf(json.get(Fields.RELEASE_TIME).asText()) * 1000;
             }
-            valueMap.put(Fields.RELEASE_TIME, releaseDateLong);
             if(releaseDateLong==0L && !String.valueOf(valueMap.get(Fields.ACCESS)).contains(PUBLIC)) {
                     releaseDateLong = Long.MAX_VALUE;
             }
+            valueMap.put(Fields.RELEASE_TIME, releaseDateLong);
             valueMap.put(RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
             valueMap.put(Facets.RELEASED_YEAR_FACET, (releaseDateLong==Long.MAX_VALUE || releaseDateLong==0) ? NA :  DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
         }

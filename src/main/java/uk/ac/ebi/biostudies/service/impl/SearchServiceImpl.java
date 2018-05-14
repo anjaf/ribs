@@ -224,7 +224,7 @@ public class SearchServiceImpl implements SearchService {
     public String search(String queryString, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
         boolean doHighlight = true;
         if(queryString.isEmpty() && sortBy.isEmpty()) {
-            sortBy = Fields.RELEASE_TIME;
+            sortBy = Fields.RELEASE_DATE; // TODO: Make sure RELEASE_TIME is used correctly all over the code base
             doHighlight = false;
         } else if(sortBy.isEmpty()) {
             sortBy = RELEVANCE;
