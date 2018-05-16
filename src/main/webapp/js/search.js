@@ -1,4 +1,4 @@
-String.prototype.replaceAll = function(src, dst) {
+    String.prototype.replaceAll = function(src, dst) {
     return this.replace(new RegExp(src, 'g'), dst);
 };
 
@@ -443,7 +443,7 @@ function postRenderFacets(data, params) {
 function getExistingParams(params, filter) {
     var existing = [];
     $.each(params, function (k,v) {
-        if (k.indexOf(filter)==0) return;
+        if (k.indexOf(filter)==0 || k=='page') return;
         $.each($.isArray(v) ? v : [v], function (i,s) {
             existing.push({key: k, value: s});
         });
