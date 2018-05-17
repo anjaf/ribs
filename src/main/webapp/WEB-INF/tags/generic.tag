@@ -144,7 +144,7 @@
                         <li class="${pagename.equals('/jsp/about.jsp')? 'active':''}"><a href="${contextPath}/about" title="About BioStudies">About BioStudies</a></li>
                     </ul>
                     <ul class="dropdown menu float-right" data-description="tasks">
-                        <li class=""><a href="${contextPath}" title="Send feedback"><span class="icon icon-functional" data-icon="n"></span> Feedback</a></li>
+                        <li class=""><a href="mailto:biostudies@ebi.ac.uk?Subject=BioStudies Feedback" title="Send feedback"><span class="icon icon-functional" data-icon="n"></span> Feedback</a></li>
                         <li class="">
                             <c:choose>
                                 <c:when test="${currentUser!=null}">
