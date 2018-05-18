@@ -9,13 +9,19 @@ import org.springframework.context.annotation.PropertySource;
  */
 
 @Configuration
-@PropertySource("classpath:orcid.properties")
-public class OrcidConfig {
+@PropertySource("classpath:external-services.properties")
+public class ExternalServicesConfig {
 
     @Value("${dataclaiming.url}")
     private String dataClaimingUrl;
 
+    @Value("${analytics.code}")
+    private String analyticsCode;
+
     public String getdataClaimingUrl() {
         return dataClaimingUrl;
     }
+
+    public String getAnalyticsCode() { return analyticsCode; }
+
 }

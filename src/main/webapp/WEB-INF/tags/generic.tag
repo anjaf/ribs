@@ -14,6 +14,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <spring:eval expression="@externalServicesConfig.getAnalyticsCode()"/>
     <meta charset="utf-8">
     <title>The European Bioinformatics Institute &lt; EMBL-EBI</title>
     <meta name="description" content="EMBL-EBI" /><!-- Describe what this page is about -->
@@ -265,16 +266,6 @@
     var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
 </script>
 <script src='${contextPath}/js/common.js'></script>
-<!-- Google Analytics details... -->
-<!-- Change UA-XXXXX-X to be your site's ID -->
-<!--
-<script>
-  window._gaq = [['_setAccount','UAXXXXXXXX1'],['_trackPageview'],['_trackPageLoadTime']];
-  Modernizr.load({
-    load: ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js'
-  });
-</script>
--->
 <jsp:invoke fragment="postBody"/>
 
 <script id='error-template' type='text/x-handlebars-template'>

@@ -23,7 +23,7 @@
     <jsp:attribute name="postBody">
         <script src="${contextPath}/js/jquery.dataTables.js"></script>
         <script src="${contextPath}/js/jquery.highlight.js"></script>
-        <script src="<spring:eval expression="@orcidConfig.getdataClaimingUrl()"/>"></script>
+        <script src="<spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/>"></script>
         <!-- Handlebars templates-->
         <script id='study-template' type='text/x-handlebars-template'>
             <div id="left-column"  itemscope="itemscope" itemtype="http://schema.org/Dataset">
