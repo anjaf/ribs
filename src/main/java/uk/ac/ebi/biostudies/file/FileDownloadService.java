@@ -76,11 +76,20 @@ public class FileDownloadService extends BaseDownloadServlet{
                 file = new RegularDownloadFile(new File(indexConfig.getFileRootDir(), relativePath + "/" + name));
             } else {
                 File downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/" + name);
-                if (!downloadFile.exists()) { //TODO: Remove this bad^∞ hack
-                    logger.info( "{0} not found ", downloadFile.getAbsolutePath());
+
+                //TODO: Remove this bad^∞ hack
+                //Hack start: override relative path if fileis not found
+                if (!downloadFile.exists()) {
+                    logger.debug( "{0} not found ", downloadFile.getAbsolutePath());
                     downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
-                    logger.info( "Trying ", downloadFile.getAbsolutePath());
+                    logger.debug( "Trying ", downloadFile.getAbsolutePath());
                 }
+                if (!downloadFile.exists()) {
+                    logger.debug( "{0} not found ", downloadFile.getAbsolutePath());
+                    downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/u/" +relativePath+"/"+ name);
+                    logger.debug( "Trying ", downloadFile.getAbsolutePath());
+                }
+                //Hack end
                 if (downloadFile.exists()) {
                     if (downloadFile.isDirectory()) {
                         String forwardedParams = String.format("?files=%s", URLEncoder.encode(name, "UTF-8"));
