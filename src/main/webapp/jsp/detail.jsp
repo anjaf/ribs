@@ -33,11 +33,6 @@
                 {{else}}
                     <meta itemprop="url" content="${contextPath}/studies/{{accession}}" />
                 {{/if}}
-                <div id="right-column">
-                    {{&main-file-table}}
-                    {{&main-link-table}}
-                    {{{main-orcid-claimer}}}
-                </div>
                 <div id="release-date-download">
                     <span class="release-date">
                         {{#if releaseDate}}
@@ -64,9 +59,20 @@
                             [Cite]</a-->
                     </div>
                 </div>
+                <h3 id="orcid-title"  itemprop="name">{{valueWithName 'Title' attributes}}</h3>
+
+                <div id="right-column">
+                    <div id="right-column-header">
+                        <a id="expand-right-column" data-expanded="false"><i class="fas fa-angle-double-left"></i></a>
+                    </div>
+                    <div id="right-column-content">
+                        {{&main-file-table}}
+                        {{&main-link-table}}
+                        {{{main-orcid-claimer}}}
+                    </div>
+                </div>
                 <div id="bs-content">
                     <div id="thumbnail"></div>
-                    <h3 id="orcid-title"  itemprop="name">{{valueWithName 'Title' attributes}}</h3>
                     <!-- Authors -->
                     <ul id="bs-authors">
                         {{#eachAuthor this}}

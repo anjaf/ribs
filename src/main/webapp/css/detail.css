@@ -111,6 +111,24 @@ a.show-less:hover {
     background-clip: padding-box;
 }
 
+.top-half-screen {
+    top: 5%;
+    position: fixed;
+    left: 5%;
+    width: 90%;
+    max-height: 45%;
+    overflow: auto;
+}
+.bottom-half-screen {
+    top: 50%;
+    width: 90%;
+    left: 5%;
+    position: fixed;
+    overflow: auto;
+    max-height: 45%;
+
+}
+
 .blocker {
     z-index: 99998;
     width: 100%;
@@ -131,12 +149,26 @@ a.show-less:hover {
     width: 30%;
     float:right;
     margin: 0 0 1em 1em;
-    padding: 1em;
     background-color: hsla(201, 65%, 95%, 1);
     border: solid 1px #C9E4F3;
     font-size: 12px;
     display:none;
 }
+div#right-column-header {
+    text-align: right;
+    margin-right: 9pt;
+}
+#expand-right-column {
+    color: #575759;
+    cursor: pointer;
+    margin: 3pt;
+    border:0;
+    font-size:11pt;
+}
+#right-column-content {
+    padding: 0 1em 1em 1em;
+}
+
 #left-column {
     width: 98%;
     float:left;
@@ -209,7 +241,7 @@ ul#bs-orgs {
     color: #888;
 }
 
-#right-column  section:not(:first-child) {
+#right-column  section:not(:nth-child(1)) {
     border-top: 1px dotted #c9e4f3;
     padding-top: 20px;
     margin-top: 20px;
@@ -218,6 +250,7 @@ ul#bs-orgs {
 .bs-section-link-table:not(.fullscreen){
     padding-top: 20px;
 }
+
 
 .source-icon {
     font-size: 80%;

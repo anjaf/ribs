@@ -644,6 +644,16 @@ function postRender(params) {
     handleImageURLs();
     //handleCitation();
     handleProjectBasedScriptInjection();
+    // add file search filter
+    if (params['fs']) {
+        $('#all-files-expander').click();
+        filesTable.search(params['fs']).draw();
+    }
+
+    if (params['xr']) {
+        $('#expand-right-column').click()
+    }
+
     handleThumbnails(); //keep this as the last call
 
 }
@@ -682,6 +692,14 @@ function  showRightColumn() {
     if ($('#right-column').text().trim().length>0) {
         $('#right-column').show();
     }
+
+    $('#expand-right-column').click(function() {
+        var expanded = $(this).data('expanded')==true;
+        $(this).data('expanded', !expanded);
+        $('#right-column').css('width', expanded ? '30%' : '100%');
+        $("i",$(this)).toggleClass('fa-angle-double-left fa-angle-double-right');
+        $(this).find('[data-fa-i2svg]').toggleClass('fa-angle-double-left fa-angle-double-right');
+    });
 }
 
 function createDataTables() {
@@ -1049,12 +1067,6 @@ function handleAnchors(params) {
 
 
     */
-    // add file search filter
-    if (params['fs']) {
-        $('#all-files-expander').click();
-        filesTable.search(params['fs']).draw();
-    }
-
 
 }
 
@@ -1250,7 +1262,7 @@ function handleSimilarStudies() {
     $.getJSON(url, function (data) {
         var templateSource = $('script#main-similar-studies').html();
         var template = Handlebars.compile(templateSource);
-        $('#right-column').append(template(data.similarStudies));
+        $('#right-column-content').append(template(data.similarStudies));
     })
 }
 function handleORCIDIntegration() {
