@@ -20,7 +20,7 @@ $('a[data-file-data-search]').click( function () {
     return false;
 })
 
-// formate MIAME score
+// format MIAME/MinSeq scores
 var $miameTitleDiv = $('.bs-name:contains("MIAME Score")');
 if ($miameTitleDiv.text().trim().toLowerCase()=='miame score') {
     $miameTitleDiv.next().removeClass('has-child-section').css({'column-count':'5', 'width':'33%'});
@@ -29,4 +29,13 @@ if ($miameTitleDiv.text().trim().toLowerCase()=='miame score') {
         $(this).html($(this).text().trim()=='*' ? '<i class="fas fa-asterisk" data-fa-transform="shrink-8"></i>' : '<i class="fas fa-minus" data-fa-transform="shrink-8"></i>' )
     })
 }
+var $minseqTitleDiv = $('.bs-name:contains("MinSeq Score")');
+if ($minseqTitleDiv.text().trim().toLowerCase()=='minseq score') {
+    $minseqTitleDiv.next().removeClass('has-child-section').css({'column-count':'5', 'width':'42%'});
+    $('.bs-name',$minseqTitleDiv.next()).toggleClass('bs-name minseq-score-title');
+    $('.minseq-score-title').css('text-align','center').next().css('text-align','center').each(function() {
+        $(this).html($(this).text().trim()=='*' ? '<i class="fas fa-asterisk" data-fa-transform="shrink-8"></i>' : '<i class="fas fa-minus" data-fa-transform="shrink-8"></i>' )
+    })
+}
+
 
