@@ -122,7 +122,7 @@
                         {{#each this}}
                             {{#ifCond name '!=' 'Title'}}
                                 {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
-                                {{value}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
+                                {{#ifHasAttribute 'url' valqual}}<a href="{{valueWithName 'url' valqual}}">{{/ifHasAttribute}}{{value}}{{#ifHasAttribute 'url' valqual}}</a>{{/ifHasAttribute}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
                             {{/ifCond}}
                         {{/each}}
                     {{/eachGroup}}
@@ -206,7 +206,7 @@
                         {{#each this}}
                             {{#ifCond name '!=' 'Title'}}
                                 {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
-                                    {{value}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
+                                {{#ifHasAttribute 'url' valqual}}<a href="{{valueWithName 'url' valqual}}">{{/ifHasAttribute}}{{value}}{{#ifHasAttribute 'url' valqual}}</a>{{/ifHasAttribute}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
                             {{/ifCond}}
                         {{/each}}
                     {{/eachGroup}}

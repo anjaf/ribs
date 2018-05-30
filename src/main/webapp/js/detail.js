@@ -344,7 +344,7 @@ function registerHelpers() {
 
     Handlebars.registerHelper('valquals', function(o) {
         var template = Handlebars.compile($('script#valqual-template').html());
-        return template(o);
+        return template($(o).filter(function(i,q){ return q.name.toLowerCase()!='url' }).toArray());
     });
 
 
@@ -644,15 +644,8 @@ function postRender(params) {
     handleImageURLs();
     //handleCitation();
     handleProjectBasedScriptInjection();
-    // add file search filter
-    if (params['fs']) {
-        $('#all-files-expander').click();
-        filesTable.search(params['fs']).draw();
-    }
 
-    if (params['xr']) {
-        $('#expand-right-column').click()
-    }
+    handleTableCentering();
 
     handleThumbnails(); //keep this as the last call
 
@@ -881,6 +874,15 @@ function handleTableExpansion() {
 
 }
 
+function handleTableCentering() {
+    $('.dataTable').on( 'draw.dt', function () {
+        $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px');
+        $('.fullscreen').css("top", ( $(window).height() - $(this).parent().parent().height() ) / 3  + "px");
+        //$('.fullscreen').css("left", ( $(window).width() - $(this).parent().parent().width() ) / 2 + "px");
+    } );
+
+}
+
 function handleOrganisations() {
     $('.org-link').each( function () {
         $(this).attr('href','#'+$(this).data('affiliation'));
@@ -1055,16 +1057,16 @@ function handleAnchors(params) {
         $(this).parent().remove();
     });
 
-    // handle clicks on section links in main file table
-   /* $("a[href^='#']", "#file-list" ).filter(function(){ return $(this).attr('href').length>1 }).click( function(){
-        var subsec = $(this).attr('href');
-        closeFullScreen();
-        openHREF(subsec);
-    });
+    // add file search filter
+    if (params['fs']) {
+        $('#all-files-expander').click();
+        filesTable.search(params['fs']).draw();
+    }
 
-
-
-    */
+    // expand right column if needed
+    if (params['xr']) {
+        $('#expand-right-column').click()
+    }
 
 }
 
