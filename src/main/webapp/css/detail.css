@@ -102,31 +102,12 @@ a.show-less:hover {
     width: 90% !important;
     height: auto;
     max-height: 90% !important;
-    top:5%;
     left:5%;
     position: fixed;
     background-color:white;
     box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(0, 0, 0, 0.1);
     background-clip: padding-box;
-}
-
-.top-half-screen {
-    top: 5%;
-    position: fixed;
-    left: 5%;
-    width: 90%;
-    max-height: 45%;
-    overflow: auto;
-}
-.bottom-half-screen {
-    top: 50%;
-    width: 90%;
-    left: 5%;
-    position: fixed;
-    overflow: auto;
-    max-height: 45%;
-
 }
 
 .blocker {

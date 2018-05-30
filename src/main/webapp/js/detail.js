@@ -855,9 +855,10 @@ function handleSectionArtifacts() {
 
 function handleTableExpansion() {
     $('#blocker').click(function () {
-        if (lastExpandedTable) {
+        /*if (lastExpandedTable) {
             $(lastExpandedTable).click();
-        }
+        }*/
+        closeFullScreen()
     });
     //table expansion
     $('.table-expander').click(function () {
@@ -872,6 +873,8 @@ function handleTableExpansion() {
         $('.table-wrapper').css('height', 'auto');
         $('.table-wrapper').css('height', 'auto');
         $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px').css('top', '45%');
+        $('.fullscreen').css("top", ( $(window).height() - $(this).parent().parent().height() ) / 3  + "px");
+        $('.fullscreen').css("left", ( $(window).width() - $(this).parent().parent().width() ) / 2 + "px");
     });
 
     $('.has-child-section :not(visible) > section > .toggle-tables').click(); // expand tables for hidden sections
@@ -971,21 +974,16 @@ function formatPageHtml() {
 
 function openHREF(href) {
     var section = $(href);
-    var o = section;
-    /*while (o.prop("tagName")!=='BODY') {
-        var p =  o.parent().parent();
-        if(o.parent().css('display')!='block') {
-            p.prev().click();
-        }
-        o = p;
+    var bbox = $(section)[0].getBoundingClientRect();
+    if (   bbox.x > window.innerWidth
+        || bbox.y > window.innerHeight
+        || bbox.x+bbox.width < 0
+        || bbox.y+bbox.height < 0
+    ) {
+        $('html, body').animate({
+            scrollTop: $(section).offset().top - 10
+        }, 200);
     }
-    if(section.next().children().first().css('display')=='none') {
-        section.click();
-    }*/
-
-    $('html, body').animate({
-        scrollTop: $(section).offset().top -10
-    }, 200);
 }
 
 
