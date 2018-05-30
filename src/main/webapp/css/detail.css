@@ -156,14 +156,15 @@ a.show-less:hover {
 }
 div#right-column-header {
     text-align: right;
-    margin-right: 9pt;
+    margin-bottom: 9pt;
+    background-color: #c9e4f3;
 }
 #expand-right-column {
     color: #575759;
     cursor: pointer;
-    margin: 3pt;
-    border:0;
-    font-size:11pt;
+    margin: 4pt;
+    border: 0;
+    font-size: 9pt;
 }
 #right-column-content {
     padding: 0 1em 1em 1em;
