@@ -520,3 +520,7 @@ a.thumbnail-icon {
     white-space: -pre-wrap;
     word-wrap: break-word;
 }
+
+ul.recommendations li {
+    margin-bottom: 5pt;
+}

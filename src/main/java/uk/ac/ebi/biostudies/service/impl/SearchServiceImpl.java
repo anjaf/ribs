@@ -268,7 +268,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public InputStreamResource getStudyAsStream(String accession) throws IOException {
         String path = StudyUtils.getPartitionedPath(accession);
-        FileInputStream fileInputStream = new FileInputStream(indexConfig.getRepositoryPath() + path + "/"+accession+".json");
+        FileInputStream fileInputStream = new FileInputStream(indexConfig.getFileRootDir() + "/"+ path + "/"+accession+".json");
         return new InputStreamResource(fileInputStream);
     }
 

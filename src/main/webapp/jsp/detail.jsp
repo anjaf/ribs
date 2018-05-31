@@ -338,6 +338,7 @@
 
         <script id='main-similar-studies' type='text/x-handlebars-template'>
             {{#ifArray this}}
+            {{#if this.length}}
             <section>
                 <div id="similar-study-container">
                     <div class="table-caption">
@@ -357,6 +358,7 @@
                     </div>
                 </div>
             </section>
+            {{/if}}
             {{/ifArray}}
         </script>
 

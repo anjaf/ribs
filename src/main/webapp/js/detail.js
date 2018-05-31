@@ -127,6 +127,7 @@ $.fn.groupBy = function(fn) {
     var url = window.location.pathname;
     url = url.replace('/studies/','/api/v1/studies/').replace(project,'');
     $.getJSON(url,params, function (data) {
+        if (!data.accno && data.submissions) data = data.submissions[0];
         // set accession
         $('#accession').text(data.accno);
         data.section.accno = data.accno;

@@ -36,10 +36,7 @@ public class IndexConfig {
     @ Value("${index.fields}")
     private String indexFields;
 
-    @ Value("${repository.path}")
-    private String repositoryPath;
-
-    @ Value("${defaultField}")
+     @ Value("${defaultField}")
     private String defaultField;
 
     @ Value("${searchSnippetFragmentSize}")
@@ -90,10 +87,6 @@ public class IndexConfig {
 
     public String getStudiesFileDirectory() {
         return studiesFileDirectory;
-    }
-
-    public String getRepositoryPath() {
-        return repositoryPath;
     }
 
     public String getDefaultField() {
