@@ -163,10 +163,14 @@
         <script id='publication-template' type='text/x-handlebars-template'>
             {{#if this}}
             <div class="bs-name">Publication</div>
-            <div>{{#if authors}}{{authors}}.{{/if}}
+            <div>{{#if authors}}{{authors}}, {{/if}}
+                {{#if title}}{{title}} {{/if}}
                 {{#if journal}}<i>{{journal}}</i>.{{/if}}
                 {{#if publication_date}}{{publication_date}};{{/if}}
-                {{volume}}{{#if pages}}: {{pages}}{{/if}}
+                {{#if volume}}Volume {{volume}}.{{/if}}
+                {{#if issue}}Issue {{issue}}.{{/if}}
+                {{#if pages}}Page: {{pages}}.{{/if}}
+                {{#if year}}{{year}}.{{/if}}
                 {{#if URLs}}
                     {{#each URLs}}
                         <span class="publication-link">
