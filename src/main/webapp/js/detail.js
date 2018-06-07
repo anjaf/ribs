@@ -188,7 +188,7 @@ function registerHelpers() {
             +'>'+ value+'</a></td>' : '<td>'+value+'</td>');
     });
 
-    Handlebars.registerHelper('renderFileTableRow', function(val, obj) {
+    Handlebars.registerHelper('renderFileTableRow', function(val, obj, type) {
         if (obj==null) return new Handlebars.SafeString('<td></td>');
         var e = obj.filter( function(o) { return o['name']==val})[0];
         if (e==undefined) {
@@ -198,7 +198,7 @@ function registerHelpers() {
                 + (e.sort ? ' data-sort="'+e.sort+'"' : '')
                 + ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'')
             +'>'
-                + (e.url ?'<a onclick="closeFullScreen();" '
+                + (e.url && type!='directory' ?'<a onclick="closeFullScreen();" '
                     + 'href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')
                 + '">'
                         + new Handlebars.SafeString(e.value)
@@ -288,7 +288,7 @@ function registerHelpers() {
             $.each(this, function (i, file) {
                 file.attributes = file.attributes || [];
                 file.attributes.push({"name": "Name", "value": file.path.substring(file.path.lastIndexOf("/") +1) });
-                file.attributes.push({"name": "Size", "value": getByteString(file.size), "sort":file.size});
+                file.attributes.push({"name": "Size", "value": file.type=='directory' ? '<i class="far fa-folder"></i>' : getByteString(file.size), "sort":file.size});
                 $.each(file.attributes, function (i, attribute) {
                     if (!(attribute.name in hsh)) {
                         names.push(attribute.name);
@@ -1131,20 +1131,13 @@ function updateSelectedFiles(inc)
 
 
 function downloadFiles(files) {
-    var html = '';
-    if (files.length==1) {
-        html += '<form method="GET" target="_blank" action="'
-            + contextPath + "/files/"
-            + $('#accession').text() + '/' + files[0]+'" />';
-    } else {
-        html += '<form method="POST" target="_blank" action="'
+    var html = '<form method="POST" target="_blank" action="'
             + contextPath + "/files/"
             + $('#accession').text() + '/zip'+location.search+'">';
-        $(files).each( function(i,v) {
-            html += '<input type="hidden" name="files" value="'+v+'"/>'
-        });
-        html += '</form>';
-    }
+    $(files).each( function(i,v) {
+        html += '<input type="hidden" name="files" value="'+v+'"/>'
+    });
+    html += '</form>';
     var submissionForm = $(html);
     $('body').append(submissionForm);
     $(submissionForm).submit();

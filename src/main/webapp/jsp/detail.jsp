@@ -291,7 +291,7 @@
                                     <input type="checkbox" data-name="{{path}}"/>
                                 </td>
                                 {{#each ../headers}}
-                                    {{renderFileTableRow this ../this.attributes}}
+                                    {{renderFileTableRow this ../this.attributes ../type}}
                                 {{/each}}
                             </tr>
                             {{/each}}
