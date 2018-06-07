@@ -20,6 +20,8 @@ package uk.ac.ebi.biostudies.file.download;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.biostudies.file.ZipStatusService;
 
 
@@ -37,6 +39,7 @@ public class ZipperThread extends Thread {
     private String tempZipFolder;
     private String rootFolder;
     ZipStatusService zipStatusService;
+    private transient final Logger logger = LoggerFactory.getLogger(getClass());
 
     public ZipperThread(String[] files, String relativePath, String uuid, OutputStream out, String tempZipFolder, String rootFolder, ZipStatusService zipStatusService){
         this.files = files;
@@ -64,6 +67,11 @@ public class ZipperThread extends Thread {
                     final String filename = StringUtils.replace(fileStack.pop(),"..",".");
                     File file = new File(canonicalPath,filename);
                     if (!file.getCanonicalPath().startsWith(envIndependentCanonicalPath)) break;
+                    if (!file.exists()) {
+                        logger.debug( "{0} not found ", file.getAbsolutePath());
+                        file = new File(canonicalPath+"u/", filename );
+                        logger.debug( "Trying ", file.getAbsolutePath());
+                    }
                     if (file.isDirectory()) {
                         fileStack.addAll(Collections2.transform(Arrays.asList(file.list()),
                                 new Function<String, String>() {
