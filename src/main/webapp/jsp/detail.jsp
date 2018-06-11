@@ -162,8 +162,7 @@
 
         <script id='publication-template' type='text/x-handlebars-template'>
             {{#if this}}
-            <div class="bs-name">Publication</div>
-            <div>{{#if authors}}{{authors}}, {{/if}}
+            <div class="publication-div">{{#if authors}}{{authors}}, {{/if}}
                 {{#if title}}{{title}} {{/if}}
                 {{#if journal}}<i>{{journal}}</i>.{{/if}}
                 {{#if publication_date}}{{publication_date}};{{/if}}

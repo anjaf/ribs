@@ -524,3 +524,7 @@ a.thumbnail-icon {
 ul.recommendations li {
     margin-bottom: 5pt;
 }
+
+.publication-div {
+    padding-bottom: 10pt;
+}

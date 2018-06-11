@@ -519,37 +519,42 @@ function registerHelpers() {
             return o.type && o.type.toLowerCase() == 'publication';
         });
         if (!pubs || pubs.length < 1) return null;
-        publication.URLs = [];
-        $.each(pubs[0].attributes, function (i, v) {
-            var name = v.name.toLowerCase().replace(' ', '_');
-            var url = getURL(v.value);
-            if (url) {
-                publication.URLs.push(url);
-            } else {
-                publication[name] = v.value
-            }
-        });
-        publication.accno = pubs[0].accno;
-        if (publication.accno) {
-            var url = getURL(publication.accno);
-            if (url!=null) {
-                if (/^\d+$/.test(publication.accno)) {
-                    publication.URLs.push(getURL('PMID' + publication.accno));
-                } else {
+        var template = Handlebars.compile($('script#publication-template').html());
+        var html = '<div class="bs-name">Publication'+ (pubs.length>1 ? 's': '') +'</div>';
+        $.each(pubs, function(i,pub) {
+            publication.URLs = [];
+            $.each(pub.attributes, function (i, v) {
+                var name = v.name.toLowerCase().replace(' ', '_');
+                var url = getURL(v.value);
+                if (url) {
                     publication.URLs.push(url);
+                } else {
+                    publication[name] = v.value
+                }
+            });
+            publication.accno = pubs.accno;
+            if (publication.accno) {
+                var url = getURL(publication.accno);
+                if (url != null) {
+                    if (/^\d+$/.test(publication.accno)) {
+                        publication.URLs.push(getURL('PMID' + publication.accno));
+                    } else {
+                        publication.URLs.push(url);
+                    }
                 }
             }
-        }
-        $( $.map(pubs[0].links, function (v) {
-           return v;
-        })).each(function(i,link){
-            publication.URLs.push(getURL(link.url, link.attributes.filter( function (v,i) { return    v.name=='Type';   })[0].value));
+            $($.map(pub.links, function (v) {
+                return v;
+            })).each(function (i, link) {
+                publication.URLs.push(getURL(link.url, link.attributes.filter(function (v, i) {
+                    return v.name == 'Type';
+                })[0].value));
+            });
+
+            if (!publication.URLs.length) delete publication.URLs
+            html += template(publication);
         });
-
-        if (!publication.URLs.length) delete publication.URLs
-
-        var template = Handlebars.compile($('script#publication-template').html());
-        return new Handlebars.SafeString(template(publication));
+        return new Handlebars.SafeString(html);
     });
 
 
