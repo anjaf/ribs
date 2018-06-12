@@ -21,6 +21,7 @@ import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
@@ -232,7 +233,12 @@ public class ConfigurableIndexService implements IndexService {
                             .collect(Collectors.joining(","));
                 }
                 valueMap.put(Facets.PROJECT, project);
-
+                Set<String> columnSet = new HashSet<>();
+                if("S-DIXA-008".equalsIgnoreCase((String)valueMap.get(Fields.ACCESSION)))
+                    System.out.println();
+                if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study"))
+                    FileIndexer.indexSubmissionFiles((String)valueMap.get(Fields.ACCESSION), json, writer, columnSet);
+                valueMap.put(Constants.File.FILE_ATTS, columnSet);
                 extractContent(valueMap);
                 extractAuthorData(valueMap);
                 extractDates(valueMap);
@@ -376,6 +382,7 @@ public class ConfigurableIndexService implements IndexService {
             //TODO: replace by classes if possible
             String value;
             String prjName = (String)valueMap.get(Facets.PROJECT);
+            addFileAttributses(doc, (Set<String>) valueMap.get(Constants.File.FILE_ATTS));
             for (String field: indexManager.getProjectRelatedFields(prjName.toLowerCase())) {
                 JsonNode curNode = indexManager.getAllValidFields().get(field);
                 String fieldType = curNode.get(IndexEntryAttributes.FIELD_TYPE).asText();
@@ -411,6 +418,16 @@ public class ConfigurableIndexService implements IndexService {
 
         }
 
+        private void addFileAttributses(Document doc, Set<String> columnAtts){
+            StringBuilder allAtts = new StringBuilder();
+            allAtts.append(Constants.File.JSONNAME).append("|").append(Constants.File.JSONSIZE).append("|").append(Constants.File.JSONPATH).append("|");
+            for(String att:columnAtts)
+                allAtts.append(att).append("|");
+//            if(allAtts.length()>0)
+//                allAtts.deleteCharAt(allAtts.length()-1);
+            doc.add(new StringField(Constants.File.FILE_ATTS, allAtts.toString(),Field.Store.YES));
+        }
+
         private void addFacet(String value, String fieldName, Document doc, JsonNode facetConfig){
             if(value==null || value.isEmpty()) {
                 value = NA;
@@ -442,7 +459,7 @@ public class ConfigurableIndexService implements IndexService {
                 }
             }
             if(title.isEmpty())
-                logger.error("title is empty accession: {0}", accession);
+                logger.error("title is empty accession: {}", accession);
             return title;
         }
     }

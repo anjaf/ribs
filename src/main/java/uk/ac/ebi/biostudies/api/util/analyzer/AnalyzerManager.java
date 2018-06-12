@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class AnalyzerManager {
                     Analyzer analyzerObj = (Analyzer) clazz.newInstance();
                     perFieldAnalyzerMap.put(key, analyzerObj);
                 } catch (Exception e) {
-                    logger.error("cant create analyzer with name {1}", analyzer, e);
+                    logger.error("cant create analyzer with name {}", analyzer, e);
                 }
             }
             if(expand) {

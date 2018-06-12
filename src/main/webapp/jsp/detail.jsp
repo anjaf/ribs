@@ -66,9 +66,14 @@
                         <a id="expand-right-column" data-expanded="false"><i class="fas fa-angle-double-left"></i></a>
                     </div>
                     <div id="right-column-content">
-                        {{&main-file-table}}
-                        {{&main-link-table}}
-                        {{{main-orcid-claimer}}}
+                        {{asString this}}
+                    	{{#ifCond this.files.length '<' 1000}}
+                        	{{&main-file-table}}
+                    	{{else}}
+                        	{{&big-file-table}}
+                    	{{/ifCond}}
+                    	{{&main-link-table}}
+                    	{{{main-orcid-claimer}}}
                     </div>
                 </div>
                 <div id="bs-content">
@@ -283,18 +288,21 @@
                                 {{/each}}
                             </tr>
                             </thead>
-                            <tbody>
-                            {{#each this}}
-                            <tr>
-                                <td class="disable-select file-check-box">
-                                    <input type="checkbox" data-name="{{path}}"/>
-                                </td>
-                                {{#each ../headers}}
-                                    {{renderFileTableRow this ../this.attributes ../type}}
+
+
+                                <tbody>
+                                {{#each this}}
+                                <tr>
+                                    <td class="disable-select file-check-box">
+                                        <input type="checkbox" data-name="{{path}}"/>
+                                    </td>
+                                    {{#each ../headers}}
+                                        {{renderFileTableRow this ../this.attributes ../type}}
+                                    {{/each}}
+                                </tr>
                                 {{/each}}
-                            </tr>
-                            {{/each}}
-                            </tbody>
+                                </tbody>
+
                         </table>
                         <div>
                             <span id="selected-file-text"></span><a id="download-selected-files">Download all</a>
@@ -304,6 +312,25 @@
             </section>
             {{/if}}
         </script>
+
+         <script id='big-file-table' type='text/x-handlebars-template'>
+             <section>
+                 <div id="file-list-container">
+                     <div class="table-caption">
+                         <span class="widge-title"><i class="fa fa-download"></i> Download data files</span>
+                         <span class="fa-icon table-expander" id="all-files-expander" title="Click to expand"><i class="fa fa-expand"></i></span>
+                     </div>
+                     <div class="table-wrapper">
+                         <table id="file-list" class="stripe compact hover" width="100%">
+
+                         </table>
+                         <div>
+                             <span id="selected-file-text"></span><a id="download-selected-files">Download all</a>
+                         </div>
+                     </div>
+                 </div>
+             </section>
+         </script>
 
         <script id='main-link-table' type='text/x-handlebars-template'>
             {{setLinkTableHeaders}}

@@ -139,9 +139,11 @@ $.fn.groupBy = function(fn) {
         if (!data.section.attributes.filter( function (v,i) { return    v.name=='Title';   }).length) {
             data.section.attributes.push({name:'Title', value:title[0].value});
         }
+        var files = findall(data.section,'files');
+        data.section.files = files;
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
-        postRender(params);
+        postRender(params, data.section);
     }).fail(function(error) {
         showError(error);
     });
@@ -326,11 +328,14 @@ function registerHelpers() {
 
 
     Handlebars.registerHelper('main-file-table', function() {
-        var o = findall(this,'files');
         var template = Handlebars.compile($('script#main-file-table').html());
-        return template(o);
+        return template(this.files);
     });
 
+    Handlebars.registerHelper('big-file-table', function() {
+        var template = Handlebars.compile($('script#big-file-table').html());
+        return template(this.files);
+    });
 
     Handlebars.registerHelper('main-link-table', function(o) {
         var o = findall(this,'links');
@@ -630,42 +635,34 @@ function findall(obj,k,unroll){ // works only for files and links
     return  ret;
 }
 
-function postRender(params) {
+function postRender(params, data) {
     $('body').append('<div id="blocker"/><div id="tooltip"/>');
     drawSubsections();
-    createDataTables();
-    createMainFileTable();
-    createMainLinkTable();
-    showRightColumn();
-    handleSectionArtifacts();
-    handleTableExpansion();
-    handleOrganisations();
-    handleFileDownloadSelection();
-    formatPageHtml();
-    handleAnchors(params);
-    handleSubattributes();
-    handleOntologyLinks();
-    handleORCIDIntegration();
-    handleSimilarStudies();
-    handleImageURLs();
-    //handleCitation();
-    handleProjectBasedScriptInjection();
+        // createDataTables();
+    if (data.files.length<1000) {
+        createMainFileTable();
+        createMainLinkTable();
+        showRightColumn();
+        handleSectionArtifacts();
+        handleTableExpansion();
+        handleOrganisations();
+        handleFileDownloadSelection();
+        formatPageHtml();
+        handleAnchors(params);
+        handleSubattributes();
+        handleOntologyLinks();
+        handleORCIDIntegration();
+        handleSimilarStudies();
+        handleImageURLs();
+ 		
+		handleProjectBasedScriptInjection();
+    	handleTableCentering();
 
-    handleTableCentering();
-
-    handleThumbnails(); //keep this as the last call
-
-}
-
-function handleProjectBasedScriptInjection() {
-    var acc = $('#accession').text();
-    $(projectScripts.filter(function (r) {
-        return r.regex.test(acc)
-    })).each(function (i,v) {
-        var scriptURL = contextPath + '/js/projects/' + v.script;
-        $.getScript(scriptURL);
-    });
-
+        handleThumbnails();
+    }
+    else {
+        createBigFileTable(data.accno, params)
+    }
 }
 
 function handleCitation() {
@@ -701,6 +698,55 @@ function  showRightColumn() {
     });
 }
 
+function createBigFileTable(acc, params){
+    $.ajax({url: "http://localhost:8080/biostudies/api/v1/headers/"+acc, success: function(result){
+         result.splice(0,0,{name: "x", title: "", searchable:true, type:"checkbox", visible: true, orderable:false, data: "",  render: function ( data, type, row ) {
+             return '<div class="file-check-box"><input type="checkbox" data-name="'+row.path+'"></input></div>';
+         }});
+        filesTable= $('#file-list').DataTable({"processing": true,
+            "serverSide": true, "columns": result,
+            "columnDefs": [
+                {
+                    targets:2,
+                    render: function (data, type, row) {
+                        return getByteString(data);
+                    }
+                },
+                {
+                    targets:1,
+                    render: function (data, type, row) {
+                        return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="'+data+'" onclick="closeFullScreen();" href="'+row.path+'">'+data+'</a>';
+                    }
+                }
+            ],
+                ajax: {
+                url: '/biostudies/api/v1/filelist',
+                type: 'post',
+                data:{acc:acc, pageSize:10}
+            }
+        });
+        var head_item = filesTable.columns(0).header();
+        $(head_item ).html('<input id="select-all-files"  type="checkbox"/>');
+        createMainLinkTable();
+        showRightColumn();
+        handleSectionArtifacts();
+        handleTableExpansion();
+        handleOrganisations();
+        handleFileDownloadSelection();
+        formatPageHtml();
+        handleAnchors(params);
+        handleSubattributes();
+        handleOntologyLinks();
+        handleORCIDIntegration();
+        handleSimilarStudies();
+        handleImageURLs();
+
+	 	handleProjectBasedScriptInjection();
+    	handleTableCentering();
+
+        handleThumbnails();
+    }});
+}
 function createDataTables() {
     $(".section-table").each(function () {
         var dt = $(this).DataTable({
@@ -713,7 +759,8 @@ function createDataTables() {
 
 function createMainFileTable() {
     totalRows = $("#file-list tbody tr").length;
-
+    if(filesTable)
+        return
     filesTable = $("#file-list").DataTable({
         "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
         "columnDefs": [ {"targets": [0], "searchable": false, "orderable": false, "visible": true},
@@ -721,6 +768,8 @@ function createMainFileTable() {
             ],
         "order": [[1, "asc"]],
         "dom": "rlftpi",
+        // serverSide: true,
+        // ajax: '/biostudies/api/v1/filelist',
         "infoCallback": function( settings, start, end, max, total, out ) {
             return (total== max) ? out : out +' <a class="section-button" id="clear-filter" onclick="clearFileFilter();return false;">' +
                 '<span class="fa-layers fa-fw">'
@@ -1130,7 +1179,8 @@ function updateSelectedFiles(inc)
                 : selectedFilesCount>1 ? ' all '+selectedFilesCount : ''));
     }
 
-    $("#select-all-files").prop('checked', selectedFilesCount==totalRows);
+    if(selectedFilesCount>0 && totalRows>0)
+        $("#select-all-files").prop('checked', selectedFilesCount==totalRows);
 
 }
 
@@ -1293,3 +1343,30 @@ function handleImageURLs() {
 function accToLink(acc) {
     return acc.replace('/','').replace(' ','');
 }
+
+Handlebars.registerHelper('lessThan', function (v1, v2, options) {
+    'use strict';
+    if (v1<v2) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
+});
+
+
+Handlebars.registerHelper('renderManyFiles', function(val) {
+    callServer();
+
+
+    // if(!filesTable)
+    //     createMainFileTable();
+    // var length = filesTable.length;
+    // filesTable.clear();
+    // filesTable.rows.add(this);
+    // length = filesTable.length;
+    // fileLength = length;
+    // filesTable.rows.add(this).draw();
+    // filesTable = $("#file-list").DataTable({
+    //     "data":this
+    // });
+
+});

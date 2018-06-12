@@ -75,4 +75,23 @@ public interface Constants {
         String RELEASE_DATE = "release_date";
     }
 
+    interface File{
+        String JSONPATH = "path";
+        String JSONNAME = "name";
+        String JSONSIZE = "size";
+        String PATH = "FILEATTS_path";
+        String SIZE = "FILEATTS_size";
+        String TYPE = "type";
+        String NAME = "FILEATTS_name";
+        String ATTRIBUTES = "attributes";
+        String VALUE= "value";
+        String FILE = "file";
+        String OWNER = "owner";
+        String FILE_ATTS = "FILEATTS_";
+        String DRAW = "draw";
+        String RECORDTOTAL = "recordsTotal";
+        String RECORDFILTERED = "recordsFiltered";
+        String DATA = "data";
+    }
+
 }

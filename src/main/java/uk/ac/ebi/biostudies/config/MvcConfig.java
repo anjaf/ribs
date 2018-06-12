@@ -12,6 +12,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -51,6 +52,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/about").setViewName("about");
         registry.addViewController("/about/*").setViewName("about");
         registry.addViewController("/help").setViewName("help");
+//        registry.addViewController("/datatable").setViewName("datatable");
         registry.addViewController("/help/*").setViewName("help");
         registry.addViewController("/submit").setViewName("submit");
         registry.addViewController("/submit/*").setViewName("submit");
@@ -104,6 +106,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
+                .ignoredParameterTypes(MultiValueMap.class)
                 .select()
                 .apis(RequestHandlerSelectors.withMethodAnnotation(PublicRESTMethod.class))
                 .paths(PathSelectors.any())
