@@ -665,6 +665,17 @@ function postRender(params, data) {
     }
 }
 
+function handleProjectBasedScriptInjection() {
+    var acc = $('#accession').text();
+    $(projectScripts.filter(function (r) {
+        return r.regex.test(acc)
+    })).each(function (i,v) {
+        var scriptURL = contextPath + '/js/projects/' + v.script;
+        $.getScript(scriptURL);
+    });
+
+}
+
 function handleCitation() {
 
     $('#cite').bind('click', function() {
