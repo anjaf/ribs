@@ -54,6 +54,8 @@ public class QueryServiceImpl implements QueryService {
     private static Query excludeCompound;
     private static Query excludeProject;
     private static QueryParser parser;
+    private static Query excludeFiles;
+
 
     @PostConstruct
     void init(){
@@ -62,6 +64,7 @@ public class QueryServiceImpl implements QueryService {
         try {
             excludeCompound = parser.parse("type:compound");
             excludeProject = parser.parse("type:project");
+            excludeFiles = parser.parse("type:file");
         } catch (ParseException e) {
             logger.error(e);
         }
@@ -132,6 +135,7 @@ public class QueryServiceImpl implements QueryService {
         BooleanQuery.Builder excludeBuilder = new BooleanQuery.Builder();
         excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
         excludeBuilder.add(excludeCompound, BooleanClause.Occur.MUST_NOT);
+        excludeBuilder.add(excludeFiles, BooleanClause.Occur.MUST_NOT);
         return  excludeBuilder.build();
     }
 
