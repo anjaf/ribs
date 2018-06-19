@@ -1,0 +1,138 @@
+<script id='study-template' type='text/x-handlebars-template'>
+    <div id="left-column"  itemscope="itemscope" itemtype="http://schema.org/Dataset">
+        {{#if project}}
+        <meta itemprop="url" content="${contextPath}/{{project}}/studies/{{accession}}" />
+        <meta itemprop="sameAs" content="${contextPath}/studies/{{accession}}" />
+        {{else}}
+        <meta itemprop="url" content="${contextPath}/studies/{{accession}}" />
+        {{/if}}
+        <div id="release-date-download">
+                    <span class="release-date">
+                        {{#if releaseDate}}
+                        Release Date: <span  id="orcid-publication-year">{{formatDate releaseDate}}</span>
+                        {{else}}
+                            <i class="fa fa-lock" aria-hidden="true"></i> Private
+                        {{/if}}
+                    </span>
+            <div id="download-source">
+                <a href="${contextPath}/files/{{accno}}/{{accno}}.json" target="_blank"
+                   title="Download Study as JSON" class="source-icon source-icon-json"
+                   data-icon="=">{JSON}</a>
+                <a href="${contextPath}/files/{{accno}}/{{accno}}.xml" target="_blank"
+                   title="Download Study as XML" class="source-icon source-icon-xml" data-icon="=">
+                    &lt;XML&gt;</a><a href="${contextPath}/files/{{accno}}/{{accno}}.pagetab.tsv" target="_blank"
+                                      title="Download Study as PageTab" class="source-icon source-icon-pagetab"
+                                      data-icon="=">→PageTab↲</a>
+                {{#if releaseDate}}
+                <a href="ftp://ftp.biostudies.ebi.ac.uk/pub/{{root}}" target="_blank"
+                   title="Open FTP Folder" class="source-icon source-icon-ftp" data-icon="="><i
+                        class="fa fa-cloud-download-alt"></i>FTP</a>
+                {{/if}}
+                <!--a id="cite" title="Cite"  class="source-icon source-icon-cite openModal">
+                    [Cite]</a-->
+            </div>
+        </div>
+        <h3 id="orcid-title"  itemprop="name">{{valueWithName 'Title' attributes}}</h3>
+
+        <div id="right-column">
+            <div id="right-column-header">
+                <a id="expand-right-column" data-expanded="false"><i class="fas fa-angle-double-left"></i></a>
+            </div>
+            <div id="right-column-content">
+                {{#ifCond this.files.length '<' 1000}}
+                {{&main-file-table}}
+                {{else}}
+                {{&big-file-table}}
+                {{/ifCond}}
+                {{&main-link-table}}
+                {{{main-orcid-claimer}}}
+            </div>
+        </div>
+        <div id="bs-content">
+            <div id="thumbnail"></div>
+            <!-- Authors -->
+            <ul id="bs-authors">
+                {{#eachAuthor this}}
+                <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} ><span class="author">
+                        <span itemscope itemtype="http://schema.org/Person"><span itemprop="name">{{Name}}</span></span>
+                                    {{#if affiliation}}
+                                        {{#ifArray affiliation}}
+                                            {{#each affiliation}}
+                                                <sup><a class="org-link" data-affiliation="{{org}}">{{affiliationNumber}}</a></sup>
+                                            {{/each}}
+                                        {{else}}
+                                            <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
+                                        {{/ifArray}}
+                                    {{/if}}
+                                </span>
+                {{#if ORCID}}
+                <a href="https://orcid.org/{{ORCID}}" target="_blank" title="Click to open ORCID profile: https://orcid.org/{{ORCID}}" class="orcid"><img alt="https://orcid.org/{{ORCID}}" src="${contextPath}/images/orcid.svg"/></a>
+                {{/if}}
+                </li>
+                {{#if @last}}
+                {{#ifCond @index '>=' 10}}
+                <li><span class="more" id="expand-authors">+ {{@left}} more</span></li>
+                {{/ifCond}}
+                {{/if}}
+                {{/eachAuthor}}
+            </ul>
+            <!-- Affiliations -->
+            <ul id="bs-orgs">
+                {{#eachOrganization this}}
+                <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} id="{{affiliation}}"><sup>{{affiliationNumber}}</sup>
+                <span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">{{name}}</span></span>
+                </li>
+                {{#if @last}}
+                {{#ifCond @index '>=' 10}}
+                <li><span class="more" id="expand-orgs">+ {{@left}} more</span></li>
+                {{/ifCond}}
+                {{/if}}
+                {{/eachOrganization}}
+            </ul>
+
+            <!-- Accession -->
+            <div class="bs-name">Accession</div>
+            <div id="orcid-accession" itemprop="identifier">{{accno}}</div>
+
+            <!-- Study level attributes -->
+            {{#eachGroup attributes}}
+            {{#each this}}
+            {{#ifCond name '!=' 'Title'}}
+            {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
+            {{#ifHasAttribute 'url' valqual}}<a href="{{valueWithName 'url' valqual}}">{{/ifHasAttribute}}{{value}}{{#ifHasAttribute 'url' valqual}}</a>{{/ifHasAttribute}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
+            {{/ifCond}}
+            {{/each}}
+            {{/eachGroup}}
+
+
+            <!-- Publication -->
+            {{renderPublication this}}
+
+            <!-- Funding -->
+            {{#eachFunder this}}
+            {{#if @first}}
+            <div class="bs-name">Funding</div>
+            <ul id="bs-funding">
+                {{/if}}
+                <li><span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">{{name}}</span></span>{{#if grants}}:
+                    <span class="bs-grants">{{grants}}</span>
+                    {{/if}}
+                </li>
+                {{#if @last}}
+            </ul>
+            {{/if}}
+            {{/eachFunder}}
+
+            <!-- Subsections -->
+            {{#if subsections}}
+            {{#each subsections}}
+            {{#ifRenderable this}}
+            {{&section this}}
+            {{/ifRenderable}}
+            {{/each}}
+            {{/if}}
+
+        </div>
+    </div>
+    <div class="clearboth"></div>
+</script>

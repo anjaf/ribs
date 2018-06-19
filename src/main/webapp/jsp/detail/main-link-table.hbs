@@ -1,0 +1,33 @@
+<script id='main-link-table' type='text/x-handlebars-template'>
+    {{setLinkTableHeaders}}
+    {{#if this.linkHeaders}}
+    <section>
+        <div id="link-list-container">
+            <div class="table-caption">
+                <span class="widge-title"><i class="fa fa-external-link-alt"></i> Linked Information</span>
+                <span class="fa-icon table-expander" id="all-links-expander" title="Click to expand"><i class="fa fa-expand"></i></span>
+            </div>
+            <div class="table-wrapper">
+                <table id="link-list" class="stripe compact hover" width="100%">
+                    <thead>
+                    <tr>
+                        {{#each linkHeaders}}
+                        <th>{{this}}</th>
+                        {{/each}}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#each this}}
+                    <tr>
+                        {{#each ../linkHeaders}}
+                        {{renderLinkTableRow this ../attributes}}
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    {{/if}}
+</script>

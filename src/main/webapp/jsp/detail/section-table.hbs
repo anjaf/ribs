@@ -1,0 +1,32 @@
+<script id='section-table' type='text/x-handlebars-template'>
+    {{setHeaders}}
+    <section>
+        <a class="show-more toggle-tables" data-total="1"><i class="fa fa-caret-right"></i> show table</a>
+        <div class="bs-section-tables">
+            <div class="table-caption">
+                Table: {{this.type}}
+                <span class="fa-icon table-expander" title="Click to expand"><i class="fa fa-expand"></i></span>
+            </div>
+            <div class="table-wrapper">
+                <table class="stripe compact hover section-table">
+                    <thead>
+                    <tr>
+                        {{#each this.headers}}
+                        <th>{{this}}</th>
+                        {{/each}}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#each this}}
+                    <tr>
+                        {{#each ../headers}}
+                        <td>{{valueWithName this ../this.attributes }}</td>
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</script>

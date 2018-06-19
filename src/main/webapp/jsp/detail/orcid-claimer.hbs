@@ -1,0 +1,27 @@
+<script id='main-orcid-claimer' type='text/x-handlebars-template'>
+    <section id="orc-id-claimer-section">
+        <div class="table-caption">
+            <span class="widge-title"><img class="orcid-logo" src="${contextPath}/images/orcid.svg" />ORCID: Data claiming</span>
+        </div>
+        <div class="thor_div_showIf_notSigned" style="display:none">
+            <div>
+                You can <a href="#" class="thor_a_generate_signinLink">sign-in to ORCID</a> to claim your data
+            </div>
+            <div>
+                <input type="checkbox" class="thor_checkbox_rememberMe_cookie"> Remember
+                me on this computer
+            </div>
+        </div>
+        <div class="thor_div_showIf_signedIn" style="display:none">
+            <div>You have signed in as <label class="thor_label_show_userName" ></label>
+                <a href="#" title="Sign Out" class="thor_a_generate_logoutLink">(sign out)</a>
+            </div>
+            <div style="display:none" class="thor_div_showIf_datasetNotClaimed">
+                <a href="#" class="thor_a_generate_claimLink">Claim {{accession}} into your ORCID</a>
+            </div>
+            <div style="display:none" class="thor_div_showIf_datasetAlreadyClaimed">
+                You have claimed {{accession}} into your ORCID.
+            </div>
+        </div>
+    </section>
+</script>

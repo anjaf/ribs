@@ -1,0 +1,30 @@
+<script id='facet-list-template' type='text/x-handlebars-template'>
+    <form id="facet-form">
+        <div id="facet" class="{{project}}-facets">
+            {{#each this}}
+            {{#if this.children}}
+            <div class="facet-name"><span class="toggle-facet"><i class="fa fa-angle-down"/></span> <span class="facet-title">{{title}}</span>
+                <a class="facet-more" data-facet="{{name}}">see all</a>
+                {{#ifCond children.length '>=' 10 }}
+                <span class="top20">TOP 10</span>
+                {{/ifCond}}
+            </div>
+            <ul id="facet_{{name}}" class="menu vertical clearboth">
+                {{#each children}}
+                <li>
+                    <label class="facet-label" for="facet-{{../name}}-{{@index}}">
+                        <input class="facet-value" type="checkbox" name="{{../name}}" value="{{value}}" id="facet-{{../name}}-{{@index}}"/>
+                        <span>{{name}}</span>
+                    </label>
+                    <span class="facet-hits"> {{formatNumber hits}}</span>
+                </li>
+                {{/each}}
+            </ul>
+            {{/if}}
+            {{/each}}
+        </div>
+        {{#each existing}}
+        <input type="hidden" name="{{key}}" value="{{value}}" />
+        {{/each}}
+    </form>
+</script>

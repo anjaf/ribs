@@ -1,0 +1,25 @@
+<script id='main-similar-studies' type='text/x-handlebars-template'>
+    {{#ifArray this}}
+    {{#if this.length}}
+    <section>
+        <div id="similar-study-container">
+            <div class="table-caption">
+                <span class="widge-title"><i class="icon icon-functional" data-icon="O"></i> Similar Studies</span>
+            </div>
+            <div class="table-wrapper">
+                <ul class="recommendations">
+                    {{#each this}}
+                    <li class="browse-study-title">
+                        <a href="${contextPath}/studies/{{accession}}">{{title}}</a>
+                        <span class="browse-study-accession">
+                                        {{accession}}
+                                    </span>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+    </section>
+    {{/if}}
+    {{/ifArray}}
+</script>

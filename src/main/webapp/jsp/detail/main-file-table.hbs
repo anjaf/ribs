@@ -1,0 +1,45 @@
+<script id='main-file-table' type='text/x-handlebars-template'>
+    {{setFileTableHeaders}}
+    {{#if this.headers}}
+    <section>
+        <div id="file-list-container">
+            <div class="table-caption">
+                <span class="widge-title"><i class="fa fa-download"></i> Download data files</span>
+                <span class="fa-icon table-expander" id="all-files-expander" title="Click to expand"><i class="fa fa-expand"></i></span>
+            </div>
+            <div class="table-wrapper">
+                <table id="file-list" class="stripe compact hover" width="100%">
+                    <thead>
+                    <tr>
+                        <th id="select-all-files-header">
+                            <input type="checkbox" id="select-all-files"/>
+                        </th>
+                        {{#each this.headers}}
+                        <th>{{this}}</th>
+                        {{/each}}
+                    </tr>
+                    </thead>
+
+
+                    <tbody>
+                    {{#each this}}
+                    <tr>
+                        <td class="disable-select file-check-box">
+                            <input type="checkbox" data-name="{{path}}"/>
+                        </td>
+                        {{#each ../headers}}
+                        {{renderFileTableRow this ../this.attributes ../type}}
+                        {{/each}}
+                    </tr>
+                    {{/each}}
+                    </tbody>
+
+                </table>
+                <div>
+                    <span id="selected-file-text"></span><a id="download-selected-files">Download all</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    {{/if}}
+</script>
