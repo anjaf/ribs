@@ -37,10 +37,13 @@ public class FileIndexer {
                             doc.add(new SortedNumericDocValuesField(Constants.File.SIZE, size));
                             doc.add(new StoredField(Constants.File.SIZE, size));
                         }
-                        path = fNode.get(Constants.File.JSONPATH).asText();
-                        name = path;
+                        JsonNode pathNode = fNode.get(Constants.File.JSONPATH);
+                        path = pathNode==null || pathNode.asText().equalsIgnoreCase("null")? null : pathNode.asText();
+                        pathNode = fNode.get(Constants.File.JSONNAME);
+                        name = pathNode==null || pathNode.asText().equalsIgnoreCase("null")? null:pathNode.asText();
                         if(path!=null) {
-                            name = path.contains("/") ? StringUtils.substringAfterLast(path, "/") : path;
+                            if(name==null)
+                                name = path.contains("/") ? StringUtils.substringAfterLast(path, "/") : path;
                             doc.add(new StringField(Constants.File.PATH, path, Field.Store.YES));
                             doc.add(new SortedDocValuesField(Constants.File.PATH, new BytesRef(path)));
                         }
