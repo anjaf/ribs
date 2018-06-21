@@ -14,7 +14,7 @@
             <li><a href="${contextPath}">BioStudies</a></li>
             <li><a href="${contextPath}/studies">Studies</a></li>
             <li>
-                <span class="show-for-sr">Current: </span> <span id="accession">Loading</span>
+                <span id="accession">Loading</span>
             </li>
         </ul>
       <div class="reveal large" id="biostudies-citation" data-reveal></div>

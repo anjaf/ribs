@@ -64,6 +64,7 @@ function showError(error) {
     var errorTemplateSource = $('script#error-template').html();
     var errorTemplate = Handlebars.compile(errorTemplateSource);
     var data;
+
     switch (error.status) {
         case 400:
             data = {
@@ -82,10 +83,11 @@ function showError(error) {
         case 404:
             data = {
                 title: 'We’re sorry that the page or file you’ve requested is not publicly available',
-                message: 'The resource may have been removed, had its name changed, or has restricted access.If you have been granted access, please <a href="#" class="login">log in</a> to proceed.'
+                message: 'The resource may have been removed, had its name changed, or has restricted access.' +
+                ' It may take up to 24 hours after submission for any new studies to become available in the database. ' +
+                ' Please login if the study has not been publicly released yet.'
             }
             break;
-
         default:
             data = {
                 title: 'Oops! Something has gone wrong with BioStudies',
@@ -95,8 +97,9 @@ function showError(error) {
     }
 
     var html = errorTemplate(data);
+
     $('#renderedContent').html(html);
-    $('.breadcrumbs li:last').contents().last().replaceWith(' Error');
+    $('.breadcrumbs li:last #accession').html(' Error');
     updateTitleFromBreadCrumbs();
 }
 
