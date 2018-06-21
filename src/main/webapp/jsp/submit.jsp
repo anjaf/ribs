@@ -80,7 +80,8 @@
 
         <h5 class="icon icon-generic" data-icon="i">What happens once I submit?</h5>
         <p class="justify">
-            Once your BioStudy is successfully submitted an accession number is automatically assigned. You may cite this accession number in your publication.
+            Once your BioStudy is successfully submitted an accession number is automatically assigned. You may cite this accession number in your publication. The system may take up to 24 hours after submission to register any new studies in the
+            database.
         </p>
 
         <h5 class="icon icon-generic" data-icon="i">Can I edit my BioStudy once I have submitted?</h5>
