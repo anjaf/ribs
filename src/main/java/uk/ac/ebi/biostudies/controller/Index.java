@@ -69,6 +69,6 @@ public class Index {
     @RequestMapping(value = "/index/delete/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> deleteDoc(@PathVariable(required=false) String accession) throws Exception {
            indexService.deleteDoc(accession);
-        return new ResponseEntity<String>("{\"message\":\"Index empty\"}", HttpStatus.OK);
+        return new ResponseEntity<String>("{\"message\":\""+accession+" deleted\"}", HttpStatus.OK);
     }
 }
