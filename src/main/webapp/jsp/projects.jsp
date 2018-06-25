@@ -36,7 +36,7 @@
                     {{#if isPublic}}
                         <span class="release-date">{{formatDate release_date}}</span>
                     {{else}}
-                        <span>🔒 Private</span>
+                        <span><i class="fas fa-lock"></i> Private</span>
                     {{/if}}
                 </div>
             </div>
