@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.EFOConfig;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -51,10 +50,10 @@ public class ReloadOntologyJob{
     public void doExecute(){
         // check if efo.owl is in temp folder; if it's not there, copy from source
         try {
-            String efoLocation = efoConfig.getEfoLocation();
+            String efoLocation = efoConfig.getOwlFilename();
             File efoFile = new File(efoLocation);
             if (!efoFile.exists()) {
-                String efoBuiltinSource = efoConfig.getEfoSource();
+                String efoBuiltinSource = efoConfig.getLocalOwlFilename();
                 try (InputStream is = new ClassPathResource(efoBuiltinSource).getInputStream()) {
                     Files.write(CharStreams.toString(new InputStreamReader(is, "UTF-8")),
                             efoFile, Charset.forName("UTF-8"));

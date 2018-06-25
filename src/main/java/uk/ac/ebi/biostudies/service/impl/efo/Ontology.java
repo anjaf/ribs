@@ -95,7 +95,7 @@ public class Ontology {
     }
 
     private void loadCustomSynonyms() throws IOException {
-        String synFileLocation = efoConfig.getEfoSynonyms();
+        String synFileLocation = efoConfig.getSynonymFilename();
         if (null != synFileLocation) {
             try (InputStream resourceInputStream = (new ClassPathResource(synFileLocation)).getInputStream()){
                 Map<String, Set<String>> synonyms = new SynonymsFileReader(new InputStreamReader(resourceInputStream)).readSynonyms();
@@ -126,7 +126,7 @@ public class Ontology {
     }
 
     private IEFO removeIgnoredClasses(IEFO efo) throws IOException {
-        return removeIgnoredClasses(efo, efoConfig.getIgnoreList());
+        return removeIgnoredClasses(efo, efoConfig.getIgnoreListFilename());
     }
 
     private void removeEFONode(IEFO efo, String nodeId) {

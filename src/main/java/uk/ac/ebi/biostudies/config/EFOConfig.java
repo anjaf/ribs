@@ -22,22 +22,22 @@ public class EFOConfig {
     private String stopWords;
 
     @Value("${efo.index.location}")
-    private String efoIndexLocation;
+    private String indexLocation;
 
     @Value("${bs.efo.synonyms}")
-    private String efoSynonyms;
+    private String synonymFilename;
 
     @Value("${bs.efo.ignoreList}")
-    private String ignoreList;
+    private String ignoreListFilename;
 
     @Value("${bs.efo.owl}")
-    private String owl;
+    private String owlFilename;
 
     @Value("${bs.efo.update.source}")
-    private String efoUrl;
+    private String url;
 
     @Value("${bs.efo.source}")
-    private String efoSource;
+    private String localOwlFilename;
 
 //    @Value("${bs.efo.location}")
 //    private String efoLocation;
@@ -52,35 +52,32 @@ public class EFOConfig {
         stopWordsSet.addAll(Arrays.asList(words));
     }
 
-    public String getEfoUrl(){
-        return efoUrl;
+    public String getUrl(){
+        return url;
     }
 
-    public String getEfoIndexLocation(){
-        return efoIndexLocation;
+    public String getIndexLocation(){
+        return indexLocation;
     }
 
     public Set<String> getStopWordsSet(){
         return stopWordsSet;
     }
 
-    public String getEfoSynonyms(){
-        return efoSynonyms;
+    public String getSynonymFilename(){
+        return synonymFilename;
     }
 
-    public String getIgnoreList(){
-        return ignoreList;
+    public String getIgnoreListFilename(){
+        return ignoreListFilename;
     }
 
-    public String getOwl(){
-        return owl;
+    public String getLocalOwlFilename(){
+        return localOwlFilename;
     }
 
-    public String getEfoSource(){
-        return efoSource;
-    }
-    public String getEfoLocation(){
-        return System.getProperty("java.io.tmpdir")+"\\"+owl;
+    public String getOwlFilename(){
+        return owlFilename;
     }
 
 

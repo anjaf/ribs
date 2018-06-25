@@ -58,7 +58,7 @@ public class UpdateOntologyJob{
     public void doExecute() throws Exception {
         // check the version of EFO from update location; if newer, copy it
         // over to our location and launch a reload process
-        String efoLocation = efoConfig.getEfoUrl();//getPreferences().getString("bs.efo.update.source");
+        String efoLocation = efoConfig.getUrl();//getPreferences().getString("bs.efo.update.source");
         URI efoURI = new URI(efoLocation);
         logger.info("Checking EFO ontology version from [{}]", efoURI.toString());
         String version = EFOLoader.getOWLVersion(efoURI);
@@ -73,7 +73,7 @@ public class UpdateOntologyJob{
             // we have newer version, let's fetch it and copy it over to our working location
             logger.info("Updating EFO with version [{}]", version);
             try (InputStream is = efoURI.toURL().openStream()) {
-                File efoFile = new File(efoConfig.getEfoLocation());
+                File efoFile = new File(efoConfig.getOwlFilename());
                 Files.write(CharStreams.toString(new InputStreamReader(is, "UTF-8")),
                         efoFile, Charset.forName("UTF-8"));
                 emailSender.send(mailConfig.getReportsRecipients(),

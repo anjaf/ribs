@@ -85,7 +85,7 @@ public class IndexManager {
             indexSearcher = new IndexSearcher(getIndexReader());
             IndexWriterConfig efoIndexWriterConfig = new IndexWriterConfig(new LowercaseAnalyzer());
             efoIndexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-            efoIndexDirectory = FSDirectory.open(Paths.get(eFOConfig.getEfoIndexLocation()));
+            efoIndexDirectory = FSDirectory.open(Paths.get(eFOConfig.getIndexLocation()));
             loadEFO(efoIndexWriterConfig);
             if(efoIndexWriter==null)
                 efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
@@ -103,7 +103,7 @@ public class IndexManager {
 
     private void loadEFO(IndexWriterConfig efoIndexWriterConfig) throws Exception{
         if(!DirectoryReader.indexExists(efoIndexDirectory)){
-            try (InputStream resourceInputStream = (new ClassPathResource(eFOConfig.getEfoSource())).getInputStream()){
+            try (InputStream resourceInputStream = (new ClassPathResource(eFOConfig.getLocalOwlFilename())).getInputStream()){
                 efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
                 ontology.update(resourceInputStream);
                 logger.info("EFO loading completed");
