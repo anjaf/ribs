@@ -103,8 +103,7 @@
 }
 
 
-.project-text{
-    vertical-align: middle;
+.project-text{vertical-align: middle;
     color: #777;
     padding-left: 10px;
     font-size: 11pt;
@@ -265,3 +264,12 @@ nav span.icon {
     font-size: 13px;
 }
 
+.bigicon {
+    font-size: 100pt;
+    line-height: 60%;
+    color: #d0d0d0;
+}
+#error-message{
+    text-align: center;
+    padding: 40pt;
+}
