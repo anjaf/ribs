@@ -29,7 +29,8 @@
     {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true},
     {"name":"facet.toxicity_domain", "title":"Toxicity Domain", "fieldType":"facet", "multiValued":true},
     {"name":"facet.compound", "title":"Compound", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.method_name", "title":"Method name", "fieldType":"facet", "multiValued":true}
+    {"name":"facet.method_name", "title":"Method name", "fieldType":"facet", "multiValued":true},
+    {"name":"facet.project_part", "title":"Project part", "fieldType":"facet", "multiValued":true}
   ],
   "public":
   [
