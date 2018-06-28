@@ -278,8 +278,12 @@ public class ConfigurableIndexService implements IndexService {
         }
 
         private void extractContent(Map<String, Object> valueMap) {
-            StringBuilder content = new StringBuilder(String.join(" ", json.get("accno").textValue()));
+            String accession = json.get("accno").textValue();
+            StringBuilder content = new StringBuilder(String.join(" ", accession));
             content.append(" ");
+            if (accession.startsWith("S-EPMC")) {// hack to make sure we are indexing PMC accessions in full text
+                content.append( accession.substring(3) ).append(" ");
+            }
             content.append(String.join(" ", json.get("section").findValuesAsText("value")));
             content.append(" ");
             content.append(json.findValues("files").stream().map(jsonNode -> jsonNode.findValuesAsText("path").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
