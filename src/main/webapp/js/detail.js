@@ -638,31 +638,25 @@ function findall(obj,k,unroll){ // works only for files and links
 function postRender(params, data) {
     $('body').append('<div id="blocker"/><div id="tooltip"/>');
     drawSubsections();
-        // createDataTables();
-    if (data.files.length<1000) {
-        createMainFileTable();
-        createMainLinkTable();
-        showRightColumn();
-        handleSectionArtifacts();
-        handleTableExpansion();
-        handleOrganisations();
+    createBigFileTable(data.accno, params, function() {
         handleFileDownloadSelection();
-        formatPageHtml();
         handleAnchors(params);
-        handleSubattributes();
-        handleOntologyLinks();
-        handleORCIDIntegration();
-        handleSimilarStudies();
-        handleImageURLs();
- 		
-		handleProjectBasedScriptInjection();
-    	handleTableCentering();
-
         handleThumbnails();
-    }
-    else {
-        createBigFileTable(data.accno, params)
-    }
+    });
+    createMainLinkTable();
+    showRightColumn();
+    handleSectionArtifacts();
+    handleTableExpansion();
+    handleOrganisations();
+    formatPageHtml();
+    handleSubattributes();
+    handleOntologyLinks();
+    handleORCIDIntegration();
+    handleSimilarStudies();
+    handleImageURLs();
+
+    handleProjectBasedScriptInjection();
+    handleTableCentering();
 }
 
 function handleProjectBasedScriptInjection() {
@@ -709,7 +703,7 @@ function  showRightColumn() {
     });
 }
 
-function createBigFileTable(acc, params){
+function createBigFileTable(acc, params, callback){
     $.ajax({url: "http://localhost:8080/biostudies/api/v1/headers/"+acc, success: function(result){
          result.splice(0,0,{name: "x", title: "", searchable:true, type:"checkbox", visible: true, orderable:false, data: "",  render: function ( data, type, row ) {
              return '<div class="file-check-box"><input type="checkbox" data-name="'+row.path+'"></input></div>';
@@ -733,29 +727,15 @@ function createBigFileTable(acc, params){
                 ajax: {
                 url: '/biostudies/api/v1/filelist',
                 type: 'post',
-                data:{acc:acc, pageSize:10}
+                data:{acc:acc, pageSize:10},
+                complete: function() {
+                    callback();
+                }
             }
         });
         var head_item = filesTable.columns(0).header();
         $(head_item ).html('<input id="select-all-files"  type="checkbox"/>');
-        createMainLinkTable();
-        showRightColumn();
-        handleSectionArtifacts();
-        handleTableExpansion();
-        handleOrganisations();
-        handleFileDownloadSelection();
-        formatPageHtml();
-        handleAnchors(params);
-        handleSubattributes();
-        handleOntologyLinks();
-        handleORCIDIntegration();
-        handleSimilarStudies();
-        handleImageURLs();
 
-	 	handleProjectBasedScriptInjection();
-    	handleTableCentering();
-
-        handleThumbnails();
     }});
 }
 function createDataTables() {
