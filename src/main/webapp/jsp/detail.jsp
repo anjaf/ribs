@@ -150,11 +150,15 @@
                     {{#if subsections}}
                         {{#each subsections}}
                             {{#ifRenderable this}}
-                                {{&section this}}
+                                {{#ifArray this}}
+                                    <br/>
+                                    {{&table this}}
+                                {{else}}
+                                    {{&section this}}
+                                {{/ifArray}}
                             {{/ifRenderable}}
                         {{/each}}
                     {{/if}}
-
                 </div>
             </div>
             <div class="clearboth"></div>
