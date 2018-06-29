@@ -253,7 +253,7 @@ function registerHelpers() {
     Handlebars.registerHelper('ifRenderable', function(arr,options) {
         var specialSections = ['author', 'organization','organisation', 'funding', 'publication'];
 
-        if(arr.type &&  $.inArray(arr.type.toLowerCase(),specialSections) < 0) {
+        if(Array.isArray(arr) || (arr.type &&  $.inArray(arr.type.toLowerCase(),specialSections) < 0)) {
             return options.fn(this);
         } else {
             return options.inverse(this);
@@ -917,6 +917,7 @@ function handleTableExpansion() {
     });
 
     $('.has-child-section :not(visible) > section > .toggle-tables').click(); // expand tables for hidden sections
+    $('#bs-content > section > a.toggle-tables').click(); // expand main section table
 
 }
 
