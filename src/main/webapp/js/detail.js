@@ -422,14 +422,14 @@ function registerHelpers() {
         return this.name
     });
 
-    Handlebars.registerHelper('eachAuthor', function(obj, options) {
+    Handlebars.registerHelper('eachAuthor', function(study, options) {
         var ret = '';
         var orgs = {}
 
         // make an org map
-        if (!obj.subsections) return '';
+        if (!study.subsections) return '';
 
-        $.each(obj.subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation') ;}), function (i,o) {
+        $.each(study.subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation') ;}), function (i,o) {
             var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
             orgs[o.accno] = orgName[0].value ;
         });
@@ -437,7 +437,7 @@ function registerHelpers() {
 
         var orgNumber = 1;
         var orgToNumberMap = {}
-        var authors = obj.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='author';});
+        var authors = study.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='author';});
          $.each(authors, function (i,o) {
              var author = {}
              $.each(o.attributes, function (i, v) {
@@ -641,7 +641,7 @@ function postRender(params, data) {
     createBigFileTable(data.accno, params, function() {
         handleFileDownloadSelection();
         handleAnchors(params);
-        handleThumbnails();
+        //handleThumbnails();
     });
     createMainLinkTable();
     showRightColumn();
@@ -708,8 +708,10 @@ function createBigFileTable(acc, params, callback){
          result.splice(0,0,{name: "x", title: "", searchable:true, type:"checkbox", visible: true, orderable:false, data: "",  render: function ( data, type, row ) {
              return '<div class="file-check-box"><input type="checkbox" data-name="'+row.path+'"></input></div>';
          }});
-        filesTable= $('#file-list').DataTable({"processing": true,
-            "serverSide": true, "columns": result,
+        filesTable= $('#file-list').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "columns": result,
             "columnDefs": [
                 {
                     targets:2,
@@ -1047,7 +1049,8 @@ function handleAnchors(params) {
 
     // add file filter button for section
     $(filesTable.column(':contains(Section)').nodes()).each( function(){
-        var divId = $(this).data('search');
+        var divId = accToLink($(this).text());
+        $(this).data('search',divId);
         if (divId !='' ) {
             var bar = $('#' + divId + '> .bs-name > .section-title-bar');
             if (!$('a[data-files-id="' + divId + '"]', bar).length) {
@@ -1058,13 +1061,13 @@ function handleAnchors(params) {
         }
     });
     // handle clicks on file filters in section
-    $("a[data-files-id]").click( function() {
+    $("a.section-button[data-files-id]").click( function() {
         expansionSource = ''+$(this).data('files-id');
         clearFileFilter();
         $('#all-files-expander').click();
-        filesTable.column(3).search('^'+ accToLink(expansionSource)+'$',true,false);
+        filesTable.column(':contains(Section)').search(accToLink(expansionSource));
         // hide empty columns
-        filesTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
+        //filesTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
         filesTable.draw();
     });
 

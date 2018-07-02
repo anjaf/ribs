@@ -234,10 +234,9 @@ public class ConfigurableIndexService implements IndexService {
                 }
                 valueMap.put(Facets.PROJECT, project);
                 Set<String> columnSet = new HashSet<>();
-                if("S-DIXA-008".equalsIgnoreCase((String)valueMap.get(Fields.ACCESSION)))
-                    System.out.println();
-                if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study"))
-                    FileIndexer.indexSubmissionFiles((String)valueMap.get(Fields.ACCESSION), json, writer, columnSet);
+                if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study")) {
+                    FileIndexer.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet);
+                }
                 valueMap.put(Constants.File.FILE_ATTS, columnSet);
                 extractContent(valueMap);
                 extractAuthorData(valueMap);
@@ -424,7 +423,9 @@ public class ConfigurableIndexService implements IndexService {
 
         private void addFileAttributses(Document doc, Set<String> columnAtts){
             StringBuilder allAtts = new StringBuilder();
-            allAtts.append(Constants.File.JSONNAME).append("|").append(Constants.File.JSONSIZE).append("|").append(Constants.File.JSONPATH).append("|");
+            allAtts.append(Constants.File.JSONNAME).append("|")
+                    .append(Constants.File.JSONSIZE).append("|")
+                    .append(Constants.File.JSONPATH).append("|");
             for(String att:columnAtts)
                 allAtts.append(att).append("|");
 //            if(allAtts.length()>0)

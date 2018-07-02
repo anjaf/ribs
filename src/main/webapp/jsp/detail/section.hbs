@@ -2,40 +2,40 @@
     <section id="{{accToLink this.accno}}" name="{{accToLink this.accno}}">
         <div class="bs-name {{this.indentClass}}">
             {{#ifHasAttribute 'Title' this.attributes}}
-            {{valueWithName 'Title' this.attributes}}
+                {{valueWithName 'Title' this.attributes}}
             {{else}}
-            {{type}}
+                {{type}}
             {{/ifHasAttribute}}
             <span class="section-title-bar"></span>
         </div>
         <div class="has-child-section">
             {{#if subsections}}
-            {{#each subsections}}
-            {{#ifArray this}}
-            {{&table this}}
-            {{/ifArray}}
-            {{/each}}
+                {{#each subsections}}
+                    {{#ifArray this}}
+                        {{&table this}}
+                    {{/ifArray}}
+                {{/each}}
             {{/if}}
 
             <!-- section level attributes -->
             {{#eachGroup attributes}}
-            {{#each this}}
-            {{#ifCond name '!=' 'Title'}}
-            {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
-            {{#ifHasAttribute 'url' valqual}}<a href="{{valueWithName 'url' valqual}}">{{/ifHasAttribute}}{{value}}{{#ifHasAttribute 'url' valqual}}</a>{{/ifHasAttribute}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
-            {{/ifCond}}
-            {{/each}}
+                {{#each this}}
+                    {{#ifCond name '!=' 'Title'}}
+                        {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
+                        {{#ifHasAttribute 'url' valqual}}<a href="{{valueWithName 'url' valqual}}">{{/ifHasAttribute}}{{value}}{{#ifHasAttribute 'url' valqual}}</a>{{/ifHasAttribute}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
+                    {{/ifCond}}
+                {{/each}}
             {{/eachGroup}}
 
             {{#if subsections}}
-            {{#each subsections}}
-            {{#ifArray this}}
-            {{else}}
-            {{#ifRenderable this}}
-            {{&section this 'true'}}
-            {{/ifRenderable}}
-            {{/ifArray}}
-            {{/each}}
+                {{#each subsections}}
+                    {{#ifArray this}}
+                    {{else}}
+                            {{#ifRenderable this}}
+                                {{&section this 'true'}}
+                            {{/ifRenderable}}
+                    {{/ifArray}}
+                {{/each}}
             {{/if}}
 
         </div>
