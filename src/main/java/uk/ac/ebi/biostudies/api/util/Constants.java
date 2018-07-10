@@ -76,14 +76,14 @@ public interface Constants {
     }
 
     interface File{
-        String JSONPATH = "path";
-        String JSONNAME = "name";
-        String JSONSIZE = "size";
+//        String JSONPATH = "path";
+//        String JSONNAME = "name";
+//        String JSONSIZE = "size";
         String FILE_ATTS = "FILEATTS_";
-        String PATH = FILE_ATTS + "path";
-        String SIZE = FILE_ATTS + "size";
-        String PARENT = FILE_ATTS + "Section";
-        String NAME = FILE_ATTS + "name";
+        String PATH = "path";
+        String SIZE = "Size";
+        String SECTION = "Section";
+        String NAME = "Name";
         String TYPE = "type";
         String ATTRIBUTES = "attributes";
         String VALUE= "value";

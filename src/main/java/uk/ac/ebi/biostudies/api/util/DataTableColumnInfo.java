@@ -11,6 +11,7 @@ public class DataTableColumnInfo {
     private int index;
     private String dir;
     private int column;
+    private String searchValue;
 
     public String getName() {
         return name;
@@ -56,10 +57,7 @@ public class DataTableColumnInfo {
         int orderIndex = 0;
         for(String key : keySet){
             if(key.contains("[name]") && key.contains("columns")){
-                begin = key.indexOf("[");
-                end = key.indexOf("]");
-                pval = key.substring(begin+1, end);
-                colIndex = Integer.parseInt(pval);
+                colIndex = getArrayIndex(key);
                 colInfo = resultMap.get(colIndex);
                 if(colInfo==null){
                     colInfo = new DataTableColumnInfo();
@@ -69,21 +67,25 @@ public class DataTableColumnInfo {
                 colInfo.name = dtRequest.getFirst(key);
             }else
             if(key.contains("order[") && key.contains("[column]")){
-                begin = key.indexOf("[");
-                end = key.indexOf("]");
-                pval = key.substring(begin+1, end);
-                orderIndex = Integer.parseInt(pval);
+                orderIndex = getArrayIndex(key);;
                 orderMap.put(orderIndex, Integer.parseInt(dtRequest.getFirst(key)));
             }else
             if(key.contains("order[") && key.contains("[dir]")){
-                begin = key.indexOf("[");
-                end = key.indexOf("]");
-                pval = key.substring(begin+1, end);
                 String dir = dtRequest.getFirst(key);
-                orderIndex = Integer.parseInt(pval);
+                orderIndex = getArrayIndex(key);
                 colIndex = (Integer)orderMap.get(orderIndex);
                 colInfo = resultMap.get(colIndex);
                 colInfo.setDir(dir);
+            }
+            else
+            if(key.contains("search]") && key.contains("value")){
+                String searchVal = dtRequest.getFirst(key);
+                if(searchVal==null || searchVal.isEmpty())
+                    continue;
+                orderIndex = getArrayIndex(key);
+                colIndex = (Integer)orderMap.get(orderIndex);
+                colInfo = resultMap.get(colIndex);
+                colInfo.setSearchValue(searchVal);
             }
         }
         Set<Integer> resultKeySet = new HashSet<>(resultMap.keySet());
@@ -93,5 +95,19 @@ public class DataTableColumnInfo {
         return resultMap;
     }
 
+    private static  int getArrayIndex(String key){
+        int begin = key.indexOf("[");
+        int end = key.indexOf("]");
+        String pval = key.substring(begin+1, end);
+        return Integer.parseInt(pval);
+    }
 
+
+    public String getSearchValue() {
+        return searchValue;
+    }
+
+    public void setSearchValue(String searchValue) {
+        this.searchValue = searchValue;
+    }
 }

@@ -39,49 +39,56 @@ public class FileIndexer {
         List<JsonNode> attributes;
         String value;
         Document doc = new Document();
-        if(fNode.get(Constants.File.JSONSIZE)!=null) {
-            size = Long.valueOf(fNode.get(Constants.File.JSONSIZE).asText());
+        if(fNode.get(Constants.File.SIZE.toLowerCase())!=null) {
+            size = Long.valueOf(fNode.get(Constants.File.SIZE.toLowerCase()).asText());
             doc.add(new SortedNumericDocValuesField(Constants.File.SIZE, size));
             doc.add(new StoredField(Constants.File.SIZE, size));
         }
-        JsonNode pathNode = fNode.get(Constants.File.JSONPATH);
+        JsonNode pathNode = fNode.get(Constants.File.PATH);
         path = pathNode==null || pathNode.asText().equalsIgnoreCase("null")? null : pathNode.asText();
-        pathNode = fNode.get(Constants.File.JSONNAME);
+        pathNode = fNode.get(Constants.IndexEntryAttributes.NAME);
         name = pathNode==null || pathNode.asText().equalsIgnoreCase("null")? null:pathNode.asText();
-        if(path!=null) {
-            if(name==null)
-                name = path.contains("/") ? StringUtils.substringAfterLast(path, "/") : path;
-            doc.add(new StringField(Constants.File.PATH, path, Field.Store.YES));
-            doc.add(new SortedDocValuesField(Constants.File.PATH, new BytesRef(path)));
-        }
-        attributes = fNode.findValues(Constants.File.ATTRIBUTES);
+        if(path==null && name!=null)
+            path = name;
+        if(path!=null && name == null)
+            name = path.contains("/") ? StringUtils.substringAfterLast(path, "/") : path;
+        doc.add(new StringField(Constants.File.PATH, path.toLowerCase(), Field.Store.NO));
+        doc.add(new StoredField(Constants.File.PATH, path));
+        doc.add(new SortedDocValuesField(Constants.File.PATH, new BytesRef(path)));
         if(name!=null) {
-            doc.add(new StringField(Constants.File.NAME, name, Field.Store.YES));
+            doc.add(new StringField(Constants.File.NAME, name.toLowerCase(), Field.Store.NO));
+            doc.add(new StoredField(Constants.File.NAME, name));
             doc.add(new SortedDocValuesField(Constants.File.NAME, new BytesRef(name)));
         }
+        attributes = fNode.findValues(Constants.File.ATTRIBUTES);
+
         doc.add(new StringField(Constants.File.TYPE, Constants.File.FILE, Field.Store.YES));
         doc.add(new StringField(Constants.File.OWNER, accession, Field.Store.YES));
         if (parent.has("accno")) {
-            doc.add(new StringField(Constants.File.PARENT, parent.get("accno").textValue().replaceAll ("/","").replaceAll(" ", "") , Field.Store.YES));
-            attributeColumns.add("Section");
+            String section = parent.get("accno").textValue().replaceAll ("/","").replaceAll(" ", "");
+            doc.add(new StringField(Constants.File.SECTION,  section.toLowerCase(), Field.Store.NO));
+            doc.add(new StoredField(Constants.File.SECTION, section));
+            doc.add(new SortedDocValuesField(Constants.File.SECTION, new BytesRef(section)));
+            attributeColumns.add(Constants.File.SECTION);
         }
 
         if (attributes != null && attributes.size()>0 && attributes.get(0)!=null) {
             for (JsonNode attrib : attributes.get(0)) {
-                JsonNode tempAttName = attrib.findValue(Constants.File.JSONNAME);
+                JsonNode tempAttName = attrib.findValue(Constants.IndexEntryAttributes.NAME);
                 JsonNode tempAttValue = attrib.findValue(Constants.File.VALUE);
                 if(tempAttName==null || tempAttValue==null)
                     continue;
                 name = tempAttName.asText();
                 value = tempAttValue.asText();
                 if(name!=null && value!=null && !name.isEmpty() && ! value.isEmpty()) {
-                    if(doc.getField(Constants.File.FILE_ATTS + name)!=null)
+                    if(doc.getField(name)!=null)
                     {
 //                                        LOGGER.debug("this value is repeated accno: {} firstAppearance value: {}, secondAppearance value: {}", accession, doc.getField(Constants.File.FILE_ATTS + name).stringValue(), name);
                         continue;
                     }
-                    doc.add(new StringField(Constants.File.FILE_ATTS + name, value, Field.Store.YES));
-                    doc.add(new SortedDocValuesField(Constants.File.FILE_ATTS + name, new BytesRef(value) ));
+                    doc.add(new StringField(name, value.toLowerCase(), Field.Store.NO));
+                    doc.add(new StoredField(name, value));
+                    doc.add(new SortedDocValuesField(name, new BytesRef(value) ));
                     attributeColumns.add(name);
                 }
             }

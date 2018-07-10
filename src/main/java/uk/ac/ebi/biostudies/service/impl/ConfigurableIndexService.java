@@ -422,14 +422,9 @@ public class ConfigurableIndexService implements IndexService {
         }
 
         private void addFileAttributses(Document doc, Set<String> columnAtts){
-            StringBuilder allAtts = new StringBuilder();
-            allAtts.append(Constants.File.JSONNAME).append("|")
-                    .append(Constants.File.JSONSIZE).append("|")
-                    .append(Constants.File.JSONPATH).append("|");
+            StringBuilder allAtts = new StringBuilder("Name|Size|");
             for(String att:columnAtts)
                 allAtts.append(att).append("|");
-//            if(allAtts.length()>0)
-//                allAtts.deleteCharAt(allAtts.length()-1);
             doc.add(new StringField(Constants.File.FILE_ATTS, allAtts.toString(),Field.Store.YES));
         }
 
