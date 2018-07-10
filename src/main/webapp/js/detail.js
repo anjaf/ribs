@@ -709,6 +709,7 @@ function createBigFileTable(acc, params, callback){
              return '<div class="file-check-box"><input type="checkbox" data-name="'+row.path+'"></input></div>';
          }});
         filesTable= $('#file-list').DataTable({
+            "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
             "processing": true,
             "serverSide": true,
             "columns": result,
@@ -729,7 +730,7 @@ function createBigFileTable(acc, params, callback){
                 ajax: {
                 url: '/biostudies/api/v1/filelist',
                 type: 'post',
-                data:{acc:acc, pageSize:10},
+                data:{acc:acc},
                 complete: function() {
                     callback();
                 }

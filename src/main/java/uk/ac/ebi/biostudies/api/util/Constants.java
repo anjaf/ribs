@@ -73,6 +73,7 @@ public interface Constants {
         String MODIFICATION_TIME="mtime";
         String CREATION_TIME = "ctime";
         String RELEASE_DATE = "release_date";
+        String SECTIONS_WITH_FILES = "sections_with_files";
     }
 
     interface File{

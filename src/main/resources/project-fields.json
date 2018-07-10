@@ -49,6 +49,7 @@
     {"name":"id", "title":"", "fieldType":"untokenized_string", "retrieved":false, "expanded":false, "sortable":false},
     {"name":"seckey", "title":"", "fieldType":"untokenized_string", "retrieved":false, "expanded":false, "sortable":false},
     {"name":"orcid", "title":"", "fieldType":"tokenized_string", "retrieved":false, "expanded":false, "sortable":false, "analyzer":"AccessFieldAnalyzer"},
+    {"name":"sections_with_files", "title":"", "fieldType":"untokenized_string", "retrieved":false, "expanded":false, "sortable":false},
     {"name":"facet.project", "title":"Project", "fieldType":"facet", "jsonPath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":true},
     {"name":"facet.released_year", "title":"Released", "fieldType":"facet", "multiValued":false},
     {"name":"facet.modification_year", "title":"Created/Modified", "fieldType":"facet", "multiValued":false, "private":true},

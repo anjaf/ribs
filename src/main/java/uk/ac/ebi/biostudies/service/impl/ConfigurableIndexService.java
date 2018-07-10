@@ -235,7 +235,10 @@ public class ConfigurableIndexService implements IndexService {
                 valueMap.put(Facets.PROJECT, project);
                 Set<String> columnSet = new HashSet<>();
                 if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study")) {
-                    FileIndexer.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet);
+                    String sectionsWithFiles =FileIndexer.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet);
+                    if (sectionsWithFiles !=null ) {
+                        valueMap.put(Fields.SECTIONS_WITH_FILES, sectionsWithFiles);
+                    }
                 }
                 valueMap.put(Constants.File.FILE_ATTS, columnSet);
                 extractContent(valueMap);

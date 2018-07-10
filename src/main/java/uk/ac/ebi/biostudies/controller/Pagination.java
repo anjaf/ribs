@@ -29,7 +29,7 @@ public class Pagination {
     @RequestMapping(value = "/filelist", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.POST)
     public String search(@RequestParam(value="acc", required=false, defaultValue = "") String accession,
                          @RequestParam(value="start", required=false, defaultValue = "0") Integer start,
-                         @RequestParam(value="length", required=false, defaultValue = "20") Integer pageSize,
+                         @RequestParam(value="length", required=false, defaultValue = "5") Integer pageSize,
                          @RequestParam(value="search[value]", required=false, defaultValue = "") String search,
                          @RequestParam(value="draw", required=false, defaultValue = "1") Integer draw,
                          @RequestParam MultiValueMap<String,String> order
