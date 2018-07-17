@@ -12,9 +12,7 @@ import org.apache.lucene.util.BytesRef;
 import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class FileIndexer {
@@ -22,23 +20,32 @@ public class FileIndexer {
 
     public static String indexSubmissionFiles(String accession,JsonNode json, IndexWriter writer, Set<String> attributeColumns) throws IOException {
         int counter = 0;
+        List<String> columns = new ArrayList<>();
         Set<String> sectionsWithFiles = new HashSet<>();
         List<JsonNode> filesParents = json.findParents("files");
         if(filesParents==null) return null;
         for(JsonNode parent:filesParents) {
             if(parent==null) continue;
             for(JsonNode fNode : parent.findValue("files")){
-                Document doc = getFileDocument(accession, attributeColumns, fNode, parent);
+                Document doc = getFileDocument(accession, columns, fNode, parent);
                 writer.updateDocument(new Term(Constants.Fields.ID, accession + counter++), doc);
                 if (doc.get(Constants.File.SECTION)!=null) {
                     sectionsWithFiles.add(doc.get(Constants.File.SECTION));
                 }
             }
         }
+
+        //put Section as the first column. Name and size would be prepended later
+        if (columns.contains("Section")) {
+            columns.remove("Section");
+            columns.add(0,"Section");
+        }
+        attributeColumns.addAll(columns);
+
         return sectionsWithFiles.size()==0 ? null : String.join(" ", sectionsWithFiles);
     }
 
-    private static Document getFileDocument(String accession, Set<String> attributeColumns, JsonNode fNode, JsonNode parent) {
+    private static Document getFileDocument(String accession, List<String> attributeColumns, JsonNode fNode, JsonNode parent) {
         Long size;
         String path;
         String name;
@@ -70,9 +77,10 @@ public class FileIndexer {
 
         doc.add(new StringField(Constants.File.TYPE, Constants.File.FILE, Field.Store.YES));
         doc.add(new StringField(Constants.File.OWNER, accession, Field.Store.YES));
-        if (parent.has("accno")) {
+        // add section field if file is not global
+        if (parent.has("accno") && (!parent.has("type") || !parent.get("type").textValue().toLowerCase().equalsIgnoreCase("study") )  ) {
             String section = parent.get("accno").textValue().replaceAll ("/","").replaceAll(" ", "");
-            doc.add(new StringField(Constants.File.SECTION,  section.toLowerCase(), Field.Store.NO));
+            doc.add(new StringField(Constants.File.SECTION,  section, Field.Store.NO));
             doc.add(new StoredField(Constants.File.SECTION, section));
             doc.add(new SortedDocValuesField(Constants.File.SECTION, new BytesRef(section)));
             attributeColumns.add(Constants.File.SECTION);
@@ -99,6 +107,7 @@ public class FileIndexer {
                 }
             }
         }
+
         return doc;
     }
 

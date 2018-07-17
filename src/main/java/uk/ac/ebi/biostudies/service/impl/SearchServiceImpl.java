@@ -17,8 +17,6 @@ import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
@@ -303,7 +301,7 @@ public class SearchServiceImpl implements SearchService {
         mlt.setFieldNames(new String[]{Fields.CONTENT, Fields.TITLE, Facets.PROJECT});
         mlt.setAnalyzer(analyzerManager.getPerFieldAnalyzerWrapper());
         ObjectMapper mapper = new ObjectMapper();
-        Integer docNumber = getDocumentByAccession(accession);
+        Integer docNumber = getDocumentNumberByAccession(accession);
         Query likeQuery = mlt.like( docNumber);
         TopDocs mltDocs = indexManager.getIndexSearcher().search( likeQuery , maxHits);
         ArrayNode similarStudies = mapper.createArrayNode();
@@ -320,7 +318,18 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
-    private Integer getDocumentByAccession(String accession){
+    @Override
+    public Document getDocumentByAccession(String accession) {
+        Integer docNumber = getDocumentNumberByAccession(accession);
+        try {
+            return indexManager.getIndexReader().document(docNumber);
+        } catch (IOException ex) {
+            logger.error("Problem retrieving "+ accession, ex);
+        }
+        return null;
+    }
+
+    private Integer getDocumentNumberByAccession(String accession){
         QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         Query query = null;

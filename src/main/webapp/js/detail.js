@@ -638,12 +638,9 @@ function findall(obj,k,unroll){ // works only for files and links
 function postRender(params, data) {
     $('body').append('<div id="blocker"/><div id="tooltip"/>');
     drawSubsections();
-    createBigFileTable(data.accno, params, function() {
-        handleFileDownloadSelection();
-        handleAnchors(params);
-        //handleThumbnails();
-    });
+    createBigFileTable(data.accno, params);
     createMainLinkTable();
+    handleLinkFilters();
     showRightColumn();
     handleSectionArtifacts();
     handleTableExpansion();
@@ -657,6 +654,8 @@ function postRender(params, data) {
 
     handleProjectBasedScriptInjection();
     handleTableCentering();
+
+    handleAnchors(params);
 }
 
 function handleProjectBasedScriptInjection() {
@@ -703,44 +702,58 @@ function  showRightColumn() {
     });
 }
 
-function createBigFileTable(acc, params, callback){
-    $.ajax({url: "http://localhost:8080/biostudies/api/v1/headers/"+acc, success: function(result){
-         result.splice(0,0,{name: "x", title: "", searchable:true, type:"checkbox", visible: true, orderable:false, data: "",  render: function ( data, type, row ) {
-             return '<div class="file-check-box"><input type="checkbox" data-name="'+row.path+'"></input></div>';
-         }});
-        filesTable= $('#file-list').DataTable({
-            "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
-            "processing": true,
-            "serverSide": true,
-            "columns": result,
-            "columnDefs": [
-                {
-                    targets:2,
-                    render: function (data, type, row) {
-                        return getByteString(data);
-                    }
-                },
-                {
-                    targets:1,
-                    render: function (data, type, row) {
-                        return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="'+data+'" onclick="closeFullScreen();" href="'+row.path+'">'+data+'</a>';
-                    }
+function handleFileTableColumns(columns, acc, callback) {
+    columns.splice(0, 0, {
+        name: "x",
+        title: "",
+        searchable: true,
+        type: "checkbox",
+        visible: true,
+        orderable: false,
+        data: "",
+        render: function (data, type, row) {
+            return '<div class="file-check-box"><input type="checkbox" data-name="' + row.path + '"></input></div>';
+        }
+    });
+    filesTable = $('#file-list').DataTable({
+        "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+        "processing": true,
+        "serverSide": true,
+        "columns": columns,
+        "columnDefs": [
+            {
+                targets: 2,
+                render: function (data, type, row) {
+                    return getByteString(data);
                 }
-            ],
-                ajax: {
-                url: '/biostudies/api/v1/filelist',
-                type: 'post',
-                data:{acc:acc},
-                complete: function() {
-                    callback();
+            },
+            {
+                targets: 1,
+                render: function (data, type, row) {
+                    return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="' + data + '" onclick="closeFullScreen();" href="' + row.path + '">' + data + '</a>';
                 }
             }
-        });
-        var head_item = filesTable.columns(0).header();
-        $(head_item ).html('<input id="select-all-files"  type="checkbox"/>');
+        ],
+        ajax: {
+            url: '/biostudies/api/v1/filelist',
+            type: 'post',
+            data: {acc: acc},
+            complete: function () {
+                //handleFileDownloadSelection();
+            }
+        }
+    });
+    var head_item = filesTable.columns(0).header();
+    $(head_item).html('<input id="select-all-files"  type="checkbox"/>');
+}
 
+function createBigFileTable(acc, params){
+    $.ajax({url: "http://localhost:8080/biostudies/api/v1/info/"+acc, success: function(response){
+        handleFileTableColumns(response.columns, acc);
+        handleFileFilters(response.sections);
     }});
 }
+
 function createDataTables() {
     $(".section-table").each(function () {
         var dt = $(this).DataTable({
@@ -1039,43 +1052,28 @@ function openHREF(href) {
 }
 
 
-function handleAnchors(params) {
-    // scroll to main anchor
-    if (location.hash) {
-        $('#left-column').show();
-        openHREF(location.hash);
-    } else {
-        $('#left-column').slideDown();
-    }
-
+function handleFileFilters(sections) {
     // add file filter button for section
-    $(filesTable.column(':contains(Section)').nodes()).each( function(){
-        var divId = accToLink($(this).text());
-        $(this).data('search',divId);
-        if (divId !='' ) {
-            var bar = $('#' + divId + '> .bs-name > .section-title-bar');
-            if (!$('a[data-files-id="' + divId + '"]', bar).length) {
-                bar.append('<a class="section-button" data-files-id="'
-                    + divId + '"><i class="fa fa-filter"></i> show files in this section</a>'
-                );
-            }
-        }
+    $(sections).each(function (i,divId) {
+        var bar = $('#' + divId + '> .bs-name > .section-title-bar');
+        bar.append('<a class="section-button" data-files-id="'+ divId + '"><i class="fa fa-filter"></i> show files in this section</a>');
     });
     // handle clicks on file filters in section
-    $("a.section-button[data-files-id]").click( function() {
-        expansionSource = ''+$(this).data('files-id');
+    $("a.section-button[data-files-id]").click(function () {
+        expansionSource = '' + $(this).data('files-id');
         clearFileFilter();
         $('#all-files-expander').click();
-        filesTable.column(':contains(Section)').search(accToLink(expansionSource));
+        filesTable.column(':contains(Section)').search(expansionSource);
         // hide empty columns
         //filesTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
         filesTable.draw();
     });
-
-    // add file filter button for section
-    $(linksTable.column(':contains(Section)').nodes()).each( function(){
+}
+function handleLinkFilters() {
+    // add link filter button for section
+    $(linksTable.column(':contains(Section)').nodes()).each(function () {
         var divId = $(this).data('search');
-        if (divId !='' ) {
+        if (divId != '') {
             var bar = $('#' + divId + '> .bs-name > .section-title-bar');
             if (!$('a[data-links-id="' + divId + '"]', bar).length) {
                 bar.append('<a class="section-button" data-links-id="'
@@ -1085,15 +1083,27 @@ function handleAnchors(params) {
         }
     });
     // handle clicks on link filters in section
-    $("a[data-links-id]").click( function() {
-        expansionSource = ''+$(this).data('links-id');
+    $("a[data-links-id]").click(function () {
+        expansionSource = '' + $(this).data('links-id');
         clearLinkFilter();
         $('#all-links-expander').click();
-        linksTable.column(':contains(Section)').search('^'+ accToLink(expansionSource) +'$',true,false);
+        linksTable.column(':contains(Section)').search('^' + accToLink(expansionSource) + '$', true, false);
         // hide empty columns
-        linksTable.columns().every(function(){ if (linksTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
+        linksTable.columns().every(function () {
+            if (linksTable.cells({search: 'applied'}, this).data().join('').trim() == '') this.visible(false)
+        });
         linksTable.draw();
     });
+}
+
+function handleAnchors(params) {
+    // scroll to main anchor
+    if (location.hash) {
+        $('#left-column').show();
+        openHREF(location.hash);
+    } else {
+        $('#left-column').slideDown();
+    }
 
 
     //handle author list expansion
@@ -1195,8 +1205,8 @@ function downloadFiles(files) {
 }
 
 function clearFileFilter() {
-    filesTable.columns().visible(true);
-    filesTable.search('').columns().search('').draw();
+    //filesTable.columns().visible(true);
+    //filesTable.search('').columns().search('').draw();
 }
 
 function clearLinkFilter() {

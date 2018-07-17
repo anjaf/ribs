@@ -20,29 +20,35 @@ import uk.ac.ebi.biostudies.api.util.DataTableColumnInfo;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
+import uk.ac.ebi.biostudies.controller.Study;
 import uk.ac.ebi.biostudies.service.FilePaginationService;
+import uk.ac.ebi.biostudies.service.SearchService;
 
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 @Service
 public class FilePaginationServiceImpl implements FilePaginationService {
 
-    @Autowired
-    IndexManager indexManager;
     private Logger logger = LogManager.getLogger(FilePaginationServiceImpl.class.getName());
 
     @Autowired
+    IndexManager indexManager;
+    @Autowired
+    SearchService searchService;
+    @Autowired
     SecurityConfig securityConfig;
 
-    public String getColumns(String accession) {
-        return getColumnsAsArrayNode(accession).toString();
-    }
-
-    private ArrayNode getColumnsAsArrayNode(String accession){
+    public ObjectNode getStudyInfo(String accession) {
         ObjectMapper mapper = new ObjectMapper();
-        String orderedArray[] = {"Name", "Size", "Section"};
-        ArrayNode arrNode = mapper.createArrayNode();
-        String attFiles = getFileAttributesForDocument(accession);
+        ObjectNode studyInfo = mapper.createObjectNode();
+
+        String orderedArray[] = {"Name", "Size"};
+        ArrayNode fileColumnAttributes = mapper.createArrayNode();
+        Document doc = searchService.getDocumentByAccession(accession);
+        if (doc==null) return studyInfo;
+        String attFiles = doc.get(Constants.File.FILE_ATTS);
         String allAtts[] = attFiles.split("\\|");
         Set<String> headerSet = new HashSet(Arrays.asList(orderedArray));
         List<String> orderedList = new ArrayList(Arrays.asList(orderedArray));
@@ -57,12 +63,24 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             node.put("name", att);
             node.put("title", att);
             node.put("visible", true);
+            node.put("searchable", true);
             att = att.replaceAll(" ", "_");
             node.put("data", att);
             node.put("defaultContent", "");
-            arrNode.add(node);
+            fileColumnAttributes.add(node);
         }
-        return arrNode;
+
+        String sectionsWithFiles = doc.get(Constants.Fields.SECTIONS_WITH_FILES);
+        studyInfo.set("columns", fileColumnAttributes);
+        try {
+            studyInfo.set("sections", mapper.readTree("[\""+
+                        sectionsWithFiles.replaceAll(" ","\",\"")
+                    +"\"]" ));
+        } catch (IOException e) {
+            logger.error("Error retrieving sections with files");
+            studyInfo.put("sections","[]");
+        }
+        return studyInfo;
     }
 
     @Override
@@ -71,7 +89,9 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
         ObjectMapper mapper = new ObjectMapper();
         IndexReader reader = indexManager.getIndexReader();
-        ArrayNode columns = getColumnsAsArrayNode(accession);
+        ObjectNode studyInfo = getStudyInfo(accession);
+        if (studyInfo==null) return "";
+        ArrayNode columns = (ArrayNode) studyInfo.get("columns");
         search = search.toLowerCase();
         try {
             SortField allSortedFields[] = new SortField[dataTableUiResult.size()];
@@ -117,23 +137,6 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             logger.debug("problem in file atts preparation", ex);
         }
         return  mapper.createObjectNode().toString();
-    }
-
-    private String getFileAttributesForDocument(String accession){
-        String queryStr = Constants.Fields.ACCESSION+":"+accession.toLowerCase();
-        QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
-        try {
-            Query query = parser.parse(queryStr);
-            TopDocs resultDoc = indexManager.getIndexSearcher().search(query, 1);
-            if(resultDoc.totalHits>0)
-            {
-                Document result = indexManager.getIndexReader().document(resultDoc.scoreDocs[0].doc);
-                return result.get(Constants.File.FILE_ATTS);
-            }
-        } catch (Exception e) {
-            logger.error("bad accession parsing for file attributes", e);
-        }
-        return "";
     }
 
     private Query applySearch(String search, Query firstQuery, ArrayNode columns){

@@ -3,6 +3,7 @@ package uk.ac.ebi.biostudies.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -23,5 +24,6 @@ public interface SearchService {
     boolean isAccessible(String accession, String seckey);
     InputStreamResource getStudyAsStream(String accession) throws IOException;
     ObjectNode getSimilarStudies(String accession) throws Exception;
+    Document getDocumentByAccession(String accession);
 }
 

@@ -41,9 +41,9 @@ public class Pagination {
     }
 
     @PublicRESTMethod
-    @RequestMapping(value = "/headers/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getColumns(@PathVariable String accession){
-        return paginationService.getColumns(accession);
+    @RequestMapping(value = "/info/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    public String getStudyInfo(@PathVariable String accession){
+        return paginationService.getStudyInfo(accession).toString();
 
     }
 
