@@ -2,7 +2,6 @@ package uk.ac.ebi.biostudies.api.util;
 
 import org.springframework.util.MultiValueMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -79,12 +78,6 @@ public class DataTableColumnInfo {
                 colIndex = getArrayIndex(key);
                 colInfo = resultMap.get(colIndex);
                 colInfo.setSearchValue(searchVal);
-            }
-        }
-        Set<Integer> resultKeySet = new HashSet<>(resultMap.keySet());
-        for (Integer key : resultKeySet) {
-            if (resultMap.get(key).getDir() == null) {
-                resultMap.remove(key);
             }
         }
         return resultMap;

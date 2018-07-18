@@ -94,18 +94,20 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         ArrayNode columns = (ArrayNode) studyInfo.get("columns");
         search = search.toLowerCase();
         try {
-            SortField allSortedFields[] = new SortField[dataTableUiResult.size()];
+            List<SortField> allSortedFields = new ArrayList();
             List<DataTableColumnInfo> searchedColumns = new ArrayList();
-            int counter = 0;
             for(DataTableColumnInfo ftInfo:dataTableUiResult.values()){
-                allSortedFields[counter++] =  ftInfo.getName().equalsIgnoreCase("size")? new SortedNumericSortField(ftInfo.getName(),SortField.Type.LONG, ftInfo.getDir().equalsIgnoreCase("desc")?true:false)
-                        : new SortField(ftInfo.getName(), SortField.Type.STRING, ftInfo.getDir().equalsIgnoreCase("desc")?true:false);
-
+                if (ftInfo.getDir() != null && !ftInfo.getName().equalsIgnoreCase("x")) {
+                    allSortedFields.add(ftInfo.getName().equalsIgnoreCase("size") ? new SortedNumericSortField(ftInfo.getName(), SortField.Type.LONG, ftInfo.getDir().equalsIgnoreCase("desc") ? true : false)
+                            : new SortField(ftInfo.getName(), SortField.Type.STRING, ftInfo.getDir().equalsIgnoreCase("desc") ? true : false));
+                }
                 if(ftInfo.getSearchValue()!= null && !ftInfo.getSearchValue().isEmpty()){
                     searchedColumns.add(ftInfo);
                 }
             }
-            Sort sort = new Sort(allSortedFields);
+            if(allSortedFields.isEmpty())
+                allSortedFields.add( new SortField(Constants.File.NAME, SortField.Type.STRING, false));
+            Sort sort = new Sort(allSortedFields.toArray(new SortField[allSortedFields.size()]));
             Query query = parser.parse(Constants.File.OWNER+":"+accession);
             if(search!=null && !search.isEmpty())
                 query = applySearch(search, query, columns);
