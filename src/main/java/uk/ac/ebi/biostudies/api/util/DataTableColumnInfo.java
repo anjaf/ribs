@@ -49,9 +49,6 @@ public class DataTableColumnInfo {
         Set<String> keySet = dtRequest.keySet();
         Map<Integer, DataTableColumnInfo> resultMap = new HashMap<>();
         Map<Integer, Integer> orderMap = new HashMap<>();
-        int begin = 0;
-        int end = 0;
-        String pval;
         DataTableColumnInfo colInfo;
         int colIndex = 0;
         int orderIndex = 0;
@@ -79,8 +76,7 @@ public class DataTableColumnInfo {
                 if (searchVal == null || searchVal.isEmpty()) {
                     continue;
                 }
-                orderIndex = getArrayIndex(key);
-                colIndex = (Integer) orderMap.get(orderIndex);
+                colIndex = getArrayIndex(key);
                 colInfo = resultMap.get(colIndex);
                 colInfo.setSearchValue(searchVal);
             }
