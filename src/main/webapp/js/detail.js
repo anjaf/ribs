@@ -1,4 +1,4 @@
-var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource, generatedID=0, lastExpandedTable, sectionTables=[];
+var filesTable, selectedFilesCount=0, totalRows=-1, linksTable, expansionSource, generatedID=0, lastExpandedTable, sectionTables=[];
 
 String.format = function() {
     var s = arguments[0];
@@ -738,11 +738,18 @@ function handleFileTableColumns(columns, acc, callback) {
             url: '/biostudies/api/v1/filelist',
             type: 'post',
             data: {acc: acc},
-            complete: function () {
-                //handleFileDownloadSelection();
+            complete: function (data) {
+                    //handleFileDownloadSelection();
             }
+        },
+    }).on('xhr.dt', function ( e, settings, json, xhr ) {
+        if (totalRows==-1) { //override totalFiles
+            totalRows = json.recordsTotal
+        } else {
+            json.recordsTotal = totalRows
         }
-    });
+
+    } );
     var head_item = filesTable.columns(0).header();
     $(head_item).html('<input id="select-all-files"  type="checkbox"/>');
 }
