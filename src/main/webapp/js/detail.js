@@ -111,7 +111,10 @@ $.fn.groupBy = function(fn) {
         'nct':'NCT'
     };
 
-    projectScripts = [{regex: /E-MTAB-*/, script: 'ArrayExpress.js'}];
+    projectScripts = [
+        {regex: /E-MTAB-*/, script: 'ArrayExpress.js'},
+        {regex: /S-SCDT-*/, script: 'SourceData.js'}
+        ];
 
     orgOrder= [];
 
