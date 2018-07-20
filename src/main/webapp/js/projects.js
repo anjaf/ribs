@@ -43,7 +43,8 @@ function registerHelpers(params) {
     });
 
     Handlebars.registerHelper('formatDate', function(v) {
-        return (new Date(v.substr(0,4)+'-'+v.substr(4,2)+'-'+v.substr(6,2))).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+        var date = (new Date(v.substr(0,4)+'-'+v.substr(4,2)+'-'+v.substr(6,2))).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+        return date == 'Invalid Date' ? (new Date()).getFullYear() : date;
     });
 
 }
