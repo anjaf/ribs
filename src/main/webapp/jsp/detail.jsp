@@ -36,9 +36,13 @@
                 <div id="release-date-download">
                     <span class="release-date">
                         {{#if releaseDate}}
-                        Release Date: <span  id="orcid-publication-year">{{formatDate releaseDate}}</span>
+                            Release Date: <span  id="orcid-publication-year">{{formatDate releaseDate}}</span>
                         {{else}}
-                            <i class="fa fa-lock" aria-hidden="true"></i> Private
+                            {{#ifCond accessTags 'contains' 'Public' }}
+                                Released: 2018
+                            {{else}}
+                                <i class="fa fa-lock" aria-hidden="true"></i> Private
+                            {{/ifCond}}
                         {{/if}}
                     </span>
                     <div id="download-source">
