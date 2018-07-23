@@ -32,18 +32,19 @@ public class Pagination {
                          @RequestParam(value="length", required=false, defaultValue = "5") Integer pageSize,
                          @RequestParam(value="search[value]", required=false, defaultValue = "") String search,
                          @RequestParam(value="draw", required=false, defaultValue = "1") Integer draw,
-                         @RequestParam MultiValueMap<String,String> order
+                         @RequestParam MultiValueMap<String,String> order,
+                         @RequestParam(value="key", required=false) String seckey
                         ) throws Exception
     {
         Set<String> keySet = order.keySet();
         Map parseResult = DataTableColumnInfo.ParseDataTableRequest(order);
-        return paginationService.getFileList(accession, start, pageSize, search, draw, parseResult);
+        return paginationService.getFileList(accession, start, pageSize, search, draw, parseResult, seckey);
     }
 
     @PublicRESTMethod
     @RequestMapping(value = "/info/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getStudyInfo(@PathVariable String accession){
-        return paginationService.getStudyInfo(accession).toString();
+    public String getStudyInfo(@PathVariable String accession, @RequestParam(value="key", required=false) String seckey){
+        return paginationService.getStudyInfo(accession, seckey).toString();
 
     }
 

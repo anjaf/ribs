@@ -23,7 +23,7 @@ public interface SearchService {
     boolean isAccessible(String accession);
     boolean isAccessible(String accession, String seckey);
     InputStreamResource getStudyAsStream(String accession) throws IOException;
-    ObjectNode getSimilarStudies(String accession) throws Exception;
-    Document getDocumentByAccession(String accession);
+    ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception;
+    Document getDocumentByAccession(String accession, String secretKey);
 }
 

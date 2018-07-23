@@ -295,13 +295,13 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public ObjectNode getSimilarStudies(String accession) throws Exception {
+    public ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception {
         int maxHits = 4;
         MoreLikeThis mlt = new MoreLikeThis(indexManager.getIndexReader());
         mlt.setFieldNames(new String[]{Fields.CONTENT, Fields.TITLE, Facets.PROJECT});
         mlt.setAnalyzer(analyzerManager.getPerFieldAnalyzerWrapper());
         ObjectMapper mapper = new ObjectMapper();
-        Integer docNumber = getDocumentNumberByAccession(accession);
+        Integer docNumber = getDocumentNumberByAccession(accession, secretKey);
         Query likeQuery = mlt.like( docNumber);
         TopDocs mltDocs = indexManager.getIndexSearcher().search( likeQuery , maxHits);
         ArrayNode similarStudies = mapper.createArrayNode();
@@ -319,8 +319,8 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public Document getDocumentByAccession(String accession) {
-        Integer docNumber = getDocumentNumberByAccession(accession);
+    public Document getDocumentByAccession(String accession, String secretKey) {
+        Integer docNumber = getDocumentNumberByAccession(accession, secretKey);
         try {
             return indexManager.getIndexReader().document(docNumber);
         } catch (IOException ex) {
@@ -329,13 +329,13 @@ public class SearchServiceImpl implements SearchService {
         return null;
     }
 
-    private Integer getDocumentNumberByAccession(String accession){
+    private Integer getDocumentNumberByAccession(String accession, String secretKey){
         QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         Query query = null;
         try {
             query = parser.parse(Fields.ACCESSION+":"+accession);
-            Query result = securityQueryBuilder.applySecurity(query, null);
+            Query result = securityQueryBuilder.applySecurity(query, secretKey);
             TopDocs topDocs = indexManager.getIndexSearcher().search(result, 1);
             if(topDocs.totalHits>0)
                 return topDocs.scoreDocs[0].doc;

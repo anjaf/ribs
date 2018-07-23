@@ -40,13 +40,13 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     @Autowired
     SecurityConfig securityConfig;
 
-    public ObjectNode getStudyInfo(String accession) {
+    public ObjectNode getStudyInfo(String accession, String secretKey) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode studyInfo = mapper.createObjectNode();
 
         String orderedArray[] = {"Name", "Size"};
         ArrayNode fileColumnAttributes = mapper.createArrayNode();
-        Document doc = searchService.getDocumentByAccession(accession);
+        Document doc = searchService.getDocumentByAccession(accession, secretKey);
         if (doc==null) return studyInfo;
         String attFiles = doc.get(Constants.File.FILE_ATTS);
         String allAtts[] = attFiles.split("\\|");
@@ -72,6 +72,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
 
         String sectionsWithFiles = doc.get(Constants.Fields.SECTIONS_WITH_FILES);
         studyInfo.set("columns", fileColumnAttributes);
+        setSecretKey(studyInfo, doc);
         try {
             studyInfo.set("sections", mapper.readTree("[\""+
                         sectionsWithFiles.replaceAll(" ","\",\"")
@@ -84,12 +85,12 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     @Override
-    public String getFileList(String accession, int start, int pageSize, String search, int draw, Map<Integer, DataTableColumnInfo> dataTableUiResult){
+    public String getFileList(String accession, int start, int pageSize, String search, int draw, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey){
         IndexSearcher searcher = indexManager.getIndexSearcher();
         QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
         ObjectMapper mapper = new ObjectMapper();
         IndexReader reader = indexManager.getIndexReader();
-        ObjectNode studyInfo = getStudyInfo(accession);
+        ObjectNode studyInfo = getStudyInfo(accession, secretKey);
         if (studyInfo==null) return "";
         ArrayNode columns = (ArrayNode) studyInfo.get("columns");
         search = search.toLowerCase();
@@ -181,5 +182,11 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             }
         }
         return logicQueryBuilder.build();
+    }
+
+    private void setSecretKey(ObjectNode studyInfo, Document doc){
+        if( !(doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public "))
+            studyInfo.put(Constants.Fields.SECRET_KEY, doc.getField(Constants.Fields.SECRET_KEY).stringValue());
+
     }
 }
