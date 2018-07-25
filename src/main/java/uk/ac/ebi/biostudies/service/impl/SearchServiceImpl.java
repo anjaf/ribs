@@ -320,6 +320,24 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
+    @Override
+    public Document getStudyAsLuceneDoc(String accession) {
+        IndexSearcher searcher = indexManager.getIndexSearcher();
+        QueryParser parser = new QueryParser(Fields.ACCESSION ,analyzerManager.getPerFieldAnalyzerWrapper());
+        int docId =-1;
+        try {
+            Query query = parser.parse(Fields.ACCESSION+":"+accession);
+            TopDocs topDocs = searcher.search(query, 1);
+            if(topDocs!=null && topDocs.totalHits>0) {
+                docId = topDocs.scoreDocs[0].doc;
+                return indexManager.getIndexReader().document(docId);
+            }
+        } catch (Exception e) {
+            logger.error("problem in parsing accession {}", accession, e);
+        }
+        return null;
+    }
+
     private Integer getDocumentByAccession(String accession){
         QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);

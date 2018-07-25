@@ -2,12 +2,14 @@ package uk.ac.ebi.biostudies.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.service.SearchService;
 
 import java.io.*;
@@ -56,6 +58,23 @@ public class Study {
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON).body("{\"similarStudies\":[]}");
+
+    }
+
+    @RequestMapping(value = "/studies/{accession:.+}/info", produces = {MediaType.TEXT_PLAIN_VALUE}, method = RequestMethod.GET)
+    public ResponseEntity<String> getSecretKey(@PathVariable("accession") String accession)  {
+        String securityKey="";
+        try {
+            if(searchService.isAccessible(accession)) {
+                Document document =searchService.getStudyAsLuceneDoc(accession);
+                if(document!=null)
+                    securityKey = document.get(Constants.Fields.SECRET_KEY);
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.TEXT_PLAIN).body(securityKey);
 
     }
 }
