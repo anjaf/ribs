@@ -111,7 +111,10 @@ $.fn.groupBy = function(fn) {
         'nct':'NCT'
     };
 
-    projectScripts = [{regex: /E-MTAB-*/, script: 'ArrayExpress.js'}];
+    projectScripts = [
+        {regex: /E-MTAB-*/, script: 'ArrayExpress.js'},
+        {regex: /S-SCDT-*/, script: 'SourceData.js'}
+        ];
 
     orgOrder= [];
 
@@ -240,7 +243,8 @@ function registerHelpers() {
     });
 
     Handlebars.registerHelper('formatDate', function(v) {
-        return (new Date(v)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+        var date = (new Date(v)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+        return date == 'Invalid Date' ? (new Date()).getFullYear() : date;
     });
 
     Handlebars.registerHelper('accToLink', function(val) {
@@ -581,6 +585,8 @@ function registerHelpers() {
                 return (v1 && v2) ? options.fn(this) : options.inverse(this);
             case '||':
                 return (v1 || v2) ? options.fn(this) : options.inverse(this);
+            case 'contains':
+                return $.inArray(v2, v1) ? options.fn(this) : options.inverse(this);
             default:
                 return options.inverse(this);
         }
