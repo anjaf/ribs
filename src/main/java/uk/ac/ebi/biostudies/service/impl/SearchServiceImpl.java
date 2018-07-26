@@ -321,16 +321,14 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public Document getStudyAsLuceneDoc(String accession) {
+    public Document getStudyAsLuceneDocument(String accession) {
         IndexSearcher searcher = indexManager.getIndexSearcher();
         QueryParser parser = new QueryParser(Fields.ACCESSION ,analyzerManager.getPerFieldAnalyzerWrapper());
-        int docId =-1;
         try {
             Query query = parser.parse(Fields.ACCESSION+":"+accession);
             TopDocs topDocs = searcher.search(query, 1);
             if(topDocs!=null && topDocs.totalHits>0) {
-                docId = topDocs.scoreDocs[0].doc;
-                return indexManager.getIndexReader().document(docId);
+                return indexManager.getIndexReader().document(topDocs.scoreDocs[0].doc);
             }
         } catch (Exception e) {
             logger.error("problem in parsing accession {}", accession, e);

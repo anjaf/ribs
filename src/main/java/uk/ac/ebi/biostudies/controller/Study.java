@@ -63,18 +63,20 @@ public class Study {
 
     @RequestMapping(value = "/studies/{accession:.+}/info", produces = {MediaType.TEXT_PLAIN_VALUE}, method = RequestMethod.GET)
     public ResponseEntity<String> getSecretKey(@PathVariable("accession") String accession)  {
-        String securityKey="";
+        String securityKey="{}";
         try {
             if(searchService.isAccessible(accession)) {
-                Document document =searchService.getStudyAsLuceneDoc(accession);
-                if(document!=null)
-                    securityKey = document.get(Constants.Fields.SECRET_KEY);
+                Document document =searchService.getStudyAsLuceneDocument(accession);
+                if (document!=null && !document.get(Constants.Fields.ACCESS).toLowerCase().contains("public")) {
+                    securityKey = "{\"key\":\""+document.get(Constants.Fields.SECRET_KEY)+"\"}";
+                }
             }
         } catch (Exception e) {
             logger.error(e);
         }
         return ResponseEntity.status(HttpStatus.OK)
-                .contentType(MediaType.TEXT_PLAIN).body(securityKey);
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .body(securityKey);
 
     }
 }

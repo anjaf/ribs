@@ -24,6 +24,6 @@ public interface SearchService {
     boolean isAccessible(String accession, String seckey);
     InputStreamResource getStudyAsStream(String accession) throws IOException;
     ObjectNode getSimilarStudies(String accession) throws Exception;
-    Document getStudyAsLuceneDoc(String accession);
+    Document getStudyAsLuceneDocument(String accession);
 }
 

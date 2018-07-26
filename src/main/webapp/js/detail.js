@@ -1,4 +1,4 @@
-var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource, generatedID=0, lastExpandedTable, sectionTables=[];
+   var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource, generatedID=0, lastExpandedTable, sectionTables=[];
 
 String.format = function() {
     var s = arguments[0];
@@ -658,9 +658,40 @@ function postRender(params) {
     handleProjectBasedScriptInjection();
 
     handleTableCentering();
+    handleSecretKey();
 
     handleThumbnails(); //keep this as the last call
 
+}
+
+function handleSecretKey() {
+    $.getJSON(contextPath+"/api/v1/studies/"+$('#accession').text()+"/info",function (data) {
+        if (!data || !data.key ) return;
+        var $secret = $('<a id="secret" href="#" class="source-icon source-icon-secret"><i class="fas fa-user-secret" aria-hidden="true"></i></a>');
+
+        $secret.bind('click', function() {
+           var templateSource = $('script#secret-template').html();
+            var template = Handlebars.compile(templateSource);
+
+            $('#biostudies-secret').html(template({
+                url:window.location.protocol + "//"+ window.location.host+ contextPath+"/studies/"+$('#accession').text()+"?key="+data.key
+            }));
+            $('#biostudies-secret').foundation('open');
+            $('#copy-secret').bind('click', function(){
+                var $inp = $("<input>");
+                $("body").append($inp);
+                $inp.val($('#secret-link').text()).select();
+                document.execCommand("copy");
+                $inp.remove();
+                $('#secret-copied').show().delay(1000).fadeOut();
+
+            });
+        });
+        $('#download-source').prepend($secret);
+
+    }).fail(function(error) {
+
+    });
 }
 
 function handleProjectBasedScriptInjection() {
