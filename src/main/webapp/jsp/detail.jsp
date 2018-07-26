@@ -17,7 +17,8 @@
                 <span id="accession">Loading</span>
             </li>
         </ul>
-      <div class="reveal large" id="biostudies-citation" data-reveal></div>
+        <div class="reveal large" id="biostudies-citation" data-reveal></div>
+        <div class="reveal small" id="biostudies-secret" data-reveal></div>
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
@@ -441,6 +442,21 @@
                     </tr>
                 </table>
         </script>
+         <script id='secret-template' type='text/x-handlebars-template'>
+             <button class="close-button" data-close aria-label="Close modal" type="button">
+                 <span aria-hidden="true">&times;</span>
+             </button>
+             <h2>Share Study</h2>
+             <p class="large-centered">
+                You can share this study to be accessed without requiring any credentials using the URL below. <br/>
+                 Please note that all personal information will be visible to the viewer.
+             </p>
+             <p><a id="secret-link" href="{{url}}">{{url}}</a>
+                 <div><span id="secret-copied">Copied!</span>&nbsp;</div>
+                <a id="copy-secret" class="button small" href="#">Copy to Clipboard</a><br/>
+
+             </p>
+         </script>
         <script src="${contextPath}/js/detail.js"></script>
     </jsp:attribute>
     <jsp:body>
