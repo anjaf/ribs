@@ -72,12 +72,15 @@ public class FilePaginationServiceImpl implements FilePaginationService {
 
         String sectionsWithFiles = doc.get(Constants.Fields.SECTIONS_WITH_FILES);
         studyInfo.set("columns", fileColumnAttributes);
+        studyInfo.put("files", doc.get(Constants.Fields.FILES));
         setSecretKey(studyInfo, doc);
         try {
-            studyInfo.set("sections", mapper.readTree("[\""+
-                        sectionsWithFiles.replaceAll(" ","\",\"")
-                    +"\"]" ));
-        } catch (IOException e) {
+            if (sectionsWithFiles!=null) {
+                studyInfo.set("sections", mapper.readTree("[\"" +
+                        sectionsWithFiles.replaceAll(" ", "\",\"")
+                        + "\"]"));
+            }
+        } catch (Exception e) {
             logger.error("Error retrieving sections with files");
             studyInfo.put("sections","[]");
         }

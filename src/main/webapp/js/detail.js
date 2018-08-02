@@ -762,6 +762,10 @@ function handleFileTableColumns(columns, acc, callback) {
 
 function createBigFileTable(acc, params){
     $.ajax({url: "http://localhost:8080/biostudies/api/v1/info/"+acc, success: function(response){
+        if (!response.files || response.files==0) {
+            $('#file-list-container').parent().remove();
+            return;
+        }
         handleFileTableColumns(response.columns, acc);
         handleFileFilters(response.sections);
     }});
