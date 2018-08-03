@@ -708,7 +708,7 @@ function  showRightColumn() {
     });
 }
 
-function handleFileTableColumns(columns, acc, callback) {
+function handleFileTableColumns(columns, acc, params) {
     columns.splice(0, 0, {
         name: "x",
         title: "",
@@ -743,7 +743,9 @@ function handleFileTableColumns(columns, acc, callback) {
         ajax: {
             url: '/biostudies/api/v1/filelist',
             type: 'post',
-            data: {acc: acc},
+            data:  function (dtData) {
+                return $.extend($.extend(dtData,{acc: acc}),params)
+            },
             complete: function (data) {
                     //handleFileDownloadSelection();
             }
@@ -761,12 +763,14 @@ function handleFileTableColumns(columns, acc, callback) {
 }
 
 function createBigFileTable(acc, params){
-    $.ajax({url: "http://localhost:8080/biostudies/api/v1/info/"+acc, success: function(response){
+    $.ajax({url: "http://localhost:8080/biostudies/api/v1/info/"+acc,
+        data:params,
+        success: function(response){
         if (!response.files || response.files==0) {
             $('#file-list-container').parent().remove();
             return;
         }
-        handleFileTableColumns(response.columns, acc);
+        handleFileTableColumns(response.columns, acc, params);
         handleFileFilters(response.sections);
     }});
 }

@@ -13,6 +13,7 @@ table.dataTable {
   /*
    * Body styles
    */
+  font-size: inherit;
 }
 table.dataTable thead tr, table.dataTable thead tr:hover {
   background-color: #267799;
