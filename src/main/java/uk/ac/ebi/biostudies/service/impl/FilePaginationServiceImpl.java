@@ -88,7 +88,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     @Override
-    public String getFileList(String accession, int start, int pageSize, String search, int draw, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey){
+    public String getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey){
         IndexSearcher searcher = indexManager.getIndexSearcher();
         QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
         ObjectMapper mapper = new ObjectMapper();
@@ -126,6 +126,10 @@ public class FilePaginationServiceImpl implements FilePaginationService {
                 ArrayNode docs = mapper.createArrayNode();
                 for (int i = start; i < start+pageSize && i<hits.totalHits; i++) {
                     ObjectNode docNode = mapper.createObjectNode();
+                    if(!metadata){
+                        generateDownloadAllFilePaths(hits, docs, reader);
+                        return docs.toString();
+                    }
                     Document doc = reader.document(hits.scoreDocs[i].doc);
                     for(JsonNode field:columns){
                         String fName = field.get("name").asText();
@@ -190,6 +194,17 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     private void setSecretKey(ObjectNode studyInfo, Document doc){
         if( !(doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public "))
             studyInfo.put(Constants.Fields.SECRET_KEY, doc.getField(Constants.Fields.SECRET_KEY).stringValue());
+
+    }
+
+    private void generateDownloadAllFilePaths(TopDocs hits, ArrayNode filePaths, IndexReader reader){
+        for(int i=0; i<hits.totalHits; i++){
+            try {
+                filePaths.add(reader.document(i).get(Constants.File.PATH));
+            } catch (IOException e) {
+                logger.error("problem in reading lucene document {}", i, e);
+            }
+        }
 
     }
 }
