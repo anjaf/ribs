@@ -528,3 +528,11 @@ ul.recommendations li {
 .publication-div {
     padding-bottom: 10pt;
 }
+
+.filetoolbar {
+    clear:both;
+}
+
+.filetoolbar a[disabled]{
+    clear:both;
+}

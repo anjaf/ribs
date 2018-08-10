@@ -1,4 +1,4 @@
-var filesTable, selectedFilesCount=0, totalRows=-1, linksTable, expansionSource, generatedID=0, lastExpandedTable, sectionTables=[];
+var filesTable, selectedFilesCount=0, totalRows=-1, linksTable, expansionSource, generatedID=0, lastExpandedTable, sectionTables=[], selectedFiles=[];
 
 String.format = function() {
     var s = arguments[0];
@@ -712,21 +712,25 @@ function handleFileTableColumns(columns, acc, params) {
     columns.splice(0, 0, {
         name: "x",
         title: "",
-        searchable: true,
-        type: "checkbox",
+        searchable: false,
+        type:"string",
         visible: true,
         orderable: false,
-        data: "",
         render: function (data, type, row) {
-            return '<div class="file-check-box"><input type="checkbox" data-name="' + row.path + '"></input></div>';
+            return '<div class="file-check-box"><input type="checkbox" data-name="' + row.path + '"></input></div>';;
         }
     });
     filesTable = $('#file-list').DataTable({
-        "lengthMenu": [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
-        "processing": true,
-        "serverSide": true,
-        "columns": columns,
-        "columnDefs": [
+        lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+        processing: true,
+        serverSide: true,
+        columns: columns,
+        columnDefs: [
+            {
+                orderable: false,
+                className: 'select-checkbox',
+                targets: 0
+            },
             {
                 targets: 2,
                 render: function (data, type, row) {
@@ -736,34 +740,63 @@ function handleFileTableColumns(columns, acc, params) {
             {
                 targets: 1,
                 render: function (data, type, row) {
-                    return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="' + data + '" onclick="closeFullScreen();" href="' + row.path + '">' + data + '</a>';
+                    return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="'
+                        + data
+                        + '" onclick="closeFullScreen();" href="'
+                        + contextPath+'/files/'+acc+'/' +row.path + '">'
+                        + data + '</a>';
                 }
             }
         ],
         ajax: {
             url: '/biostudies/api/v1/filelist',
             type: 'post',
-            data:  function (dtData) {
-                return $.extend($.extend(dtData,{acc: acc}),params)
+            data: function (dtData) {
+                return $.extend($.extend(dtData, {acc: acc}), params)
             },
             complete: function (data) {
-                    //handleFileDownloadSelection();
+                //handleFileDownloadSelection();
             }
         },
-    }).on('xhr.dt', function ( e, settings, json, xhr ) {
-        if (totalRows==-1) { //override totalFiles
+        rowCallback: function( row, data ) {
+            if ( $.inArray(data.path, selectedFiles) !== -1 ) {
+                $(row).addClass('selected');
+            }
+        }
+    }).on('xhr.dt', function (e, settings, json, xhr) {
+        if (totalRows == -1) { //override totalFiles
             totalRows = json.recordsTotal
         } else {
             json.recordsTotal = totalRows
         }
+    }).on('draw.dt', function (e) {
+        $('.file-check-box input').on('click', function(){
+            if ($(this).is(':checked')) {
+                selectedFiles.push( $(this).data('name'));
+            } else {
+                selectedFiles.splice($.inArray($(this).data('name'), selectedFiles), 1);
+            }
+            $(this).parent().parent().parent().toggleClass('selected');
+            updateSelectedFiles();
+        });
+        $('.file-check-box input').each(function(){
+            if ($.inArray($(this).data('name'), selectedFiles)>=0 ) {
+                $(this).attr('checked','checked');
+            }
+        });
+        updateSelectedFiles();
+    });
 
-    } );
-    var head_item = filesTable.columns(0).header();
-    $(head_item).html('<input id="select-all-files"  type="checkbox"/>');
+
+
+    function updateSelectedFiles() {
+        $('.filetoolbar #selected-file-count').html(selectedFiles.length);
+        $('.filetoolbar').css('visibility', selectedFiles.length>0 ? 'visible' :'hidden');
+    }
 }
 
 function createBigFileTable(acc, params){
-    $.ajax({url: "http://localhost:8080/biostudies/api/v1/info/"+acc,
+    $.ajax({url: contextPath+"/api/v1/info/"+acc,
         data:params,
         success: function(response){
         if (!response.files || response.files==0) {
@@ -771,6 +804,7 @@ function createBigFileTable(acc, params){
             return;
         }
         handleFileTableColumns(response.columns, acc, params);
+        handleFileDownloadSelection();
         handleFileFilters(response.sections);
     }});
 }
@@ -1153,24 +1187,32 @@ function handleAnchors(params) {
 }
 
 function handleFileDownloadSelection() {
-    $("#file-list tbody").on('click', 'input[type="checkbox"]', function () {
+    /*$("#file-list tbody").on('click', 'input[type="checkbox"]', function () {
         $(this).toggleClass('selected');
         updateSelectedFiles($(this).hasClass('selected') ? 1 : -1);
     });
 
     $("#file-list tbody tr td a").on('click', function () {
         event.stopPropagation();
-    });
+    });*/
+    //var head_item = filesTable.columns(0).header();
+    //$(head_item).html('<input id="select-all-files"  type="checkbox"/>');
 
     $("#download-selected-files").on('click', function () {
         // select all checked input boxes and get the href in the links contained in their siblings
-        var files = $.map($('input.selected', filesTable.column(0).nodes()), function (v) {
-            return $(v).data('name');
+        var html = '<form method="POST" target="_blank" action="'
+            + contextPath + "/files/"
+            + $('#accession').text() + '/zip">';
+        $(selectedFiles).each( function(i,v) {
+            html += '<input type="hidden" name="files" value="'+v+'"/>'
         });
-        downloadFiles(files);
+        html += '</form>';
+        var submissionForm = $(html);
+        $('body').append(submissionForm);
+        $(submissionForm).submit();
     });
 
-    $("#select-all-files").on('click', function () {
+    /*$("#select-all-files").on('click', function () {
         var isChecked = $(this).is(':checked');
         if (!isChecked) {
             $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).prop('checked', false);
@@ -1186,7 +1228,7 @@ function handleFileDownloadSelection() {
         updateSelectedFiles(0);
     });
 
-    updateSelectedFiles(0);
+    updateSelectedFiles(0);*/
 }
 
 function updateSelectedFiles(inc)
@@ -1215,14 +1257,14 @@ function updateSelectedFiles(inc)
 function downloadFiles(files) {
     var html = '<form method="POST" target="_blank" action="'
             + contextPath + "/files/"
-            + $('#accession').text() + '/zip'+location.search+'">';
+            + $('#accession').text() + '/zip">';
     $(files).each( function(i,v) {
         html += '<input type="hidden" name="files" value="'+v+'"/>'
     });
     html += '</form>';
     var submissionForm = $(html);
     $('body').append(submissionForm);
-    $(submissionForm).submit();
+    //$(submissionForm).submit();
 }
 
 function clearFileFilter() {
