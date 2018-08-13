@@ -17,7 +17,8 @@
                 <span id="accession">Loading</span>
             </li>
         </ul>
-      <div class="reveal large" id="biostudies-citation" data-reveal></div>
+        <div class="reveal large" id="biostudies-citation" data-reveal></div>
+        <div class="reveal small" id="biostudies-secret" data-reveal></div>
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
@@ -34,6 +35,7 @@
         <%@include file="detail/similar-studies.hbs" %>
         <%@include file="detail/study.hbs" %>
         <%@include file="detail/valqual.hbs" %>
+        <%@include file="detail/secret.hbs" %>
         <script src="${contextPath}/js/detail.js"></script>
     </jsp:attribute>
     <jsp:body>

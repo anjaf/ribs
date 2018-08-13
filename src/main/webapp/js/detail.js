@@ -881,10 +881,37 @@ function createBigFileTable(acc, params){
             $('#file-list-container').parent().remove();
             return;
         }
+        handleSecretKey(response.seckey);
         handleFileTableColumns(response.columns, acc, params);
         handleFileDownloadSelection();
         handleFileFilters(response.sections);
     }});
+}
+
+function handleSecretKey(key) {
+
+    var $secret = $('<a id="secret" href="#" class="source-icon source-icon-secret"><i class="fas fa-user-secret" aria-hidden="true"></i></a>');
+
+    $secret.bind('click', function() {
+        var templateSource = $('script#secret-template').html();
+        var template = Handlebars.compile(templateSource);
+
+        $('#biostudies-secret').html(template({
+            url:window.location.protocol + "//"+ window.location.host+ contextPath+"/studies/"+$('#accession').text()+"?key="+key
+        }));
+        $('#biostudies-secret').foundation('open');
+        $('#copy-secret').bind('click', function(){
+            var $inp = $("<input>");
+            $("body").append($inp);
+            $inp.val($('#secret-link').text()).select();
+            document.execCommand("copy");
+            $inp.remove();
+            $('#secret-copied').show().delay(1000).fadeOut();
+
+        });
+    });
+    $('#download-source').prepend($secret);
+
 }
 
 function createDataTables() {

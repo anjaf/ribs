@@ -244,6 +244,12 @@ ul#bs-orgs {
     display: inline-block;
 }
 
+.source-icon-secret:before, .source-icon-secret {
+    color: #FFFFFF !important;
+    background-color: #58585a;
+    border: none !important;
+}
+
 .source-icon-json:before {
     font-size: 5pt;
 }
@@ -535,4 +541,13 @@ ul.recommendations li {
 
 .filetoolbar a[disabled]{
     clear:both;
+}
+
+#biostudies-secret {
+    text-align: center;
+}
+
+#secret-copied {
+    color: green;
+    display: none;
 }
