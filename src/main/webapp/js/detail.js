@@ -889,7 +889,7 @@ function createBigFileTable(acc, params){
 }
 
 function handleSecretKey(key) {
-
+    if (!key) return;
     var $secret = $('<a id="secret" href="#" class="source-icon source-icon-secret"><i class="fas fa-user-secret" aria-hidden="true"></i></a>');
 
     $secret.bind('click', function() {
