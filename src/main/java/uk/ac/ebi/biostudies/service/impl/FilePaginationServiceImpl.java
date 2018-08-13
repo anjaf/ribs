@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.swagger.models.auth.In;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
@@ -123,17 +124,16 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             response.put(Constants.File.RECORDTOTAL, hits.totalHits);
             response.put(Constants.File.RECORDFILTERED, hits.totalHits);
             if (hits.totalHits >= 0) {
+                if (pageSize==-1) pageSize= Integer.MAX_VALUE;
                 ArrayNode docs = mapper.createArrayNode();
                 for (int i = start; i < start+pageSize && i<hits.totalHits; i++) {
                     ObjectNode docNode = mapper.createObjectNode();
-                    if(!metadata){
-                        generateDownloadAllFilePaths(hits, docs, reader);
-                        return docs.toString();
-                    }
                     Document doc = reader.document(hits.scoreDocs[i].doc);
-                    for(JsonNode field:columns){
-                        String fName = field.get("name").asText();
-                        docNode.put(field.get("name").asText().replaceAll(" ", "_"), doc.get(fName)==null?"":doc.get(fName));
+                    if (metadata) {
+                        for (JsonNode field : columns) {
+                            String fName = field.get("name").asText();
+                            docNode.put(field.get("name").asText().replaceAll(" ", "_"), doc.get(fName) == null ? "" : doc.get(fName));
+                        }
                     }
                     docNode.put(Constants.File.PATH, doc.get(Constants.File.PATH)==null?"":doc.get(Constants.File.PATH));
                     docs.add(docNode);

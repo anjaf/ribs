@@ -725,6 +725,7 @@ function handleFileTableColumns(columns, acc, params) {
         processing: true,
         serverSide: true,
         columns: columns,
+        order: [[ 1, "asc" ]],
         columnDefs: [
             {
                 orderable: false,
@@ -779,20 +780,97 @@ function handleFileTableColumns(columns, acc, params) {
             $(this).parent().parent().parent().toggleClass('selected');
             updateSelectedFiles();
         });
+
         $('.file-check-box input').each(function(){
             if ($.inArray($(this).data('name'), selectedFiles)>=0 ) {
                 $(this).attr('checked','checked');
             }
         });
+        // TODO: enable select on tr click
         updateSelectedFiles();
     });
 
+}
 
 
-    function updateSelectedFiles() {
+function handleFileDownloadSelection() {
+
+    // add select all checkboz
+    $(filesTable.columns(0).header()).html('<input id="select-all-files"  type="checkbox"/>');
+    $('#select-all-files').on('click', function () {
+        if ($(this).is(':checked')) {
+            $.post('/biostudies/api/v1/filelist', $.extend(true, {}, filesTable.ajax.params(), {
+                    length: -1,
+                    metadata: false,
+                    start: 0
+                }),
+                function (response) {
+                    selectedFiles = $.uniqueSort($.merge(selectedFiles, $.map(response.data,function(v){ return v.path}) ));
+                    $('.select-checkbox').parent().addClass('selected');
+                    $('.select-checkbox input').prop('checked',true);
+                    updateSelectedFiles();
+                }
+            );
+        } else {
+            selectedFiles=[];
+            $('.select-checkbox').parent().removeClass('selected');
+            $('.select-checkbox input').prop('checked',false);
+            updateSelectedFiles();
+        }
+    });
+
+    $("#download-selected-files").on('click', function () {
+        // select all checked input boxes and get the href in the links contained in their siblings
+        var html = '<form method="POST" target="_blank" action="'
+            + contextPath + "/files/"
+            + $('#accession').text() + '/zip">';
+        $(selectedFiles).each( function(i,v) {
+            html += '<input type="hidden" name="files" value="'+v+'"/>'
+        });
+        html += '</form>';
+        var submissionForm = $(html);
+        $('body').append(submissionForm);
+        $(submissionForm).submit();
+    });
+
+    /*$("#file-list tbody").on('click', 'input[type="checkbox"]', function () {
+            $(this).toggleClass('selected');
+            updateSelectedFiles($(this).hasClass('selected') ? 1 : -1);
+        });
+
+        $("#file-list tbody tr td a").on('click', function () {
+            event.stopPropagation();
+        });*/
+
+    /*$("#select-all-files").on('click', function () {
+        var isChecked = $(this).is(':checked');
+        if (!isChecked) {
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).prop('checked', false);
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).removeAttr('checked');
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).removeProp('checked');
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).removeClass('selected');
+            selectedFilesCount = 0;
+        } else {
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).prop('checked', true);
+            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).addClass('selected');
+            selectedFilesCount = filesTable.column(0, { search:'applied' }).nodes().length;
+        }
+        updateSelectedFiles(0);
+    });
+
+    updateSelectedFiles(0);*/
+}
+
+function updateSelectedFiles() {
+    if (selectedFiles.length>0) {
         $('.filetoolbar #selected-file-count').html(selectedFiles.length);
-        $('.filetoolbar').css('visibility', selectedFiles.length>0 ? 'visible' :'hidden');
+        $('.filetoolbar').css('visibility', 'visible');
+    } else {
+        $('.filetoolbar').css('visibility', 'hidden');
     }
+
+    $('#select-all-files').prop('checked', $('.select-checkbox input:checked').length == $('.select-checkbox input').length );
+
 }
 
 function createBigFileTable(acc, params){
@@ -1186,52 +1264,7 @@ function handleAnchors(params) {
 
 }
 
-function handleFileDownloadSelection() {
-    /*$("#file-list tbody").on('click', 'input[type="checkbox"]', function () {
-        $(this).toggleClass('selected');
-        updateSelectedFiles($(this).hasClass('selected') ? 1 : -1);
-    });
-
-    $("#file-list tbody tr td a").on('click', function () {
-        event.stopPropagation();
-    });*/
-    //var head_item = filesTable.columns(0).header();
-    //$(head_item).html('<input id="select-all-files"  type="checkbox"/>');
-
-    $("#download-selected-files").on('click', function () {
-        // select all checked input boxes and get the href in the links contained in their siblings
-        var html = '<form method="POST" target="_blank" action="'
-            + contextPath + "/files/"
-            + $('#accession').text() + '/zip">';
-        $(selectedFiles).each( function(i,v) {
-            html += '<input type="hidden" name="files" value="'+v+'"/>'
-        });
-        html += '</form>';
-        var submissionForm = $(html);
-        $('body').append(submissionForm);
-        $(submissionForm).submit();
-    });
-
-    /*$("#select-all-files").on('click', function () {
-        var isChecked = $(this).is(':checked');
-        if (!isChecked) {
-            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).prop('checked', false);
-            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).removeAttr('checked');
-            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).removeProp('checked');
-            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).removeClass('selected');
-            selectedFilesCount = 0;
-        } else {
-            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).prop('checked', true);
-            $('input[type="checkbox"]', filesTable.column(0, { search:'applied' }).nodes()).addClass('selected');
-            selectedFilesCount = filesTable.column(0, { search:'applied' }).nodes().length;
-        }
-        updateSelectedFiles(0);
-    });
-
-    updateSelectedFiles(0);*/
-}
-
-function updateSelectedFiles(inc)
+/*function updateSelectedFiles(inc)
 {
 
     if (!filesTable || !filesTable.rows() || !filesTable.rows().eq(0) ) return;
@@ -1251,7 +1284,7 @@ function updateSelectedFiles(inc)
     if(selectedFilesCount>0 && totalRows>0)
         $("#select-all-files").prop('checked', selectedFilesCount==totalRows);
 
-}
+}*/
 
 
 function downloadFiles(files) {
