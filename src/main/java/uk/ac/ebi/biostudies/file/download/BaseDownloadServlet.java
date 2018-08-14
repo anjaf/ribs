@@ -61,6 +61,7 @@ public abstract class BaseDownloadServlet {
     public void doRequest(
             HttpServletRequest request
             , HttpServletResponse response
+            , String seckey
     ) throws ServletException, IOException {
 
         IDownloadFile downloadFile = null;
@@ -68,7 +69,7 @@ public abstract class BaseDownloadServlet {
             String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"(/[a-zA-Z])?/files/"       ,"").split("/");
             String accession = requestArgs[0];
 
-            if(!searchService.isAccessible(accession)) {
+            if(!searchService.isAccessible(accession, seckey)) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }

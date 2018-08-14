@@ -1,10 +1,7 @@
 package uk.ac.ebi.biostudies.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.biostudies.file.FileDownloadService;
 import uk.ac.ebi.biostudies.file.ZipDownloadService;
 
@@ -24,17 +21,20 @@ public class FileDownload {
     FileDownloadService fileDownloadService;
 
     @RequestMapping(value = "/files/**", method = RequestMethod.POST)
-    public void getFilesInZippedFormat(HttpServletRequest request, HttpServletResponse response) throws Exception{
-        zipDownloadService.doRequest(request, response);
+    public void getFilesInZippedFormat(HttpServletRequest request, HttpServletResponse response,
+                                       @RequestParam(value="key", required=false, defaultValue = "") String seckey) throws Exception{
+        zipDownloadService.doRequest(request, response, seckey);
     }
 
     @RequestMapping(value = "/{datacenter}/files/**", method = RequestMethod.GET)
-    public void downloadZippedFile(HttpServletRequest request, HttpServletResponse response) throws Exception{
-        zipDownloadService.doRequest(request, response);
+    public void downloadZippedFile(HttpServletRequest request, HttpServletResponse response,
+                                   @RequestParam(value="key", required=false, defaultValue = "") String seckey) throws Exception{
+        zipDownloadService.doRequest(request, response, seckey);
     }
 
     @RequestMapping(value = "/files/**", method = RequestMethod.GET)
-    public void getSingleFile(HttpServletRequest request, HttpServletResponse response) throws Exception{
-        fileDownloadService.doRequest(request, response);
+    public void getSingleFile(HttpServletRequest request, HttpServletResponse response,
+                              @RequestParam(value="key", required=false, defaultValue = "") String seckey) throws Exception{
+        fileDownloadService.doRequest(request, response, seckey);
     }
 }
