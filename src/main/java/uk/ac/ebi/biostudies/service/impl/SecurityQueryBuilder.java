@@ -47,7 +47,7 @@ public class SecurityQueryBuilder {
 
 
         // allow if there's a secret key present
-        if (seckey!=null && seckey!="") {
+        if (seckey!=null && !seckey.isEmpty()) {
             QueryParser secretQueryParser = new QueryParser(Constants.Fields.SECRET_KEY, new KeywordAnalyzer());
             secretQueryParser.setSplitOnWhitespace(true);
             Query secretKeyQuery = secretQueryParser.parse(seckey);
