@@ -62,10 +62,10 @@ public class Study {
     }
 
     @RequestMapping(value = "/studies/{accession:.+}/info", produces = {MediaType.TEXT_PLAIN_VALUE}, method = RequestMethod.GET)
-    public ResponseEntity<String> getSecretKey(@PathVariable("accession") String accession)  {
+    public ResponseEntity<String> getSecretKey(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
         String securityKey="{}";
         try {
-            if(searchService.isAccessible(accession)) {
+            if(searchService.isAccessible(accession, seckey)) {
                 Document document =searchService.getStudyAsLuceneDocument(accession);
                 if (document!=null && !document.get(Constants.Fields.ACCESS).toLowerCase().contains("public")) {
                     securityKey = "{\"key\":\""+document.get(Constants.Fields.SECRET_KEY)+"\"}";

@@ -658,16 +658,16 @@ function postRender(params) {
     handleProjectBasedScriptInjection();
 
     handleTableCentering();
-    handleSecretKey();
+    handleSecretKey(params.key);
 
     handleThumbnails(); //keep this as the last call
 
 }
 
-function handleSecretKey() {
-    $.getJSON(contextPath+"/api/v1/studies/"+$('#accession').text()+"/info",function (data) {
+function handleSecretKey(key) {
+    $.getJSON(contextPath+"/api/v1/studies/"+$('#accession').text()+"/info",{key:key},function (data) {
         if (!data || !data.key ) return;
-        var $secret = $('<a id="secret" href="#" class="source-icon source-icon-secret"><i class="fas fa-user-secret" aria-hidden="true"></i></a>');
+        var $secret = $('<a id="secret" href="#" class="source-icon source-icon-secret"><i class="fas fa-share-alt" aria-hidden="true"></i> Share</a>');
 
         $secret.bind('click', function() {
            var templateSource = $('script#secret-template').html();
@@ -900,7 +900,7 @@ function handleTableExpansion() {
     $('.table-expander').click(function () {
         lastExpandedTable = this;
         $('.fullscreen .table-wrapper').css('max-height','');
-        $(this).find('[data-fa-i2svg]').toggleClass('fa-compress fa-expand');
+        $(this).find('[data-fa-i2svg]').toggleClass('fa-window-close fa-expand');
         $(this).attr('title', $(this).hasClass('fa-expand') ? 'Click to expand' : 'Click to close');
         $('html').toggleClass('stop-scrolling');
         $('#blocker').toggleClass('blocker');
