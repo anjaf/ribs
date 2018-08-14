@@ -1,4 +1,4 @@
-   var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource, generatedID=0, lastExpandedTable, sectionTables=[];
+var filesTable, selectedFilesCount=0, totalRows=0, linksTable, expansionSource, generatedID=0, lastExpandedTable, sectionTables=[], params;
 
 String.format = function() {
     var s = arguments[0];
@@ -118,7 +118,7 @@ $.fn.groupBy = function(fn) {
 
     orgOrder= [];
 
-    var params = document.location.search.replace(/(^\?)/,'').split("&").map(
+    params = document.location.search.replace(/(^\?)/,'').split("&").map(
         function(s) {
             return s = s.split("="), this[s[0]] = s[1], this
         }.bind({}))[0];
@@ -144,7 +144,7 @@ $.fn.groupBy = function(fn) {
         }
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
-        postRender(params);
+        postRender();
     }).fail(function(error) {
         showError(error);
     });
@@ -202,7 +202,9 @@ function registerHelpers() {
                 + ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'')
             +'>'
                 + (e.url && type!='directory' ?'<a onclick="closeFullScreen();" '
-                    + 'href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')
+                    + 'href="'+e.url
+                    + (params.key? '?key='+params.key : '')
+                    + (e.url[0]!='#' ? '" target="_blank':'')
                 + '">'
                         + new Handlebars.SafeString(e.value)
                     +'</a>'
@@ -636,7 +638,7 @@ function findall(obj,k,unroll){ // works only for files and links
     return  ret;
 }
 
-function postRender(params) {
+function postRender() {
     $('body').append('<div id="blocker"/><div id="tooltip"/>');
     drawSubsections();
     createDataTables();
@@ -648,7 +650,7 @@ function postRender(params) {
     handleOrganisations();
     handleFileDownloadSelection();
     formatPageHtml();
-    handleAnchors(params);
+    handleAnchors();
     handleSubattributes();
     handleOntologyLinks();
     handleORCIDIntegration();
@@ -658,13 +660,14 @@ function postRender(params) {
     handleProjectBasedScriptInjection();
 
     handleTableCentering();
-    handleSecretKey(params.key);
+    handleSecretKey();
 
     handleThumbnails(); //keep this as the last call
 
 }
 
-function handleSecretKey(key) {
+function handleSecretKey() {
+    var key = params.key;
     $.getJSON(contextPath+"/api/v1/studies/"+$('#accession').text()+"/info",{key:key},function (data) {
         if (!data || !data.key ) return;
         var $secret = $('<a id="secret" href="#" class="source-icon source-icon-secret"><i class="fas fa-share-alt" aria-hidden="true"></i> Share</a>');
@@ -1032,7 +1035,7 @@ function openHREF(href) {
 }
 
 
-function handleAnchors(params) {
+function handleAnchors() {
     // scroll to main anchor
     if (location.hash) {
         $('#left-column').show();
