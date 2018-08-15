@@ -100,6 +100,8 @@ public class FileIndexer {
 //                                        LOGGER.debug("this value is repeated accno: {} firstAppearance value: {}, secondAppearance value: {}", accession, doc.getField(Constants.File.FILE_ATTS + name).stringValue(), name);
                         continue;
                     }
+                    if(name.equalsIgnoreCase("type") && accession.toLowerCase().contains("epmc"))
+                        continue;
                     doc.add(new StringField(name, value.toLowerCase(), Field.Store.NO));
                     doc.add(new StoredField(name, value));
                     doc.add(new SortedDocValuesField(name, new BytesRef(value) ));
