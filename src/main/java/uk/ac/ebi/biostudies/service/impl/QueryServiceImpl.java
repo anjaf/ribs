@@ -78,7 +78,7 @@ public class QueryServiceImpl implements QueryService {
             queryString = "*:*";
         }
         Analyzer analyzer = analyzerManager.getPerFieldAnalyzerWrapper();
-        QueryParser parser = new BioStudiesQueryParser(fields, analyzer);
+        QueryParser parser = new BioStudiesQueryParser(fields, analyzer, indexManager);
         parser.setSplitOnWhitespace(true);
         Pair<Query, EFOExpansionTerms> finalQuery = null;
         try {

@@ -50,6 +50,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         Document doc = searchService.getDocumentByAccession(accession, secretKey);
         if (doc==null) return studyInfo;
         String attFiles = doc.get(Constants.File.FILE_ATTS);
+        if (attFiles==null) return studyInfo;
         String allAtts[] = attFiles.split("\\|");
         Set<String> headerSet = new HashSet(Arrays.asList(orderedArray));
         List<String> orderedList = new ArrayList(Arrays.asList(orderedArray));

@@ -332,7 +332,7 @@ public class ConfigurableIndexService implements IndexService {
                 }
             }
 
-            //extract facets
+            //extract facets and fields
             if(indexManager.indexDetails.findValue(project.toLowerCase())!=null && json.has("section") && json.get("section").has("attributes")) {
                 JsonNode attNodes = json.get("section").get("attributes");
                 for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(project.toLowerCase())){
@@ -343,7 +343,9 @@ public class ConfigurableIndexService implements IndexService {
                                     .map(s->s.get("value").textValue() )
                                     .collect( Collectors.joining( fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.FACET)
                                             ?  Facets.DELIMITER : " "));
-                            valueMap.put(fieldMetadataNode.get(IndexEntryAttributes.NAME).asText(), value);
+                            //if (StringUtils.isNotBlank(value)) {
+                                valueMap.put(fieldMetadataNode.get(IndexEntryAttributes.NAME).asText(), value);
+                            //}
                         }
                         else{
                             extractWithJsonPath(jsonPathContext, json, valueMap, fieldMetadataNode);
@@ -365,18 +367,30 @@ public class ConfigurableIndexService implements IndexService {
         }
 
         private void extractWithJsonPath(ReadContext jsonPathContext, JsonNode json, Map<String, Object> valueMap, JsonNode fieldMetadataNode){
-            String result= NA;
+            Object result= NA;
             try {
                 if (jsonPathContext == null)
                     jsonPathContext = JsonPath.parse(json.toString());
+                List resultData = null;
                 try {
-                    List<String> resultData = jsonPathContext.read(fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText());
-                    result = String.join(fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.FACET)
-                            ?  Facets.DELIMITER: " ", resultData);
+                    resultData = jsonPathContext.read(fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText());
+
+                    switch (fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText()) {
+                        case IndexEntryAttributes.FieldTypeValues.FACET:
+                            result =  String.join (Facets.DELIMITER, resultData);
+                            break;
+                        case IndexEntryAttributes.FieldTypeValues.LONG:
+                            result = resultData.stream().collect(Collectors.summingLong( i-> new Long(i.toString()) ));
+                            break;
+                        default:
+                            result =  String.join (" ", resultData);
+                            break;
+                    }
+
                 } catch (ClassCastException e) {
                     result = jsonPathContext.read(json.get(IndexEntryAttributes.JSON_PATH).asText());
                 }
-            }catch (NullPointerException e){
+            } catch (NullPointerException e){
                 //it means this document has no value for this field so do nothing
             }
             valueMap.put(fieldMetadataNode.get(IndexEntryAttributes.NAME).asText(), result);
@@ -388,7 +402,7 @@ public class ConfigurableIndexService implements IndexService {
             //TODO: replace by classes if possible
             String value;
             String prjName = (String)valueMap.get(Facets.PROJECT);
-            addFileAttributses(doc, (Set<String>) valueMap.get(Constants.File.FILE_ATTS));
+            addFileAttributes(doc, (Set<String>) valueMap.get(Constants.File.FILE_ATTS));
             for (String field: indexManager.getProjectRelatedFields(prjName.toLowerCase())) {
                 JsonNode curNode = indexManager.getAllValidFields().get(field);
                 String fieldType = curNode.get(IndexEntryAttributes.FIELD_TYPE).asText();
@@ -407,8 +421,10 @@ public class ConfigurableIndexService implements IndexService {
                                 doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef( valueMap.get(field).toString())));
                             break;
                         case IndexEntryAttributes.FieldTypeValues.LONG:
+                            if (!valueMap.containsKey(field) || StringUtils.isEmpty(valueMap.get(field).toString()) ) break;
                             doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));
                             doc.add(new StoredField(String.valueOf(field), valueMap.get(field).toString()));
+                            doc.add( new LongPoint(String.valueOf(field), (Long) valueMap.get(field)  ));
                             break;
                         case IndexEntryAttributes.FieldTypeValues.FACET:
                             addFacet(String.valueOf(valueMap.get(field)), field, doc, curNode);
@@ -425,7 +441,7 @@ public class ConfigurableIndexService implements IndexService {
 
         }
 
-        private void addFileAttributses(Document doc, Set<String> columnAtts){
+        private void addFileAttributes(Document doc, Set<String> columnAtts){
             StringBuilder allAtts = new StringBuilder("Name|Size|");
             for(String att:columnAtts)
                 allAtts.append(att).append("|");

@@ -504,19 +504,24 @@ function registerHelpers() {
         if (!obj.subsections) return '';
         // make an org map
         $.each(obj.subsections.filter( function(subsection) { return subsection.type && subsection.type.toLowerCase()=='funding';}), function (i,o) {
-            var org = null, grant = '';
+            var org = null, grant;
             $(o.attributes).each(function () {
                 if (this.name.toLowerCase()=='agency') org = this.value;
                 if (this.name.toLowerCase()=='grant_id') grant = this.value;
             });
             if (org) {
-                orgs[org] = (orgs[org]) ? orgs[org] + (", "+grant) : orgs[org] = grant;
+                if (!orgs[org]) orgs[org] = {};
+                if (grant) {
+                    if (!orgs[org].grants) orgs[org].grants= [];
+                    orgs[org].grants.push( grant );
+                }
+                orgs[org].links = o.links;
             }
         });
         var keys = Object.keys(orgs), data = Handlebars.createFrame(options.data);
         $.each(keys, function (i,v) {
             data.first = i==0, data.last = i==(keys.length-1), data.index = i;
-            ret += options.fn({name:v,grants:orgs[v]},{data:data});
+            ret += options.fn({name:v, grants:orgs[v].grants, links:orgs[v].links },{data:data});
         });
         return ret;
     });
@@ -610,7 +615,7 @@ function findall(obj,k,unroll){ // works only for files and links
                 if (!accno) {
                     accno= obj.accno = 'genid'+ generatedID++;
                 }
-                if (type=='Publication') continue;
+                if (type=='Publication' || type=='Funding') continue;
                 $.each(obj[k], function () {
                     $.each($.isArray(this) ? this : [this], function () {
                         if (accno && type !="Study") {

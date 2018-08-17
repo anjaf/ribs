@@ -1,17 +1,28 @@
 package uk.ac.ebi.biostudies.api.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+import uk.ac.ebi.biostudies.config.IndexConfig;
+import uk.ac.ebi.biostudies.config.IndexManager;
+
+import java.util.Map;
 
 /**
  * Created by awais on 16/02/2017.
  */
 public class BioStudiesQueryParser extends MultiFieldQueryParser {
 
-    public BioStudiesQueryParser(String[] fields, Analyzer analyzer) {
+    private static IndexManager indexManager;
+
+    public BioStudiesQueryParser(String[] fields, Analyzer analyzer, IndexManager indexManager) {
         super(fields, analyzer);
+        this.indexManager = indexManager;
     }
 
     @Override
@@ -20,5 +31,17 @@ public class BioStudiesQueryParser extends MultiFieldQueryParser {
             throw new ParseException("Field 'access' not allowed in queries.");
         }
         return super.parse(query);
+    }
+
+    @Override
+    protected Query getRangeQuery(String field, String min, String max, boolean startInclusive, boolean endInclusive) throws ParseException {
+
+        Map<String, JsonNode> allValidFields = indexManager.getAllValidFields();
+        if (allValidFields.containsKey(field)) {
+            if (allValidFields.get(field).get(Constants.IndexEntryAttributes.FIELD_TYPE).textValue().equals(Constants.IndexEntryAttributes.FieldTypeValues.LONG)) {
+                return LongPoint.newRangeQuery(field, Long.parseLong(min), Long.parseLong(max));
+            }
+        }
+        return super.getRangeQuery(field, min, max, startInclusive, endInclusive);
     }
 }
