@@ -312,7 +312,7 @@ function postRenderFacets(data, params) {
      for (var fkey in params) {
         if (fkey.toLowerCase().indexOf("facet.")!=0) continue;
         $.each( $.isArray(params[fkey]) ? params[fkey] : [params[fkey]] , function (i,v) {
-            $('input[value="' + v + '"]').attr('checked', 'checked');
+            $('input[name="'+fkey+'"][value="' + v + '"]').attr('checked', 'checked');
         });
     }
 

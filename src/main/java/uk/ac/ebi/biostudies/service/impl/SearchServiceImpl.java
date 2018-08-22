@@ -136,7 +136,9 @@ public class SearchServiceImpl implements SearchService {
                         if (!fieldData.has(IndexEntryAttributes.RETRIEVED) || !fieldData.get(IndexEntryAttributes.RETRIEVED).asBoolean(false)) continue;
                         switch (fieldData.get(IndexEntryAttributes.FIELD_TYPE).asText()) {
                             case IndexEntryAttributes.FieldTypeValues.LONG:
-                                docNode.put(field, Long.parseLong(doc.get(field)));
+                                if (doc.get(field)!=null) {
+                                    docNode.put(field, Long.parseLong(doc.get(field)));
+                                }
                                 break;
                             default:
                                 docNode.put(field, doc.get(field));
