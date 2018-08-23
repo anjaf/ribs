@@ -651,6 +651,7 @@ function postRender(params, data) {
     drawSubsections();
     createBigFileTable(data.accno, params);
     createMainLinkTable();
+    createDataTables();
     handleLinkFilters();
     showRightColumn();
     handleSectionArtifacts();
@@ -1095,6 +1096,9 @@ function handleTableExpansion() {
         $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px').css('top', '45%');
         $('.fullscreen').css("top", ( $(window).height() - $(this).parent().parent().height() ) / 3  + "px");
         $('.fullscreen').css("left", ( $(window).width() - $(this).parent().parent().width() ) / 2 + "px");
+        if ($(this).attr('id')=='all-files-expander')   {
+            clearFileFilter();
+        }
     });
 
     $('.has-child-section :not(visible) > section > .toggle-tables').click(); // expand tables for hidden sections
@@ -1226,7 +1230,7 @@ function handleFileFilters(sections) {
     // handle clicks on file filters in section
     $("a.section-button[data-files-id]").click(function () {
         expansionSource = '' + $(this).data('files-id');
-        clearFileFilter();
+        //clearFileFilter();
         $('#all-files-expander').click();
         filesTable.column(':contains(Section)').search(expansionSource);
         // hide empty columns
@@ -1333,8 +1337,8 @@ function downloadFiles(files) {
 }
 
 function clearFileFilter() {
-    //filesTable.columns().visible(true);
-    //filesTable.search('').columns().search('').draw();
+    filesTable.columns().visible(true);
+    filesTable.search('').columns().search('').draw();
 }
 
 function clearLinkFilter() {

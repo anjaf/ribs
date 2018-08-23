@@ -1,8 +1,11 @@
 // create links for sample number
+
 $(sectionTables).each(function () {
+    //debugger
     var sampleColumn =  this.columns(function(i,d,n){ return $(n).text()=='No. of Samples' });
     if (!sampleColumn || !sampleColumn.length ||!sampleColumn.nodes()[0] ||  !sampleColumn.nodes()[0].length) return;
     $(sampleColumn.nodes()[0]).each( function(i,v) {
+        if($('a',this).length==1) return;
         var id = generatedID++;
         $(v).wrapInner('<a id="genid' +  id  + '" name="genid'+ id +'" href="#"></a>');
         $('a',v).attr('data-file-data-search',$(v).siblings().map(function(){ return $(this).text(); }).toArray().join(' '));
