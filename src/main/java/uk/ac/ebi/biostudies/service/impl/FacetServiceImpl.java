@@ -11,7 +11,6 @@ import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import springfox.documentation.spring.web.json.Json;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.auth.Session;
@@ -150,11 +149,12 @@ public class FacetServiceImpl implements FacetService {
     }
 
     @Override
-    public JsonNode getDefaultFacetTemplate(String prjName, String queryString, int limit, JsonNode selectedFacets){
+    public JsonNode getDefaultFacetTemplate(String prjName, String queryString, int limit, JsonNode selectedFacetsAndFields){
         Query queryWithoutFacet = null;
         Query queryAfterFacet = null;
         int hits = 0;
         ObjectMapper mapper = new ObjectMapper();
+        JsonNode selectedFacets = selectedFacetsAndFields.get("facets")==null?mapper.createObjectNode():selectedFacetsAndFields.get("facets");
         try {
             queryWithoutFacet = queryService.makeQuery(queryString, prjName).getKey();
             queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
