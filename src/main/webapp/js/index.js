@@ -2,21 +2,27 @@
 
     registerHelpers();
 
-
-    var projectAnimation = $({countNum: $('#projectCount').text()}).animate({countNum: 1}, {
-        duration: 10000,
-        easing:'swing',
-        step: function(now) {
-            $('#projectCount').text(formatNumber(Math.floor(this.countNum)));
-        },
-        complete: function() {
-            $('#projectCount').text(formatNumber(this.countNum)+'+');
-        }
-    });
-    $.getJSON( contextPath + "/api/v1/search",{query:'type:Project'}, function( data ) {
+    $.getJSON( contextPath + "/api/v1/search",{query:'type:Project', pageSize:4}, function( data ) {
         if (data && data.totalHits && data.totalHits>0) {
-            projectAnimation.stop();
-            $('#projectCount').text(formatNumber(data.totalHits));
+                data.hits.sort(function(a, b) { return a.title.toLowerCase() > b.title.toLowerCase()})
+                var template = Handlebars.compile($('script#projects-template').html());
+                $('#projects').html(template(data));
+                $('#projectsLoader').hide();
+                $('#projects').slideDown();
+                $("a[data-type='project']").each( function() {
+                    var $prj = $(this), accession = $(this).data('accession');
+                    $(this).attr('href',contextPath+'/'+accession+'/studies');
+                    $.getJSON(contextPath+ '/api/v1/studies/'+accession, function (data) {
+                        var path = data.section.files.path;
+                        if (!path && data.section.files[0]) path =data.section.files[0].path;
+                        if (!path && data.section.files[0][0]) path = data.section.files[0][0].path;
+                        if (path) {
+                            $prj.prepend('<img src="' + contextPath + '/files/' + accession + '/' + path + '"/>');
+                        }
+                    })
+                });
+        } else {
+            //TODO: Hide project panel
         }
     });
 
@@ -88,6 +94,19 @@ function registerHelpers() {
 
 
     Handlebars.registerHelper('eachStudy', function(key, val, arr, options) {
+        var mod = arr.reduce(function(r, i) {
+            r[i[key]] = r[i[key]] || [];
+            r[i[key]].push(i[val]);
+            return r;
+        }, {})
+        var ret = '';
+        for(var k in mod) {
+            ret = ret + options.fn({name:k,value:mod[k].join(',')});
+        }
+        return ret;
+    });
+
+    Handlebars.registerHelper('eachProject', function(key, val, arr, options) {
         var mod = arr.reduce(function(r, i) {
             r[i[key]] = r[i[key]] || [];
             r[i[key]].push(i[val]);
