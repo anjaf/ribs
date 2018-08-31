@@ -18,7 +18,16 @@
             }
             .mono {
                 font-family: Consolas, monospace, 'Courier New';
-                font-size: 12pt;
+                font-size: 10pt;
+                color: #58585a;
+            }
+            pre {
+                font-family: Consolas, monospace, 'Courier New';
+                font-size: 9pt;
+                white-space: pre-line;
+                color: #58585a;
+                padding: 10pt;
+                background-color: #eee;
             }
         </style>
         <h3>How to search BioStudies database</h3>
@@ -77,7 +86,7 @@
             client such as FileZilla, or issue FTP commands via a command line, e.g.,
             <span class="mono">wget ftp://ftp.biostudies.ebi.ac.uk/pub/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna</span>
             or, for interactive access:
-        <pre>
+        <pre class="pre">
         ftp ftp.biostudies.ebi.ac.uk
         Name: anonymous
         Password: enter your e-mail address
@@ -101,11 +110,20 @@
                 <ul>
                     <li>on Linux: <span class="mono">&lt;aspera connect installation directory&gt;/etc/asperaweb_id_dsa.openssh</span></li>
                     <li>on Mac OSX: <span class="mono">&lt;aspera connect installation directory&gt;/asperaweb_id_dsa.openssh</span></li>
-                    <li>on Windows: <span class="mono">"%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span></li>
+                    <li>on Windows: <span class="mono">"%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span> for
+                        if Aspera Connect has been installed only for the current user or
+                        <span class="mono">"%programfiles(x86)%\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span>
+                        if Aspera Connect has been installed for all users</li>
                 </ul>
             </li>
-            <li><span class="mono">&lt;files to download&gt;</span> might be all files for a certain study, as explained above.</li>
+            <li><span class="mono">&lt;files to download&gt;</span> might be all files for a certain study, as explained above.
+                Please note that Aspera paths do not need to have <span class="mono">pub</span> as the root folder.</li>
         </ul>
+
+        For instance, here's the command line to download the file <span class="mono">aeipf_denoised_reads.fna</span> from submission <span class="mono">S-BSST12</span> to the directory <span class="mono">C:\Temp</span> on Windows.
+        <pre class="pre">
+            "%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\bin\ascp.exe" -P33001  -i "%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh" bsaspera@fasp-beta.ebi.ac.uk:/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna C:\Temp\
+        </pre>
         </p>
 
     </jsp:body>
