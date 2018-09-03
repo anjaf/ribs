@@ -2,7 +2,7 @@
 
     registerHelpers();
 
-    $.getJSON( contextPath + "/api/v1/search",{query:'type:Project', pageSize:4}, function( data ) {
+    $.getJSON( contextPath + "/api/v1/search",{type:'project', pageSize:4}, function( data ) {
         if (data && data.totalHits && data.totalHits>0) {
                 data.hits.sort(function(a, b) { return a.title.toLowerCase() > b.title.toLowerCase()})
                 var template = Handlebars.compile($('script#projects-template').html());

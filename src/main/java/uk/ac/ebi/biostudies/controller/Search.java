@@ -120,15 +120,17 @@ public class Search {
         ObjectNode selectedFacets = mapper.createObjectNode();
         ObjectNode selectedFields = mapper.createObjectNode();
         if (params!=null) {
-            for (String facet: params.keySet()) {
-                if (!facet.toLowerCase().startsWith("facet.")) {
-                    selectedFields.put(facet, params.getFirst(facet));
+            for (String key: params.keySet()) {
+                if(key.equalsIgnoreCase("pageSize") || key.equalsIgnoreCase("page") || key.equalsIgnoreCase("sortBy") || key.equalsIgnoreCase("sortOrder") || key.equalsIgnoreCase("query")|| key.equalsIgnoreCase("limit") )
+                    continue;
+                if (!key.toLowerCase().startsWith("facet.")) {
+                    selectedFields.put(key, params.getFirst(key));
                 }else {
-                    String facetKey = StringUtils.remove(facet, "[]");
+                    String facetKey = StringUtils.remove(key, "[]");
                     if (!selectedFacets.has(facetKey)) {
                         selectedFacets.set(facetKey, mapper.createArrayNode());
                     }
-                    for (String value : params.get(facet)) {
+                    for (String value : params.get(key)) {
                         ((ArrayNode) selectedFacets.get(facetKey)).add(value);
                     }
                 }

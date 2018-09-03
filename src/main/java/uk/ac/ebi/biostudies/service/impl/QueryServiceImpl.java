@@ -84,17 +84,19 @@ public class QueryServiceImpl implements QueryService {
         parser.setSplitOnWhitespace(true);
         Pair<Query, EFOExpansionTerms> finalQuery = null;
         try {
-            logger.debug("User queryString: {}",queryString);
+            logger.debug("User queryString: {}", queryString);
             Query query = parser.parse(queryString);
             Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query);
             Query expandedQuery = null;
-            if(selectedFields!=null)
-                expandedQuery = applySelectedFields((ObjectNode)selectedFields, queryEFOExpansionTermsPair.getKey(), parser);
-            expandedQuery= (expandedQuery==null? queryEFOExpansionTermsPair.getKey() : expandedQuery);
+            if (selectedFields != null)
+                expandedQuery = applySelectedFields((ObjectNode) selectedFields, queryEFOExpansionTermsPair.getKey(), parser);
+            expandedQuery = (expandedQuery == null ? queryEFOExpansionTermsPair.getKey() : expandedQuery);
             expandedQuery = excludeCompoundStudies(expandedQuery);
 
-            if(!queryString.toLowerCase().contains("type:project")) {
-                expandedQuery = excludeProjects(expandedQuery);
+            if (!queryString.toLowerCase().contains("type:")){
+                if (selectedFields!=null && !selectedFields.has("type")) {
+                    expandedQuery = excludeProjects(expandedQuery);
+                }
             }
             if(!StringUtils.isEmpty(projectName) && !projectName.equalsIgnoreCase(Constants.PUBLIC)) {
                 expandedQuery = applyProjectFilter(expandedQuery, projectName);

@@ -22,7 +22,7 @@ function showResults(params) {
     var template = Handlebars.compile(templateSource);
 
     // do search
-    $.getJSON(contextPath+"/api/v1/search?query=type:project", params,function (data) {
+    $.getJSON(contextPath+"/api/v1/search?type=project", params,function (data) {
         var html = template(data);
         $('#renderedContent').html(html);
         postRender(data, params);
