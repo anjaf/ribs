@@ -1,12 +1,14 @@
 package uk.ac.ebi.biostudies.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
@@ -53,7 +55,7 @@ public class QueryServiceImpl implements QueryService {
 
     private static Query excludeCompound;
     private static Query excludeProject;
-    private static QueryParser parser;
+    private QueryParser parser;
     private static Query excludeFiles;
 
 
@@ -71,7 +73,7 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public Pair<Query, EFOExpansionTerms> makeQuery(String queryString, String projectName) {
+    public Pair<Query, EFOExpansionTerms> makeQuery(String queryString, String projectName, JsonNode selectedFields) {
 
         String[] fields = indexConfig.getIndexFields();
         if (StringUtils.isEmpty(queryString)) {
@@ -85,7 +87,12 @@ public class QueryServiceImpl implements QueryService {
             logger.debug("User queryString: {}",queryString);
             Query query = parser.parse(queryString);
             Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query);
-            Query expandedQuery = excludeCompoundStudies(queryEFOExpansionTermsPair.getKey());
+            Query expandedQuery = null;
+            if(selectedFields!=null)
+                expandedQuery = applySelectedFields((ObjectNode)selectedFields, queryEFOExpansionTermsPair.getKey(), parser);
+            expandedQuery= (expandedQuery==null? queryEFOExpansionTermsPair.getKey() : expandedQuery);
+            expandedQuery = excludeCompoundStudies(expandedQuery);
+
             if(!queryString.toLowerCase().contains("type:project")) {
                 expandedQuery = excludeProjects(expandedQuery);
             }
@@ -144,6 +151,30 @@ public class QueryServiceImpl implements QueryService {
         excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
         excludeBuilder.add(excludeProject, BooleanClause.Occur.MUST_NOT);
         return  excludeBuilder.build();
+    }
+
+    private Query applySelectedFields(ObjectNode selectedFields, Query query, QueryParser queryParser){
+        Iterator<String> fieldNamesIterator = selectedFields.fieldNames();
+        String fieldName = "";
+        String fieldValue = "";
+        BooleanQuery.Builder fieldQueryBuilder = new BooleanQuery.Builder();
+        fieldQueryBuilder.add(query, BooleanClause.Occur.MUST);
+        while(fieldNamesIterator.hasNext()) {
+            try {
+                fieldName = fieldNamesIterator.next();
+                if (fieldName == null|| fieldName.isEmpty() || fieldName.equalsIgnoreCase("query"))
+                    continue;
+                fieldValue = selectedFields.get(fieldName).textValue();
+                if(fieldValue==null || fieldValue.isEmpty())
+                    continue;
+                Query fieldQuery = queryParser.parse(fieldName+":"+fieldValue);
+                fieldQueryBuilder.add(fieldQuery, BooleanClause.Occur.MUST);
+            }
+            catch (Exception ex){
+                logger.error("field {} value {} has problem for lucene queryparser", fieldName, fieldValue, ex);
+            }
+        }
+        return fieldQueryBuilder.build();
     }
 
 }

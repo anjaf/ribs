@@ -53,10 +53,10 @@ public class Search {
                          @RequestParam(value="sortOrder", required=false, defaultValue = "descending") String sortOrder,
                          @RequestParam MultiValueMap<String,String> params
     ) throws Exception {
-        ObjectNode selectedFacets = checkSelectedFacetsAndFields(params);
         String queryString = params.getFirst("query");
         params.remove("query");
         queryString = queryString == null ? "" : queryString;
+        ObjectNode selectedFacets = checkSelectedFacetsAndFields(params);
         return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, null, page, pageSize, sortBy, sortOrder); }
 
     @ApiOperation(value = "Returns latest studies", notes = "", response = ObjectNode.class)
@@ -123,13 +123,14 @@ public class Search {
             for (String facet: params.keySet()) {
                 if (!facet.toLowerCase().startsWith("facet.")) {
                     selectedFields.put(facet, params.getFirst(facet));
-                }
-                String facetKey = StringUtils.remove(facet, "[]");
-                if (!selectedFacets.has( facetKey )) {
-                    selectedFacets.set(facetKey, mapper.createArrayNode());
-                }
-                for (String value: params.get(facet)) {
-                    ((ArrayNode) selectedFacets.get(facetKey)).add ( value );
+                }else {
+                    String facetKey = StringUtils.remove(facet, "[]");
+                    if (!selectedFacets.has(facetKey)) {
+                        selectedFacets.set(facetKey, mapper.createArrayNode());
+                    }
+                    for (String value : params.get(facet)) {
+                        ((ArrayNode) selectedFacets.get(facetKey)).add(value);
+                    }
                 }
             }
         }

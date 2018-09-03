@@ -54,7 +54,7 @@ public class FacetServiceImpl implements FacetService {
         ObjectNode facetJSON = mapper.createObjectNode();
         FacetsCollector facetsCollector = new FacetsCollector();
         try {
-            query = queryService.makeQuery(null, project).getKey();
+            query = queryService.makeQuery(null, project, null).getKey();
             query = securityQueryBuilder.applySecurity(query);
             FacetsCollector.search(indexManager.getIndexSearcher(), query, Integer.MAX_VALUE, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
@@ -115,7 +115,7 @@ public class FacetServiceImpl implements FacetService {
         } catch (Throwable e) {
             logger.debug("problem in applying security in creating facetresults for this query {}", query, e);
         }
-       addLowFreqSelectedFacets(selectedFacetFreq, selectedFacets, facets);
+        addLowFreqSelectedFacets(selectedFacetFreq, selectedFacets, facets);
         return allResults;
     }
 
@@ -156,7 +156,7 @@ public class FacetServiceImpl implements FacetService {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode selectedFacets = selectedFacetsAndFields.get("facets")==null?mapper.createObjectNode():selectedFacetsAndFields.get("facets");
         try {
-            queryWithoutFacet = queryService.makeQuery(queryString, prjName).getKey();
+            queryWithoutFacet = queryService.makeQuery(queryString, prjName, selectedFacetsAndFields).getKey();
             queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
         } catch (NullPointerException e) {
             logger.debug("problem in parsing query {}", queryString, e);

@@ -191,7 +191,7 @@ public class SearchServiceImpl implements SearchService {
     private boolean extractSortOrder(String sortOrder, String sortBy){
         if(sortOrder.isEmpty()) {
             sortOrder  = (Fields.ACCESSION.equalsIgnoreCase(sortBy) || Fields.TITLE.equalsIgnoreCase(sortBy) || Fields.AUTHOR.equalsIgnoreCase(sortBy))
-                         ? SortOrder.ASCENDING : SortOrder.DESCENDING;
+                    ? SortOrder.ASCENDING : SortOrder.DESCENDING;
         }
         boolean shouldReverse =  (SortOrder.DESCENDING.equalsIgnoreCase(sortOrder) ? true : false);
         if (sortBy ==null || RELEVANCE.equalsIgnoreCase(sortBy) ) {
@@ -221,7 +221,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public String search(String queryString, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
+    public String search(String queryString, JsonNode selectedFacetsAndFields, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
         boolean doHighlight = true;
         if(queryString.isEmpty() && sortBy.isEmpty()) {
             sortBy = Fields.RELEASE_DATE; // TODO: Make sure RELEASE_TIME is used correctly all over the code base
@@ -231,7 +231,9 @@ public class SearchServiceImpl implements SearchService {
         }
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode response = mapper.createObjectNode();
-        Pair<Query, EFOExpansionTerms> resultPair = queryService.makeQuery(queryString, prjName);
+        JsonNode selectedFields = selectedFacetsAndFields==null? null : selectedFacetsAndFields.get("fields");
+        JsonNode selectedFacets = selectedFacetsAndFields==null? null : selectedFacetsAndFields.get("facets");
+        Pair<Query, EFOExpansionTerms> resultPair = queryService.makeQuery(queryString, prjName, selectedFields);
         try {
             Query queryAfterSecurity = resultPair.getKey();
             if(selectedFacets!=null){
@@ -288,9 +290,9 @@ public class SearchServiceImpl implements SearchService {
         response.put("links", linkStats.sum());
 
         indexManager.getIndexWriter().getLiveCommitData().forEach(entry -> {
-           if (entry.getKey().equalsIgnoreCase("@endTimeTS")) {
-               response.put("time", Long.parseLong(entry.getValue()) );
-           }
+            if (entry.getKey().equalsIgnoreCase("@endTimeTS")) {
+                response.put("time", Long.parseLong(entry.getValue()) );
+            }
         });
 
         return response.toString();
@@ -346,6 +348,4 @@ public class SearchServiceImpl implements SearchService {
         }
         return null;
     }
-
-
 }
