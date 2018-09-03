@@ -17,6 +17,16 @@
                 {{#if @last}}</ul>{{/if}}
             {{/each}}
         </script>
+        <script id='projects-template' type='text/x-handlebars-template'>
+            {{#each this.hits}}
+            {{#if @first}}<ul id="projectList">{{/if}}
+                <li class="columns small-2">
+                    <a data-type="{{type}}" data-accession="{{accession}}" href="studies/{{accession}}"></a>
+                </li>
+                {{#if @last}}</ul>{{/if}}
+            {{/each}}
+            <span id="moreProjects"><a href="projects">more...</a></span>
+        </script>
         <script src="${contextPath}/js/index.js"></script>
     </jsp:attribute>
 
@@ -44,33 +54,27 @@
         <div>
             <div class="columns medium-12" id="tertiary">
                 <div class="row" id="template">
-                    <div class="columns medium-3">
-                        <h5 id="fileCountStats">
+                    <div class="columns medium-2">
+                        <h6 id="fileCountStats">
                             <a href="studies/" title="Browse BioStudies">
                                 <span class="icon icon-generic home-icon-small" id="filesIcon" data-icon=";"></span>
                                 <span id="fileCount">100000</span> files
                             </a>
-                        </h5>
-                        <h5 id="linkCountStats">
+                        </h6>
+                        <h6 id="linkCountStats">
                             <a href="studies/" title="Browse BioStudies">
                                 <span class="icon icon-generic home-icon-small" id="linksIcon" data-icon="L"></span>
                                 <span id="linkCount">100000</span> links
                             </a>
-                        </h5>
-                        <h5 id="projectCountStats">
-                            <a href="projects" title="Browse BioStudies">
-                                <span class="icon icon-functional home-icon-small" id="projectsIcon" data-icon="A"></span>
-                                <span id="projectCount">4</span> projects
-                            </a>
-                        </h5>
-                        <h5 id="studyCountStats">
+                        </h6>
+                        <h6 id="studyCountStats">
                             <a href="studies/" title="Browse BioStudies">
                                 <span class="icon icon-functional home-icon-small" id="studiesIcon" data-icon="b"></span>
                                 <span id="studyCount">100000</span> studies
                             </a>
-                        </h5>
+                        </h6>
                     </div>
-                    <div class="columns medium-9">
+                    <div class="columns medium-6">
                         <h5 id="latestHeading">
                             <a href="#" title="Latest studies">
                                 <span class="icon icon icon-generic home-icon-small" id="latestIcon" data-icon="{"></span>
@@ -80,6 +84,16 @@
                         </h5>
                         <div id="latestLoader" style="text-align: center"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>
                         <div id="latest"></div>
+                    </div>
+                    <div class="columns medium-4">
+                        <h5 id="allProjects">
+                            <a href="#" title="Projects">
+                                <span class="icon icon-functional home-icon-small" id="projectsIcon" data-icon="A"></span>
+                                Projects
+                            </a>
+                        </h5>
+                        <div id="projectsLoader" style="text-align: center"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>
+                        <div id="projects"></div>
                     </div>
                 </div>
             </div>

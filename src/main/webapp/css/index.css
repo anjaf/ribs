@@ -90,6 +90,20 @@
     background: #D2D6F6;
 }
 
+#moreProjects {
+    float: right;
+    font-size: 10pt;
+    background-color: #1b78bb;
+    padding: 2pt 3pt;
+    border-radius: 3pt;
+    line-height: 10pt;
+}
+
+#moreProjects a {
+    color: white;
+    border: none;
+}
+
 #studiesIcon:before {
     color: #2BA35F;
     border: 1px solid #2BA35F;
@@ -133,7 +147,7 @@
 #latest {
     display: none;
 }
-#studyCountStats, #projectCountStats, #latestHeading, #fileCountStats, #linkCountStats, #lastUpdate {
+#studyCountStats, #allProjects, #latestHeading, #fileCountStats, #linkCountStats, #lastUpdate {
     margin-top:20px;
 }
 
@@ -152,14 +166,28 @@
     padding-left: 20px;
 }
 
-#latestList li {
+ul#projectList{
+    list-style: none;
+}
+ul#projectList li{
+    float: left;
+    min-height: 70px;
+    min-width: 170px;
+    line-height: 70px
+}
+
+ul#projectList li a{
+    border:none;
+}
+
+#latestList li{
     list-style: square;
     margin-left: 20px;
     color: #466B7D;
     margin-bottom: 8pt
 }
 
-#latestList li a{
+#latestList li a, #projectList li a{
     color: #267799
 }
 
