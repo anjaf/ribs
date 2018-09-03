@@ -2,12 +2,18 @@
 
     registerHelpers();
 
-    $.getJSON( contextPath + "/api/v1/search",{type:'project', pageSize:4}, function( data ) {
+    $.getJSON( contextPath + "/api/v1/search",{type:'project'}, function( data ) {
         if (data && data.totalHits && data.totalHits>0) {
-                data.hits.sort(function(a, b) { return a.title.toLowerCase() > b.title.toLowerCase()})
+                data.hits = data.hits.sort(function(a, b) {
+                    return a.title.toLowerCase() > b.title.toLowerCase() ? 1 : -1
+                });
+
+                if (data.hits.length>4) data.hits = data.hits.slice(0,4);
+
                 var template = Handlebars.compile($('script#projects-template').html());
                 $('#projects').html(template(data));
                 $('#projectsLoader').hide();
+                $('#allProjects').slideDown();
                 $('#projects').slideDown();
                 $("a[data-type='project']").each( function() {
                     var $prj = $(this), accession = $(this).data('accession');
@@ -19,10 +25,9 @@
                         if (path) {
                             $prj.prepend('<img src="' + contextPath + '/files/' + accession + '/' + path + '"/>');
                         }
-                    })
-                });
+                    })});
         } else {
-            //TODO: Hide project panel
+            $('#projectsLoader').hide();
         }
     });
 
