@@ -76,7 +76,7 @@
                     </div>
                     <div class="columns medium-6">
                         <h5 id="latestHeading">
-                            <a href="#" title="Latest studies">
+                            <a href="studies" title="Latest studies">
                                 <span class="icon icon icon-generic home-icon-small" id="latestIcon" data-icon="{"></span>
                                 Latest
                             </a>
@@ -87,7 +87,7 @@
                     </div>
                     <div class="columns medium-4">
                         <h5 id="allProjects" style="display: none">
-                            <a href="#" title="Projects">
+                            <a href="projects" title="Projects">
                                 <span class="icon icon-functional home-icon-small" id="projectsIcon" data-icon="A"></span>
                                 Projects
                             </a>
