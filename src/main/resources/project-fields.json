@@ -19,7 +19,7 @@
     {"name":"experimental_design", "title":"Experimental Design", "fieldType":"facet", "multiValued":true},
     {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true},
     {"name":"facet.study_type", "title":"Study type", "fieldType":"facet", "multiValued":true},
-    {"name":"minseq_score", "title":"MinSeq Score", "fieldType":"long", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes.length()", "retrieved":true, "expanded":false, "sortable":true}
+    {"name":"minseq_score", "title":"MinSeq Score", "fieldType":"long", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.value==\"*\")].length()", "retrieved":true, "expanded":false, "sortable":true}
 
   ],
   "europepmc": [

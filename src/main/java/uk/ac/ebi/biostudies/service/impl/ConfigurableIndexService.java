@@ -380,7 +380,7 @@ public class ConfigurableIndexService implements IndexService {
                             result =  String.join (Facets.DELIMITER, resultData);
                             break;
                         case IndexEntryAttributes.FieldTypeValues.LONG:
-                            result = resultData.stream().collect(Collectors.summingLong( i-> new Long(i.toString()) ));
+                            result = resultData.stream().collect(Collectors.counting());
                             break;
                         default:
                             result =  String.join (" ", resultData);
