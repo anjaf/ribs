@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.DataTableColumnInfo;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
+import uk.ac.ebi.biostudies.auth.Session;
+import uk.ac.ebi.biostudies.auth.User;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
 import uk.ac.ebi.biostudies.controller.Study;
@@ -193,8 +195,12 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     private void setSecretKey(ObjectNode studyInfo, Document doc){
-        if( !(doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public "))
+        User currentUser = Session.getCurrentUser();
+        if( !(doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public ")
+                 || (currentUser!=null && currentUser.isSuperUser())) {
+
             studyInfo.put(Constants.Fields.SECRET_KEY, doc.getField(Constants.Fields.SECRET_KEY).stringValue());
+        }
 
     }
 
