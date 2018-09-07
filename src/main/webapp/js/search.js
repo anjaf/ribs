@@ -1,4 +1,4 @@
-    String.prototype.replaceAll = function(src, dst) {
+String.prototype.replaceAll = function(src, dst) {
     return this.replace(new RegExp(src, 'g'), dst);
 };
 

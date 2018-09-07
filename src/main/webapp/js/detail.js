@@ -112,7 +112,7 @@ $.fn.groupBy = function(fn) {
     };
 
     projectScripts = [
-        {regex: /E-MTAB-*/, script: 'ArrayExpress.js'},
+        {regex: /E-*|/, script: 'ArrayExpress.js'},
         {regex: /S-SCDT-*/, script: 'SourceData.js'}
         ];
 
