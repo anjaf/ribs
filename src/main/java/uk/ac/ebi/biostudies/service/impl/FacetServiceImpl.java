@@ -155,8 +155,9 @@ public class FacetServiceImpl implements FacetService {
         int hits = 0;
         ObjectMapper mapper = new ObjectMapper();
         JsonNode selectedFacets = selectedFacetsAndFields.get("facets")==null?mapper.createObjectNode():selectedFacetsAndFields.get("facets");
+        JsonNode selectedFields = selectedFacetsAndFields.get("fields")==null?mapper.createObjectNode():selectedFacetsAndFields.get("fields");
         try {
-            queryWithoutFacet = queryService.makeQuery(queryString, prjName, selectedFacetsAndFields).getKey();
+            queryWithoutFacet = queryService.makeQuery(queryString, prjName, selectedFields).getKey();
             queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
         } catch (NullPointerException e) {
             logger.debug("problem in parsing query {}", queryString, e);
