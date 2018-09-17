@@ -53,7 +53,8 @@ $.fn.groupBy = function(fn) {
         'compound':'https://www.ebi.ac.uk/biostudies/studies/{0}',
         'rfam':'http://rfam.org/family/{0}',
         'rnacentral':'http://rnacentral.org/rna/{0}',
-        'nct':'https://clinicaltrials.gov/ct2/show/{0}'
+        'nct':'https://clinicaltrials.gov/ct2/show/{0}',
+        'gxa':'https://www.ebi.ac.uk/gxa/experiments/{0}?ref=biostudies',
     };
 
     reverseLinkMap = {
@@ -83,7 +84,8 @@ $.fn.groupBy = function(fn) {
         '^www.ebi.ac.uk/biosamples/samples/(.*)':'BioSamples',
         '^rfam.org/family/(.*)':'Rfam',
         '^rnacentral.org/rna/(.*)':'RNAcentral',
-        '^clinicaltrials.gov/ct2/show/(.*)':'nct'
+        '^clinicaltrials.gov/ct2/show/(.*)':'nct',
+        '^www.ebi.ac.uk/gxa/experiments/(.*)':'gxa',
     };
 
     linkTypeMap = { //sync with normalised-text
