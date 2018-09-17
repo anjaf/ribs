@@ -52,8 +52,7 @@ public class QueryServiceImpl implements QueryService {
     @Autowired
     TaxonomyManager taxonomyManager;
 
-    private static Query excludeCompound;
-    private static Query excludeProject;
+    private static Query typeFilterQuery;
     private QueryParser parser;
     private static Query excludeFiles;
 
@@ -63,9 +62,7 @@ public class QueryServiceImpl implements QueryService {
         parser = new QueryParser(Constants.Fields.TYPE, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         try {
-            excludeCompound = parser.parse("type:compound");
-            excludeProject = parser.parse("type:project");
-            excludeFiles = parser.parse("type:file");
+            typeFilterQuery = parser.parse(indexConfig.getTypeFilterQuery());
         } catch (ParseException e) {
             logger.error(e);
         }
@@ -90,13 +87,14 @@ public class QueryServiceImpl implements QueryService {
             if (selectedFields != null)
                 expandedQuery = applySelectedFields((ObjectNode) selectedFields, queryEFOExpansionTermsPair.getKey(), parser);
             expandedQuery = (expandedQuery == null ? queryEFOExpansionTermsPair.getKey() : expandedQuery);
-            expandedQuery = excludeCompoundStudies(expandedQuery);
+            //expandedQuery = excludeCompoundStudies(expandedQuery);
 
             if (!queryString.toLowerCase().contains("type:")){
                 if (selectedFields!=null && !selectedFields.has("type")) {
-                    expandedQuery = excludeProjects(expandedQuery);
+                    expandedQuery = applyTypeFilter(expandedQuery);
                 }
             }
+
             if(!StringUtils.isEmpty(projectName) && !projectName.equalsIgnoreCase(Constants.PUBLIC)) {
                 expandedQuery = applyProjectFilter(expandedQuery, projectName);
             }
@@ -109,21 +107,14 @@ public class QueryServiceImpl implements QueryService {
         return finalQuery;
     }
 
+    private Query applyTypeFilter(Query originalQuery) {
+        BooleanQuery.Builder excludeBuilder = new BooleanQuery.Builder();
+        excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
+        excludeBuilder.add(typeFilterQuery, BooleanClause.Occur.MUST_NOT);
+        return  excludeBuilder.build();
+    }
+
     public Query applyProjectFilter(Query query, String prjName){
-        /*
-        QueryParser searchPrjParser = new QueryParser(Constants.PROJECT, new AttributeFieldAnalyzer());
-        searchPrjParser.setSplitOnWhitespace(true);
-        BooleanQuery.Builder bqBuilder = new BooleanQuery.Builder();
-        bqBuilder.add(query, BooleanClause.Occur.MUST);
-        try {
-            String prjSearch = "("+Constants.PROJECT+":"+prjName+")";
-            Query searchInPrj = searchPrjParser.parse(prjSearch);
-            bqBuilder.add(searchInPrj, BooleanClause.Occur.MUST);
-        } catch (ParseException e) {
-            logger.debug(e);
-        }
-        return bqBuilder.build();
-        */
         Map<JsonNode, List<String>> hm = new HashMap<JsonNode, List<String>>();
         hm.put(taxonomyManager.PROJECT_FACET, Lists.newArrayList(prjName));
         return facetService.addFacetDrillDownFilters(query, hm);
@@ -137,21 +128,6 @@ public class QueryServiceImpl implements QueryService {
             logger.error("Problem in expanding query {}", query, ex);
         }
         return new MutablePair<>(query, null);
-    }
-
-    private Query excludeCompoundStudies(Query originalQuery){
-        BooleanQuery.Builder excludeBuilder = new BooleanQuery.Builder();
-        excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
-        excludeBuilder.add(excludeCompound, BooleanClause.Occur.MUST_NOT);
-        excludeBuilder.add(excludeFiles, BooleanClause.Occur.MUST_NOT);
-        return  excludeBuilder.build();
-    }
-
-    private Query excludeProjects(Query originalQuery){
-        BooleanQuery.Builder excludeBuilder = new BooleanQuery.Builder();
-        excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
-        excludeBuilder.add(excludeProject, BooleanClause.Occur.MUST_NOT);
-        return  excludeBuilder.build();
     }
 
     private Query applySelectedFields(ObjectNode selectedFields, Query query, QueryParser queryParser){

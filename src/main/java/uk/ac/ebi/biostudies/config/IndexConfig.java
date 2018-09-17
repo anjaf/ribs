@@ -60,6 +60,11 @@ public class IndexConfig {
     @Value("${indexer.spellchecker-location}")
     private String spellcheckerLocation;
 
+    @Value("${query.type.filter}")
+    private String typeFilterQuery;
+
+
+
     public static CharArraySet STOP_WORDS;
 
 
@@ -104,7 +109,7 @@ public class IndexConfig {
         return fields;
     }
 
-    public String getThumbnailDir() {
+     public String getThumbnailDir() {
         return thumbnailDir;
     }
 
@@ -126,5 +131,9 @@ public class IndexConfig {
 
     public String getSpellcheckerLocation() {
         return spellcheckerLocation;
+    }
+
+    public String getTypeFilterQuery() {
+        return typeFilterQuery;
     }
 }

@@ -142,8 +142,8 @@ $.fn.groupBy = function(fn) {
         if (!data.section.attributes.filter( function (v,i) { return    v.name=='Title';   }).length) {
             data.section.attributes.push({name:'Title', value:title[0].value});
         }
-        var files = findall(data.section,'files');
-        data.section.files = files;
+        /*var files = findall(data.section,'files');
+        data.section.files = files;*/
         var html = template(data.section);
         d.getElementById('renderedContent').innerHTML = html;
         postRender(params, data.section);
@@ -661,7 +661,7 @@ function postRender(params, data) {
     handleSubattributes();
     handleOntologyLinks();
     handleORCIDIntegration();
-    handleSimilarStudies();
+    handleSimilarStudies(data.type);
     handleImageURLs();
 
     handleProjectBasedScriptInjection();
@@ -1442,7 +1442,7 @@ function closeFullScreen() {
         clearFileFilter();
     }
 }
-function handleSimilarStudies() {
+function handleSimilarStudies(type) {
     var accession = $('#accession').text();
     var url = window.location.pathname;
     url = url.replace('/studies/','/api/v1/studies/').replace(project,'')+"/similar";
@@ -1450,6 +1450,9 @@ function handleSimilarStudies() {
         var templateSource = $('script#main-similar-studies').html();
         var template = Handlebars.compile(templateSource);
         $('#right-column-content').append(template(data.similarStudies));
+        if (type!='Study') {
+            $('#similar-study-container .widge-title').html($('#similar-study-container .widge-title').html().replace(" Studies", ""));
+        }
     })
 }
 function handleORCIDIntegration() {

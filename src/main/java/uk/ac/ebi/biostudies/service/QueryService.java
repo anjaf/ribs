@@ -8,5 +8,4 @@ import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
 
 public interface QueryService {
     Pair<Query, EFOExpansionTerms> makeQuery(String queryString, String projectName, JsonNode selectedFields);
-    Query applyProjectFilter(Query query, String prjName);
 }
