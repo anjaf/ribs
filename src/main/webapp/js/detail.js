@@ -455,6 +455,9 @@ function registerHelpers() {
                      author[v.name] = [author[v.name], v.value];
                  }
              });
+             if (!author.affiliation && author.Affiliation) {
+                 author.affiliation = author.Affiliation;
+             }
              if (author.affiliation) {
                  if ($.isArray(author.affiliation)) {
                      var affiliations = [];
