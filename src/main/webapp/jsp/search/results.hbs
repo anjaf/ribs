@@ -4,55 +4,53 @@
             <div id="facets" class="small-2 columns"></div>
             <div class="small-10 columns">
                 {{#ifCond query '&&' hits}}
-                <div><h4 id="search-results-query">Search results for <span class="query">{{query}}</span></h4></div>
+                    <div class="small-10 columns"><h4 id="search-results-query">Search results for <span class="query">{{query}}</span></h4></div>
                 {{/ifCond}}
 
                 {{#if this.hits}}
-                <div id="sort-by-div">
-                    <span>Sort by:</span>
-                    <select id="sort-by">
-                        <option value="relevance">Relevance</option>
-                        <option value="release_date">Released</option>
-                        <option value="files">Files</option>
-                        <option value="links">Links</option>
-                    </select>
-                    <span id="sorting-links">
-                                    <a id="sort-desc"><i class="fa fa-angle-down"/></a><a id="sort-asc"><i class="fa fa-angle-up"></i></a>
-                                </span>
-                </div>
+                    <div class="clearboth small-10 columns" id="facet-filters"></div>
+                    <div class="small-5 columns">{{&resultcount}}</div>
+                    <div id="sort-by-div"  class="small-5 columns">
+                        <span>Sort by:</span>
+                        <select id="sort-by">
+                            <option value="relevance">Relevance</option>
+                            <option value="release_date">Released</option>
+                            <option value="files">Files</option>
+                            <option value="links">Links</option>
+                        </select>
+                        <span id="sorting-links">
+                                            <a id="sort-desc"><i class="fa fa-angle-down"/></a><a id="sort-asc"><i class="fa fa-angle-up"></i></a>
+                                        </span>
+                    </div>
 
-
-                <div class="clearboth" id="facet-filters"/>
-                {{&resultcount}}
-
-                <ul id="search-results">
-                    {{#each this.hits}}
-                    <li>{{&result this}}</li>
-                    {{/each}}
-                </ul>
-                {{&pager}}
+                    <ul id="search-results">
+                        {{#each this.hits}}
+                        <li>{{&result this}}</li>
+                        {{/each}}
+                    </ul>
+                    {{&pager}}
                 {{else}}
-                {{#if query}}
-                <section>
-                    <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
-                        Your search for {{query}} returned no results.</h3>
-                    <p></p>
-                </section>
-                {{else}}
-                <section>
-                    <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
-                        Your search returned no results.</h3>
-                    <p></p>
-                </section>
-                {{/if}}
-                {{#if suggestion}}
-                <h3>Did you mean...</h3>
-                <ul id="spell-suggestions">
-                    {{#each suggestion}}
-                    <li> {{dynamicLink this}} </li>
-                    {{/each}}
-                </ul>
-                {{/if}}
+                    {{#if query}}
+                        <section>
+                            <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
+                                Your search for {{query}} returned no results.</h3>
+                            <p></p>
+                        </section>
+                    {{else}}
+                        <section>
+                            <h3 class="alert"><i class="icon icon-generic padding-right-medium" data-icon="l"></i>
+                                Your search returned no results.</h3>
+                            <p></p>
+                        </section>
+                    {{/if}}
+                    {{#if suggestion}}
+                    <h3>Did you mean...</h3>
+                    <ul id="spell-suggestions">
+                        {{#each suggestion}}
+                        <li> {{dynamicLink this}} </li>
+                        {{/each}}
+                    </ul>
+                    {{/if}}
                 {{/if}}
             </div>
         </div>

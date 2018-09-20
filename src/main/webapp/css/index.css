@@ -59,6 +59,7 @@
     display: table-cell;
     vertical-align: middle;
     color: #58585a;
+    font-size: 33pt;
 }
 
 .home-icon:before {
@@ -90,16 +91,17 @@
     background: #D2D6F6;
 }
 
-#moreProjects {
+.more {
     float: right;
     font-size: 10pt;
-    background-color: #1b78bb;
+    background-color: #58585a;
+    background-color: #58585a;
     padding: 2pt 3pt;
     border-radius: 3pt;
     line-height: 10pt;
 }
 
-#moreProjects a {
+.more a {
     color: white;
     border: none;
 }
@@ -146,8 +148,9 @@
 
 #latest {
     display: none;
+    padding-bottom: 10pt;
 }
-#studyCountStats, #allProjects, #latestHeading, #fileCountStats, #linkCountStats, #lastUpdate {
+#studyCountStats, #fileCountStats, #linkCountStats{
     margin-top:20px;
 }
 
@@ -163,17 +166,15 @@
 }
 
 #latestList{
-    padding-left: 20px;
+    margin-left: 0;
 }
 
 ul#projectList{
     list-style: none;
+    margin-left: unset;
 }
 ul#projectList li{
-    float: left;
-    min-height: 70px;
-    min-width: 170px;
-    line-height: 70px
+    padding-bottom: 12pt;
 }
 
 ul#projectList li a{
@@ -185,6 +186,9 @@ ul#projectList li a{
     margin-left: 20px;
     color: #466B7D;
     margin-bottom: 8pt
+}
+ul#projectList li img {
+    width: 120px;
 }
 
 #latestList li a, #projectList li a{
@@ -201,3 +205,6 @@ ul#projectList li a{
     white-space: nowrap;
 }
 
+.callout h5 {
+    margin-bottom: 14pt;
+}

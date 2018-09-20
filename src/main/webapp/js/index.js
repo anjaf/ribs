@@ -73,7 +73,7 @@
         if (data) {
             // Prepare template
             var template = Handlebars.compile($('script#latest-studies-template').html());
-            $('#latest').html(template(data));
+            $('#latest').prepend(template(data));
             $('#latestLoader').hide();
             $('#latest').slideDown();
             studyAnimation.stop();
