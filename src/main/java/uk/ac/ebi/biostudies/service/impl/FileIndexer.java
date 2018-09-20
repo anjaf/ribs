@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import uk.ac.ebi.biostudies.api.util.Constants;
 
@@ -23,6 +26,7 @@ public class FileIndexer {
         List<String> columns = new ArrayList<>();
         Set<String> sectionsWithFiles = new HashSet<>();
         List<JsonNode> filesParents = json.findParents("files");
+        deleteOldFiles(writer, accession);
         if(filesParents==null) return null;
         for(JsonNode parent:filesParents) {
             if(parent==null) continue;
@@ -111,6 +115,16 @@ public class FileIndexer {
         }
 
         return doc;
+    }
+
+    private static void deleteOldFiles(IndexWriter writer, String deleteAccession){
+        QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
+        try {
+            Query query = parser.parse(Constants.Fields.ACCESSION+":"+deleteAccession);
+            writer.deleteDocuments(query);
+        } catch (Exception e) {
+            LOGGER.error("Problem in deleting old files", e);
+        }
     }
 
 }
