@@ -118,9 +118,9 @@ public class FileIndexer {
     }
 
     private static void deleteOldFiles(IndexWriter writer, String deleteAccession){
-        QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
+        QueryParser parser = new QueryParser(Constants.File.OWNER, new KeywordAnalyzer());
         try {
-            Query query = parser.parse(Constants.Fields.ACCESSION+":"+deleteAccession);
+            Query query = parser.parse(Constants.File.OWNER+":"+deleteAccession);
             writer.deleteDocuments(query);
         } catch (Exception e) {
             LOGGER.error("Problem in deleting old files", e);
