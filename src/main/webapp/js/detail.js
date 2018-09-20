@@ -110,7 +110,8 @@ $.fn.groupBy = function(fn) {
         'chemagora':'ChemAgora',
         'rfam':'Rfam',
         'rnacentral':'RNAcentral',
-        'nct':'NCT'
+        'nct':'NCT',
+        'gxa':'Expression Atlas'
     };
 
     projectScripts = [
