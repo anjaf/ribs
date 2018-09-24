@@ -7,8 +7,8 @@
                 data.hits = data.hits.sort(function(a, b) {
                     return a.title.toLowerCase() > b.title.toLowerCase() ? 1 : -1
                 });
-
-                if (data.hits.length>4) data.hits = data.hits.slice(0,4);
+                var maxProject = 5;
+                if (data.hits.length>maxProject) data.hits = data.hits.slice(0,maxProject);
 
                 var template = Handlebars.compile($('script#projects-template').html());
                 $('#projects').html(template(data));
