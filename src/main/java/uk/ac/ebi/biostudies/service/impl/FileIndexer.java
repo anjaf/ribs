@@ -13,6 +13,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import uk.ac.ebi.biostudies.api.util.Constants;
+import uk.ac.ebi.biostudies.controller.Index;
 
 import java.io.IOException;
 import java.util.*;
@@ -26,7 +27,9 @@ public class FileIndexer {
         List<String> columns = new ArrayList<>();
         Set<String> sectionsWithFiles = new HashSet<>();
         List<JsonNode> filesParents = json.findParents("files");
-        deleteOldFiles(writer, accession);
+        if(!Index.getIsFullIndex()) {
+            deleteOldFiles(writer, accession);
+        }
         if(filesParents==null) return null;
         for(JsonNode parent:filesParents) {
             if(parent==null) continue;
