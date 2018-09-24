@@ -8,6 +8,10 @@
     $('#logout-button').click( function () {
         $('#logout-form').submit();
     });
+    $('.sample-query').click( function () {
+        $('#query').val($(this).text());
+        $('#ebi_search').submit();
+    });
 
     var message = $.cookie("AeAuthMessage");
     if(message) {

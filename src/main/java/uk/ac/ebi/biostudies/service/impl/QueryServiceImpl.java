@@ -53,7 +53,7 @@ public class QueryServiceImpl implements QueryService {
     TaxonomyManager taxonomyManager;
 
     private static Query typeFilterQuery;
-    private QueryParser parser;
+    private static QueryParser parser;
     private static Query excludeFiles;
 
 
@@ -66,18 +66,19 @@ public class QueryServiceImpl implements QueryService {
         } catch (ParseException e) {
             logger.error(e);
         }
+        String[] fields = indexConfig.getIndexFields();
+        Analyzer analyzer = analyzerManager.getPerFieldAnalyzerWrapper();
+        parser = new BioStudiesQueryParser(fields, analyzer, indexManager);
+
     }
 
     @Override
     public Pair<Query, EFOExpansionTerms> makeQuery(String queryString, String projectName, JsonNode selectedFields) {
 
-        String[] fields = indexConfig.getIndexFields();
         if (StringUtils.isEmpty(queryString)) {
             queryString = "*:*";
         }
-        Analyzer analyzer = analyzerManager.getPerFieldAnalyzerWrapper();
-        QueryParser parser = new BioStudiesQueryParser(fields, analyzer, indexManager);
-        parser.setSplitOnWhitespace(true);
+
         Pair<Query, EFOExpansionTerms> finalQuery = null;
         try {
             logger.debug("User queryString: {}", queryString);

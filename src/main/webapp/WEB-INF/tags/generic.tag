@@ -102,7 +102,7 @@
                             </div>
                         </fieldset>
                         <p id="example" class="small">
-                            Examples: <a class="" href="${contextPath}/studies?query=hyperplasia">hyperplasia</a>, <a class="" href="${contextPath}/studies?query=PMC516016">PMC516016</a>
+                            Examples: <a class="sample-query" href="#">hyperplasia</a>, <a class="sample-query" href="#">PMC516016</a>
                             <!--a class="float-right" href="#"><span class="icon icon-generic" data-icon="("></span> advanced search</a-->
                         </p>
                     </form>
