@@ -28,6 +28,8 @@ public class Index {
 
     private Logger logger = LogManager.getLogger(Index.class.getName());
 
+    private static boolean FullReIndex =false;
+
     @Autowired
     IndexService indexService;
 
@@ -49,6 +51,10 @@ public class Index {
             {
                 indexService.clearIndex(false);
                 filename = Constants.STUDIES_JSON_FILE;
+                FullReIndex = true;
+            }
+            else {
+                FullReIndex = false;
             }
             indexService.copySourceFile(filename);
             indexService.indexAll(filename);
@@ -70,5 +76,9 @@ public class Index {
     public ResponseEntity<String> deleteDoc(@PathVariable(required=false) String accession) throws Exception {
            indexService.deleteDoc(accession);
         return new ResponseEntity<String>("{\"message\":\""+accession+" deleted\"}", HttpStatus.OK);
+    }
+
+    public static boolean getIsFullIndex(){
+        return FullReIndex;
     }
 }
