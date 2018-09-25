@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.*;
@@ -20,6 +21,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
@@ -61,6 +63,7 @@ public class ConfigurableIndexService implements IndexService {
     }
 
     private Logger logger = LogManager.getLogger(ConfigurableIndexService.class.getName());
+    private static  BlockingQueue<String> indexFileQueue;
 
     @Autowired
     IndexConfig indexConfig;
@@ -79,9 +82,9 @@ public class ConfigurableIndexService implements IndexService {
 
     @PostConstruct
     public void init(){
+        indexFileQueue = new LinkedBlockingQueue<>();
         reloadOntologyJob.doExecute();
     }
-
 
     @Override
     public void indexAll(String fileName, boolean removeFileDocuments) {
@@ -328,16 +331,16 @@ public class ConfigurableIndexService implements IndexService {
             String project = valueMap.get(Facets.PROJECT).toString();
 
             ReadContext jsonPathContext = null;
-            for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(PUBLIC)){
+            for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(PUBLIC)){
                 if( fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH) &&  !fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText().isEmpty()){
                     extractWithJsonPath(jsonPathContext, json, valueMap, fieldMetadataNode);
                 }
             }
 
             //extract facets and fields
-            if(indexManager.indexDetails.findValue(project.toLowerCase())!=null && json.has("section") && json.get("section").has("attributes")) {
+            if(indexManager.getIndexDetails().findValue(project.toLowerCase())!=null && json.has("section") && json.get("section").has("attributes")) {
                 JsonNode attNodes = json.get("section").get("attributes");
-                for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(project.toLowerCase())){
+                for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(project.toLowerCase())){
                         if( !fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH) || fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText().isEmpty()){
                             String value = StreamSupport.stream(attNodes.spliterator(), false)
                                     .filter(jsonNode ->
@@ -484,6 +487,34 @@ public class ConfigurableIndexService implements IndexService {
                 logger.error("title is empty accession: {}", accession);
             return title;
         }
+    }
+
+    @Async
+    public void processFileForIndexing() {
+        logger.debug("Initializing File Queue for Indexing");
+        while (true) {
+            String filename = null;
+            try {
+                filename = indexFileQueue.take();
+                logger.log(Level.INFO, "Started indexing {}. {} files left in the queue.", filename, indexFileQueue.size());
+                boolean removeFileDocuments = true;
+                if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))  {
+                    clearIndex(false);
+                    filename = Constants.STUDIES_JSON_FILE;
+                    removeFileDocuments = false;
+                }
+                copySourceFile(filename);
+                indexAll(filename, removeFileDocuments);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.log(Level.ERROR, e);
+            }
+            logger.log(Level.INFO, "Finished indexing {}", filename);
+        }
+    }
+
+    public BlockingQueue<String> getIndexFileQueue() {
+        return indexFileQueue;
     }
 
 }

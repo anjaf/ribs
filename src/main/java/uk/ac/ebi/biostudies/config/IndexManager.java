@@ -16,11 +16,13 @@ import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
+import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
 import javax.annotation.PostConstruct;
@@ -29,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -37,6 +41,7 @@ import java.util.*;
 @Scope("singleton")
 public class IndexManager {
 
+    private Logger logger = LogManager.getLogger(IndexManager.class.getName());
     private IndexReader indexReader;
     private IndexSearcher indexSearcher;
     private IndexWriter indexWriter;
@@ -48,9 +53,8 @@ public class IndexManager {
     private IndexWriter efoIndexWriter;
     private Map<String, JsonNode> AllFields = new LinkedHashMap<>();
     private Map<String, Set<String>> projectRelatedFields = new LinkedHashMap<>();
-    public JsonNode indexDetails;
-
-    private Logger logger = LogManager.getLogger(IndexManager.class.getName());
+    private SpellChecker spellChecker;
+    private JsonNode indexDetails;
 
     @Autowired
     IndexConfig indexConfig;
@@ -64,13 +68,12 @@ public class IndexManager {
     AnalyzerManager analyzerManager;
     @Autowired
     Autocompletion autocompletion;
-    private SpellChecker spellChecker;
-
+    @Autowired
+    IndexService indexService;
 
     @PostConstruct
     public void init(){
-        logger.debug("begin initing bioindexmanager");
-        logger.info("begin initing bioindexmanager");
+        logger.debug("Initializing IndexManager");
         InputStream indexJsonFile = this.getClass().getClassLoader().getResourceAsStream("project-fields.json");
         indexDetails = readJson(indexJsonFile);
         fillAllFields();
@@ -95,11 +98,13 @@ public class IndexManager {
             autocompletion.rebuild();
             spellChecker = new SpellChecker(FSDirectory.open(Paths.get(indexConfig.getSpellcheckerLocation())));
             spellChecker.indexDictionary(new LuceneDictionary(getIndexReader(), Constants.Fields.CONTENT), new IndexWriterConfig(), false);
+            indexService.processFileForIndexing();
 
         }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);
         }
     }
+
 
     private void loadEFO(IndexWriterConfig efoIndexWriterConfig) throws Exception{
         if(!DirectoryReader.indexExists(efoIndexDirectory)){
@@ -211,4 +216,9 @@ public class IndexManager {
     public SpellChecker getSpellChecker() {
         return spellChecker;
     }
+
+    public JsonNode getIndexDetails() {
+        return indexDetails;
+    }
+
 }
