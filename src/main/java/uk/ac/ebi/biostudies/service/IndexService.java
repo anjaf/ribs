@@ -9,7 +9,7 @@ import java.io.IOException;
  */
 public interface IndexService {
     @Async
-    public void indexAll(String fileName);
+    public void indexAll(String fileName, boolean removeFileDocuments);
 
     public void deleteDoc(String accession) throws Exception;
 

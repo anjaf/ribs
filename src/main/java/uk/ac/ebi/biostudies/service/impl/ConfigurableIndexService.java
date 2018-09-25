@@ -84,7 +84,7 @@ public class ConfigurableIndexService implements IndexService {
 
 
     @Override
-    public void indexAll(String fileName) {
+    public void indexAll(String fileName, boolean removeFileDocuments) {
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -115,7 +115,7 @@ public class ConfigurableIndexService implements IndexService {
                 }
 
                 JsonNode submission = mapper.readTree(parser);
-                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager));
+                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, removeFileDocuments));
                 if(++counter % 10000==0) {
                     logger.info("{} docs indexed", counter);
                 }
@@ -191,13 +191,15 @@ public class ConfigurableIndexService implements IndexService {
         private IndexWriter writer;
         private JsonNode json;
         private TaxonomyManager taxonomyManager;
-        IndexManager indexManager;
+        private IndexManager indexManager;
+        private boolean removeFileDocuments;
 
-        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager) {
+        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, boolean removeFileDocuments) {
             this.writer = indexManager.getIndexWriter();
             this.json = json;
             this.taxonomyManager = taxonomyManager;
             this.indexManager = indexManager;
+            this.removeFileDocuments = removeFileDocuments;
         }
 
         @Override
@@ -235,7 +237,7 @@ public class ConfigurableIndexService implements IndexService {
                 valueMap.put(Facets.PROJECT, project);
                 Set<String> columnSet = new LinkedHashSet<>();
                 if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study")) {
-                    String sectionsWithFiles = FileIndexer.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet);
+                    String sectionsWithFiles = FileIndexer.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
                     if (sectionsWithFiles !=null ) {
                         valueMap.put(Fields.SECTIONS_WITH_FILES, sectionsWithFiles);
                     }

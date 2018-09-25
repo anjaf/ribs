@@ -47,7 +47,7 @@ public class ReloadStudiesJob {
                 logger.info("Reload of study data from [{}] requested", sourceLocation);
                 indexService.copySourceFile(null);
                 indexService.clearIndex(false);
-                indexService.indexAll("");
+                indexService.indexAll("", true);
                 logger.info("Reload of study data from [{}] completed", sourceLocation);
             }
         } catch (Exception x) {

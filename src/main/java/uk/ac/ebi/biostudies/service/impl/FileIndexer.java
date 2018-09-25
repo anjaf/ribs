@@ -22,13 +22,13 @@ import java.util.*;
 public class FileIndexer {
     private static Logger LOGGER = LogManager.getLogger(FileIndexer.class.getName());
 
-    public static String indexSubmissionFiles(String accession,JsonNode json, IndexWriter writer, Set<String> attributeColumns) throws IOException {
+    public static String indexSubmissionFiles(String accession,JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
         int counter = 0;
         List<String> columns = new ArrayList<>();
         Set<String> sectionsWithFiles = new HashSet<>();
         List<JsonNode> filesParents = json.findParents("files");
-        if(!Index.getIsFullIndex()) {
-            deleteOldFiles(writer, accession);
+        if(removeFileDocuments) {
+            removeFileDocuments(writer, accession);
         }
         if(filesParents==null) return null;
         for(JsonNode parent:filesParents) {
@@ -120,7 +120,7 @@ public class FileIndexer {
         return doc;
     }
 
-    private static void deleteOldFiles(IndexWriter writer, String deleteAccession){
+    private static void removeFileDocuments(IndexWriter writer, String deleteAccession){
         QueryParser parser = new QueryParser(Constants.File.OWNER, new KeywordAnalyzer());
         try {
             Query query = parser.parse(Constants.File.OWNER+":"+deleteAccession);
