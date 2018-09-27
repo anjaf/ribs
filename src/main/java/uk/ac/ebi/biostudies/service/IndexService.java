@@ -11,13 +11,11 @@ import java.util.concurrent.BlockingQueue;
  */
 public interface IndexService {
     @Async
-    public void indexAll(String fileName, boolean removeFileDocuments);
+    public void indexAll(String fileName, boolean removeFileDocuments) throws IOException;
 
     public void deleteDoc(String accession) throws Exception;
 
     public void clearIndex(boolean commit) throws IOException;
-
-    public void copySourceFile(String jsonFileName) throws IOException;
 
     public BlockingQueue<String> getIndexFileQueue();
 

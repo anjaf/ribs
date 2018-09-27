@@ -45,7 +45,6 @@ public class ReloadStudiesJob {
             String sourceLocation = indexConfig.getStudiesInputFile();
             if (isNotBlank(sourceLocation)) {
                 logger.info("Reload of study data from [{}] requested", sourceLocation);
-                indexService.copySourceFile(null);
                 indexService.clearIndex(false);
                 indexService.indexAll("", true);
                 logger.info("Reload of study data from [{}] completed", sourceLocation);

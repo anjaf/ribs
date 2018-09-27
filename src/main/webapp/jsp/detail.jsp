@@ -25,7 +25,6 @@
         <script src="${contextPath}/js/jquery.dataTables.js"></script>
         <script src="${contextPath}/js/jquery.highlight.js"></script>
         <script src="<spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/>"></script>
-        <%@include file="detail/big-file-table.hbs" %>
         <%@include file="detail/main-file-table.hbs" %>
         <%@include file="detail/main-link-table.hbs" %>
         <%@include file="detail/orcid-claimer.hbs" %>

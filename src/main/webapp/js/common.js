@@ -27,7 +27,8 @@
     if(project) {
         // display project banner
         $.getJSON(contextPath + "/api/v1/studies/" + project, function (data) {
-            showProjectBanner(data);
+            var projectObj = showProjectBanner(data);
+            updateMenuForProject(projectObj);
         }).fail(function (error) {
             showError(error);
         });
@@ -113,7 +114,7 @@ function showProjectBanner(data) {
     var template = Handlebars.compile(templateSource);
     var projectObj={};
     try {
-        projectObj = {logo: contextPath + '/files/' + data.accno + '/' + data.section.files[0][0].path};
+        projectObj = {accno : data.accno , logo: contextPath + '/files/' + data.accno + '/' + data.section.files[0][0].path};
     } catch(e){}
     $(data.section.attributes).each(function () {
         projectObj[this.name.toLowerCase()] = this.value
@@ -130,8 +131,17 @@ function showProjectBanner(data) {
 
     //fix breadcrumbs
     $('ul.breadcrumbs').children().first().next().html('<li><a href="/biostudies/'+project+'/studies">'+projectObj.title+'</a></li>')
+    return projectObj;
 }
 
 function formatNumber(s) {
     return new Number(s).toLocaleString();
+}
+
+function updateMenuForProject(data) {
+    $('#masthead nav ul.float-left li').removeClass('active');
+    $('#masthead nav ul.float-left li').eq(1).after('<li class="active"><a href="'
+            + (contextPath + '/'+ data.accno + '/' + 'studies')
+            + '" title="'+ data.title
+            +'">'+ data.title +'</a></li>')
 }

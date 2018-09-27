@@ -137,6 +137,7 @@ $.fn.groupBy = function(fn) {
         // set accession
         $('#accession').text(data.accno);
         data.section.accno = data.accno;
+        data.section.accessTags = data.accessTags;
         var rootPath = data.attributes.filter( function (v,i) { return    v.name=='RootPath';   });
         data.section.root = rootPath.length ? rootPath[0].value : '';
         var releaseDate = data.attributes.filter( function (v,i) { return    v.name=='ReleaseDate';   });
@@ -333,14 +334,8 @@ function registerHelpers() {
         }
     });
 
-
     Handlebars.registerHelper('main-file-table', function() {
         var template = Handlebars.compile($('script#main-file-table').html());
-        return template(this.files);
-    });
-
-    Handlebars.registerHelper('big-file-table', function() {
-        var template = Handlebars.compile($('script#big-file-table').html());
         return template(this.files);
     });
 

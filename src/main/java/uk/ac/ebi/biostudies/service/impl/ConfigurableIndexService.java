@@ -37,6 +37,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -87,17 +89,15 @@ public class ConfigurableIndexService implements IndexService {
     }
 
     @Override
-    public void indexAll(String fileName, boolean removeFileDocuments) {
+    public void indexAll(String fileName, boolean removeFileDocuments) throws IOException {
+        String inputStudiesFilePath = getCopiedSourceFile(fileName);
+
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
-        String inputStudiesFile = System.getProperty("java.io.tmpdir")+"/";
-        if(fileName!=null && !fileName.isEmpty())
-            inputStudiesFile = inputStudiesFile +fileName;
-        else
-            inputStudiesFile = inputStudiesFile + STUDIES_JSON_FILE;
+
         int counter = 0;
-        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFile), "UTF-8")) {
+        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFilePath), "UTF-8")) {
             JsonFactory factory = new JsonFactory();
             JsonParser parser = factory.createParser(inputStreamReader);
 
@@ -141,10 +141,13 @@ public class ConfigurableIndexService implements IndexService {
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
             taxonomyManager.refreshTaxonomyReader();
-            logger.info("indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
+            logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
         }
         catch (Throwable error){
             logger.error("problem in parsing "+ fileName , error);
+        } finally {
+            logger.debug("Deleting temp file {}", inputStudiesFilePath);
+            Files.delete(Paths.get(inputStudiesFilePath));
         }
     }
 
@@ -172,8 +175,8 @@ public class ConfigurableIndexService implements IndexService {
         }
     }
 
-    @Override
-    public synchronized void copySourceFile(String jsonFileName) throws IOException {
+    public synchronized String getCopiedSourceFile(String jsonFileName) throws IOException {
+        File destFile = new File(System.getProperty("java.io.tmpdir"), jsonFileName);
         String sourceLocation = indexConfig.getStudiesInputFile();
         if (isNotBlank(sourceLocation)) {
             if (jsonFileName != null && !jsonFileName.isEmpty())
@@ -181,12 +184,11 @@ public class ConfigurableIndexService implements IndexService {
             else
                 jsonFileName = STUDIES_JSON_FILE;
             File srcFile = new File(sourceLocation);
-            File destFile = new File(System.getProperty("java.io.tmpdir"), jsonFileName);
             logger.info("Making a local copy  of {} at {}", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
-            com.google.common.io.Files.copy(srcFile, destFile);
+            //com.google.common.io.Files.copy(srcFile, destFile);
         }
+        return destFile.getAbsolutePath();
     }
-
 
     public static class JsonDocumentIndexer implements Runnable {
         private Logger logger = LogManager.getLogger(JsonDocumentIndexer.class.getName());
@@ -503,7 +505,6 @@ public class ConfigurableIndexService implements IndexService {
                     filename = Constants.STUDIES_JSON_FILE;
                     removeFileDocuments = false;
                 }
-                copySourceFile(filename);
                 indexAll(filename, removeFileDocuments);
             } catch (Exception e) {
                 e.printStackTrace();
