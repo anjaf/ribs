@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.IndexService;
 
@@ -41,14 +42,8 @@ public class ReloadStudiesJob {
     @Scheduled(cron = "${bs.studies.reload}")
     public void doExecute() throws Exception {
         try {
-            // check preferences and if source location is defined, use that
-            String sourceLocation = indexConfig.getStudiesInputFile();
-            if (isNotBlank(sourceLocation)) {
-                logger.info("Reload of study data from [{}] requested", sourceLocation);
-                indexService.clearIndex(false);
-                indexService.indexAll("", true);
-                logger.info("Reload of study data from [{}] completed", sourceLocation);
-            }
+            logger.info("Reloading index from scratch");
+            indexService.getIndexFileQueue().put(Constants.STUDIES_JSON_FILE);
         } catch (Exception x) {
             logger.error("Error reloading index",x);
             throw new RuntimeException(x);

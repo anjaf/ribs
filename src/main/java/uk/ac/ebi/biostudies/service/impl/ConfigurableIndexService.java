@@ -179,13 +179,12 @@ public class ConfigurableIndexService implements IndexService {
         File destFile = new File(System.getProperty("java.io.tmpdir"), jsonFileName);
         String sourceLocation = indexConfig.getStudiesInputFile();
         if (isNotBlank(sourceLocation)) {
-            if (jsonFileName != null && !jsonFileName.isEmpty())
+            if (jsonFileName != null && !jsonFileName.isEmpty()) {
                 sourceLocation = sourceLocation.replaceAll(STUDIES_JSON_FILE, jsonFileName);
-            else
-                jsonFileName = STUDIES_JSON_FILE;
+            }
             File srcFile = new File(sourceLocation);
             logger.info("Making a local copy  of {} at {}", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
-            //com.google.common.io.Files.copy(srcFile, destFile);
+            com.google.common.io.Files.copy(srcFile, destFile);
         }
         return destFile.getAbsolutePath();
     }

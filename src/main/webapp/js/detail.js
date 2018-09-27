@@ -1208,7 +1208,19 @@ function formatPageHtml() {
 
 
 function openHREF(href) {
-    var section = $(href);
+    var section = $(href.replace(':','\\:'));
+    var o = section;
+    while (o.prop("tagName")!=='BODY') {
+        var p =  o.parent().parent();
+        if(p.children().first().next().css('display')!='block') {
+            p.children().first().click();
+        }
+        o = p;
+    }
+    if(section.children().first().next().css('display')=='none') {
+        section.children().first().click();
+    }
+
     var bbox = $(section)[0].getBoundingClientRect();
     if (   bbox.x > window.innerWidth
         || bbox.y > window.innerHeight
