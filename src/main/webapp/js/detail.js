@@ -249,8 +249,7 @@ function registerHelpers() {
     });
 
     Handlebars.registerHelper('formatDate', function(v) {
-        var date = (new Date(v)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
-        return date == 'Invalid Date' ? (new Date()).getFullYear() : date;
+        return getDateFromEpochTime(v);
     });
 
     Handlebars.registerHelper('accToLink', function(val) {
@@ -892,7 +891,12 @@ function createBigFileTable(acc, params){
         handleFileTableColumns(response.columns, acc, params);
         handleFileDownloadSelection();
         handleFileFilters(response.sections);
+        handleModificationDate(response.modified);
     }});
+}
+
+function handleModificationDate(t) {
+    $('.release-date').append('&nbsp; ' + String.fromCharCode(0x25AA)+' &nbsp; Modified: '+ getDateFromEpochTime(t));
 }
 
 function handleSecretKey(key) {
@@ -1498,29 +1502,7 @@ function accToLink(acc) {
     return acc.replace('/','').replace(' ','');
 }
 
-Handlebars.registerHelper('lessThan', function (v1, v2, options) {
-    'use strict';
-    if (v1<v2) {
-        return options.fn(this);
-    }
-    return options.inverse(this);
-});
-
-
-Handlebars.registerHelper('renderManyFiles', function(val) {
-    callServer();
-
-
-    // if(!filesTable)
-    //     createMainFileTable();
-    // var length = filesTable.length;
-    // filesTable.clear();
-    // filesTable.rows.add(this);
-    // length = filesTable.length;
-    // fileLength = length;
-    // filesTable.rows.add(this).draw();
-    // filesTable = $("#file-list").DataTable({
-    //     "data":this
-    // });
-
-});
+function getDateFromEpochTime(t) {
+    var date = (new Date(t)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+    return date == 'Invalid Date' ? (new Date()).getFullYear() : date;
+}

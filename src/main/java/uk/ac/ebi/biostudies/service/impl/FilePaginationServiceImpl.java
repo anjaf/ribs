@@ -77,6 +77,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         String sectionsWithFiles = doc.get(Constants.Fields.SECTIONS_WITH_FILES);
         studyInfo.set("columns", fileColumnAttributes);
         studyInfo.put("files", doc.get(Constants.Fields.FILES));
+        studyInfo.put("modified", Long.parseLong(doc.get(Constants.Fields.MODIFICATION_TIME)) );
         setSecretKey(studyInfo, doc);
         try {
             if (sectionsWithFiles!=null) {
