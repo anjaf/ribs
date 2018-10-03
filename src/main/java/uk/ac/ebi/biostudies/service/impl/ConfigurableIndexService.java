@@ -34,6 +34,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -92,6 +95,7 @@ public class ConfigurableIndexService implements IndexService {
             inputStudiesFile = inputStudiesFile +fileName;
         else
             inputStudiesFile = inputStudiesFile + STUDIES_JSON_FILE;
+        String inputStudiesFilePath = new File(System.getProperty("java.io.tmpdir"), inputStudiesFile).getAbsolutePath();
         int counter = 0;
         try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFile), "UTF-8")) {
             JsonFactory factory = new JsonFactory();
@@ -142,6 +146,17 @@ public class ConfigurableIndexService implements IndexService {
         catch (Throwable error){
             logger.error("problem in parsing "+ fileName , error);
         }
+        finally {
+            logger.debug("Deleting temp file {}", fileName);
+            try {
+                Path delPath = Paths.get(System.getProperty("java.io.tmpdir"), fileName);
+                Files.delete(delPath);
+            } catch (IOException e) {
+                logger.error("problem in deleting " + fileName, e);
+            }
+        }
+
+
     }
 
 
