@@ -22,70 +22,70 @@ $.fn.groupBy = function(fn) {
 
     return grouped;
 }
-!function(d) {
+$(function() {
 
     linkMap = {
-        'pmc':'https://europepmc.org/articles/{0}',
-        'pmid':'https://europepmc.org/abstract/MED/{0}',
-        'doi':'https://dx.doi.org/{0}',
-        'chembl':'https://www.ebi.ac.uk/chembldb/compound/inspect/{0}',
-        'ega':'https://www.ebi.ac.uk/ega/studies/{0}',
-        'uniprot':'http://www.uniprot.org/uniprot/{0}',
-        'ena':'https://www.ebi.ac.uk/ena/data/view/{0}',
-        'arrayexpress files':'https://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
-        'arrayexpress':'https://www.ebi.ac.uk/arrayexpress/experiments/{0}',
-        'dbsnp':'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
-        'pdbe':'https://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
-        'pfam':'http://pfam.xfam.org/family/{0}',
-        'omim':'http://omim.org/entry/{0}',
-        'interpro':'https://www.ebi.ac.uk/interpro/entry/{0}',
-        'nucleotide':'http://www.ncbi.nlm.nih.gov/nuccore/{0}',
-        'geo':'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={0}',
-        'intact':'https://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc={0}',
-        'biostudies': contextPath +'/studies/{0}',
-        'biostudies title': contextPath+'/studies?first&query=title%3A%22{0}%22',
-        'biostudies search': contextPath+'/studies?query={0}',
-        'go':'http://amigo.geneontology.org/amigo/term/{0}',
-        'chebi':'https://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}',
-        'bioproject':'https://www.ncbi.nlm.nih.gov/bioproject/{0}',
-        'biosamples':'https://www.ebi.ac.uk/biosamples/samples/{0}',
-        'chemagora':'http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/{0}',
-        'compound':'https://www.ebi.ac.uk/biostudies/studies/{0}',
-        'rfam':'http://rfam.org/family/{0}',
-        'rnacentral':'http://rnacentral.org/rna/{0}',
-        'nct':'https://clinicaltrials.gov/ct2/show/{0}',
-        'gxa':'https://www.ebi.ac.uk/gxa/experiments/{0}?ref=biostudies',
+        'pmc': 'https://europepmc.org/articles/{0}',
+        'pmid': 'https://europepmc.org/abstract/MED/{0}',
+        'doi': 'https://dx.doi.org/{0}',
+        'chembl': 'https://www.ebi.ac.uk/chembldb/compound/inspect/{0}',
+        'ega': 'https://www.ebi.ac.uk/ega/studies/{0}',
+        'uniprot': 'http://www.uniprot.org/uniprot/{0}',
+        'ena': 'https://www.ebi.ac.uk/ena/data/view/{0}',
+        'arrayexpress files': 'https://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
+        'arrayexpress': 'https://www.ebi.ac.uk/arrayexpress/experiments/{0}',
+        'dbsnp': 'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
+        'pdbe': 'https://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
+        'pfam': 'http://pfam.xfam.org/family/{0}',
+        'omim': 'http://omim.org/entry/{0}',
+        'interpro': 'https://www.ebi.ac.uk/interpro/entry/{0}',
+        'nucleotide': 'http://www.ncbi.nlm.nih.gov/nuccore/{0}',
+        'geo': 'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={0}',
+        'intact': 'https://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc={0}',
+        'biostudies': contextPath + '/studies/{0}',
+        'biostudies title': contextPath + '/studies?first&query=title%3A%22{0}%22',
+        'biostudies search': contextPath + '/studies?query={0}',
+        'go': 'http://amigo.geneontology.org/amigo/term/{0}',
+        'chebi': 'https://www.ebi.ac.uk/chebi/searchId.do?chebiId={0}',
+        'bioproject': 'https://www.ncbi.nlm.nih.gov/bioproject/{0}',
+        'biosamples': 'https://www.ebi.ac.uk/biosamples/samples/{0}',
+        'chemagora': 'http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/{0}',
+        'compound': 'https://www.ebi.ac.uk/biostudies/studies/{0}',
+        'rfam': 'http://rfam.org/family/{0}',
+        'rnacentral': 'http://rnacentral.org/rna/{0}',
+        'nct': 'https://clinicaltrials.gov/ct2/show/{0}',
+        'gxa': 'https://www.ebi.ac.uk/gxa/experiments/{0}?ref=biostudies',
     };
 
     reverseLinkMap = {
-        '^europepmc.org/articles/(.*)':'PMC',
-        '^europepmc.org/abstract/MED/(.*)':'PMID',
-        '^dx.doi.org/(.*)':'DOI',
-        '^www.ebi.ac.uk/chembldb/compound/inspect/(.*)':'ChEMBL',
-        '^www.ebi.ac.uk/ega/studies/(.*)':'EGA',
-        '^www.uniprot.org/uniprot/(.*)':'Sprot',
-        '^www.ebi.ac.uk/ena/data/view/(.*)':'ENA',
-        '^www.ebi.ac.uk/arrayexpress/experiments/(.*)/files/':'ArrayExpress Files',
-        '^www.ebi.ac.uk/arrayexpress/experiments/(.*)':'ArrayExpress',
-        '^www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=(.*)':'dbSNP',
-        '^www.ebi.ac.uk/pdbe-srv/view/entry/(.*)/summary':'PDBe',
-        '^pfam.xfam.org/family/(.*)':'Pfam',
-        '^omim.org/entry/(.*)':'OMIM',
-        '^www.ebi.ac.uk/interpro/entry/(.*)':'InterPro',
-        '^www.ncbi.nlm.nih.gov/nuccore/(.*)':'RefSeq',
-        '^www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=(.*)':'GEO',
-        '^dx.doi.org/(.*)':'DOI',
-        '^www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc=(.*)':'IntAct',
-        '^www.ebi.ac.uk/biostudies/studies/(.*)':'BioStudies',
-        '^www.ebi.ac.uk/biostudies/studies/search.html?query=(.*)':'BioStudies Search',
-        '^amigo.geneontology.org/amigo/term/(.*)':'GO',
-        '^www.ebi.ac.uk/chebi/searchId.do?chebiId=(.*)':'ChEBI',
-        '^www.ncbi.nlm.nih.gov/bioproject/(.*)':'BioProject',
-        '^www.ebi.ac.uk/biosamples/samples/(.*)':'BioSamples',
-        '^rfam.org/family/(.*)':'Rfam',
-        '^rnacentral.org/rna/(.*)':'RNAcentral',
-        '^clinicaltrials.gov/ct2/show/(.*)':'nct',
-        '^www.ebi.ac.uk/gxa/experiments/(.*)':'gxa',
+        '^europepmc.org/articles/(.*)': 'PMC',
+        '^europepmc.org/abstract/MED/(.*)': 'PMID',
+        '^dx.doi.org/(.*)': 'DOI',
+        '^www.ebi.ac.uk/chembldb/compound/inspect/(.*)': 'ChEMBL',
+        '^www.ebi.ac.uk/ega/studies/(.*)': 'EGA',
+        '^www.uniprot.org/uniprot/(.*)': 'Sprot',
+        '^www.ebi.ac.uk/ena/data/view/(.*)': 'ENA',
+        '^www.ebi.ac.uk/arrayexpress/experiments/(.*)/files/': 'ArrayExpress Files',
+        '^www.ebi.ac.uk/arrayexpress/experiments/(.*)': 'ArrayExpress',
+        '^www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=(.*)': 'dbSNP',
+        '^www.ebi.ac.uk/pdbe-srv/view/entry/(.*)/summary': 'PDBe',
+        '^pfam.xfam.org/family/(.*)': 'Pfam',
+        '^omim.org/entry/(.*)': 'OMIM',
+        '^www.ebi.ac.uk/interpro/entry/(.*)': 'InterPro',
+        '^www.ncbi.nlm.nih.gov/nuccore/(.*)': 'RefSeq',
+        '^www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=(.*)': 'GEO',
+        '^dx.doi.org/(.*)': 'DOI',
+        '^www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc=(.*)': 'IntAct',
+        '^www.ebi.ac.uk/biostudies/studies/(.*)': 'BioStudies',
+        '^www.ebi.ac.uk/biostudies/studies/search.html?query=(.*)': 'BioStudies Search',
+        '^amigo.geneontology.org/amigo/term/(.*)': 'GO',
+        '^www.ebi.ac.uk/chebi/searchId.do?chebiId=(.*)': 'ChEBI',
+        '^www.ncbi.nlm.nih.gov/bioproject/(.*)': 'BioProject',
+        '^www.ebi.ac.uk/biosamples/samples/(.*)': 'BioSamples',
+        '^rfam.org/family/(.*)': 'Rfam',
+        '^rnacentral.org/rna/(.*)': 'RNAcentral',
+        '^clinicaltrials.gov/ct2/show/(.*)': 'nct',
+        '^www.ebi.ac.uk/gxa/experiments/(.*)': 'gxa',
     };
 
     linkTypeMap = { //sync with normalised-text
@@ -106,23 +106,23 @@ $.fn.groupBy = function(fn) {
         '': 'External',
         'bioproject': 'BioProject',
         'biosample': 'BioSamples',
-        'compound':'Compound',
-        'chemagora':'ChemAgora',
-        'rfam':'Rfam',
-        'rnacentral':'RNAcentral',
-        'nct':'NCT',
-        'gxa':'Expression Atlas'
+        'compound': 'Compound',
+        'chemagora': 'ChemAgora',
+        'rfam': 'Rfam',
+        'rnacentral': 'RNAcentral',
+        'nct': 'NCT',
+        'gxa': 'Expression Atlas'
     };
 
     projectScripts = [
         {regex: /E-*|/, script: 'ArrayExpress.js'},
         {regex: /S-SCDT-*/, script: 'SourceData.js'}
-        ];
+    ];
 
-    orgOrder= [];
+    orgOrder = [];
 
-    var params = document.location.search.replace(/(^\?)/,'').split("&").map(
-        function(s) {
+    var params = document.location.search.replace(/(^\?)/, '').split("&").map(
+        function (s) {
             return s = s.split("="), this[s[0]] = s[1], this
         }.bind({}))[0];
     registerHelpers();
@@ -131,30 +131,36 @@ $.fn.groupBy = function(fn) {
     var templateSource = $('script#study-template').html();
     var template = Handlebars.compile(templateSource);
     var url = window.location.pathname;
-    url = url.replace('/studies/','/api/v1/studies/').replace(project,'');
-    $.getJSON(url,params, function (data) {
+    url = url.replace('/studies/', '/api/v1/studies/').replace(project, '');
+    $.getJSON(url, params, function (data) {
         if (!data.accno && data.submissions) data = data.submissions[0];
         // set accession
         $('#accession').text(data.accno);
         data.section.accno = data.accno;
         data.section.accessTags = data.accessTags;
-        var rootPath = data.attributes.filter( function (v,i) { return    v.name=='RootPath';   });
+        var rootPath = data.attributes.filter(function (v, i) {
+            return v.name == 'RootPath';
+        });
         data.section.root = rootPath.length ? rootPath[0].value : '';
-        var releaseDate = data.attributes.filter( function (v,i) { return    v.name=='ReleaseDate';   });
+        var releaseDate = data.attributes.filter(function (v, i) {
+            return v.name == 'ReleaseDate';
+        });
         data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
-        var title = data.attributes.filter( function (v,i) { return    v.name=='Title';   });
-        if (!data.section.attributes.filter( function (v,i) { return    v.name=='Title';   }).length) {
-            data.section.attributes.push({name:'Title', value:title[0].value});
+        var title = data.attributes.filter(function (v, i) {
+            return v.name == 'Title';
+        });
+        if (!data.section.attributes.filter(function (v, i) {
+            return v.name == 'Title';
+        }).length) {
+            data.section.attributes.push({name: 'Title', value: title[0].value});
         }
-        /*var files = findall(data.section,'files');
-        data.section.files = files;*/
-        var html = template(data.section);
-        d.getElementById('renderedContent').innerHTML = html;
+        $('#renderedContent').html(template(data.section));
         postRender(params, data.section);
-    }).fail(function(error) {
+    }).fail(function (error) {
         showError(error);
     });
-}(document);
+});
+
 
 function registerHelpers() {
 
@@ -675,7 +681,7 @@ function handleProjectBasedScriptInjection() {
     $(projectScripts.filter(function (r) {
         return r.regex.test(acc)
     })).each(function (i,v) {
-        var scriptURL = contextPath + '/js/projects/' + v.script;
+        var scriptURL = contextPath + '/js/project/' + v.script;
         $.getScript(scriptURL);
     });
 

@@ -1,4 +1,5 @@
-!function(d) {
+
+$(function() {
 
     var split_params = document.location.search.replace(/(^\?)/,'')
             .split("&")
@@ -13,7 +14,7 @@
     registerHelpers(params);
 
     showResults(params);
-}(document);
+});
 
 
 function showResults(params) {

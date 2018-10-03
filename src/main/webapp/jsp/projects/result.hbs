@@ -1,0 +1,19 @@
+<script id='project-result-template' type='text/x-handlebars-template'>
+    <div class="search-result">
+        <div class="title" data-type="{{type}}" data-accession="{{accession}}">
+            <a href="${contextPath}/{{project}}/studies/{{accession}}">{{title}}</a>
+        </div>
+        {{#if content}}
+        <div class="content">{{content}}</div>
+        {{/if}}
+
+        <div class="meta-data">
+            <span class="accession">{{accession}}</span>
+            {{#if isPublic}}
+            <span class="release-date">{{formatDate release_date}}</span>
+            {{else}}
+            <span><i class="fas fa-lock"></i> Private</span>
+            {{/if}}
+        </div>
+    </div>
+</script>

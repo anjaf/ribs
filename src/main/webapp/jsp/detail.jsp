@@ -1,13 +1,15 @@
-<%@page contentType="text/html" pageEncoding="UTF-8" %>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ page contentType="text/html" pageEncoding="UTF-8" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <t:generic>
 
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/jquery.dataTables.css">
         <link rel="stylesheet" href="${contextPath}/css/detail.css" type="text/css">
+        <jwr:script src="/js/detail.min.js"/>
     </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
         <ul class="breadcrumbs">
@@ -22,8 +24,8 @@
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
-        <script src="${contextPath}/js/jquery.dataTables.js"></script>
-        <script src="${contextPath}/js/jquery.highlight.js"></script>
+        <script src="${contextPath}/js/common/jquery.dataTables.js"></script>
+        <script src="${contextPath}/js/common/jquery.highlight.js"></script>
         <script src="<spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/>"></script>
         <%@include file="detail/main-file-table.hbs" %>
         <%@include file="detail/main-link-table.hbs" %>
@@ -35,7 +37,6 @@
         <%@include file="detail/study.hbs" %>
         <%@include file="detail/valqual.hbs" %>
         <%@include file="detail/secret.hbs" %>
-        <script src="${contextPath}/js/detail.js"></script>
     </jsp:attribute>
     <jsp:body>
         <div id="loader">

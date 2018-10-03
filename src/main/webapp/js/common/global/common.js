@@ -1,30 +1,30 @@
-!function(d) {
-    $('#login-button').click( function () {
+$(function() {
+    $('#login-button').click(function () {
         showLoginForm();
     });
-    $('.popup-close').click( function () {
+    $('.popup-close').click(function () {
         $(this).parent().parent().hide();
     });
-    $('#logout-button').click( function () {
+    $('#logout-button').click(function () {
         $('#logout-form').submit();
     });
-    $('.sample-query').click( function () {
+    $('.sample-query').click(function () {
         $('#query').val($(this).text());
         $('#ebi_search').submit();
     });
 
     var message = $.cookie("AeAuthMessage");
-    if(message) {
+    if (message) {
         $('#login-status').text(message).show();
         showLoginForm();
     }
     var user = $.cookie("AeAuthUser");
-    if(user) {
-        $('#user-field').attr('value',user);
+    if (user) {
+        $('#user-field').attr('value', user);
         $('#pass-field').focus();
     }
 
-    if(project) {
+    if (project) {
         // display project banner
         $.getJSON(contextPath + "/api/v1/studies/" + project, function (data) {
             var projectObj = showProjectBanner(data);
@@ -34,16 +34,17 @@
         });
     }
 
-    var autoCompleteFixSet = function() {
+    var autoCompleteFixSet = function () {
         $(this).attr('autocomplete', 'off');
     };
-    var autoCompleteFixUnset = function() {
+    var autoCompleteFixUnset = function () {
         $(this).removeAttr('autocomplete');
     };
 
     $("#query").autocomplete(
         contextPath + "/api/v1/autocomplete/keywords"
-        , { matchContains: false
+        , {
+            matchContains: false
             , selectFirst: false
             , scroll: true
             , max: 50
@@ -51,7 +52,7 @@
         }
     ).focus(autoCompleteFixSet).blur(autoCompleteFixUnset).removeAttr('autocomplete');
     updateTitleFromBreadCrumbs();
-}(document);
+});
 
 
 function updateTitleFromBreadCrumbs() {
