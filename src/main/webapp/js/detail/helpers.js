@@ -36,7 +36,7 @@ var Metadata = (function (_self) {
             if (obj==null) return new Handlebars.SafeString('<td></td>');
             var e = obj.filter( function(o) { return o['name']==val})[0];
             if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
-            var value = val.toLowerCase()=='type' && linkTypeMap[e.value.toLowerCase()] ? linkTypeMap[e.value.toLowerCase()] : e.value;
+            var value = val.toLowerCase()=='type' && DetailPage.linkTypeMap[e.value.toLowerCase()] ? DetailPage.linkTypeMap[e.value.toLowerCase()] : e.value;
             return new Handlebars.SafeString( e.url ?
                 '<td'+ ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'') + '><a href="'
                 + e.url
@@ -153,7 +153,7 @@ var Metadata = (function (_self) {
                         }
                         // make file link
                         if(attribute.name=='Name') {
-                            attribute.url= contextPath+'/files/'+$('#accession').text()+'/'+ file.path
+                            attribute.url= window.contextPath+'/files/'+$('#accession').text()+'/'+ file.path
                         }
                     })
                 });

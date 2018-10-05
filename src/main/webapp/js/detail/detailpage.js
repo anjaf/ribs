@@ -1,5 +1,4 @@
 var DetailPage = (function (_self) {
-
     _self.linkMap = {
         'pmc': 'https://europepmc.org/articles/{0}',
         'pmid': 'https://europepmc.org/abstract/MED/{0}',

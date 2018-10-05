@@ -16,6 +16,12 @@
 <html lang="en">
 <head>
     <spring:eval expression="@externalServicesConfig.getAnalyticsCode()"/>
+    <!-- shared variables -->
+    <script>
+        var contextPath = '${contextPath}';
+        var parts = '${pathname}'.replace(contextPath+'/','').split('/');
+        var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
+    </script>
     <meta charset="utf-8">
     <title>The European Bioinformatics Institute &lt; EMBL-EBI</title>
     <meta name="description" content="EMBL-EBI" /><!-- Describe what this page is about -->
@@ -232,13 +238,6 @@
 <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.3/js/foundationExtendEBI.js"></script>
 <script>$(document).foundation();</script>
 <script>$(document).foundationExtendEBI();</script>
-
-<!-- shared variables -->
-<script>
-    var contextPath = '${contextPath}';
-    var parts = $.grep('${pathname}'.replace(contextPath+'/','').split('/'),function(a) {return a!=''});
-    var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
-</script>
 
 <jsp:invoke fragment="postBody"/>
 
