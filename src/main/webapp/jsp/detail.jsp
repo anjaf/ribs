@@ -24,8 +24,6 @@
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
-        <script src="${contextPath}/js/common/jquery.dataTables.js"></script>
-        <script src="${contextPath}/js/common/jquery.highlight.js"></script>
         <script src="<spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/>"></script>
         <%@include file="detail/main-file-table.hbs" %>
         <%@include file="detail/main-link-table.hbs" %>

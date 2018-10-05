@@ -28,7 +28,6 @@
             </form>
             <p id="ftp-link"><img src="${contextPath}/images/busy.gif"/></p>
         </div>
-        <script src="${contextPath}/js/zip/zip.js"></script>
     </jsp:body>
 </t:generic>
 
