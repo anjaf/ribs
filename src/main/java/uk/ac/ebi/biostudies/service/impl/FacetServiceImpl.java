@@ -48,15 +48,19 @@ public class FacetServiceImpl implements FacetService {
     @Autowired
     QueryService queryService;
 
-    public JsonNode getDimension(String project, String dimension) {
-        Query query = null;
+    public JsonNode getDimension(String project, String dimension, String queryString, JsonNode facetAndFields) {
+        Query queryWithoutFacet = null;
+        Query queryAfterFacet = null;
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode facetJSON = mapper.createObjectNode();
         FacetsCollector facetsCollector = new FacetsCollector();
         try {
-            query = queryService.makeQuery(null, project, null).getKey();
-            query = securityQueryBuilder.applySecurity(query);
-            FacetsCollector.search(indexManager.getIndexSearcher(), query, Integer.MAX_VALUE, facetsCollector);
+            JsonNode selectedFacets = facetAndFields.get("facets")==null?mapper.createObjectNode():facetAndFields.get("facets");
+            JsonNode selectedFields = facetAndFields.get("fields")==null?mapper.createObjectNode():facetAndFields.get("fields");
+            queryWithoutFacet = queryService.makeQuery(queryString, project, selectedFields).getKey();
+            queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
+            queryAfterFacet = securityQueryBuilder.applySecurity(queryAfterFacet);
+            FacetsCollector.search(indexManager.getIndexSearcher(), queryAfterFacet, Integer.MAX_VALUE, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             Map<String, JsonNode> allValidFields = indexManager.getAllValidFields();
             JsonNode facet =  allValidFields.containsKey(dimension) ? allValidFields.get(dimension) : null;

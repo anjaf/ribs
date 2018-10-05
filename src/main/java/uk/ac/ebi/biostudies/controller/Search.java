@@ -100,8 +100,12 @@ public class Search {
     }
 
     @RequestMapping(value = "/{project}/facets/{dimension}/", produces = JSON_UNICODE_MEDIA_TYPE , method = RequestMethod.GET)
-    public String getDefaultFacets(@PathVariable String project, @PathVariable String dimension) throws Exception{
-        return facetService.getDimension(project, dimension).toString();
+    public String getDefaultFacets(@PathVariable String project,
+                                   @PathVariable String dimension,
+                                   @RequestParam(value="query", required=false, defaultValue = "") String queryString,
+                                   @RequestParam MultiValueMap<String,String> params) throws Exception{
+        ObjectNode selectedFacets = checkSelectedFacetsAndFields(params);
+        return facetService.getDimension(project, dimension, queryString, selectedFacets).toString();
     }
 
     @ApiOperation(value = "Returns index stats", notes = "Returns stats for indexed fields", response = ObjectNode.class)

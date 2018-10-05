@@ -356,7 +356,7 @@ function postRenderFacets(data, params) {
         $('body').append('<div id="blocker" class="blocker"></div>');
         $('body').append('<div id="facet-loader"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><div class="sr-only">Loading...</div></div>');
         var thisFacet = $(this).data('facet');
-        $.getJSON(contextPath+"/api/v1/"+(project? project : 'public')+'/facets/'+thisFacet+'/',{}, function(data) {
+        $.getJSON(contextPath+"/api/v1/"+(project? project : 'public')+'/facets/'+thisFacet+'/',params, function(data) {
             if ( !$('#facet-loader').length) return;
             $('#facet-loader').hide();
             var templateSource = $('script#all-facets-template').html();
