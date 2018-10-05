@@ -1,48 +1,50 @@
-!function(d) {
-    $('#login-button').click( function () {
+$(function() {
+    $('#login-button').click(function () {
         showLoginForm();
     });
-    $('.popup-close').click( function () {
+    $('.popup-close').click(function () {
         $(this).parent().parent().hide();
     });
-    $('#logout-button').click( function () {
+    $('#logout-button').click(function () {
         $('#logout-form').submit();
     });
-    $('.sample-query').click( function () {
+    $('.sample-query').click(function () {
         $('#query').val($(this).text());
         $('#ebi_search').submit();
     });
 
     var message = $.cookie("AeAuthMessage");
-    if(message) {
+    if (message) {
         $('#login-status').text(message).show();
         showLoginForm();
     }
     var user = $.cookie("AeAuthUser");
-    if(user) {
-        $('#user-field').attr('value',user);
+    if (user) {
+        $('#user-field').attr('value', user);
         $('#pass-field').focus();
     }
 
-    if(project) {
+    if (project) {
         // display project banner
         $.getJSON(contextPath + "/api/v1/studies/" + project, function (data) {
-            showProjectBanner(data);
+            var projectObj = showProjectBanner(data);
+            updateMenuForProject(projectObj);
         }).fail(function (error) {
             showError(error);
         });
     }
 
-    var autoCompleteFixSet = function() {
+    var autoCompleteFixSet = function () {
         $(this).attr('autocomplete', 'off');
     };
-    var autoCompleteFixUnset = function() {
+    var autoCompleteFixUnset = function () {
         $(this).removeAttr('autocomplete');
     };
 
     $("#query").autocomplete(
         contextPath + "/api/v1/autocomplete/keywords"
-        , { matchContains: false
+        , {
+            matchContains: false
             , selectFirst: false
             , scroll: true
             , max: 50
@@ -50,7 +52,7 @@
         }
     ).focus(autoCompleteFixSet).blur(autoCompleteFixUnset).removeAttr('autocomplete');
     updateTitleFromBreadCrumbs();
-}(document);
+});
 
 
 function updateTitleFromBreadCrumbs() {
@@ -113,7 +115,7 @@ function showProjectBanner(data) {
     var template = Handlebars.compile(templateSource);
     var projectObj={};
     try {
-        projectObj = {logo: contextPath + '/files/' + data.accno + '/' + data.section.files[0][0].path};
+        projectObj = {accno : data.accno , logo: contextPath + '/files/' + data.accno + '/' + data.section.files[0][0].path};
     } catch(e){}
     $(data.section.attributes).each(function () {
         projectObj[this.name.toLowerCase()] = this.value
@@ -130,8 +132,41 @@ function showProjectBanner(data) {
 
     //fix breadcrumbs
     $('ul.breadcrumbs').children().first().next().html('<li><a href="/biostudies/'+project+'/studies">'+projectObj.title+'</a></li>')
+    return projectObj;
 }
 
 function formatNumber(s) {
     return new Number(s).toLocaleString();
+}
+
+function updateMenuForProject(data) {
+    $('#masthead nav ul.float-left li').removeClass('active');
+    $('#masthead nav ul.float-left li').eq(1).after('<li class="active"><a href="'
+            + (contextPath + '/'+ data.accno + '/' + 'studies')
+            + '" title="'+ data.title
+            +'">'+ data.title +'</a></li>')
+}
+
+function getParams() {
+    var split_params = document.location.search.replace(/(^\?)/, '')
+        .split("&")
+        .filter(function (a) {
+            return a != ''
+        })
+        .map(function (s) {
+            s = s.split("=")
+            v = decodeURIComponent(s[1]).split('+').join(' ');
+            if (this[s[0]]) {
+                if ($.isArray(this[s[0]])) {
+                    this[s[0]].push(v)
+                } else {
+                    this[s[0]] = [this[s[0]], v];
+                }
+            } else {
+                this[s[0]] = v;
+            }
+            return this;
+        }.bind({}));
+    var params = split_params.length ? split_params[0] : {};
+    return params;
 }

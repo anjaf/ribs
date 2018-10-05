@@ -1,0 +1,7 @@
+<script id='results-template' type='text/x-handlebars-template'>
+    <div id="left-column" class="row small-up-3">
+        {{#each this.hits}}
+        <div class="column project-container">{{&result this}}</div>
+        {{/each}}
+    </div>
+</script>

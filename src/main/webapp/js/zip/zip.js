@@ -15,22 +15,26 @@
  *
  */
 
-!function(d) {
-    var split_params = document.location.search.replace(/(^\?)/,'')
+$(function() {
+    var split_params = document.location.search.replace(/(^\?)/, '')
         .split("&")
-        .filter(function (a) {return a!='' })
-        .map(function(s) {
+        .filter(function (a) {
+            return a != ''
+        })
+        .map(function (s) {
             s = s.split("=")
             v = decodeURIComponent(s[1]).split('+').join(' ');
-            this[s[0]] =  this[s[0]] ? this[s[0]]+','+v:v;
+            this[s[0]] = this[s[0]] ? this[s[0]] + ',' + v : v;
             return this;
         }.bind({}));
     var params = split_params.length ? split_params[0] : {};
 
 
     params.retries = 0;
-    setTimeout( function(){   checkStatus(params)} , Math.pow(2, params.retries) * 1000);
-}(document);
+    setTimeout(function () {
+        checkStatus(params)
+    }, Math.pow(2, params.retries) * 1000);
+});
 
 function checkStatus(params){
     $.get( contextPath+"/"+params.dc+"/zipstatus", { filename: params.uuid}, function(data) {

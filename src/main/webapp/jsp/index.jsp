@@ -1,35 +1,13 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <t:generic>
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/index.css" type="text/css">
+        <jwr:script src="/js/index.min.js"/>
     </jsp:attribute>
-    <jsp:attribute name="postBody">
-        <script id='latest-studies-template' type='text/x-handlebars-template'>
-            {{#each this.hits}}
-                {{#if @first}}<ul id="latestList">{{/if}}
-                <li>
-                    <a href="studies/{{accession}}">{{title}}</a>
-                    <span class="browse-study-accession">{{accession}}</span>
-                </li>
-                {{#if @last}}<span class="more"><a href="studies">more...</a></span></ul>{{/if}}
-            {{/each}}
-        </script>
-        <script id='projects-template' type='text/x-handlebars-template'>
-            {{#each this.hits}}
-            {{#if @first}}<ul id="projectList">{{/if}}
-                <li>
-                    <a data-type="{{type}}" data-accession="{{accession}}" href="studies/{{accession}}"></a>
-                </li>
-                {{#if @last}}<span class="more"><a href="projects">more...</a></span></ul>{{/if}}
-            {{/each}}
-
-        </script>
-        <script src="${contextPath}/js/index.js"></script>
-    </jsp:attribute>
-
     <jsp:body>
         <div class="medium-8 columns">
             <div>
@@ -47,7 +25,7 @@
                     to it from the publication.
                 </p>
             </div>
-            <div class="callout">
+            <div class="callout" id="latestContainer" style="display: none">
                 <h5 id="latestHeading">
                     <a href="studies" title="Latest studies">Latest</a>
                     <span id="lastUpdateTime"></span>
@@ -58,7 +36,7 @@
 
         </div>
         <div class="medium-3 columns">
-            <div class="callout">
+            <div class="callout" id="StatsLoader">
                 <h5>Data Content</h5>
                 <h6 id="fileCountStats">
                     <a href="studies/" title="Browse BioStudies">
@@ -79,18 +57,17 @@
                     </a>
                 </h6>
             </div>
-            <div  class="callout" id="allProjects" style="display: none">
+            <div  class="callout" id="ProjectLoader" style="display: none">
                 <h5>
                     <a href="projects" title="Projects">
                         Projects
                     </a>
                 </h5>
-                <div id="projectsLoader" style="text-align: center"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>
                 <div id="projects"></div>
             </div>
         </div>
-
-
+        <%@include file="index/latest.hbs" %>
+        <%@include file="index/projects.hbs" %>
     </jsp:body>
 
 

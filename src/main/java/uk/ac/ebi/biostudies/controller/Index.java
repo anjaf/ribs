@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.auth.UserSecurityService;
+import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.service.IndexService;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
@@ -27,8 +28,6 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 public class Index {
 
     private Logger logger = LogManager.getLogger(Index.class.getName());
-
-    private static boolean FullReIndex =false;
 
     @Autowired
     IndexService indexService;
@@ -47,24 +46,16 @@ public class Index {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode message = mapper.createObjectNode();
         try {
-            if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))
-            {
-                indexService.clearIndex(false);
-                filename = Constants.STUDIES_JSON_FILE;
-                FullReIndex = true;
-            }
-            else {
-                FullReIndex = false;
-            }
-            indexService.copySourceFile(filename);
-            indexService.indexAll(filename);
-            message.put ("message", "Indexing started for "+filename);
+            indexService.getIndexFileQueue().put(filename);
+            message.put ("message",  filename+ " queued for indexing");
+            logger.debug("Adding {} to indexing queue at position {}", filename, indexService.getIndexFileQueue().size() );
             return ResponseEntity.ok( mapper.writeValueAsString(message) );
         } catch (Exception e) {
             logger.error(e);
             message.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapper.writeValueAsString(message));
         }
+
     }
 
     @RequestMapping(value = "/index/clear", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
@@ -78,7 +69,4 @@ public class Index {
         return new ResponseEntity<String>("{\"message\":\""+accession+" deleted\"}", HttpStatus.OK);
     }
 
-    public static boolean getIsFullIndex(){
-        return FullReIndex;
-    }
 }

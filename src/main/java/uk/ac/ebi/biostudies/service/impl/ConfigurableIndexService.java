@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.*;
@@ -20,6 +21,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
@@ -35,6 +37,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -61,6 +65,7 @@ public class ConfigurableIndexService implements IndexService {
     }
 
     private Logger logger = LogManager.getLogger(ConfigurableIndexService.class.getName());
+    private static  BlockingQueue<String> indexFileQueue;
 
     @Autowired
     IndexConfig indexConfig;
@@ -79,22 +84,20 @@ public class ConfigurableIndexService implements IndexService {
 
     @PostConstruct
     public void init(){
+        indexFileQueue = new LinkedBlockingQueue<>();
         reloadOntologyJob.doExecute();
     }
 
-
     @Override
-    public void indexAll(String fileName) {
+    public void indexAll(String fileName, boolean removeFileDocuments) throws IOException {
+        String inputStudiesFilePath = getCopiedSourceFile(fileName);
+
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
-        String inputStudiesFile = System.getProperty("java.io.tmpdir")+"/";
-        if(fileName!=null && !fileName.isEmpty())
-            inputStudiesFile = inputStudiesFile +fileName;
-        else
-            inputStudiesFile = inputStudiesFile + STUDIES_JSON_FILE;
+
         int counter = 0;
-        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFile), "UTF-8")) {
+        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFilePath), "UTF-8")) {
             JsonFactory factory = new JsonFactory();
             JsonParser parser = factory.createParser(inputStreamReader);
 
@@ -115,7 +118,7 @@ public class ConfigurableIndexService implements IndexService {
                 }
 
                 JsonNode submission = mapper.readTree(parser);
-                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager));
+                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, removeFileDocuments));
                 if(++counter % 10000==0) {
                     logger.info("{} docs indexed", counter);
                 }
@@ -138,10 +141,13 @@ public class ConfigurableIndexService implements IndexService {
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
             taxonomyManager.refreshTaxonomyReader();
-            logger.info("indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
+            logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
         }
         catch (Throwable error){
             logger.error("problem in parsing "+ fileName , error);
+        } finally {
+            logger.debug("Deleting temp file {}", inputStudiesFilePath);
+            Files.delete(Paths.get(inputStudiesFilePath));
         }
     }
 
@@ -169,21 +175,19 @@ public class ConfigurableIndexService implements IndexService {
         }
     }
 
-    @Override
-    public synchronized void copySourceFile(String jsonFileName) throws IOException {
+    public synchronized String getCopiedSourceFile(String jsonFileName) throws IOException {
+        File destFile = new File(System.getProperty("java.io.tmpdir"), jsonFileName);
         String sourceLocation = indexConfig.getStudiesInputFile();
         if (isNotBlank(sourceLocation)) {
-            if (jsonFileName != null && !jsonFileName.isEmpty())
+            if (jsonFileName != null && !jsonFileName.isEmpty()) {
                 sourceLocation = sourceLocation.replaceAll(STUDIES_JSON_FILE, jsonFileName);
-            else
-                jsonFileName = STUDIES_JSON_FILE;
+            }
             File srcFile = new File(sourceLocation);
-            File destFile = new File(System.getProperty("java.io.tmpdir"), jsonFileName);
             logger.info("Making a local copy  of {} at {}", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
             com.google.common.io.Files.copy(srcFile, destFile);
         }
+        return destFile.getAbsolutePath();
     }
-
 
     public static class JsonDocumentIndexer implements Runnable {
         private Logger logger = LogManager.getLogger(JsonDocumentIndexer.class.getName());
@@ -191,13 +195,15 @@ public class ConfigurableIndexService implements IndexService {
         private IndexWriter writer;
         private JsonNode json;
         private TaxonomyManager taxonomyManager;
-        IndexManager indexManager;
+        private IndexManager indexManager;
+        private boolean removeFileDocuments;
 
-        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager) {
+        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, boolean removeFileDocuments) {
             this.writer = indexManager.getIndexWriter();
             this.json = json;
             this.taxonomyManager = taxonomyManager;
             this.indexManager = indexManager;
+            this.removeFileDocuments = removeFileDocuments;
         }
 
         @Override
@@ -235,7 +241,7 @@ public class ConfigurableIndexService implements IndexService {
                 valueMap.put(Facets.PROJECT, project);
                 Set<String> columnSet = new LinkedHashSet<>();
                 if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study")) {
-                    String sectionsWithFiles = FileIndexer.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet);
+                    String sectionsWithFiles = FileIndexer.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
                     if (sectionsWithFiles !=null ) {
                         valueMap.put(Fields.SECTIONS_WITH_FILES, sectionsWithFiles);
                     }
@@ -326,16 +332,16 @@ public class ConfigurableIndexService implements IndexService {
             String project = valueMap.get(Facets.PROJECT).toString();
 
             ReadContext jsonPathContext = null;
-            for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(PUBLIC)){
+            for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(PUBLIC)){
                 if( fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH) &&  !fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText().isEmpty()){
                     extractWithJsonPath(jsonPathContext, json, valueMap, fieldMetadataNode);
                 }
             }
 
             //extract facets and fields
-            if(indexManager.indexDetails.findValue(project.toLowerCase())!=null && json.has("section") && json.get("section").has("attributes")) {
+            if(indexManager.getIndexDetails().findValue(project.toLowerCase())!=null && json.has("section") && json.get("section").has("attributes")) {
                 JsonNode attNodes = json.get("section").get("attributes");
-                for(JsonNode fieldMetadataNode:indexManager.indexDetails.findValue(project.toLowerCase())){
+                for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(project.toLowerCase())){
                         if( !fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH) || fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText().isEmpty()){
                             String value = StreamSupport.stream(attNodes.spliterator(), false)
                                     .filter(jsonNode ->
@@ -482,6 +488,33 @@ public class ConfigurableIndexService implements IndexService {
                 logger.error("title is empty accession: {}", accession);
             return title;
         }
+    }
+
+    @Async
+    public void processFileForIndexing() {
+        logger.debug("Initializing File Queue for Indexing");
+        while (true) {
+            String filename = null;
+            try {
+                filename = indexFileQueue.take();
+                logger.log(Level.INFO, "Started indexing {}. {} files left in the queue.", filename, indexFileQueue.size());
+                boolean removeFileDocuments = true;
+                if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))  {
+                    clearIndex(false);
+                    filename = Constants.STUDIES_JSON_FILE;
+                    removeFileDocuments = false;
+                }
+                indexAll(filename, removeFileDocuments);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.log(Level.ERROR, e);
+            }
+            logger.log(Level.INFO, "Finished indexing {}", filename);
+        }
+    }
+
+    public BlockingQueue<String> getIndexFileQueue() {
+        return indexFileQueue;
     }
 
 }

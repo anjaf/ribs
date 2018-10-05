@@ -2,10 +2,11 @@
 <%@ tag description="Generic page" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/functions" prefix = "fn" %>
-<%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
-<%@attribute name="postBody" fragment="true" %>
-<%@attribute name="head" fragment="true" %>
-<%@attribute name="breadcrumbs" fragment="true" %>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
+<%@ attribute name="postBody" fragment="true" %>
+<%@ attribute name="head" fragment="true" %>
+<%@ attribute name="breadcrumbs" fragment="true" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <c:set var="currentUser" value="${Session.getCurrentUser()}"/>
 <c:set var="pathname" value="${requestScope['javax.servlet.forward.request_uri']}"/>
@@ -15,6 +16,12 @@
 <html lang="en">
 <head>
     <spring:eval expression="@externalServicesConfig.getAnalyticsCode()"/>
+    <!-- shared variables -->
+    <script>
+        var contextPath = '${contextPath}';
+        var parts = '${pathname}'.replace(contextPath+'/','').split('/');
+        var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
+    </script>
     <meta charset="utf-8">
     <title>The European Bioinformatics Institute &lt; EMBL-EBI</title>
     <meta name="description" content="EMBL-EBI" /><!-- Describe what this page is about -->
@@ -220,33 +227,18 @@
 <!--
 <script>window.jQuery || document.write('<script src="../js/libs/jquery-1.10.2.min.js"><\/script>')</script>
 -->
-<script src="${contextPath}/js/jquery-3.2.0.min.js"></script>
 <!-- Your custom JavaScript file scan go here... change names accordingly -->
 <!--
 <script defer="defer" src="//www.ebi.ac.uk/web_guidelines/js/plugins.js"></script>
 <script defer="defer" src="//www.ebi.ac.uk/web_guidelines/js/script.js"></script>
 -->
 <script defer="defer" src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.3/js/script.js"></script>
-<script defer src="${contextPath}/js/fontawesome-all.min.js"></script>
-
 <!-- The Foundation theme JavaScript -->
 <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.3/libraries/foundation-6/js/foundation.js"></script>
 <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.3/js/foundationExtendEBI.js"></script>
 <script>$(document).foundation();</script>
 <script>$(document).foundationExtendEBI();</script>
 
-<script src='${contextPath}/js/handlebars-v4.0.5.js'></script>
-<script src='${contextPath}/js/jquery.cookie.js'></script>
-<script src='${contextPath}/js/jquery.caret-range-1.0.js'></script>
-<script src='${contextPath}/js/jquery.autocomplete.js'></script>
-
-<!-- shared variables -->
-<script>
-    var contextPath = '${contextPath}';
-    var parts = $.grep('${pathname}'.replace(contextPath+'/','').split('/'),function(a) {return a!=''});
-    var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
-</script>
-<script src='${contextPath}/js/common.js'></script>
 <jsp:invoke fragment="postBody"/>
 
 <script id='error-template' type='text/x-handlebars-template'>

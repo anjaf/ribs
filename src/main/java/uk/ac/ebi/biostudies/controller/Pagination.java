@@ -43,7 +43,7 @@ public class Pagination {
     }
 
     @PublicRESTMethod
-    @RequestMapping(value = "/info/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    @RequestMapping(value = "/info/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String getStudyInfo(@PathVariable String accession, @RequestParam(value="key", required=false) String seckey){
         return paginationService.getStudyInfo(accession, seckey).toString();
 

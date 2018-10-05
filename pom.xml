@@ -300,6 +300,16 @@
             <version>2.53.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>net.jawr.extensions</groupId>
+            <artifactId>jawr-spring-extension</artifactId>
+            <version>3.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+            <version>1.7R4</version>
+        </dependency>
     </dependencies>
 
     <build>
