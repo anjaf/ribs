@@ -91,10 +91,10 @@ public class ConfigurableIndexService implements IndexService {
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
         String inputStudiesFile = System.getProperty("java.io.tmpdir")+"/";
-        if(fileName!=null && !fileName.isEmpty())
-            inputStudiesFile = inputStudiesFile +fileName;
-        else
-            inputStudiesFile = inputStudiesFile + STUDIES_JSON_FILE;
+        if(fileName==null || fileName.isEmpty())
+            fileName = STUDIES_JSON_FILE;
+
+        inputStudiesFile = inputStudiesFile +fileName;
         String inputStudiesFilePath = new File(System.getProperty("java.io.tmpdir"), inputStudiesFile).getAbsolutePath();
         int counter = 0;
         try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFile), "UTF-8")) {
