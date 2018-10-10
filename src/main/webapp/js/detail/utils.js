@@ -50,7 +50,7 @@ function getURL(accession, type) {
         for(var r in DetailPage.reverseLinkMap) {
             var acc = new RegExp(r).exec(value);
             if (acc && acc.length>0) {
-                return {url:accession, type: DetailPage.reverseLinkMap[r], text:acc[1] }
+                return {url:accession, type: reverseLinkMap[r], text:acc[1] }
             }
         }
         url = accession;
