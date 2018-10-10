@@ -188,7 +188,7 @@ public class FacetServiceImpl implements FacetService {
             }
             boolean invisNA = false;
             String naDefaultStr = Constants.NA;
-            if(facetNode.has(Constants.IndexEntryAttributes.VISIBLE) && facetNode.get(Constants.IndexEntryAttributes.VISIBLE).asBoolean()==false)
+            if(facetNode.has(Constants.IndexEntryAttributes.NA_IS_VISIBLE) && facetNode.get(Constants.IndexEntryAttributes.NA_IS_VISIBLE).asBoolean()==false)
                 invisNA = true;
             if(facetNode.has(Constants.IndexEntryAttributes.DEFAULT_VALUE))
                 naDefaultStr = facetNode.get(Constants.IndexEntryAttributes.DEFAULT_VALUE).asText();

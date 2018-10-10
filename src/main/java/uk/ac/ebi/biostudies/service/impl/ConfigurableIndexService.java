@@ -474,7 +474,7 @@ public class ConfigurableIndexService implements IndexService {
                         .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
                         .findFirst().get().get("value").textValue().trim();
             } catch (Exception ex1) {
-                logger.debug( "Title not found. Trying submission title for " + accession);
+                //logger.debug( "Title not found. Trying submission title for " + accession);
                 try {
                     title = StreamSupport.stream(this.json.get("attributes").spliterator(), false)
                             .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
