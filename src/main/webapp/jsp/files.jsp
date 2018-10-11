@@ -26,6 +26,9 @@
         <%@include file="detail/main-file-table.hbs" %>
     </jsp:attribute>
     <jsp:body>
+        <div class="filetoolbar" style="visibility:hidden; text-align: center; font-size: 10pt;">
+            <a class="section-button" id="download-selected-files"><i class="fas fa-download"></i> Download <span id="selected-file-count">0</span> selected files</a>
+        </div>
         <table id="file-list" class="display stripe compact hover" width="100%">
         </table>
     </jsp:body>
