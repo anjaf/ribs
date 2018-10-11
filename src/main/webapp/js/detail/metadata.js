@@ -56,7 +56,7 @@ var Metadata = (function (_self) {
 
 
     function postRender(params, data) {
-        FileTable.render(data.accno, params);
+        FileTable.render(data.accno, params, true);
         $('body').append('<div id="blocker"/><div id="tooltip"/>');
         drawSubsections();
         createMainLinkTable();

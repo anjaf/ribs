@@ -55,7 +55,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.*;
 @Service
 @Scope("singleton")
 
-public class ConfigurableIndexService implements IndexService {
+public class IndexServiceImpl implements IndexService {
 
     public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
     static {
@@ -64,7 +64,7 @@ public class ConfigurableIndexService implements IndexService {
         TYPE_NOT_ANALYZED.setStored(true);
     }
 
-    private Logger logger = LogManager.getLogger(ConfigurableIndexService.class.getName());
+    private Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
     private static  BlockingQueue<String> indexFileQueue;
 
     @Autowired

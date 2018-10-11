@@ -131,7 +131,7 @@ function showProjectBanner(data) {
     $('#search-in-project').click();
 
     //fix breadcrumbs
-    $('ul.breadcrumbs').children().first().next().html('<li><a href="/biostudies/'+project+'/studies">'+projectObj.title+'</a></li>')
+    $('ul.breadcrumbs').children().first().next().html('<a href="/biostudies/'+project+'/studies">'+projectObj.title+'</a>')
     return projectObj;
 }
 

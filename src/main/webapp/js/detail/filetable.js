@@ -5,7 +5,7 @@ var FileTable = (function (_self) {
     var selectedFilesCount=0;
 
 
-    _self.render = function (acc, params){
+    _self.render = function (acc, params, isDetailPage){
         $.ajax({url: window.contextPath+"/api/v1/info/"+acc,
             data:params,
             success: function(response){
@@ -13,11 +13,14 @@ var FileTable = (function (_self) {
                     $('#file-list-container').parent().remove();
                     return;
                 }
-                handleSecretKey(response.seckey);
-                handleFileTableColumns(response.columns, acc, params);
+                if (isDetailPage) {
+                    handleSecretKey(response.seckey);
+                    handleModificationDate(response.modified);
+                }
+                handleFileTableColumns(response.columns, acc, params, isDetailPage);
                 handleFileDownloadSelection();
                 handleFileFilters(response.sections);
-                handleModificationDate(response.modified);
+
             }});
     };
 
@@ -53,7 +56,11 @@ var FileTable = (function (_self) {
 
     }
 
-    function handleFileTableColumns(columns, acc, params) {
+    function handleFileTableColumns(columns, acc, params, isDetailPage) {
+
+        if (!isDetailPage) {
+            $('#file-list').addClass('bigtable');
+        }
         columns.splice(0, 0, {
             name: "x",
             title: "",
@@ -71,6 +78,7 @@ var FileTable = (function (_self) {
             processing: true,
             serverSide: true,
             columns: columns,
+            scrollX: !isDetailPage,
             order: [[ 1, "asc" ]],
             columnDefs: [
                 {

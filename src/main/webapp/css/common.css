@@ -273,3 +273,7 @@ nav span.icon {
     text-align: center;
     padding: 40pt;
 }
+
+.bigtable {
+    font-size: 10pt !important;
+}
