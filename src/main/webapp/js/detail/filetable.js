@@ -3,7 +3,8 @@ var FileTable = (function (_self) {
     var totalRows=-1;
     var selectedFiles=[];
     var selectedFilesCount=0;
-
+    var filesTable;
+    var firstRender = true;
 
     _self.render = function (acc, params, isDetailPage){
         $.ajax({url: window.contextPath+"/api/v1/info/"+acc,
@@ -25,6 +26,11 @@ var FileTable = (function (_self) {
     };
 
 
+    _self.clearFileFilter =  function() {
+        if (!filesTable) return; // not yet initialised
+        filesTable.columns().visible(true);
+        filesTable.search('').columns().search('').draw();
+    };
 
     function handleModificationDate(t) {
         $('.release-date').append('&nbsp; ' + String.fromCharCode(0x25AA)+' &nbsp; Modified: '+ getDateFromEpochTime(t));
@@ -98,7 +104,9 @@ var FileTable = (function (_self) {
                         return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="'
                             + data
                             + '" onclick="closeFullScreen();" href="'
-                            + window.contextPath+'/files/'+acc+'/' +row.path + '">'
+                            + window.contextPath+'/files/'+acc+'/' +row.path
+                            + (params.key ? '?key='+params.key : '')
+                            + '">'
                             + data + '</a>';
                     }
                 }
@@ -107,6 +115,13 @@ var FileTable = (function (_self) {
                 url: '/biostudies/api/v1/filelist',
                 type: 'post',
                 data: function (dtData) {
+                    // add file search filter
+                    if (firstRender && params['fs']) {
+                        $('#all-files-expander').click();
+                        dtData.search.value = params.fs;
+                        firstRender = false;
+                    }
+
                     return $.extend($.extend(dtData, {acc: acc}), params)
                 },
                 complete: function (data) {
@@ -142,6 +157,8 @@ var FileTable = (function (_self) {
             });
             // TODO: enable select on tr click
             updateSelectedFiles();
+            //if (params.fs) filesTable.search(params.fs).draw();
+
         });
 
     }

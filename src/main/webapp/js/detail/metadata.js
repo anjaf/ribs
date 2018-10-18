@@ -2,7 +2,6 @@ var Metadata = (function (_self) {
 
     var sectionTables=[];
     var linksTable;
-    var filesTable;
     var expansionSource;
     var lastExpandedTable;
 
@@ -18,6 +17,9 @@ var Metadata = (function (_self) {
 
         $.getJSON(url, params, function (data) {
             if (!data.accno && data.submissions) data = data.submissions[0];
+            if (params.key) {
+                data.section.keyString = '?key='+params.key;
+            }
             // set accession
             $('#accession').text(data.accno);
             data.section.accno = data.accno;
@@ -450,12 +452,6 @@ var Metadata = (function (_self) {
             $(this).parent().remove();
         });
 
-        // add file search filter
-        if (params['fs']) {
-            $('#all-files-expander').click();
-            filesTable.search(params['fs']).draw();
-        }
-
         // expand right column if needed
         if (params['xr']) {
             $('#expand-right-column').click()
@@ -465,8 +461,7 @@ var Metadata = (function (_self) {
 
 
     function clearFileFilter() {
-        filesTable.columns().visible(true);
-        filesTable.search('').columns().search('').draw();
+         FileTable.clearFileFilter();
     }
 
     function clearLinkFilter() {
