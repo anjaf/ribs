@@ -19,7 +19,7 @@ var FileTable = (function (_self) {
                     handleModificationDate(response.modified);
                 }
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
-                handleFileDownloadSelection();
+                handleFileDownloadSelection(params.key);
                 handleFileFilters(response.sections);
 
             }});
@@ -183,7 +183,7 @@ var FileTable = (function (_self) {
     }
 
 
-    function handleFileDownloadSelection() {
+    function handleFileDownloadSelection(key) {
 
         // add select all checkboz
         $(filesTable.columns(0).header()).html('<input id="select-all-files"  type="checkbox"/>');
@@ -217,6 +217,9 @@ var FileTable = (function (_self) {
             $(selectedFiles).each( function(i,v) {
                 html += '<input type="hidden" name="files" value="'+v+'"/>'
             });
+            if (key) {
+                html += '<input type="hidden" name="key" value="'+key+'"/>' ;
+            }
             html += '</form>';
             var submissionForm = $(html);
             $('body').append(submissionForm);
@@ -235,20 +238,6 @@ var FileTable = (function (_self) {
 
         $('#select-all-files').prop('checked', $('.select-checkbox input:checked').length == $('.select-checkbox input').length );
 
-    }
-
-
-    function downloadFiles(files) {
-        var html = '<form method="POST" target="_blank" action="'
-            + window.contextPath + "/files/"
-            + $('#accession').text() + '/zip">';
-        $(files).each( function(i,v) {
-            html += '<input type="hidden" name="files" value="'+v+'"/>'
-        });
-        html += '</form>';
-        var submissionForm = $(html);
-        $('body').append(submissionForm);
-        //$(submissionForm).submit();
     }
 
     function handleThumbnails() {
