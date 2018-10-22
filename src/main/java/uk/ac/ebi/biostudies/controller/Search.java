@@ -127,7 +127,7 @@ public class Search {
             for (String key: params.keySet()) {
                 if(key.equalsIgnoreCase("pageSize") || key.equalsIgnoreCase("page") || key.equalsIgnoreCase("sortBy") || key.equalsIgnoreCase("sortOrder") || key.equalsIgnoreCase("query")|| key.equalsIgnoreCase("limit") )
                     continue;
-                if (!key.toLowerCase().startsWith("facet.")) {
+                if (!key.toLowerCase().contains("facet.")) {
                     selectedFields.put(key, params.getFirst(key));
                 }else {
                     String facetKey = StringUtils.remove(key, "[]");
