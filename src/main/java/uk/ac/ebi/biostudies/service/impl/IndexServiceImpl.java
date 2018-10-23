@@ -29,6 +29,7 @@ import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.schedule.jobs.ReloadOntologyJob;
 import uk.ac.ebi.biostudies.service.FacetService;
+import uk.ac.ebi.biostudies.service.FileIndexService;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.config.IndexManager;
 
@@ -72,6 +73,9 @@ public class IndexServiceImpl implements IndexService {
 
     @Autowired
     IndexManager indexManager;
+
+    @Autowired
+    FileIndexService fileIndexService;
 
     @Autowired
     TaxonomyManager taxonomyManager;
@@ -118,7 +122,7 @@ public class IndexServiceImpl implements IndexService {
                 }
 
                 JsonNode submission = mapper.readTree(parser);
-                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, removeFileDocuments));
+                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments));
                 if(++counter % 10000==0) {
                     logger.info("{} docs indexed", counter);
                 }
@@ -196,14 +200,16 @@ public class IndexServiceImpl implements IndexService {
         private JsonNode json;
         private TaxonomyManager taxonomyManager;
         private IndexManager indexManager;
+        private FileIndexService fileIndexService;
         private boolean removeFileDocuments;
 
-        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, boolean removeFileDocuments) {
+        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, FileIndexService fileIndexService, boolean removeFileDocuments) {
             this.writer = indexManager.getIndexWriter();
             this.json = json;
             this.taxonomyManager = taxonomyManager;
             this.indexManager = indexManager;
             this.removeFileDocuments = removeFileDocuments;
+            this.fileIndexService = fileIndexService;
         }
 
         @Override
@@ -241,9 +247,9 @@ public class IndexServiceImpl implements IndexService {
                 valueMap.put(Facets.PROJECT, project);
                 Set<String> columnSet = new LinkedHashSet<>();
                 if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study")) {
-                    String sectionsWithFiles = FileIndexer.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
-                    if (sectionsWithFiles !=null ) {
-                        valueMap.put(Fields.SECTIONS_WITH_FILES, sectionsWithFiles);
+                    Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
+                    if (fileValueMap!=null) {
+                        valueMap.putAll(fileValueMap);
                     }
                 }
                 valueMap.put(Constants.File.FILE_ATTS, columnSet);
