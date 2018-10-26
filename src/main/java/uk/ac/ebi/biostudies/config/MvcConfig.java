@@ -3,10 +3,7 @@ package uk.ac.ebi.biostudies.config;
 /**
  * Created by ehsan on 23/02/2017.
  */
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -31,6 +28,7 @@ import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 @EnableScheduling
 @ComponentScan(basePackages = "uk.ac.ebi.biostudies")
 @PropertySource("classpath:scheduler.properties")
+@ImportResource("classpath:spring-config.xml")
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
 

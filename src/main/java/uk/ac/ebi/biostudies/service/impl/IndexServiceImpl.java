@@ -25,6 +25,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
+import uk.ac.ebi.biostudies.api.util.parser.AbstractParser;
+import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.schedule.jobs.ReloadOntologyJob;
@@ -42,8 +44,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static uk.ac.ebi.biostudies.api.util.Constants.*;
@@ -86,6 +86,9 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     ReloadOntologyJob reloadOntologyJob;
 
+    @Autowired
+    ParserManager parserManager;
+
     @PostConstruct
     public void init(){
         indexFileQueue = new LinkedBlockingQueue<>();
@@ -122,7 +125,7 @@ public class IndexServiceImpl implements IndexService {
                 }
 
                 JsonNode submission = mapper.readTree(parser);
-                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments));
+                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments, parserManager));
                 if(++counter % 10000==0) {
                     logger.info("{} docs indexed", counter);
                 }
@@ -154,7 +157,6 @@ public class IndexServiceImpl implements IndexService {
             Files.delete(Paths.get(inputStudiesFilePath));
         }
     }
-
 
     @Override
     public void deleteDoc(String accession) throws Exception{
@@ -202,49 +204,55 @@ public class IndexServiceImpl implements IndexService {
         private IndexManager indexManager;
         private FileIndexService fileIndexService;
         private boolean removeFileDocuments;
+        private ParserManager parserManager;
 
-        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, FileIndexService fileIndexService, boolean removeFileDocuments) {
+        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, FileIndexService fileIndexService, boolean removeFileDocuments, ParserManager parserManager) {
             this.writer = indexManager.getIndexWriter();
             this.json = json;
             this.taxonomyManager = taxonomyManager;
             this.indexManager = indexManager;
             this.removeFileDocuments = removeFileDocuments;
+            this.parserManager = parserManager;
             this.fileIndexService = fileIndexService;
         }
 
         @Override
-        public void run() {
+        public void run(){
             Map<String, Object> valueMap = new HashMap<>();
+            String accession="";
             try {
-                valueMap.put( Fields.ID, json.get("accno").textValue() );
-                valueMap.put( Fields.SECRET_KEY, json.has("seckey") ? json.get("seckey").textValue() : null );
-                valueMap.put( Fields.ACCESSION, valueMap.get(Fields.ID));
-                valueMap.put( Fields.TYPE, json.get("section").get("type").textValue().toLowerCase());
-                valueMap.put( Fields.TITLE, getTitle(json, (String)valueMap.get(Fields.ACCESSION)));
-                valueMap.put( Fields.FILES, json.findValues("files").stream().mapToLong(
-                        jsonNode -> jsonNode.findValues("path").size()
-                        ).sum()
-                );
-                valueMap.put( Fields.LINKS, json.findValues("links").stream().mapToLong(
-                        jsonNode -> jsonNode.findValues("url").size()
-                        ).sum()
-                );
-                String access = !json.has("accessTags") ? "" :
-                        StreamSupport.stream(json.get("accessTags").spliterator(),false)
-                                .map( s-> s.textValue())
-                                .collect(Collectors.joining(" "));
-                valueMap.put( Fields.ACCESS, access.replaceAll("~", ""));
+                parserManager.setParserContext(new HashMap<>());
+                parserManager.setValueMap(valueMap);
+                ReadContext jsonPathContext = JsonPath.parse(json.toString());
 
-
-                String project = "";
-                if(json.has("attributes")) {
-                    project = StreamSupport.stream(json.get("attributes").spliterator(), false)
-                            .filter(jsonNode ->
-                                    jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase("attachto"))
-                            .map(s -> s.get("value").textValue())
-                            .collect(Collectors.joining(","));
+                accession = parserManager.getParserPool().get(Fields.ACCESSION).parse(valueMap, json, Fields.ACCESSION, null, jsonPathContext);
+                parserManager.getParserPool().get(Fields.SECRET_KEY).parse(valueMap, json, accession,null, jsonPathContext);
+                for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(PUBLIC)){//parsing common "public" facet and fields
+                    findParserAndParse(fieldMetadataNode, valueMap, accession, jsonPathContext);
                 }
-                valueMap.put(Facets.PROJECT, project);
+                if(valueMap.getOrDefault(Fields.TYPE,"").toString().equalsIgnoreCase("project"))//projects does not need more parsing
+                {
+                    updateDocument(valueMap);
+                    return;
+                }
+                String projectName = valueMap.get(Facets.PROJECT).toString().toLowerCase();
+                AbstractParser abstractParser = null;
+                JsonNode projectSpecificFields = indexManager.getIndexDetails().findValue(projectName);
+                if(projectSpecificFields != null) {
+                    for (JsonNode fieldMetadataNode : projectSpecificFields) {//parsing project's facet and fields
+                        abstractParser = findParserAndParse(fieldMetadataNode, valueMap, accession, jsonPathContext);//there exist a specific parser for this field
+                        if (abstractParser == null) {
+                            if (fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH) && fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase("facet"))//general facets with json path
+                                abstractParser = parserManager.getParserPool().get("generalFacetWithPathParser");
+                            else if (fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase("facet"))//general facets with common json path
+                                abstractParser = parserManager.getParserPool().get("generalFacetWithoutPathParser");
+                            if (abstractParser != null) {
+                                setProperties(abstractParser, fieldMetadataNode);//customize general parser for that specific facet with facet specific name
+                                abstractParser.parse(valueMap, json, accession, fieldMetadataNode, jsonPathContext);
+                            }
+                        }
+                    }
+                }
                 Set<String> columnSet = new LinkedHashSet<>();
                 if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study")) {
                     Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
@@ -253,159 +261,25 @@ public class IndexServiceImpl implements IndexService {
                     }
                 }
                 valueMap.put(Constants.File.FILE_ATTS, columnSet);
-                extractContent(valueMap);
-                extractAuthorData(valueMap);
-                extractDates(valueMap);
-                extractDynamicFieldsAndFacets(valueMap);
                 updateDocument(valueMap);
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.error("problem in indexing accession {}", json.get("accno").textValue(), e );
+
+            }catch (Exception ex){
+                logger.debug("problem in parser for parsing accession: {}!", accession, ex);
             }
         }
 
-        private void extractAuthorData(Map<String, Object> valueMap) {
-            // extract authors and orcids
-            List<String> authors = new ArrayList<>();
-            List<String> orcids = new ArrayList<>();
-            if(json.get("section").has("subsections")) {
-                StreamSupport.stream(json.get("section").get("subsections").spliterator(), false)
-                        .filter(jsonNode -> jsonNode.has("type")
-                                            && jsonNode.get("type").textValue().equalsIgnoreCase("Author")
-                                            && jsonNode.has("attributes")
-                                            && jsonNode.get("attributes").isArray())
-                        .forEach( section-> {
-                            section.get("attributes").forEach(attr-> {
-                                String name = attr.get("name").asText();
-                                String value = attr.get("value").asText();
-                                if (name.equalsIgnoreCase("Name")) {
-                                    authors.add(value);
-                                } else if (name.equalsIgnoreCase("ORCID")) {
-                                    orcids.add(value);
-                                }
-                            });
-                        }
-                );
-            }
-            valueMap.put( Fields.AUTHOR, StringUtils.join(authors," "));
-            valueMap.put( Fields.ORCID, StringUtils.join(orcids," "));
+        private void setProperties(AbstractParser abstractParser, JsonNode fieldMetadataNode){
+            String name = fieldMetadataNode.get(IndexEntryAttributes.NAME).asText();
+            abstractParser.setIndexFieldKey(name);
+            abstractParser.setJsonFieldKey(name);
+            abstractParser.setToLowerCase(false);
         }
 
-        private void extractContent(Map<String, Object> valueMap) {
-            String accession = json.get("accno").textValue();
-            StringBuilder content = new StringBuilder(String.join(" ", accession));
-            content.append(" ");
-            if (accession.startsWith("S-EPMC")) {// hack to make sure we are indexing PMC accessions in full text
-                content.append( accession.substring(3) ).append(" ");
-            }
-            content.append(String.join(" ", json.get("section").findValuesAsText("value")));
-            content.append(" ");
-            content.append(json.findValues("files").stream().map(jsonNode -> jsonNode.findValuesAsText("path").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
-            content.append(" ");
-            content.append(json.findValues("links").stream().map(jsonNode -> jsonNode.findValuesAsText("url").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
-            valueMap.put( Fields.CONTENT, content.toString());
-        }
-
-        private void extractDates(Map<String, Object> valueMap) {
-            long releaseDateLong = 0L;
-            long creationDateLong = 0L;
-
-            if(json.has(Fields.CREATION_TIME)) {
-                creationDateLong = Long.valueOf(json.get(Fields.CREATION_TIME).asText()) * 1000;
-            }
-            valueMap.put(Fields.CREATION_TIME, creationDateLong);
-
-            if(json.has(Fields.MODIFICATION_TIME)) {
-                long modificationTimeLong = Long.valueOf(json.get(Fields.MODIFICATION_TIME).asText()) * 1000;
-                valueMap.put(Fields.MODIFICATION_TIME, modificationTimeLong);
-                valueMap.put(Facets.MODIFICATION_YEAR_FACET, DateTools.timeToString(modificationTimeLong, DateTools.Resolution.YEAR));
-            }
-
-
-            if(json.has(Fields.RELEASE_TIME) && !json.get(Fields.RELEASE_TIME).asText().equals("-1")) {
-                releaseDateLong = Long.valueOf(json.get(Fields.RELEASE_TIME).asText()) * 1000;
-            }
-            if(releaseDateLong==0L && !String.valueOf(valueMap.get(Fields.ACCESS)).contains(PUBLIC)) {
-                    releaseDateLong = Long.MAX_VALUE;
-            }
-            valueMap.put(Fields.RELEASE_TIME, releaseDateLong);
-            valueMap.put(RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
-            valueMap.put(Facets.RELEASED_YEAR_FACET, (releaseDateLong==Long.MAX_VALUE || releaseDateLong==0) ? NA :  DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
-        }
-
-        // extracts facets. Assumes project is already in the valueMap
-        private void extractDynamicFieldsAndFacets(Map<String, Object> valueMap) {
-            String project = valueMap.get(Facets.PROJECT).toString();
-
-            ReadContext jsonPathContext = null;
-            for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(PUBLIC)){
-                if( fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH) &&  !fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText().isEmpty()){
-                    extractWithJsonPath(jsonPathContext, json, valueMap, fieldMetadataNode);
-                }
-            }
-
-            //extract facets and fields
-            if(indexManager.getIndexDetails().findValue(project.toLowerCase())!=null && json.has("section") && json.get("section").has("attributes")) {
-                JsonNode attNodes = json.get("section").get("attributes");
-                for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(project.toLowerCase())){
-                        if( !fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH) || fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText().isEmpty()){
-                            String value = StreamSupport.stream(attNodes.spliterator(), false)
-                                    .filter(jsonNode ->
-                                            jsonNode.has("name") && jsonNode.get("name").textValue().equalsIgnoreCase(fieldMetadataNode.get(IndexEntryAttributes.TITLE).asText()))
-                                    .map(s->s.get("value").textValue() )
-                                    .collect( Collectors.joining( fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.FACET)
-                                            ?  Facets.DELIMITER : " "));
-                            //if (StringUtils.isNotBlank(value)) {
-                                valueMap.put(fieldMetadataNode.get(IndexEntryAttributes.NAME).asText(), value);
-                            //}
-                        }
-                        else{
-                            extractWithJsonPath(jsonPathContext, json, valueMap, fieldMetadataNode);
-                        }
-
-                }
-            }
-            // extract file type facet (which needs further processing to get the extension out)
-            if (jsonPathContext == null) {
-                jsonPathContext = JsonPath.parse(json.toString());
-                valueMap.put(Facets.FILE_TYPE, ((List<String>) jsonPathContext.read("$..files.*.path")).stream()
-                        .map(s -> {
-                            if (s == null) return NA;
-                            int k = s.lastIndexOf(".");
-                            return k >= 0 ? s.substring(s.lastIndexOf(".") + 1) : NA;
-                        }).collect(Collectors.joining(Facets.DELIMITER))
-                );
-            }
-        }
-
-        private void extractWithJsonPath(ReadContext jsonPathContext, JsonNode json, Map<String, Object> valueMap, JsonNode fieldMetadataNode){
-            Object result= NA;
-            try {
-                if (jsonPathContext == null)
-                    jsonPathContext = JsonPath.parse(json.toString());
-                List resultData = null;
-                try {
-                    resultData = jsonPathContext.read(fieldMetadataNode.get(IndexEntryAttributes.JSON_PATH).asText());
-
-                    switch (fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText()) {
-                        case IndexEntryAttributes.FieldTypeValues.FACET:
-                            result =  String.join (Facets.DELIMITER, resultData);
-                            break;
-                        case IndexEntryAttributes.FieldTypeValues.LONG:
-                            result = resultData.stream().collect(Collectors.counting());
-                            break;
-                        default:
-                            result =  String.join (" ", resultData);
-                            break;
-                    }
-
-                } catch (ClassCastException e) {
-                    result = jsonPathContext.read(json.get(IndexEntryAttributes.JSON_PATH).asText());
-                }
-            } catch (NullPointerException e){
-                //it means this document has no value for this field so do nothing
-            }
-            valueMap.put(fieldMetadataNode.get(IndexEntryAttributes.NAME).asText(), result);
+        private AbstractParser findParserAndParse(JsonNode fieldMetadataNode, Map<String, Object> valueMap, String accession, ReadContext jsonPathContext){
+            AbstractParser abstrctParser = parserManager.getParserPool().get(fieldMetadataNode.get("name").asText());
+            if(abstrctParser!=null)
+                abstrctParser.parse(valueMap, json, accession, fieldMetadataNode, jsonPathContext);
+            return abstrctParser;
         }
 
         private void updateDocument(Map<String, Object> valueMap) throws IOException {
@@ -455,6 +329,8 @@ public class IndexServiceImpl implements IndexService {
 
         private void addFileAttributes(Document doc, Set<String> columnAtts){
             StringBuilder allAtts = new StringBuilder("Name|Size|");
+            if(columnAtts==null)
+                columnAtts = new HashSet<>();
             for(String att:columnAtts)
                 allAtts.append(att).append("|");
             doc.add(new StringField(Constants.File.FILE_ATTS, allAtts.toString(),Field.Store.YES));
@@ -470,29 +346,6 @@ public class IndexServiceImpl implements IndexService {
                 }
                 doc.add(new FacetField(fieldName, subVal.trim().toLowerCase()));
             }
-        }
-
-        private String getTitle(JsonNode json, String accession) {
-            String title = "";
-
-            try {
-                title = StreamSupport.stream(this.json.get("section").get("attributes").spliterator(), false)
-                        .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
-                        .findFirst().get().get("value").textValue().trim();
-            } catch (Exception ex1) {
-                //logger.debug( "Title not found. Trying submission title for " + accession);
-                try {
-                    title = StreamSupport.stream(this.json.get("attributes").spliterator(), false)
-                            .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
-                            .map(jsonNode -> jsonNode.findValue("value").asText().trim())
-                            .collect(Collectors.joining(","));//get().get("value").textValue().trim();
-                } catch ( Exception ex2) {
-                    logger.error("Title not found for " + json.toString().substring(0,100));
-                }
-            }
-            if(title.isEmpty())
-                logger.error("title is empty accession: {}", accession);
-            return title;
         }
     }
 
