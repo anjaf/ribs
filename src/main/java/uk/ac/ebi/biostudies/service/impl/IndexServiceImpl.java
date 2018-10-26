@@ -29,6 +29,7 @@ import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.schedule.jobs.ReloadOntologyJob;
 import uk.ac.ebi.biostudies.service.FacetService;
+import uk.ac.ebi.biostudies.service.FileIndexService;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.config.IndexManager;
 
@@ -55,7 +56,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.*;
 @Service
 @Scope("singleton")
 
-public class ConfigurableIndexService implements IndexService {
+public class IndexServiceImpl implements IndexService {
 
     public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
     static {
@@ -64,7 +65,7 @@ public class ConfigurableIndexService implements IndexService {
         TYPE_NOT_ANALYZED.setStored(true);
     }
 
-    private Logger logger = LogManager.getLogger(ConfigurableIndexService.class.getName());
+    private Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
     private static  BlockingQueue<String> indexFileQueue;
 
     @Autowired
@@ -72,6 +73,9 @@ public class ConfigurableIndexService implements IndexService {
 
     @Autowired
     IndexManager indexManager;
+
+    @Autowired
+    FileIndexService fileIndexService;
 
     @Autowired
     TaxonomyManager taxonomyManager;
@@ -118,7 +122,7 @@ public class ConfigurableIndexService implements IndexService {
                 }
 
                 JsonNode submission = mapper.readTree(parser);
-                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, removeFileDocuments));
+                executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments));
                 if(++counter % 10000==0) {
                     logger.info("{} docs indexed", counter);
                 }
@@ -196,14 +200,16 @@ public class ConfigurableIndexService implements IndexService {
         private JsonNode json;
         private TaxonomyManager taxonomyManager;
         private IndexManager indexManager;
+        private FileIndexService fileIndexService;
         private boolean removeFileDocuments;
 
-        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, boolean removeFileDocuments) {
+        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, FileIndexService fileIndexService, boolean removeFileDocuments) {
             this.writer = indexManager.getIndexWriter();
             this.json = json;
             this.taxonomyManager = taxonomyManager;
             this.indexManager = indexManager;
             this.removeFileDocuments = removeFileDocuments;
+            this.fileIndexService = fileIndexService;
         }
 
         @Override
@@ -241,9 +247,9 @@ public class ConfigurableIndexService implements IndexService {
                 valueMap.put(Facets.PROJECT, project);
                 Set<String> columnSet = new LinkedHashSet<>();
                 if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study")) {
-                    String sectionsWithFiles = FileIndexer.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
-                    if (sectionsWithFiles !=null ) {
-                        valueMap.put(Fields.SECTIONS_WITH_FILES, sectionsWithFiles);
+                    Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
+                    if (fileValueMap!=null) {
+                        valueMap.putAll(fileValueMap);
                     }
                 }
                 valueMap.put(Constants.File.FILE_ATTS, columnSet);
@@ -474,7 +480,7 @@ public class ConfigurableIndexService implements IndexService {
                         .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
                         .findFirst().get().get("value").textValue().trim();
             } catch (Exception ex1) {
-                logger.debug( "Title not found. Trying submission title for " + accession);
+                //logger.debug( "Title not found. Trying submission title for " + accession);
                 try {
                     title = StreamSupport.stream(this.json.get("attributes").spliterator(), false)
                             .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))

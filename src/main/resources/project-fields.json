@@ -1,38 +1,37 @@
 {
   "idr":
   [
-    {"name":"facet.study_type", "title":"Study Type", "fieldType":"facet", "multiValued":true}
+    {"name":"idr.facet.study_type", "title":"Study Type", "fieldType":"facet", "multiValued":true}
   ],
   "hecatos":
   [
-    {"name":"facet.organ", "title":"Organ", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.technology", "title":"Assay Technology Type", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.data_type", "title":"Data Type", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.compound", "title":"Compound", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.raw_or_processed", "title":"Raw/Processed", "fieldType":"facet", "multiValued":true}
+    {"name":"hecatos.facet.organ", "title":"Organ", "fieldType":"facet", "multiValued":true},
+    {"name":"hecatos.facet.technology", "title":"Assay Technology Type", "fieldType":"facet", "multiValued":true},
+    {"name":"hecatos.facet.data_type", "title":"Data Type", "fieldType":"facet", "multiValued":true},
+    {"name":"hecatos.facet.compound", "title":"Compound", "fieldType":"facet", "multiValued":true},
+    {"name":"hecatos.facet.raw_or_processed", "title":"Raw/Processed", "fieldType":"facet", "multiValued":true}
   ],
   "arrayexpress":
   [
     {"name":"array", "title":"Array", "fieldType":"untokenized_string", "retrieved":false, "expanded":false, "sortable":false, "analyzer":"AttributeFieldAnalyzer"},
     {"name":"experimental_factor", "title":"Experimental Factor", "jsonPath":"$..subsections[?(@.type==\"Experimental Factors\")].subsections..attributes..name", "fieldType":"tokenized_string", "multiValued":true},
     {"name":"experimental_factor_value", "title":"Experimental Factor Value", "jsonPath":"$..subsections[?(@.type==\"Experimental Factors\")].subsections..attributes..value", "fieldType":"tokenized_string", "multiValued":true},
-    {"name":"experimental_design", "title":"Experimental Design", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.study_type", "title":"Study type", "fieldType":"facet", "multiValued":true},
-    {"name":"minseq_score", "title":"MinSeq Score", "fieldType":"long", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.value==\"*\")].length()", "retrieved":true, "expanded":false, "sortable":true}
-
+    {"name":"minseq_score", "title":"MinSeq Score", "fieldType":"long", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.value==\"*\")].length()", "retrieved":true, "expanded":false, "sortable":true},
+    {"name":"facet.study_type", "title":"Study type", "fieldType":"facet", "multiValued":true, "naVisible":false},
+    {"name":"facet.experimental_design", "title":"Experimental Design", "fieldType":"facet", "multiValued":true, "naVisible":false},
+    {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true, "naVisible":false}
   ],
   "europepmc": [
-    {"name":"facet.funding_agency", "title":"Funding Agency", "fieldType":"facet", "jsonPath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":true}
+    {"name":"europepmc.facet.funding_agency", "title":"Funding Agency", "fieldType":"facet", "jsonPath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":true}
   ],
   "eu-toxrisk":
   [
-    {"name":"facet.organ", "title":"Organ", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.toxicity_domain", "title":"Toxicity Domain", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.compound", "title":"Compound", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.method_name", "title":"Method name", "fieldType":"facet", "multiValued":true},
-    {"name":"facet.project_part", "title":"Project part", "fieldType":"facet", "multiValued":true}
+    {"name":"eutoxrisk.facet.organ", "title":"Organ", "fieldType":"facet", "multiValued":true},
+    {"name":"eutoxrisk.facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true},
+    {"name":"eutoxrisk.facet.toxicity_domain", "title":"Toxicity Domain", "fieldType":"facet", "multiValued":true},
+    {"name":"eutoxrisk.facet.compound", "title":"Compound", "fieldType":"facet", "multiValued":true},
+    {"name":"eutoxrisk.facet.method_name", "title":"Method name", "fieldType":"facet", "multiValued":true},
+    {"name":"eutoxrisk.facet.project_part", "title":"Project part", "fieldType":"facet", "multiValued":true}
   ],
   "public":
   [

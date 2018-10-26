@@ -1,4 +1,9 @@
 $(function() {
+    if (project=='BioImages') {
+        $('#local-title').html('<h1><img style="width:200px" src="'+contextPath+'/files/BioImages/3/logo.png"></img></h1>');
+        $('.menu.float-left li').slice(0,2).hide();
+        $('#project-banner').hide();
+    }
     $('#login-button').click(function () {
         showLoginForm();
     });
@@ -89,8 +94,8 @@ function showError(error) {
         case 404:
             data = {
                 title: 'We’re sorry that the page or file you’ve requested is not publicly available',
-                message: 'The resource may have been removed, had its name changed, or has restricted access.' +
-                ' It may take up to 24 hours after submission for any new studies to become available in the database. ' +
+                message: 'The resource may have been removed, had its name changed, or has restricted access. <br/>' +
+                ' It may take up to 24 hours after submission for any new studies to become available in the database. <br/>' +
                 ' Please login if the study has not been publicly released yet.'
             }
             break;
@@ -131,7 +136,7 @@ function showProjectBanner(data) {
     $('#search-in-project').click();
 
     //fix breadcrumbs
-    $('ul.breadcrumbs').children().first().next().html('<li><a href="/biostudies/'+project+'/studies">'+projectObj.title+'</a></li>')
+    $('ul.breadcrumbs').children().first().next().html('<a href="/biostudies/'+project+'/studies">'+projectObj.title+'</a>')
     return projectObj;
 }
 

@@ -90,8 +90,8 @@ var DetailPage = (function (_self) {
     };
 
     _self.projectScripts = [
-        {regex: /E-*|/, script: 'ArrayExpress.js'},
-        {regex: /S-SCDT-*/, script: 'SourceData.js'}
+        {regex: /^E-*/, script: 'ArrayExpress.js'},
+        {regex: /^S-SCDT-*/, script: 'SourceData.js'}
     ];
 
     return _self;

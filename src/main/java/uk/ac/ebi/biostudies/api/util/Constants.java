@@ -35,7 +35,7 @@ public interface Constants {
         String MULTIVALUED = "multiValued";
         String JSON_PATH = "jsonPath";
         String DEFAULT_VALUE = "defaultValue";
-        String VISIBLE = "visible";
+        String NA_IS_VISIBLE = "naVisible";
         String PRIVATE = "private";
 
         interface FieldTypeValues {

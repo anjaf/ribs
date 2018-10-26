@@ -3,9 +3,10 @@ var FileTable = (function (_self) {
     var totalRows=-1;
     var selectedFiles=[];
     var selectedFilesCount=0;
+    var filesTable;
+    var firstRender = true;
 
-
-    _self.render = function (acc, params){
+    _self.render = function (acc, params, isDetailPage){
         $.ajax({url: window.contextPath+"/api/v1/info/"+acc,
             data:params,
             success: function(response){
@@ -13,15 +14,23 @@ var FileTable = (function (_self) {
                     $('#file-list-container').parent().remove();
                     return;
                 }
-                handleSecretKey(response.seckey);
-                handleFileTableColumns(response.columns, acc, params);
-                handleFileDownloadSelection();
+                if (isDetailPage) {
+                    handleSecretKey(response.seckey);
+                    handleModificationDate(response.modified);
+                }
+                handleFileTableColumns(response.columns, acc, params, isDetailPage);
+                handleFileDownloadSelection(params.key);
                 handleFileFilters(response.sections);
-                handleModificationDate(response.modified);
+
             }});
     };
 
 
+    _self.clearFileFilter =  function() {
+        if (!filesTable) return; // not yet initialised
+        filesTable.columns().visible(true);
+        filesTable.search('').columns().search('').draw();
+    };
 
     function handleModificationDate(t) {
         $('.release-date').append('&nbsp; ' + String.fromCharCode(0x25AA)+' &nbsp; Modified: '+ getDateFromEpochTime(t));
@@ -53,7 +62,11 @@ var FileTable = (function (_self) {
 
     }
 
-    function handleFileTableColumns(columns, acc, params) {
+    function handleFileTableColumns(columns, acc, params, isDetailPage) {
+
+        if (!isDetailPage) {
+            $('#file-list').addClass('bigtable');
+        }
         columns.splice(0, 0, {
             name: "x",
             title: "",
@@ -71,6 +84,7 @@ var FileTable = (function (_self) {
             processing: true,
             serverSide: true,
             columns: columns,
+            scrollX: !isDetailPage,
             order: [[ 1, "asc" ]],
             columnDefs: [
                 {
@@ -90,7 +104,9 @@ var FileTable = (function (_self) {
                         return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="'
                             + data
                             + '" onclick="closeFullScreen();" href="'
-                            + window.contextPath+'/files/'+acc+'/' +row.path + '">'
+                            + window.contextPath+'/files/'+acc+'/' +row.path
+                            + (params.key ? '?key='+params.key : '')
+                            + '">'
                             + data + '</a>';
                     }
                 }
@@ -99,6 +115,13 @@ var FileTable = (function (_self) {
                 url: '/biostudies/api/v1/filelist',
                 type: 'post',
                 data: function (dtData) {
+                    // add file search filter
+                    if (firstRender && params['fs']) {
+                        $('#all-files-expander').click();
+                        dtData.search.value = params.fs;
+                        firstRender = false;
+                    }
+
                     return $.extend($.extend(dtData, {acc: acc}), params)
                 },
                 complete: function (data) {
@@ -134,6 +157,8 @@ var FileTable = (function (_self) {
             });
             // TODO: enable select on tr click
             updateSelectedFiles();
+            //if (params.fs) filesTable.search(params.fs).draw();
+
         });
 
     }
@@ -158,7 +183,7 @@ var FileTable = (function (_self) {
     }
 
 
-    function handleFileDownloadSelection() {
+    function handleFileDownloadSelection(key) {
 
         // add select all checkboz
         $(filesTable.columns(0).header()).html('<input id="select-all-files"  type="checkbox"/>');
@@ -192,6 +217,9 @@ var FileTable = (function (_self) {
             $(selectedFiles).each( function(i,v) {
                 html += '<input type="hidden" name="files" value="'+v+'"/>'
             });
+            if (key) {
+                html += '<input type="hidden" name="key" value="'+key+'"/>' ;
+            }
             html += '</form>';
             var submissionForm = $(html);
             $('body').append(submissionForm);
@@ -210,20 +238,6 @@ var FileTable = (function (_self) {
 
         $('#select-all-files').prop('checked', $('.select-checkbox input:checked').length == $('.select-checkbox input').length );
 
-    }
-
-
-    function downloadFiles(files) {
-        var html = '<form method="POST" target="_blank" action="'
-            + window.contextPath + "/files/"
-            + $('#accession').text() + '/zip">';
-        $(files).each( function(i,v) {
-            html += '<input type="hidden" name="files" value="'+v+'"/>'
-        });
-        html += '</form>';
-        var submissionForm = $(html);
-        $('body').append(submissionForm);
-        //$(submissionForm).submit();
     }
 
     function handleThumbnails() {

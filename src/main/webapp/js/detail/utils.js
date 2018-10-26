@@ -12,7 +12,11 @@ String.format = function() {
     }
 
     return s;
-}
+};
+
+String.prototype.replaceAll = function(s, r) {
+    return this.split(s).join(r);
+};
 
 $.fn.groupBy = function(fn) {
     var arr = $(this),grouped = {};
@@ -25,10 +29,10 @@ $.fn.groupBy = function(fn) {
     });
 
     return grouped;
-}
+};
 
 function accToLink(acc) {
-    return acc.replace('/','').replace(' ','');
+    return acc.replaceAll('/','').replaceAll(' ','');
 }
 
 

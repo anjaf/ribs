@@ -1,5 +1,4 @@
 // create links for sample number
-
 $(Metadata.sectionTables).each(function () {
     //debugger
     var sampleColumn =  this.columns(function(i,d,n){ return $(n).text()=='No. of Samples' });
@@ -42,3 +41,10 @@ if ($minseqTitleDiv.text().trim().toLowerCase()=='minseq score') {
 }
 
 
+// add icon for files
+var newIcon = $('<span class="fa-icon" title="Click to expand"><i class="fa fa-external-link-alt"></i></span>')
+    .css({'float':'right', 'padding-left': '3px', 'cursor': 'pointer'})
+    .click(function() {
+        window.open( contextPath + (project? '/'+project:'')+'/studies/'+ $('#accession').text() + '/files' );
+    });
+$('#all-files-expander').before(newIcon);
