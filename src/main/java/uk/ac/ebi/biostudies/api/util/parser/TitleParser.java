@@ -24,14 +24,14 @@ public class TitleParser extends AbstractParser  {
                     .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
                     .findFirst().get().get("value").textValue().trim();
         } catch (Exception ex1) {
-            LOGGER.debug( "Title not found. Trying submission title for " + accession);
+            //LOGGER.debug( "Title not found. Trying submission title for " + accession);
             try {
                 title = StreamSupport.stream(submission.get("attributes").spliterator(), false)
                         .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
                         .map(jsonNode -> jsonNode.findValue("value").asText().trim())
                         .collect(Collectors.joining(","));//get().get("value").textValue().trim();
             } catch ( Exception ex2) {
-                LOGGER.error("Title not found for " + submission.toString().substring(0,100));
+                //LOGGER.error("Title not found for " + submission.toString().substring(0,100));
             }
         }
         if(title.isEmpty())
