@@ -2,6 +2,7 @@ package uk.ac.ebi.biostudies.api.util.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.ReadContext;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.ebi.biostudies.api.util.Constants;
@@ -20,7 +21,7 @@ public class SimpleFacetParser extends AbstractParser {
     public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
         Object result= NA;
         try {
-            String title = fieldMetadataNode.get(Constants.Fields.TITLE).asText();
+            String title = StringUtils.replace(fieldMetadataNode.get(Constants.Fields.TITLE).asText(), "/", "\\/");
             String newJPath = String.format(jpath, title);
             List resultData = jsonPathContext.read(newJPath);
             switch (fieldMetadataNode.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText()) {
