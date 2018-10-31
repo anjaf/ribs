@@ -15,13 +15,13 @@ import static uk.ac.ebi.biostudies.api.util.Constants.NA;
 public class SimpleFacetParser extends AbstractParser {
     private final static Logger LOGGER = LogManager.getLogger(JPathSimpleParser.class.getName());
 
-    private static String jpath = "$.section.attributes[?(@.name==\"$title\")].value";
+    private static String jpath = "$.section.attributes[?(@.name=~ /%s/i)].value";
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
         Object result= NA;
         try {
             String title = fieldMetadataNode.get(Constants.Fields.TITLE).asText();
-            String newJPath = jpath.replaceAll("$title", title);
+            String newJPath = String.format(jpath, title);
             List resultData = jsonPathContext.read(newJPath);
             switch (fieldMetadataNode.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText()) {
                 case Constants.IndexEntryAttributes.FieldTypeValues.FACET:
