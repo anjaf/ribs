@@ -103,7 +103,7 @@ var FileTable = (function (_self) {
                     render: function (data, type, row) {
                         return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="'
                             + data
-                            + '" onclick="closeFullScreen();" href="'
+                            + '" href="'
                             + window.contextPath+'/files/'+acc+'/' +row.path
                             + (params.key ? '?key='+params.key : '')
                             + '">'
@@ -157,6 +157,7 @@ var FileTable = (function (_self) {
             });
             // TODO: enable select on tr click
             updateSelectedFiles();
+            handleThumbnails();
             //if (params.fs) filesTable.search(params.fs).draw();
 
         });
@@ -250,14 +251,14 @@ var FileTable = (function (_self) {
                 $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'
                     +window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'"><i class="far fa-file-image"></i></a>')
             }
-        })
+        });
 
         $(filesTable.column(1).nodes()).hover( function() {
             var $tn = $(this).find('.thumbnail-icon');
             if (!$tn.length) return;
             $('#thumbnail').html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>')
             $('#thumbnail').css('top',$tn.offset().top - 10);
-            $('#thumbnail').css('left',$('#file-list-container').offset().left - $('#thumbnail').width() - 10);
+            $('#thumbnail').css('left',$tn.parent().offset().left - $('#thumbnail').width() - 10);
             $('#thumbnail').show();
             var img = $("<img />").attr('src', $tn.data('thumbnail'))
                 .on('load', function() {
@@ -266,7 +267,7 @@ var FileTable = (function (_self) {
                     } else {
                         $('#thumbnail').html('').append(img)
                         $('#thumbnail').css('top',$tn.offset().top - 10);
-                        $('#thumbnail').css('left',$('#file-list-container').offset().left - $('#thumbnail').width() - 10);
+                        $('#thumbnail').css('left',$tn.parent().offset().left - $('#thumbnail').width() - 10);
                         $('#thumbnail').show();
                     }
                 });
