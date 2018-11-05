@@ -73,6 +73,13 @@
             as leukqwertymia. A question mark character will match any single characters, e.g., m?n will match both
             man and men. Queries that include wildcards are not expanded.</p>
 
+        <p>BioStudies search supports regular expression searched, e.g., searching for /[dl]ouse/ gives results for both
+            louse and douse). As a results, the some characters (more specifically <span class="mono">+ - && || ! ( )
+                { } [ ] ^ " ~ * ? : \ /</span> ) are part of the query syntax and need to be either
+            escaped or quoted if entered as a part of your query, e.g., query for eeg/fmri should be entered as either
+            eeg\/fmri or "eeg/fmri". Similarly,queries for a DOI should be entered in double quotea as well, e.g.,
+            "10.1371/journal.pone.0127346".
+        </p>
 
         <h3 id="download">How to download public studies</h3>
         <p> In addition to file download from the BioStudies website, we also support FTP and Aspera based downloads. In
