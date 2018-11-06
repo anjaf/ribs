@@ -267,9 +267,9 @@ var Metadata = (function (_self) {
             $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px').css('top', '45%');
             $('.fullscreen').css("top", ( $(window).height() - $(this).parent().parent().height() ) / 3  + "px");
             $('.fullscreen').css("left", ( $(window).width() - $(this).parent().parent().width() ) / 2 + "px");
-            if ($(this).attr('id')=='all-files-expander')   {
+            /*if ($(this).attr('id')=='all-files-expander')   {
                 clearFileFilter();
-            }
+            }*/
         });
 
         $('.has-child-section :not(visible) > section > .toggle-tables').click(); // expand tables for hidden sections

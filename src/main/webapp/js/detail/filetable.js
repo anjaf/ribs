@@ -196,7 +196,11 @@ var FileTable = (function (_self) {
                         start: 0
                     }),
                     function (response) {
-                        selectedFiles = $.uniqueSort($.merge(selectedFiles, $.map(response.data,function(v){ return v.path}) ));
+                        var filtered = [];
+                        for (var i=0; i< response.data.length; i++) {
+                            filtered.push(response.data[i].path);
+                        }
+                        selectedFiles = $.uniqueSort($.merge(selectedFiles, filtered ));
                         $('.select-checkbox').parent().addClass('selected');
                         $('.select-checkbox input').prop('checked',true);
                         updateSelectedFiles();
