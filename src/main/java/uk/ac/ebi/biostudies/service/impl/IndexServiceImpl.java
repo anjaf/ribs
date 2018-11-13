@@ -242,7 +242,7 @@ public class IndexServiceImpl implements IndexService {
                     for (JsonNode fieldMetadataNode : projectSpecificFields) {//parsing project's facet and fields
                         abstractParser = findParserAndParse(fieldMetadataNode, valueMap, accession, jsonPathContext);//there exist a specific parser for this field
                         if (abstractParser == null) {
-                            if (fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH) && fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase("facet"))//general facets with json path
+                            if (fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH))//general facets with json path
                                 abstractParser = parserManager.getParserPool().get("generalFacetWithPathParser");
                             else if (fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase("facet"))//general facets with common json path
                                 abstractParser = parserManager.getParserPool().get("generalFacetWithoutPathParser");

@@ -14,8 +14,10 @@
   "arrayexpress":
   [
     {"name":"array", "title":"Array", "fieldType":"untokenized_string", "retrieved":false, "expanded":false, "sortable":false, "analyzer":"AttributeFieldAnalyzer"},
-    {"name":"experimental_factor", "title":"Experimental Factor", "jsonPath":"$..subsections[?(@.type==\"Experimental Factors\")].subsections..attributes..name", "fieldType":"tokenized_string", "multiValued":true},
-    {"name":"experimental_factor_value", "title":"Experimental Factor Value", "jsonPath":"$..subsections[?(@.type==\"Experimental Factors\")].subsections..attributes..value", "fieldType":"tokenized_string", "multiValued":true},
+    {"name":"experimental_factor", "title":"Experimental Factor", "jsonPath":"$..subsections[?(@.type==\"Experimental Factors\")]..attributes..name", "fieldType":"tokenized_string", "multiValued":true},
+    {"name":"experimental_factor_value", "title":"Experimental Factor Value", "jsonPath":"$..subsections[?(@.type==\"Experimental Factors\")]..attributes..value", "fieldType":"tokenized_string", "multiValued":true},
+    {"name":"source_characteristics", "title":"Source Characteristics", "jsonPath":"$..subsections[?(@.type==\"Source Characteristics\")]..attributes..name", "fieldType":"tokenized_string", "multiValued":true},
+    {"name":"source_characteristics_value", "title":"Source Characteristics Value", "jsonPath":"$..subsections[?(@.type==\"Source Characteristics\")]..attributes..value", "fieldType":"tokenized_string", "multiValued":true},
     {"name":"minseq_score", "title":"MinSeq Score", "fieldType":"long", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.value==\"*\")].length()", "retrieved":true, "expanded":false, "sortable":true},
     {"name":"facet.study_type", "title":"Study type", "fieldType":"facet", "multiValued":true, "naVisible":false},
     {"name":"facet.experimental_design", "title":"Experimental Design", "fieldType":"facet", "multiValued":true, "naVisible":false},
