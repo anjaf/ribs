@@ -56,6 +56,9 @@ var Metadata = (function (_self) {
         return linksTable;
     };
 
+    _self.setExpansionSource = function (s) {
+        expansionSource = s;
+    };
 
     function postRender(params, data) {
         FileTable.render(data.accno, params, true);

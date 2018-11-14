@@ -173,7 +173,8 @@ var FileTable = (function (_self) {
         });
         // handle clicks on file filters in section
         $("a.section-button[data-files-id]").click(function () {
-            expansionSource = '' + $(this).data('files-id');
+            var expansionSource = '' + $(this).data('files-id');
+            Metadata.setExpansionSource(expansionSource);
             //clearFileFilter();
             $('#all-files-expander').click();
             filesTable.column(':contains(Section)').search(expansionSource);
