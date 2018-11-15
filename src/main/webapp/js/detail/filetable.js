@@ -10,13 +10,13 @@ var FileTable = (function (_self) {
         $.ajax({url: window.contextPath+"/api/v1/info/"+acc,
             data:params,
             success: function(response){
-                if (!response.files || response.files==0) {
-                    $('#file-list-container').parent().remove();
-                    return;
-                }
                 if (isDetailPage) {
                     handleSecretKey(response.seckey);
                     handleModificationDate(response.modified);
+                }
+                if (!response.files || response.files==0) {
+                    $('#file-list-container').parent().remove();
+                    return;
                 }
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
                 handleFileDownloadSelection(params.key);
