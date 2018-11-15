@@ -17,10 +17,9 @@
 
 package uk.ac.ebi.biostudies.file;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.IndexConfig;
@@ -37,13 +36,13 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+
 import java.util.List;
 
 @Service
 public class FileDownloadService extends BaseDownloadServlet{
 
-    private transient final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LogManager.getLogger(FileDownloadService.class);
 
     @Autowired
     IndexConfig indexConfig;
@@ -70,7 +69,7 @@ public class FileDownloadService extends BaseDownloadServlet{
                             , StandardCharsets.UTF_8.toString());
             }
 
-            logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
+            this.logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
 
             if (name.equalsIgnoreCase(accession+".json") || name.equalsIgnoreCase(accession+".xml") || name.equalsIgnoreCase(accession+".pagetab.tsv") ) {
                 file = new RegularDownloadFile(new File(indexConfig.getFileRootDir(), relativePath + "/" + name));
@@ -80,14 +79,14 @@ public class FileDownloadService extends BaseDownloadServlet{
                 //TODO: Remove this bad^∞ hack
                 //Hack start: override relative path if fileis not found
                 if (!downloadFile.exists()) {
-                    logger.debug( "{0} not found ", downloadFile.getAbsolutePath());
+                    this.logger.error( "{} not found ", downloadFile.getAbsolutePath());
                     downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
-                    logger.debug( "Trying ", downloadFile.getAbsolutePath());
+                    this.logger.error( "Trying ", downloadFile.getAbsolutePath());
                 }
                 if (!downloadFile.exists()) {
-                    logger.debug( "{0} not found ", downloadFile.getAbsolutePath());
+                    this.logger.error( "{} not found ", downloadFile.getAbsolutePath());
                     downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/u/" +relativePath+"/"+ name);
-                    logger.debug( "Trying ", downloadFile.getAbsolutePath());
+                    this.logger.error( "Trying {}", downloadFile.getAbsolutePath());
                 }
                 //Hack end
                 if (downloadFile.exists()) {

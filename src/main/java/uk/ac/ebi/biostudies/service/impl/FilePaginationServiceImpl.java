@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -23,6 +24,7 @@ import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.auth.User;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
+import uk.ac.ebi.biostudies.controller.Index;
 import uk.ac.ebi.biostudies.controller.Study;
 import uk.ac.ebi.biostudies.service.FilePaginationService;
 import uk.ac.ebi.biostudies.service.SearchService;
@@ -199,8 +201,10 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         User currentUser = Session.getCurrentUser();
         if( !(doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public ")
                  || (currentUser!=null && currentUser.isSuperUser())) {
-
-            studyInfo.put(Constants.Fields.SECRET_KEY, doc.getField(Constants.Fields.SECRET_KEY).stringValue());
+            IndexableField key = doc.getField(Constants.Fields.SECRET_KEY);
+            if (key!=null) {
+                studyInfo.put(Constants.Fields.SECRET_KEY, key.stringValue());
+            }
         }
 
     }
