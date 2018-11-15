@@ -63,6 +63,7 @@ public abstract class BaseDownloadServlet {
             , HttpServletResponse response
     ) throws ServletException, IOException {
 
+        request.setCharacterEncoding("UTF-8");
         IDownloadFile downloadFile = null;
         try {
             String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"(/[a-zA-Z])?/files/"       ,"").split("/");
