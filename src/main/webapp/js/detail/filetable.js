@@ -82,7 +82,7 @@ var FileTable = (function (_self) {
         var sectionColumn = columns.filter(function(c) {return c.name=='Section';});
         if (sectionColumn.length) {
             sectionColumn[0].render = function (data, type, row) {
-                return '<a href="#'+data+'">'+$('#'+data+' .section-name').text().trim()+'</a>';
+                return '<a href="#'+data+'">'+$('#'+data+' .section-name').first().text().trim()+'</a>';
             }
         }
 
