@@ -190,12 +190,6 @@ var Metadata = (function (_self) {
         $(".indented-section").prepend('<span class="toggle-section fa-icon" title="Click to expand"><i class="fa-fw fas fa-caret-right"></i></span>')
         $(".indented-section").next().hide();
 
-        $(".indented-section").each(function (node) {
-            if ($(this).next().children().length==0 ) {
-                $('.toggle-section', this).css('visibility','hidden');
-            }
-        });
-
         $('.toggle-section').parent().css('cursor', 'pointer');
         $('.toggle-section').parent().on('click', function () {
             var indented_section = $(this).parent().children().first().next();
@@ -208,7 +202,16 @@ var Metadata = (function (_self) {
                 indented_section.hide();
                 //redrawTables(true);
             }
-        })
+        });
+
+        $(".indented-section").each(function (node) {
+            if ($(this).next().children().length==0 ) {
+                $('.toggle-section', this).css('visibility','hidden');
+                $('.toggle-section', this).parent().css('cursor','inherit');
+            }
+        });
+
+
         // limit section title clicks
         $(".section-title-bar").click(function(e) {
             e.stopPropagation();

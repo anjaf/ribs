@@ -78,6 +78,13 @@ var FileTable = (function (_self) {
                 return '<div class="file-check-box"><input type="checkbox" data-name="' + row.path + '"></input></div>';;
             }
         });
+        // add section rendering
+        var sectionColumn = columns.filter(function(c) {return c.name=='Section';});
+        if (sectionColumn.length) {
+            sectionColumn[0].render = function (data, type, row) {
+                return '<a href="#'+data+'">'+$('#'+data+' .section-name').text().trim()+'</a>';
+            }
+        }
 
         filesTable = $('#file-list').DataTable({
             lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
