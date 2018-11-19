@@ -1,7 +1,8 @@
 $(function() {
     if (project=='BioImages') {
         $('#local-title').html('<h1><img style="width:200px" src="'+contextPath+'/files/BioImages/3/logo.png"></img></h1>');
-        $('.menu.float-left li').slice(0,2).hide();
+        $('.menu.float-left li').slice(0,3).hide();
+        $('.menu.float-left li a').last().attr('target','_blank');
         $('#project-banner').hide();
     }
     $('#login-button').click(function () {
@@ -145,8 +146,13 @@ function formatNumber(s) {
 }
 
 function updateMenuForProject(data) {
-    $('#masthead nav ul.float-left li').removeClass('active');
-    $('#masthead nav ul.float-left li').eq(1).after('<li class="active"><a href="'
+    var helpLink = $('#masthead nav ul.float-left li.active a');
+    var activeClass = '';
+    if (helpLink.attr('href')!='help') {
+        $('#masthead nav ul.float-left li').removeClass('active');
+        activeClass='active';
+    }
+    $('#masthead nav ul.float-left li').eq(1).after('<li class="'+activeClass+'"><a href="'
             + (contextPath + '/'+ data.accno + '/' + 'studies')
             + '" title="'+ data.title
             +'">'+ data.title +'</a></li>')

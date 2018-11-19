@@ -122,7 +122,7 @@
                         <li class="${pagename.equals('/jsp/index.jsp')? 'active':''}" title="BioStudies v1.2.<spring:eval expression="@gitConfig.gitCommitIdAbbrev"/>"><a href="${contextPath}/">Home</a></li>
                         <li class="${pagename.equals('/jsp/search.jsp')? 'active':''}"><a href="${contextPath}/studies/" title="Browse BioStudies">Browse</a></li>
                         <li class="${pagename.equals('/jsp/submit.jsp')? 'active':''}"><a href="${contextPath}/submit" title="Submit a study">Submit</a></li>
-                        <li class="${pagename.equals('/jsp/help.jsp')? 'active':''}"><a href="${contextPath}/help" title="Help">Help</a></li>
+                        <li class="${pagename.equals('/jsp/help.jsp')? 'active':''}"><a href="help" title="Help">Help</a></li>
                         <li class="${pagename.equals('/jsp/about.jsp')? 'active':''}"><a href="${contextPath}/about" title="About BioStudies">About BioStudies</a></li>
                     </ul>
                     <ul class="dropdown menu float-right" data-description="tasks">

@@ -50,8 +50,9 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/about").setViewName("about");
         registry.addViewController("/about/*").setViewName("about");
         registry.addViewController("/help").setViewName("help");
-//        registry.addViewController("/datatable").setViewName("datatable");
-        registry.addViewController("/help/*").setViewName("help");
+        registry.addViewController("/help/").setViewName("help");
+        registry.addViewController("/{project:.+}/help").setViewName("help");
+        registry.addViewController("/{project:.+}/help/").setViewName("help");
         registry.addViewController("/submit").setViewName("submit");
         registry.addViewController("/submit/*").setViewName("submit");
         registry.addViewController("/zip").setViewName("zip");
@@ -78,6 +79,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/help/**").addResourceLocations("/help/").setCachePeriod(6000);
         registry.addResourceHandler("/js/**").addResourceLocations("/js/").setCachePeriod(6000);
         registry.addResourceHandler("/css/**").addResourceLocations("/css/").setCachePeriod(6000);
         registry.addResourceHandler("/images/**").addResourceLocations("/images/").setCachePeriod(6000);
