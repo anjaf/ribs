@@ -18,27 +18,28 @@
 package uk.ac.ebi.biostudies.file.download;
 
 import java.io.*;
+import java.nio.file.Path;
 
 public final class RegularDownloadFile implements IDownloadFile {
-    private final File file;
+    private final Path path;
     private String downloadName;
 
-    public RegularDownloadFile(File file) {
-        if (null == file) {
+    public RegularDownloadFile(Path path) {
+        if (null == path) {
             throw new IllegalArgumentException("File cannot be null");
         }
-        this.file = file;
+        this.path = path;
     }
 
-    public RegularDownloadFile(File file, String downloadName) {
-        if (null == file) {
+    public RegularDownloadFile(Path path, String downloadName) {
+        if (null == path) {
             throw new IllegalArgumentException("File cannot be null");
         }
-        this.file = file;
+        this.path = path;
         this.downloadName = downloadName;
     }
     private File getFile() {
-        return this.file;
+        return this.path.toFile();
     }
 
     public String getName() {
@@ -46,7 +47,7 @@ public final class RegularDownloadFile implements IDownloadFile {
     }
 
     public String getPath() {
-        return getFile().getPath();
+        return path.toString();
     }
 
     public long getLength() {

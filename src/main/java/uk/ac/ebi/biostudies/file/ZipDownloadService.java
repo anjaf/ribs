@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.net.URLEncoder;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
@@ -116,7 +117,7 @@ public class ZipDownloadService extends BaseDownloadServlet{
             path = (String) request.getAttribute("zipFile");
         }
         if (path==null) return null;
-        return (path!=null) ? new RegularDownloadFile(new File(path), accession+".zip") : null;
+        return (path!=null) ? new RegularDownloadFile(Paths.get(path), accession+".zip") : null;
     }
 
     @Override

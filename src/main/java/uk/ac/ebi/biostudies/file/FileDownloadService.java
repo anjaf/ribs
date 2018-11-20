@@ -30,10 +30,13 @@ import uk.ac.ebi.biostudies.file.download.RegularDownloadFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -72,25 +75,25 @@ public class FileDownloadService extends BaseDownloadServlet{
             this.logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
 
             if (name.equalsIgnoreCase(accession+".json") || name.equalsIgnoreCase(accession+".xml") || name.equalsIgnoreCase(accession+".pagetab.tsv") ) {
-                file = new RegularDownloadFile(new File(indexConfig.getFileRootDir(), relativePath + "/" + name));
+                file = new RegularDownloadFile(Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + name));
             } else {
-                File downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/" + name);
+                Path downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/" + name);
 
                 //TODO: Remove this bad^∞ hack
                 //Hack start: override relative path if fileis not found
-                if (!downloadFile.exists()) {
-                    this.logger.error( "{} not found ", downloadFile.getAbsolutePath());
-                    downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
-                    this.logger.error( "Trying ", downloadFile.getAbsolutePath());
+                if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
+                    this.logger.error( "{} not found ", downloadFile.toFile().getAbsolutePath());
+                    downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
+                    this.logger.error( "Trying ", downloadFile.toFile().getAbsolutePath());
                 }
-                if (!downloadFile.exists()) {
-                    this.logger.error( "{} not found ", downloadFile.getAbsolutePath());
-                    downloadFile = new File(indexConfig.getFileRootDir(), relativePath + "/Files/u/" +relativePath+"/"+ name);
-                    this.logger.error( "Trying {}", downloadFile.getAbsolutePath());
+                if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
+                    this.logger.error( "{} not found ", downloadFile.toFile().getAbsolutePath());
+                    downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" +relativePath+"/"+ name);
+                    this.logger.error( "Trying {}", downloadFile.toFile().getAbsolutePath());
                 }
                 //Hack end
-                if (downloadFile.exists()) {
-                    if (downloadFile.isDirectory()) {
+                if (Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
+                    if (Files.isDirectory(downloadFile)) {
                         String forwardedParams = String.format("?files=%s", URLEncoder.encode(name, "UTF-8"));
                         //TODO update the forward url
                         request.getRequestDispatcher("/servlets/download/zip/" + accession + forwardedParams).forward(request, response);
@@ -99,7 +102,7 @@ public class FileDownloadService extends BaseDownloadServlet{
                     file = new RegularDownloadFile(downloadFile);
 
                 } else {
-                    throw new DownloadServletException("Could not open " + downloadFile.getAbsolutePath());
+                    throw new DownloadServletException("Could not open " + downloadFile.toFile().getAbsolutePath());
                 }
             }
 
