@@ -58,7 +58,7 @@ public class TaxonomyManager {
 
         try {
             taxoDirectory = FSDirectory.open(new File(indexConfig.getFacetDirectory()).toPath());
-            taxonomyWriter = new DirectoryTaxonomyWriter(getTaxoDirectory(), IndexWriterConfig.OpenMode.CREATE);
+            taxonomyWriter = new DirectoryTaxonomyWriter(getTaxoDirectory(), IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             taxonomyReader = new DirectoryTaxonomyReader(taxoDirectory);
         } catch (IOException e) {
             logger.error("can not create taxonomy writer or reader", e);
