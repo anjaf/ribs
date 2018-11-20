@@ -175,6 +175,7 @@ public class IndexServiceImpl implements IndexService {
     public void clearIndex(boolean commit) throws IOException {
         indexManager.getIndexWriter().deleteAll();
         indexManager.getIndexWriter().forceMergeDeletes();
+        taxonomyManager.resetTaxonomyWriter();
         if(commit) {
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
@@ -313,7 +314,8 @@ public class IndexServiceImpl implements IndexService {
                             doc.add( new LongPoint(String.valueOf(field), (Long) valueMap.get(field)  ));
                             break;
                         case IndexEntryAttributes.FieldTypeValues.FACET:
-                            addFacet(String.valueOf(valueMap.get(field)), field, doc, curNode);
+                            addFacet(valueMap.containsKey(field) && valueMap.get(field)!=null ?
+                                    String.valueOf(valueMap.get(field)) : null, field, doc, curNode);
                     }
                 }catch(Exception ex){
                     logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(Fields.ACCESSION)), ex);

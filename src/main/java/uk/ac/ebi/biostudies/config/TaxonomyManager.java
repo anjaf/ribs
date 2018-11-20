@@ -90,6 +90,11 @@ public class TaxonomyManager {
         }
     }
 
+    public void resetTaxonomyWriter() throws IOException {
+        taxonomyWriter.commit();
+        taxonomyWriter.close();
+        taxonomyWriter = new DirectoryTaxonomyWriter(getTaxoDirectory(), IndexWriterConfig.OpenMode.CREATE);
+    }
 
     public TaxonomyReader getTaxonomyReader() {
         return taxonomyReader;
