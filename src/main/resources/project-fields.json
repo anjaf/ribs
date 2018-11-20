@@ -21,7 +21,9 @@
     {"name":"minseq_score", "title":"MinSeq Score", "fieldType":"long", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.value==\"*\")].length()", "retrieved":true, "expanded":false, "sortable":true},
     {"name":"facet.study_type", "title":"Study type", "fieldType":"facet", "multiValued":true, "naVisible":false},
     {"name":"facet.experimental_design", "title":"Experimental Design", "fieldType":"facet", "multiValued":true, "naVisible":false},
-    {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true, "naVisible":false}
+    {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true, "naVisible":false},
+    {"name":"facet.technology", "title":"Technology", "fieldType":"facet", "multiValued":true, "naVisible":false},
+    {"name":"facet.assay_by_molecule", "title":"Assay by Molecule", "fieldType":"facet", "multiValued":true, "naVisible":false}
   ],
   "europepmc": [
     {"name":"europepmc.facet.funding_agency", "title":"Funding Agency", "fieldType":"facet", "jsonPath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":true}
