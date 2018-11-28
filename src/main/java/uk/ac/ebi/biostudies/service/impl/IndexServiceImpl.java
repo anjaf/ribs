@@ -175,11 +175,11 @@ public class IndexServiceImpl implements IndexService {
     public void clearIndex(boolean commit) throws IOException {
         indexManager.getIndexWriter().deleteAll();
         indexManager.getIndexWriter().forceMergeDeletes();
-        taxonomyManager.resetTaxonomyWriter();
         if(commit) {
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
         }
+        taxonomyManager.resetTaxonomyWriter();
     }
 
     public synchronized String getCopiedSourceFile(String jsonFileName) throws IOException {

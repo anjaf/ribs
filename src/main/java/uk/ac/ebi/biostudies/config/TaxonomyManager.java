@@ -9,6 +9,7 @@ import org.apache.lucene.facet.taxonomy.TaxonomyWriter;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyReader;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,8 +92,12 @@ public class TaxonomyManager {
     }
 
     public void resetTaxonomyWriter() throws IOException {
-        taxonomyWriter.commit();
-        taxonomyWriter.close();
+        try {
+            taxonomyWriter.commit();
+            taxonomyWriter.close();
+        } catch (AlreadyClosedException ex) {
+            logger.error(ex);
+        }
         taxonomyWriter = new DirectoryTaxonomyWriter(getTaxoDirectory(), IndexWriterConfig.OpenMode.CREATE);
     }
 
