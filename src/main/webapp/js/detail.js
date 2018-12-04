@@ -846,7 +846,13 @@ function drawSubsections() {
             indented_section.hide();
             //redrawTables(true);
         }
-    })
+    });
+    $(".indented-section").each(function(node) {
+        if ($(this).next().children().length == 0) {
+            $('.toggle-section', this).css('visibility', 'hidden');
+            $('.toggle-section', this).parent().css('cursor', 'inherit');
+        }
+    });
     // limit section title clicks
     $(".section-title-bar").click(function(e) {
         e.stopPropagation();
