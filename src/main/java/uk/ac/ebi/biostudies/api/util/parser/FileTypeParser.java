@@ -2,11 +2,12 @@ package uk.ac.ebi.biostudies.api.util.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.ReadContext;
+import net.minidev.json.JSONArray;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.ebi.biostudies.api.util.Constants;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,10 +20,13 @@ public class FileTypeParser extends AbstractParser{
     public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
         String result=NA;
         try {
-            List<String> resultData = jsonPathContext.read(fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText());
+            JSONArray resultData =  jsonPathContext.read(fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText());
             result = resultData.stream()
-                    .map(s -> {
-                        if (s == null) return NA;
+                    .map(jnode -> {
+                        Map node = (Map)jnode;
+                        if (node==null) return NA;
+                        String s = (String)(node.containsKey("path") && node.get("path")!=null ? node.get("path"): node.get("name"));
+                        if ( StringUtils.isEmpty(s)) return NA;
                         int k = s.lastIndexOf(".");
                         return k >= 0 ? s.substring(s.lastIndexOf(".") + 1) : NA;
                     }).collect(Collectors.joining(Constants.Facets.DELIMITER));

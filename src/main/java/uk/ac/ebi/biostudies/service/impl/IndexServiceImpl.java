@@ -179,6 +179,7 @@ public class IndexServiceImpl implements IndexService {
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
         }
+        taxonomyManager.resetTaxonomyWriter();
     }
 
     public synchronized String getCopiedSourceFile(String jsonFileName) throws IOException {
@@ -313,7 +314,8 @@ public class IndexServiceImpl implements IndexService {
                             doc.add( new LongPoint(String.valueOf(field), (Long) valueMap.get(field)  ));
                             break;
                         case IndexEntryAttributes.FieldTypeValues.FACET:
-                            addFacet(String.valueOf(valueMap.get(field)), field, doc, curNode);
+                            addFacet(valueMap.containsKey(field) && valueMap.get(field)!=null ?
+                                    String.valueOf(valueMap.get(field)) : null, field, doc, curNode);
                     }
                 }catch(Exception ex){
                     logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(Fields.ACCESSION)), ex);
