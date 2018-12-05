@@ -139,6 +139,13 @@ var FileTable = (function (_self) {
                 if ( $.inArray(data.path, selectedFiles) !== -1 ) {
                     $(row).addClass('selected');
                 }
+            },
+            "infoCallback": function( settings, start, end, max, total, out ) {
+                btn = $('<span/>').html ('<a class="section-button" id="clear-file-filter"><span class="fa-layers fa-fw">'
+                    +'<i class="fas fa-filter"></i>'
+                    +'<span class="fa-layers-text" data-fa-transform="shrink-2 down-4 right-6">×</span>'
+                    +'</span> show all files');
+                return (total== max) ? out : out + btn.html();
             }
         }).on('xhr.dt', function (e, settings, json, xhr) {
             if (totalRows == -1) { //override totalFiles
@@ -162,6 +169,11 @@ var FileTable = (function (_self) {
                     $(this).attr('checked','checked');
                 }
             });
+
+            $('#clear-file-filter').on('click', function () {
+                FileTable.clearFileFilter();
+            });
+
             // TODO: enable select on tr click
             updateSelectedFiles();
             handleThumbnails();
