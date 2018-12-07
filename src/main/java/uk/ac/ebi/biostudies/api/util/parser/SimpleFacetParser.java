@@ -20,6 +20,7 @@ public class SimpleFacetParser extends AbstractParser {
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
         Object result= NA;
+        String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
         try {
             String title = StringUtils.replace(fieldMetadataNode.get(Constants.Fields.TITLE).asText(), "/", "\\/");
             String newJPath = String.format(jpath, title);
@@ -37,9 +38,9 @@ public class SimpleFacetParser extends AbstractParser {
             }
 
         } catch (Exception ex) {
-            LOGGER.debug("problem in parsing facet: {} in accession: {}", indexFieldKey, accession, ex);
+            LOGGER.debug("problem in parsing facet: {} in accession: {}", indexKey, accession, ex);
         }
-        valueMap.put(indexFieldKey, result);
+        valueMap.put(indexKey, result);
         return result.toString();
     }
 }

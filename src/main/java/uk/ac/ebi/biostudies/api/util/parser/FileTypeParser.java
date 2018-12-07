@@ -20,6 +20,7 @@ public class FileTypeParser extends AbstractParser{
     public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
         String result=NA;
         try {
+            String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
             JSONArray resultData =  jsonPathContext.read(fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText());
             result = resultData.stream()
                     .map(jnode -> {
@@ -30,7 +31,7 @@ public class FileTypeParser extends AbstractParser{
                         int k = s.lastIndexOf(".");
                         return k >= 0 ? s.substring(s.lastIndexOf(".") + 1) : NA;
                     }).collect(Collectors.joining(Constants.Facets.DELIMITER));
-            valueMap.put(getIndexFieldKey(), result);
+            valueMap.put(indexKey, result);
         }
         catch (Exception ex){
             LOGGER.error("problem in parsing FILE_TYPE in {}", accession, ex);

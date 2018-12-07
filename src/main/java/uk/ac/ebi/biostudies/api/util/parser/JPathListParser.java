@@ -18,6 +18,7 @@ public class JPathListParser extends AbstractParser{
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
         Object result= NA;
+        String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
         try {
             List resultData = jsonPathContext.read(fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText());
             switch (fieldMetadataNode.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText()) {
@@ -35,11 +36,11 @@ public class JPathListParser extends AbstractParser{
         } catch (Exception e) {
             if(valueMap.containsKey(Constants.Fields.TYPE) && valueMap.getOrDefault(Constants.Fields.TYPE, "").toString().equalsIgnoreCase("project"))
                 return "";
-            if(indexFieldKey.equalsIgnoreCase("author") || indexFieldKey.equalsIgnoreCase("orcid"))
+            if(indexKey.equalsIgnoreCase("author") || indexKey.equalsIgnoreCase("orcid"))
                 return "";
-            LOGGER.error("problem in parsing field:{} in {}", indexFieldKey, accession);
+            LOGGER.error("problem in parsing field:{} in {}", indexKey, accession);
         }
-        valueMap.put(indexFieldKey, result);
+        valueMap.put(indexKey, result);
         return result.toString();
     }
 }

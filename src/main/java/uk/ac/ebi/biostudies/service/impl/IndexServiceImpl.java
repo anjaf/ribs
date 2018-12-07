@@ -247,10 +247,9 @@ public class IndexServiceImpl implements IndexService {
                                 abstractParser = parserManager.getParserPool().get("generalFacetWithPathParser");
                             else if (fieldMetadataNode.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase("facet"))//general facets with common json path
                                 abstractParser = parserManager.getParserPool().get("generalFacetWithoutPathParser");
-                            if (abstractParser != null) {
-                                setProperties(abstractParser, fieldMetadataNode);//customize general parser for that specific facet with facet specific name
+
+                            if (abstractParser != null)
                                 abstractParser.parse(valueMap, json, accession, fieldMetadataNode, jsonPathContext);
-                            }
                         }
                     }
                 }
@@ -267,13 +266,6 @@ public class IndexServiceImpl implements IndexService {
             }catch (Exception ex){
                 logger.debug("problem in parser for parsing accession: {}!", accession, ex);
             }
-        }
-
-        private void setProperties(AbstractParser abstractParser, JsonNode fieldMetadataNode){
-            String name = fieldMetadataNode.get(IndexEntryAttributes.NAME).asText();
-            abstractParser.setIndexFieldKey(name);
-            abstractParser.setJsonFieldKey(name);
-            abstractParser.setToLowerCase(false);
         }
 
         private AbstractParser findParserAndParse(JsonNode fieldMetadataNode, Map<String, Object> valueMap, String accession, ReadContext jsonPathContext){

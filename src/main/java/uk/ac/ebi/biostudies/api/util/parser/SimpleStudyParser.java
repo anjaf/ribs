@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.ReadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.util.Map;
 

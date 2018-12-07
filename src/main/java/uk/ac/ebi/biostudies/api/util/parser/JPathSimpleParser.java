@@ -17,13 +17,14 @@ public class JPathSimpleParser extends AbstractParser{
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
         String result= NA;
+        String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
         try {
             String resultData = jsonPathContext.read(fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText(), String.class);
             result = toLowerCase?resultData.toLowerCase():resultData;
         }catch (Exception ex){
             LOGGER.error("problem in parsing accession:{} field:{}", accession, getJsonFieldKey(), ex);
         }
-        valueMap.put(indexFieldKey, result);
+        valueMap.put(indexKey, result);
         return result;
     }
 }

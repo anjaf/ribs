@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.ReadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ public class TitleParser extends AbstractParser  {
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
         String title = "";
+        String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
 
         try {
             title = StreamSupport.stream(submission.get("section").get("attributes").spliterator(), false)
@@ -36,7 +38,7 @@ public class TitleParser extends AbstractParser  {
         }
         if(title.isEmpty())
             LOGGER.error("title is empty accession: {}", accession);
-        valueMap.put(indexFieldKey, title);
+        valueMap.put(indexKey, title);
         return title;
 
     }
