@@ -209,7 +209,11 @@ var FileTable = (function (_self) {
         // add select all checkboz
         $(filesTable.columns(0).header()).html('<input id="select-all-files"  type="checkbox"/>');
         $('#select-all-files').on('click', function () {
+            $('body').css('cursor', 'progress');
+            $('#select-all-files').css('cursor', 'progress');
             if ($(this).is(':checked')) {
+                $('.select-checkbox').parent().addClass('selected');
+                $('.select-checkbox input').prop('checked',true);
                 $.post('/biostudies/api/v1/filelist', $.extend(true, {}, filesTable.ajax.params(), {
                         length: -1,
                         metadata: false,
@@ -221,8 +225,6 @@ var FileTable = (function (_self) {
                             filtered.push(response.data[i].path);
                         }
                         selectedFiles = $.uniqueSort($.merge(selectedFiles, filtered ));
-                        $('.select-checkbox').parent().addClass('selected');
-                        $('.select-checkbox input').prop('checked',true);
                         updateSelectedFiles();
                     }
                 );
@@ -262,7 +264,8 @@ var FileTable = (function (_self) {
         }
 
         $('#select-all-files').prop('checked', $('.select-checkbox input:checked').length == $('.select-checkbox input').length );
-
+        $('body').css('cursor', 'default');
+        $('#select-all-files').css('cursor', 'default');
     }
 
     function handleThumbnails() {
