@@ -211,6 +211,7 @@ var FileTable = (function (_self) {
         $('#select-all-files').on('click', function () {
             $('body').css('cursor', 'progress');
             $('#select-all-files').css('cursor', 'progress');
+            $('#file-list_wrapper').css('pointer-events','none');
             if ($(this).is(':checked')) {
                 $('.select-checkbox').parent().addClass('selected');
                 $('.select-checkbox input').prop('checked',true);
@@ -232,6 +233,7 @@ var FileTable = (function (_self) {
                 selectedFiles=[];
                 $('.select-checkbox').parent().removeClass('selected');
                 $('.select-checkbox input').prop('checked',false);
+                $('#file-list_wrapper').css('pointer-events','auto');
                 updateSelectedFiles();
             }
         });
@@ -266,6 +268,7 @@ var FileTable = (function (_self) {
         $('#select-all-files').prop('checked', $('.select-checkbox input:checked').length == $('.select-checkbox input').length );
         $('body').css('cursor', 'default');
         $('#select-all-files').css('cursor', 'default');
+        $('#file-list_wrapper').css('pointer-events','auto');
     }
 
     function handleThumbnails() {
