@@ -8,7 +8,11 @@ String.format = function() {
     }
 
     return s;
-}
+};
+
+String.prototype.replaceAll = function(src, dst) {
+    return this.replace(new RegExp(src, 'g'), dst);
+};
 
 $.fn.groupBy = function(fn) {
     var arr = $(this),grouped = {};
@@ -1121,6 +1125,13 @@ function handleAnchors() {
         $('#expand-right-column').click()
     }
 
+    //encode anchors in filenames
+    $(filesTable.column(1).nodes()).each( function(){
+        $('a[href]',this).each( function() {
+            $(this).attr('href', $(this).attr('href').replaceAll('#','%23') );
+        })
+    });
+
 }
 
 function handleFileDownloadSelection() {
@@ -1208,7 +1219,7 @@ function clearLinkFilter() {
 
 function handleThumbnails() {
     $(filesTable.column(1).nodes()).each(function () {
-        var path = $('input',$(this).prev()).data('name');
+        var path = $('input',$(this).prev()).data('name').replaceAll('#','%23');
         $('a',this).addClass('overflow-name-column');
         $('a',this).attr('title',$(this).text());
         if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
