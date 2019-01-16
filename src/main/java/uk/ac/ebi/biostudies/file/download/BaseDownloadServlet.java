@@ -69,7 +69,8 @@ public abstract class BaseDownloadServlet {
             String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"(/[a-zA-Z])?/files/"       ,"").split("/");
             String accession = requestArgs[0];
 
-            if(!searchService.isAccessible(accession, seckey)) {
+            accession = searchService.getAccessionIfAccessible(accession, seckey);
+            if(accession==null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }

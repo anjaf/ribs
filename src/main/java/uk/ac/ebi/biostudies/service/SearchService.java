@@ -20,8 +20,8 @@ public interface SearchService {
     String getKeywords(String query, String field, Integer limit);
     String getEfoTree(String query);
     String getFieldStats() throws Exception;
-    boolean isAccessible(String accession);
-    boolean isAccessible(String accession, String seckey);
+    String getAccessionIfAccessible(String accession);
+    String getAccessionIfAccessible(String accession, String seckey);
     InputStreamResource getStudyAsStream(String accession) throws IOException;
     ObjectNode getSimilarStudies(String accession) throws Exception;
     Document getStudyAsLuceneDocument(String accession);

@@ -31,7 +31,8 @@ public class Study {
 
     @RequestMapping(value = "/studies/{accession:.+}", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
     public ResponseEntity<String> getStudy(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
-        if(!searchService.isAccessible(accession, seckey)) {
+        accession = searchService.getAccessionIfAccessible(accession, seckey);
+        if(accession==null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
         }
@@ -49,7 +50,8 @@ public class Study {
     @RequestMapping(value = "/studies/{accession:.+}/similar", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
     public ResponseEntity<String> getSimilarStudies(@PathVariable("accession") String accession)  {
         try {
-            if(searchService.isAccessible(accession)) {
+            accession = searchService.getAccessionIfAccessible(accession);
+            if(accession!=null) {
                 ResponseEntity result =  new ResponseEntity(searchService.getSimilarStudies(accession.replace("..","")), HttpStatus.OK);
                 return result;
             }
@@ -65,7 +67,8 @@ public class Study {
     public ResponseEntity<String> getSecretKey(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
         String securityKey="{}";
         try {
-            if(searchService.isAccessible(accession, seckey)) {
+            accession = searchService.getAccessionIfAccessible(accession, seckey);
+            if(accession!=null) {
                 Document document =searchService.getStudyAsLuceneDocument(accession);
                 if (document!=null && !document.get(Constants.Fields.ACCESS).toLowerCase().contains("public")) {
                     securityKey = "{\"key\":\""+document.get(Constants.Fields.SECRET_KEY)+"\"}";
