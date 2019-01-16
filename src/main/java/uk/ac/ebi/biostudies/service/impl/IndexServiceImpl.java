@@ -231,8 +231,10 @@ public class IndexServiceImpl implements IndexService {
                 for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(PUBLIC)){//parsing common "public" facet and fields
                     findParserAndParse(fieldMetadataNode, valueMap, accession, jsonPathContext);
                 }
-                if(valueMap.getOrDefault(Fields.TYPE,"").toString().equalsIgnoreCase("project"))//projects does not need more parsing
+                //projects do not need more parsing
+                if(valueMap.getOrDefault(Fields.TYPE,"").toString().equalsIgnoreCase("project"))
                 {
+                    addProjectToHierarchy(valueMap, accession);
                     updateDocument(valueMap);
                     return;
                 }
@@ -268,6 +270,15 @@ public class IndexServiceImpl implements IndexService {
             }
         }
 
+        private void addProjectToHierarchy(Map<String, Object> valueMap, String accession) {
+            Object parent =valueMap.getOrDefault (Facets.PROJECT, null);
+            if (parent==null || StringUtils.isEmpty(parent.toString())) {
+                indexManager.unsetProjectParent(accession);
+            } else {
+                indexManager.setProjectParent(accession,parent.toString());
+            }
+        }
+
         private AbstractParser findParserAndParse(JsonNode fieldMetadataNode, Map<String, Object> valueMap, String accession, ReadContext jsonPathContext){
             AbstractParser abstrctParser = parserManager.getParserPool().get(fieldMetadataNode.get("name").asText());
             if(abstrctParser!=null)
@@ -281,6 +292,7 @@ public class IndexServiceImpl implements IndexService {
             //TODO: replace by classes if possible
             String value;
             String prjName = (String)valueMap.get(Facets.PROJECT);
+            updateProjectParents(valueMap);
             addFileAttributes(doc, (Set<String>) valueMap.get(Constants.File.FILE_ATTS));
             for (String field: indexManager.getProjectRelatedFields(prjName.toLowerCase())) {
                 JsonNode curNode = indexManager.getAllValidFields().get(field);
@@ -319,6 +331,20 @@ public class IndexServiceImpl implements IndexService {
             Document facetedDocument = taxonomyManager.getFacetsConfig().build(taxonomyManager.getTaxonomyWriter() ,doc);
             writer.updateDocument(new Term(Fields.ID, valueMap.get(Fields.ACCESSION).toString()), facetedDocument);
 
+        }
+
+        private void updateProjectParents(Map<String, Object> valueMap) {
+            String project = valueMap.getOrDefault (Facets.PROJECT, "").toString();
+            if (StringUtils.isEmpty(project)) return;
+            Map<String, String> projectParentMap = indexManager.getProjectParentMap();
+            List<String> parents = new ArrayList<>();
+            parents.add(project);
+            while (projectParentMap.containsKey(project)) {
+                String parent = projectParentMap.get(project);
+                parents.add(parent);
+                project = parent;
+            }
+            valueMap.put(Facets.PROJECT, StringUtils.join(parents,Facets.DELIMITER));
         }
 
         private void addFileAttributes(Document doc, Set<String> columnAtts){
