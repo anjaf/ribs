@@ -37,7 +37,6 @@ public class Thumbnail {
      * TODO UI should pass correct related path to the server, in the previous version It calculated from xml sax transformations but in current version ui has this data in json
      * @param response
      * @param accession
-     * @param name
      */
     @RequestMapping(value = "/{accession}/**", method = RequestMethod.GET)
     public void getThumbnail(HttpServletResponse response, HttpServletRequest request, @PathVariable String accession) {
@@ -48,7 +47,8 @@ public class Thumbnail {
             return;
 
         try {//Maybe I need to apply some modification to change accession to relative path
-            if(!searchService.isAccessible(accession)){
+            accession = searchService.getAccessionIfAccessible(accession);
+            if(accession==null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }

@@ -201,22 +201,32 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean isAccessible(String accession) {
-        return isAccessible(accession, null);
+    public String getAccessionIfAccessible(String accession) {
+        return getAccessionIfAccessible(accession, null);
     }
 
     @Override
-    public boolean isAccessible(String accession, String seckey) {
+    /*
+       Returns null if the accession is not accessible and the actual indexed
+        case-sensitive accession if it is.
+    */
+    public String getAccessionIfAccessible(String accession, String seckey) {
         QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         Query query = null;
         try {
             query = parser.parse(Fields.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query, seckey);
-            return indexManager.getIndexSearcher().count(result)>0;
+            TopDocs topDocs = indexManager.getIndexSearcher().search(query,10);
+            if (topDocs.totalHits == 1) { // if totalHits!=1, something is wrong
+                Document doc = indexManager.getIndexReader().document(topDocs.scoreDocs[0].doc);
+                return doc.get(Fields.ID);
+            } else {
+                return null;
+            }
         } catch (Throwable ex){
             logger.error("Problem in checking security", ex);
-            return false;
+            return null;
         }
     }
 

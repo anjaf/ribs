@@ -29,7 +29,8 @@ public class Study {
 
     @RequestMapping(value = "/studies/{accession:.+}", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
     public ResponseEntity<String> getStudy(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
-        if(!searchService.isAccessible(accession, seckey)) {
+        accession = searchService.getAccessionIfAccessible(accession, seckey);
+        if(accession==null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
         }
@@ -47,7 +48,8 @@ public class Study {
     @RequestMapping(value = "/studies/{accession:.+}/similar", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
     public ResponseEntity<String> getSimilarStudies(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
         try {
-            if(searchService.isAccessible(accession)) {
+            accession = searchService.getAccessionIfAccessible(accession, seckey);
+            if(accession!=null) {
                 ResponseEntity result =  new ResponseEntity(searchService.getSimilarStudies(accession.replace("..",""), seckey), HttpStatus.OK);
                 return result;
             }
