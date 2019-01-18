@@ -116,6 +116,14 @@ var FileTable = (function (_self) {
                             + '">'
                             + data + '</a>';
                     }
+                },
+                {
+                    targets: 3,
+                    render: function (data, type, row) {
+                        if(columns[3].TITLE='Thumbnail')    {return '<img  height="100" width="100" src="'
+                            +window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+row.path +'" </img> ';
+                        }
+                    }
                 }
             ],
             ajax: {
@@ -272,12 +280,19 @@ var FileTable = (function (_self) {
     }
 
     function handleThumbnails() {
+        var imgFormats = ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm'];
+        var isZip = false;
+        if(filesTable.column('Thumbnail')) {
+            isZip = true;
+        }
+        if(isZip)
+            imgFormats.splice(1,0,'zip');
         $(filesTable.column(1).nodes()).each(function () {
             var path = $('input',$(this).prev()).data('name');
             $('a',this).addClass('overflow-name-column');
             $('a',this).attr('title',$(this).text());
             if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
-                ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm']) >=0 ) {
+                imgFormats) >=0 ) {
                 $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'
                     +window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'"><i class="far fa-file-image"></i></a>')
             }

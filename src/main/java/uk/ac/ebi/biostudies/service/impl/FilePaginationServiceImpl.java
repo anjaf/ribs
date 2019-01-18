@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.swagger.models.auth.In;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
@@ -24,8 +23,7 @@ import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.auth.User;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
-import uk.ac.ebi.biostudies.controller.Index;
-import uk.ac.ebi.biostudies.controller.Study;
+import uk.ac.ebi.biostudies.file.Thumbnails;
 import uk.ac.ebi.biostudies.service.FilePaginationService;
 import uk.ac.ebi.biostudies.service.SearchService;
 
@@ -44,6 +42,8 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     SearchService searchService;
     @Autowired
     SecurityConfig securityConfig;
+    @Autowired
+    Thumbnails thumbnails;
 
     public ObjectNode getStudyInfo(String accession, String secretKey) {
         ObjectMapper mapper = new ObjectMapper();
@@ -64,6 +64,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             headerSet.add(att);
             orderedList.add(att);
         }
+        int counter =0;
         for(String att : orderedList){
             ObjectNode node = mapper.createObjectNode();
             node.put("name", att);
@@ -74,6 +75,9 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             node.put("data", att);
             node.put("defaultContent", "");
             fileColumnAttributes.add(node);
+            if(counter++==1 && thumbnails.hasThumbnails(accession)){
+                fileColumnAttributes.add(getThumbnailHeader(mapper));
+            }
         }
 
         String sectionsWithFiles = doc.get(Constants.Fields.SECTIONS_WITH_FILES);
@@ -92,6 +96,18 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             studyInfo.put("sections","[]");
         }
         return studyInfo;
+    }
+
+    private ObjectNode getThumbnailHeader(ObjectMapper mapper){
+        String thumbStr = "Thumbnail";
+        ObjectNode node = mapper.createObjectNode();
+        node.put("name", thumbStr);
+        node.put("title", thumbStr);
+        node.put("visible", true);
+        node.put("searchable", false);
+        node.put("sortable", false);
+        node.put("defaultContent", "");
+        return node;
     }
 
     @Override
