@@ -70,7 +70,8 @@ public abstract class BaseDownloadServlet {
             String accession = requestArgs[0];
             String key = request.getParameter("key");
 
-            if(!searchService.isAccessible(accession, key)) {
+            accession = searchService.getAccessionIfAccessible(accession, key);
+            if(accession==null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }

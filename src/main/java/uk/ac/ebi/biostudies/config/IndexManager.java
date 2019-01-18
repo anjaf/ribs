@@ -55,6 +55,7 @@ public class IndexManager {
     private Map<String, Set<String>> projectRelatedFields = new LinkedHashMap<>();
     private SpellChecker spellChecker;
     private JsonNode indexDetails;
+    private Map<String, String> projectParentMap = new LinkedHashMap<>();
 
     @Autowired
     IndexConfig indexConfig;
@@ -219,6 +220,18 @@ public class IndexManager {
 
     public JsonNode getIndexDetails() {
         return indexDetails;
+    }
+
+    public Map<String, String> getProjectParentMap() {
+        return projectParentMap;
+    }
+
+    public void setProjectParent(String project, String parent) {
+        this.projectParentMap.put(project,parent);
+    }
+
+    public void unsetProjectParent(String project) {
+        this.projectParentMap.remove(project);
     }
 
 }

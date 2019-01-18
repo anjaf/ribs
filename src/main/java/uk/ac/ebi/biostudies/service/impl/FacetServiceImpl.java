@@ -183,7 +183,10 @@ public class FacetServiceImpl implements FacetService {
             }
             ObjectNode facet = mapper.createObjectNode();
             JsonNode facetNode = indexManager.getAllValidFields().get(fcResult.dim);
-            if (!prjName.equalsIgnoreCase(Constants.PUBLIC) && facetNode == taxonomyManager.PROJECT_FACET) {
+            // show project facet only when the current project has sub-projects
+            if (!prjName.equalsIgnoreCase(Constants.PUBLIC)
+                    && facetNode == taxonomyManager.PROJECT_FACET
+                    &&  !indexManager.getProjectParentMap().values().contains(prjName)) {
                 continue;
             }
             boolean invisNA = false;
