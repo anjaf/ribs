@@ -44,6 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static uk.ac.ebi.biostudies.api.util.Constants.*;
@@ -64,6 +65,8 @@ public class IndexServiceImpl implements IndexService {
         TYPE_NOT_ANALYZED.setTokenized(false);
         TYPE_NOT_ANALYZED.setStored(true);
     }
+
+    public static AtomicInteger ActiveExecutorService = new AtomicInteger(0);
 
     private Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
     private static  BlockingQueue<String> indexFileQueue;
@@ -102,7 +105,7 @@ public class IndexServiceImpl implements IndexService {
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
-
+        ActiveExecutorService.incrementAndGet();
         int counter = 0;
         try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFilePath), "UTF-8")) {
             JsonFactory factory = new JsonFactory();
@@ -149,6 +152,7 @@ public class IndexServiceImpl implements IndexService {
             indexManager.refreshIndexSearcherAndReader();
             taxonomyManager.refreshTaxonomyReader();
             logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
+            ActiveExecutorService.decrementAndGet();
         }
         catch (Throwable error){
             logger.error("problem in parsing "+ fileName , error);
