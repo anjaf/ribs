@@ -85,6 +85,15 @@ var FileTable = (function (_self) {
                 return '<a href="#'+data+'">'+$('#'+data+' .section-name').first().text().trim()+'</a>';
             }
         }
+        sectionColumn = columns.filter(function(c) {
+            return c.title=='Thumbnail';
+        });
+        if (sectionColumn.length) {
+            sectionColumn[0].render = function (data, type, row) {
+            return '<img  height="100" width="100" src="'
+                + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + row.path + '" </img> ';
+            }
+        }
 
         filesTable = $('#file-list').DataTable({
             lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
@@ -115,17 +124,6 @@ var FileTable = (function (_self) {
                             + (params.key ? '?key='+params.key : '')
                             + '">'
                             + data + '</a>';
-                    }
-                },
-                {
-                    targets: 3,
-                    render: function (data, type, row) {
-                        if(columns[3]) {
-                            if (columns[3].TITLE = 'Thumbnail') {
-                                return '<img  height="100" width="100" src="'
-                                    + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + row.path + '" </img> ';
-                            }
-                        }
                     }
                 }
             ],
