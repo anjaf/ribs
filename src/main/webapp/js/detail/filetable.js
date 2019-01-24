@@ -120,8 +120,11 @@ var FileTable = (function (_self) {
                 {
                     targets: 3,
                     render: function (data, type, row) {
-                        if((columns.length>2) && (columns[3].TITLE='Thumbnail'))    {return '<img  height="100" width="100" src="'
-                            +window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+row.path +'" </img> ';
+                        if(columns[3]) {
+                            if (columns[3].TITLE = 'Thumbnail') {
+                                return '<img  height="100" width="100" src="'
+                                    + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + row.path + '" </img> ';
+                            }
                         }
                     }
                 }
