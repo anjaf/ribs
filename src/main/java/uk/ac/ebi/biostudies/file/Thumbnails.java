@@ -83,10 +83,7 @@ public class Thumbnails {
         String fileType = FilenameUtils.getExtension(name).toLowerCase();
         File preExistThumbnail;
         if(fileType.equalsIgnoreCase("zip")) {
-            String shortName = name;
-            if(name.indexOf("/")>-1)
-                shortName = name.substring(name.lastIndexOf("/")+1);
-            preExistThumbnail = new File(indexConfig.getFileRootDir() + "/" + relativePath + "/Thumbnails/" + shortName + ".thumbnail.png");
+            preExistThumbnail = new File(indexConfig.getFileRootDir() + "/" + relativePath + "/Thumbnails/" + name + ".thumbnail.png");
         }
         else {
             preExistThumbnail = new File(getThumbnailsFolder() + "/" + relativePath + "/" + name + ".thumbnail.png");
