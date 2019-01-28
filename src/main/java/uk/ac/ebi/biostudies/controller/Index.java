@@ -15,6 +15,9 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.auth.UserSecurityService;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.service.IndexService;
+import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 
@@ -28,12 +31,21 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 public class Index {
 
     private Logger logger = LogManager.getLogger(Index.class.getName());
+    private static AtomicBoolean SHUTDOWN = new AtomicBoolean(false);
 
     @Autowired
     IndexService indexService;
 
     @Autowired
     UserSecurityService userSecurity;
+
+    public synchronized  static AtomicBoolean getSHUTDOWN() {
+        return SHUTDOWN;
+    }
+
+    public synchronized static void setSHUTDOWN(AtomicBoolean SHUTDOWN) {
+        Index.SHUTDOWN = SHUTDOWN;
+    }
 
     /**
      * Method handling HTTP GET requests. The returned object will be sent
@@ -43,6 +55,8 @@ public class Index {
      */
     @RequestMapping(value = "/index/reload/{filename:.*}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> indexAll(@PathVariable("filename") String filename) throws Exception {
+        if(getSHUTDOWN().get())
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("UI-Indexer is shutting down and does not accept new files for indexing");
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode message = mapper.createObjectNode();
         try {
@@ -67,6 +81,23 @@ public class Index {
     public ResponseEntity<String> deleteDoc(@PathVariable(required=false) String accession) throws Exception {
            indexService.deleteDoc(accession);
         return new ResponseEntity<String>("{\"message\":\""+accession+" deleted\"}", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/index/shutdown", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    public ResponseEntity<String> shutDown() throws Exception {
+        setSHUTDOWN(new AtomicBoolean(true));
+        return new ResponseEntity<String>("{\"message\":\"Shutting down indexer ...\"}", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/index/status", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    public ResponseEntity<String> getStatus() throws Exception {
+        if(!getSHUTDOWN().get())
+            return new ResponseEntity<String>("{\"message\":\"UP\"}", HttpStatus.OK);
+        else if(indexService.getIndexFileQueue().size()==0 && IndexServiceImpl.ActiveExecutorService.get()==0){
+            return new ResponseEntity<String>("{\"message\":\"DOWN\"}", HttpStatus.OK);
+        }
+        else
+            return new ResponseEntity<String>("{\"message\":\"SHUTTING_DOWN\"}", HttpStatus.OK);
     }
 
 }

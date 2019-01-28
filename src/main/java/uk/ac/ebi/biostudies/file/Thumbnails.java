@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.file.thumbnails.IThumbnail;
 import uk.ac.ebi.biostudies.file.thumbnails.*;
@@ -79,19 +80,27 @@ public class Thumbnails {
     }
 
     public void sendThumbnail(HttpServletResponse response, String relativePath, String name) throws IOException {
-//        Files files = getComponent(Files.class);
-        File thumbnail = new File(getThumbnailsFolder()+"/"+relativePath+"/"+name+".thumbnail.png");
+        String fileType = FilenameUtils.getExtension(name).toLowerCase();
+        File preExistThumbnail;
+        if(fileType.equalsIgnoreCase("zip")) {
+            preExistThumbnail = new File(indexConfig.getFileRootDir() + "/" + relativePath + "/Thumbnails/" + name + ".thumbnail.png");
+        }
+        else {
+            preExistThumbnail = new File(getThumbnailsFolder() + "/" + relativePath + "/" + name + ".thumbnail.png");
+        }
 
-        if (!thumbnail.exists()) {
-            createThumbnail(indexConfig.getFileRootDir() + "/"+ relativePath+"/Files/"+name, thumbnail);
+        if (!preExistThumbnail.exists() && !fileType.equalsIgnoreCase("zip")) {
+            createThumbnail(indexConfig.getFileRootDir() + "/"+ relativePath+"/Files/"+name, preExistThumbnail);
         }
-        FileInputStream in = new FileInputStream(thumbnail);
-        try {
-            IOUtils.copy(in, response.getOutputStream());
-        } finally {
-            in.close();
+        if(preExistThumbnail.exists()) {
+            FileInputStream in = new FileInputStream(preExistThumbnail);
+            try {
+                IOUtils.copy(in, response.getOutputStream());
+            } finally {
+                in.close();
+            }
+            response.getOutputStream().flush();
         }
-        response.getOutputStream().flush();
     }
 
     private void createPlaceholderThumbnail(String sourceFilePath, File thumbnailFile) throws IOException {
@@ -133,5 +142,10 @@ public class Thumbnails {
             }
         }
     }
-
+    public boolean hasThumbnails(String accession){
+        String relativePath = StudyUtils.getPartitionedPath(accession);
+        File file = new File(indexConfig.getFileRootDir() + "/" + relativePath + "/Thumbnails/");
+        return file.exists();
     }
+
+}
