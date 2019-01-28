@@ -46,6 +46,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addRedirectViewController("/BioImages-EMPIAR/studies/EMPIAR-{id:.+}", "https://www.ebi.ac.uk/pdbe/emdb/empiar/entry/{id}/");
         registry.addViewController("/").setViewName("index");
         registry.addViewController("/about").setViewName("about");
         registry.addViewController("/about/*").setViewName("about");

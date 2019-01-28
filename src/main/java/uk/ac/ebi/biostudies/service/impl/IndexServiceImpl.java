@@ -272,6 +272,11 @@ public class IndexServiceImpl implements IndexService {
 
         private void addProjectToHierarchy(Map<String, Object> valueMap, String accession) {
             Object parent =valueMap.getOrDefault (Facets.PROJECT, null);
+            //TODO: Start - Remove this when backend supports subprojects
+            if (accession.equalsIgnoreCase("JCB") || accession.equalsIgnoreCase("BioImages-EMPIAR")) {
+                parent="BioImages";
+            }
+            //TODO: End - Remove this when backend supports subprojects
             if (parent==null || StringUtils.isEmpty(parent.toString())) {
                 indexManager.unsetProjectParent(accession);
             } else {
