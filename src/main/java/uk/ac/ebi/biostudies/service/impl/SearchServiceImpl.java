@@ -217,7 +217,7 @@ public class SearchServiceImpl implements SearchService {
         try {
             query = parser.parse(Fields.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query, seckey);
-            TopDocs topDocs = indexManager.getIndexSearcher().search(query,10);
+            TopDocs topDocs = indexManager.getIndexSearcher().search(result,10);
             if (topDocs.totalHits == 1) { // if totalHits!=1, something is wrong
                 Document doc = indexManager.getIndexReader().document(topDocs.scoreDocs[0].doc);
                 return doc.get(Fields.ID);
