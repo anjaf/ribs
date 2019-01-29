@@ -81,6 +81,10 @@ public class IndexManager {
         analyzerManager.init(AllFields);
         String indexDir = indexConfig.getIndexDirectory();
         try {
+            //TODO: Start - Remove this when backend supports subprojects
+            setProjectParent("JCB", "BioImages");
+            setProjectParent("BioImages-EMPIAR", "BioImages");
+            //TODO: End - Remove this when backend supports subprojects
             indexDirectory = FSDirectory.open(Paths.get(indexDir));
             indexWriterConfig = new IndexWriterConfig(analyzerManager.getPerFieldAnalyzerWrapper());
             getIndexWriterConfig().setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
