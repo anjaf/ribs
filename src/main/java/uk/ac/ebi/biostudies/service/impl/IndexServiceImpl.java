@@ -284,7 +284,7 @@ public class IndexServiceImpl implements IndexService {
             if (parent==null || StringUtils.isEmpty(parent.toString())) {
                 indexManager.unsetProjectParent(accession);
             } else {
-                indexManager.setProjectParent(accession,parent.toString());
+                indexManager.setSubProject(parent.toString(), accession);
             }
         }
 
@@ -301,7 +301,7 @@ public class IndexServiceImpl implements IndexService {
             //TODO: replace by classes if possible
             String value;
             String prjName = (String)valueMap.get(Facets.PROJECT);
-            updateProjectParents(valueMap);
+            //updateProjectParents(valueMap);
             addFileAttributes(doc, (Set<String>) valueMap.get(Constants.File.FILE_ATTS));
             for (String field: indexManager.getProjectRelatedFields(prjName.toLowerCase())) {
                 JsonNode curNode = indexManager.getAllValidFields().get(field);
@@ -342,7 +342,7 @@ public class IndexServiceImpl implements IndexService {
 
         }
 
-        private void updateProjectParents(Map<String, Object> valueMap) {
+        /*private void updateProjectParents(Map<String, Object> valueMap) {
             String project = valueMap.getOrDefault (Facets.PROJECT, "").toString();
             if (StringUtils.isEmpty(project)) return;
             Map<String, String> projectParentMap = indexManager.getProjectParentMap();
@@ -354,7 +354,7 @@ public class IndexServiceImpl implements IndexService {
                 project = parent;
             }
             valueMap.put(Facets.PROJECT, StringUtils.join(parents,Facets.DELIMITER));
-        }
+        }*/
 
         private void addFileAttributes(Document doc, Set<String> columnAtts){
             StringBuilder allAtts = new StringBuilder("Name|Size|");

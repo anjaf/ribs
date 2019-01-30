@@ -114,7 +114,11 @@ public class QueryServiceImpl implements QueryService {
 
     public Query applyProjectFilter(Query query, String prjName){
         Map<JsonNode, List<String>> hm = new HashMap<JsonNode, List<String>>();
-        hm.put(taxonomyManager.PROJECT_FACET, Lists.newArrayList(prjName));
+        List projects = Lists.newArrayList(prjName);
+        if (indexManager.getSubProjectMap().containsKey(prjName)) {
+            projects.addAll(indexManager.getSubProjectMap().get(prjName));
+        }
+        hm.put(taxonomyManager.PROJECT_FACET, projects);
         return facetService.addFacetDrillDownFilters(query, hm);
     }
 

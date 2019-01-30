@@ -2,6 +2,7 @@ package uk.ac.ebi.biostudies.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.index.DirectoryReader;
@@ -55,7 +56,7 @@ public class IndexManager {
     private Map<String, Set<String>> projectRelatedFields = new LinkedHashMap<>();
     private SpellChecker spellChecker;
     private JsonNode indexDetails;
-    private Map<String, String> projectParentMap = new LinkedHashMap<>();
+    private Map<String, List<String>> subProjectMap = new LinkedHashMap<>();
 
     @Autowired
     IndexConfig indexConfig;
@@ -82,8 +83,8 @@ public class IndexManager {
         String indexDir = indexConfig.getIndexDirectory();
         try {
             //TODO: Start - Remove this when backend supports subprojects
-            setProjectParent("JCB", "BioImages");
-            setProjectParent("BioImages-EMPIAR", "BioImages");
+            setSubProject("BioImages","JCB" );
+            setSubProject("BioImages", "BioImages-EMPIAR");
             //TODO: End - Remove this when backend supports subprojects
             indexDirectory = FSDirectory.open(Paths.get(indexDir));
             indexWriterConfig = new IndexWriterConfig(analyzerManager.getPerFieldAnalyzerWrapper());
@@ -226,16 +227,26 @@ public class IndexManager {
         return indexDetails;
     }
 
-    public Map<String, String> getProjectParentMap() {
-        return projectParentMap;
+    public Map<String, List<String>> getSubProjectMap() {
+        return subProjectMap;
     }
 
-    public void setProjectParent(String project, String parent) {
-        this.projectParentMap.put(project,parent);
+    public void setSubProject(String parent, String subproject) {
+        if (!subProjectMap.containsKey(parent)) {
+            subProjectMap.put(parent, Lists.newArrayList(subproject));
+        } else {
+            subProjectMap.get(parent).add(subproject);
+        }
     }
 
     public void unsetProjectParent(String project) {
-        this.projectParentMap.remove(project);
+        subProjectMap.entrySet().stream().filter(entry -> entry.getValue().contains(project))
+                .forEach(entry -> {
+                    entry.getValue().remove(project);
+                    if (entry.getValue().size() == 0) {
+                        subProjectMap.remove(entry.getKey());
+                    }
+                });
     }
 
 }
