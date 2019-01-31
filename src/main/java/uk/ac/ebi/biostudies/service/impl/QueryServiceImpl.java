@@ -94,7 +94,7 @@ public class QueryServiceImpl implements QueryService {
             }
 
             if(!StringUtils.isEmpty(projectName) && !projectName.equalsIgnoreCase(Constants.PUBLIC)) {
-                expandedQuery = applyProjectFilter(expandedQuery, projectName);
+                expandedQuery = applyProjectFilter(expandedQuery, projectName.toLowerCase());
             }
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
             logger.debug("Lucene query: {}",queryAfterSecurity.toString());

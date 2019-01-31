@@ -10,6 +10,10 @@ var FacetRenderer = (function (_self) {
                 data.existing = getExistingParams(params, 'facet.');
                 var html = template(data);
                 $('#facets').html(html);
+                if (project && project.toLowerCase() =='bioimages') {
+                    var ul = $('#facet_facet\\.project');
+                    handleBioImagesFacets(ul);
+                }
             }).fail(function (error) {
                 showError(error);
             }).done( function (data) {
@@ -17,6 +21,23 @@ var FacetRenderer = (function (_self) {
             });
         })
     };
+
+    function handleBioImagesFacets(ul) {
+        // Overrides the facet labels only for BioImages
+        // TODO:// remove once abstracted :)
+        $('li', ul).each( function() {
+                var lbl = $('label span',this).first().text().trim();
+                if (lbl.toLowerCase().indexOf('empiar')>=0) {
+                    $('label span',this).first().text('EMPIAR');
+                } else if (lbl.indexOf('BioImages')!=0) {
+                    $('label span',this).first().text('BioStudies - '+lbl);
+                } else {
+                    $('label span',this).first().text('BioStudies - Other');
+                }
+            }).sort ( function(a,b) {
+                return $('label span',a).first().text().trim() > $('label span',b).text().trim() ? 1: -1
+            }).appendTo(ul);
+    }
 
     function postRenderFacets (data, params) {
 
@@ -75,6 +96,7 @@ var FacetRenderer = (function (_self) {
                 var template = Handlebars.compile(templateSource);
                 var existing = getExistingParams(params, thisFacet);
                 $('body').append(template({facets:data, existing:  existing}));
+                handleBioImagesFacets($('.allfacets ul'));
                 $('#facet-search').focus()
 
                 //build lookup cache

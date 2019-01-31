@@ -1,5 +1,5 @@
 $(function() {
-    if (project=='BioImages') {
+    if (project && project.toLowerCase()=='bioimages') {
         $('#local-title').html('<h1><img style="width:200px" src="'+contextPath+'/files/BioImages/3/logo.png"></img></h1>');
         $('.menu.float-left li').slice(0,3).hide();
         $('.menu.float-left li a').last().attr('target','_blank');

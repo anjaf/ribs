@@ -232,6 +232,7 @@ public class IndexManager {
     }
 
     public void setSubProject(String parent, String subproject) {
+        parent = parent.toLowerCase();
         if (!subProjectMap.containsKey(parent)) {
             subProjectMap.put(parent, Lists.newArrayList(subproject));
         } else {
@@ -240,9 +241,10 @@ public class IndexManager {
     }
 
     public void unsetProjectParent(String project) {
-        subProjectMap.entrySet().stream().filter(entry -> entry.getValue().contains(project))
+        final String lowerCaseProject = project.toLowerCase();
+        subProjectMap.entrySet().stream().filter(entry -> entry.getValue().contains(lowerCaseProject))
                 .forEach(entry -> {
-                    entry.getValue().remove(project);
+                    entry.getValue().remove(lowerCaseProject);
                     if (entry.getValue().size() == 0) {
                         subProjectMap.remove(entry.getKey());
                     }

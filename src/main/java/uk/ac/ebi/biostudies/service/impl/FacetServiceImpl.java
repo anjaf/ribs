@@ -186,7 +186,7 @@ public class FacetServiceImpl implements FacetService {
             // show project facet only when the current project has sub-projects
             if (!prjName.equalsIgnoreCase(Constants.PUBLIC)
                     && facetNode == taxonomyManager.PROJECT_FACET
-                    &&  !indexManager.getSubProjectMap().containsKey(prjName)) {
+                    &&  !indexManager.getSubProjectMap().containsKey(prjName.toLowerCase())) {
                 continue;
             }
             boolean invisNA = false;
