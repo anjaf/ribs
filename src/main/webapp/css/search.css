@@ -106,6 +106,7 @@ ul#search-results li {
 .facet-binary label.facet-label {
     color: #222;
     width:100%;
+    font-size: 10.5pt;
 }
 
 .facet-more {

@@ -24,8 +24,8 @@
     {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true, "naVisible":false},
     {"name":"facet.technology", "title":"Technology", "fieldType":"facet", "multiValued":true, "naVisible":false},
     {"name":"facet.assay_by_molecule", "title":"Assay by Molecule", "fieldType":"facet", "multiValued":true, "naVisible":true},
-    {"name":"facet.raw", "title":"Raw Data", "fieldType":"facet", "facetType":"boolean",  "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.name==\"Raw\" && @.value=='*')].concat(\"true\")", "retrieved":false, "expanded":false, "sortable":true, "naVisible":false },
-    {"name":"facet.processed", "title":"Processed Data", "fieldType":"facet", "facetType":"boolean", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.name==\"Processed\" && @.value=='*')].concat(\"true\")", "retrieved":false, "expanded":false, "sortable":true,"naVisible":false }
+    {"name":"facet.raw", "title":"Raw Data Available", "fieldType":"facet", "facetType":"boolean",  "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.name==\"Raw\" && @.value=='*')].concat(\"true\")", "retrieved":false, "expanded":false, "sortable":true, "naVisible":false },
+    {"name":"facet.processed", "title":"Processed Data Available", "fieldType":"facet", "facetType":"boolean", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.name==\"Processed\" && @.value=='*')].concat(\"true\")", "retrieved":false, "expanded":false, "sortable":true,"naVisible":false }
   ],
   "europepmc": [
     {"name":"europepmc.facet.funding_agency", "title":"Funding Agency", "fieldType":"facet", "jsonPath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":true}
