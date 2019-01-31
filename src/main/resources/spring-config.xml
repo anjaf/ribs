@@ -23,6 +23,7 @@
             <ref bean="authorParser" />
             <ref bean="orcidParser" />
             <ref bean="linkTypeParser" />
+            <ref bean="linkValueParser" />
             <ref bean="fileTypeParser" />
             <ref bean="generalFacetWithoutPathParser" />
             <ref bean="generalFacetWithPathParser" />
@@ -104,6 +105,11 @@
         <property name="indexFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Facets.FILE_TYPE" /></property>
         <property name="jsonFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Facets.FILE_TYPE" /></property>
         <property name="toLowerCase" value="false"/>
+    </bean>
+    <bean id="linkValueParser" class="uk.ac.ebi.biostudies.api.util.parser.JPathListParser">
+        <property name="indexFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Fields.LINK_VALUE" /></property>
+        <property name="jsonFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Fields.LINK_VALUE" /></property>
+        <property name="toLowerCase" value="true"/>
     </bean>
     <bean id="generalFacetWithPathParser" class="uk.ac.ebi.biostudies.api.util.parser.JPathListParser">
         <property name="indexFieldKey" value="generalFacetWithPathParser"/>

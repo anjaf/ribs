@@ -142,7 +142,7 @@ var FacetRenderer = (function (_self) {
         });
 
         //handle facet toggles
-        $('.facet-name').bind('click', function(){
+        $('div.facet-name').bind('click', function(){
             var facetUL = $(this).next();
             if (facetUL.is(':visible'))  {
                 facetUL.slideUp(100);

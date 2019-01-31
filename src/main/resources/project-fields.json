@@ -23,7 +23,9 @@
     {"name":"facet.experimental_design", "title":"Experimental Design", "fieldType":"facet", "multiValued":true, "naVisible":false},
     {"name":"facet.organism", "title":"Organism", "fieldType":"facet", "multiValued":true, "naVisible":false},
     {"name":"facet.technology", "title":"Technology", "fieldType":"facet", "multiValued":true, "naVisible":false},
-    {"name":"facet.assay_by_molecule", "title":"Assay by Molecule", "fieldType":"facet", "multiValued":true, "naVisible":true}
+    {"name":"facet.assay_by_molecule", "title":"Assay by Molecule", "fieldType":"facet", "multiValued":true, "naVisible":true},
+    {"name":"facet.raw", "title":"Raw Data", "fieldType":"facet", "facetType":"boolean",  "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.name==\"Raw\" && @.value=='*')].concat(\"true\")", "retrieved":false, "expanded":false, "sortable":true, "naVisible":false },
+    {"name":"facet.processed", "title":"Processed Data", "fieldType":"facet", "facetType":"boolean", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.name==\"Processed\" && @.value=='*')].concat(\"true\")", "retrieved":false, "expanded":false, "sortable":true,"naVisible":false }
   ],
   "europepmc": [
     {"name":"europepmc.facet.funding_agency", "title":"Funding Agency", "fieldType":"facet", "jsonPath":"$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value", "multiValued":true}
@@ -55,10 +57,11 @@
     {"name":"seckey", "title":"", "fieldType":"untokenized_string", "retrieved":false, "expanded":false, "sortable":false},
     {"name":"orcid", "title":"", "fieldType":"tokenized_string", "jsonPath":"$.section.subsections[?(@.type==\"Author\")].attributes[?(@.name==\"ORCID\")].value", "retrieved":false, "expanded":false, "sortable":false, "analyzer":"AccessFieldAnalyzer"},
     {"name":"sections_with_files", "title":"", "fieldType":"untokenized_string", "retrieved":false, "expanded":false, "sortable":false, "analyzer":"AccessFieldAnalyzer"},
+    {"name":"link_value", "title":"Link Value", "fieldType":"tokenized_string", "retrieved":false, "multiValued":true, "jsonPath":"$..links..url", "analyzer":"AttributeFieldAnalyzer" },
     {"name":"facet.project", "title":"Project", "fieldType":"facet", "jsonPath":"$.attributes[?(@.name==\"AttachTo\")].value", "multiValued":true},
     {"name":"facet.released_year", "title":"Released", "fieldType":"facet", "multiValued":false},
     {"name":"facet.modification_year", "title":"Created/Modified", "fieldType":"facet", "multiValued":false, "private":true},
-    {"name":"facet.link_type", "title":"Link Type", "fieldType":"facet", "multiValued":true, "jsonPath":"$..links..attributes[?(@.name=='Type')].value", "visible":false },
-    {"name":"facet.file_type", "title":"File Type", "fieldType":"facet", "multiValued":true, "jsonPath":"$..files.*[?(@.type==\"file\")]", "visible":false}
+    {"name":"facet.link_type", "title":"Link Type", "fieldType":"facet", "multiValued":true, "jsonPath":"$..links..attributes[?(@.name=='Type')].value", "naVisible":false },
+    {"name":"facet.file_type", "title":"File Type", "fieldType":"facet", "multiValued":true, "jsonPath":"$..files.*[?(@.type==\"file\")]", "naVisible":false}
   ]
 }

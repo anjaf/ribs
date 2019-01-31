@@ -33,6 +33,7 @@ public interface Constants {
         String SORTABLE = "sortable";
         String ANALYZER = "analyzer";
         String MULTIVALUED = "multiValued";
+        String FACET_TYPE = "facetType"; // only boolean and text for now
         String JSON_PATH = "jsonPath";
         String DEFAULT_VALUE = "defaultValue";
         String NA_IS_VISIBLE = "naVisible";
@@ -74,6 +75,7 @@ public interface Constants {
         String CREATION_TIME = "ctime";
         String RELEASE_DATE = "release_date";
         String SECTIONS_WITH_FILES = "sections_with_files";
+        String LINK_VALUE = "link_value";
     }
 
     interface File{

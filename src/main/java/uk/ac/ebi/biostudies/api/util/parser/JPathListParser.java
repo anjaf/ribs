@@ -19,9 +19,11 @@ public class JPathListParser extends AbstractParser{
     public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
         Object result= NA;
         String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
+        String fieldType="";
         try {
             List resultData = jsonPathContext.read(fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText());
-            switch (fieldMetadataNode.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText()) {
+            fieldType = fieldMetadataNode.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText();
+            switch (fieldType) {
                 case Constants.IndexEntryAttributes.FieldTypeValues.FACET:
                     result =  String.join (Constants.Facets.DELIMITER, resultData);
                     break;

@@ -197,6 +197,9 @@ public class FacetServiceImpl implements FacetService {
                 naDefaultStr = facetNode.get(Constants.IndexEntryAttributes.DEFAULT_VALUE).asText();
             facet.put("title", facetNode.get(Constants.IndexEntryAttributes.TITLE).asText());
             facet.put("name", facetNode.get(Constants.IndexEntryAttributes.NAME).asText());
+            if (facetNode.has(Constants.IndexEntryAttributes.FACET_TYPE)) {
+                facet.put ("type", facetNode.get(Constants.IndexEntryAttributes.FACET_TYPE).asText());
+            }
             List<ObjectNode> children = new ArrayList<>();
             addSelectedFacetsToResponse(children, selectedFacetFreq.get(fcResult.dim));
             for (LabelAndValue labelVal : fcResult.labelValues) {
