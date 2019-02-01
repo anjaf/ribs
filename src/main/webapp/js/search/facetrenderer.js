@@ -1,4 +1,5 @@
 var FacetRenderer = (function (_self) {
+    var projectScripts = ['arrayexpress'];
 
     _self.render = function (params) {
         $('#left-column').slideDown("fast", function () {
@@ -89,71 +90,8 @@ var FacetRenderer = (function (_self) {
             $('body').append('<div id="blocker" class="blocker"></div>');
             $('body').append('<div id="facet-loader"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><div class="sr-only">Loading...</div></div>');
             var thisFacet = $(this).data('facet');
-            $.getJSON(contextPath+"/api/v1/"+(project? project : 'public')+'/facets/'+thisFacet+'/',params, function(data) {
-                if ( !$('#facet-loader').length) return;
-                $('#facet-loader').hide();
-                var templateSource = $('script#all-facets-template').html();
-                var template = Handlebars.compile(templateSource);
-                var existing = getExistingParams(params, thisFacet);
-                $('body').append(template({facets:data, existing:  existing}));
-                handleBioImagesFacets($('.allfacets ul'));
-                $('#facet-search').focus()
-
-                //build lookup cache
-                var facetNames = [];
-                var facetListItems = $(".allfacets ul li");
-                for (var i = 0, len = data.children.length; i < len; i++) {
-                    facetNames.push(data.children[i].name.toLowerCase());
-                }
-
-                // add filter
-                searchWaitInterval = null;
-                $('#facet-search').change( function(){
-                    var filter = $('#facet-search').val().toLowerCase();
-                    for (var i = 0, len = facetNames.length; i < len; i++) {
-                       if (facetNames[i].indexOf(filter)>=0)
-                           $(facetListItems[i]).show();
-                       else
-                           $(facetListItems[i]).hide();
-                    }
-                }).keyup(function () {
-                    var that = this;
-                    clearInterval(searchWaitInterval);
-                    searchWaitInterval = setTimeout(function(){
-                        $(that).change();
-                    },200);
-                });
-
-                //hook events
-                $(".allfacets ul li input").change(function() {
-                    toggleFacetSearch();
-                });
-
-                $('#close-facet-search').click( function () {
-                    closeFullScreen();
-                });
-
-                // check the currently selected face, if any
-                for (var v in params){
-                    if (v.indexOf(thisFacet)!=0) continue;
-                    $.each($.isArray(params[v]) ? params[v] : [params[v]], function (i,value) {
-                        $('input[value="'+ value + '"]', $(".allfacets ul li")).attr('checked','checked');
-                    });
-
-                };
-
-                //handle select all
-                $('#all-check').click(function () {
-                    if ($("#all-check:checked").length) {
-                        $(".allfacets ul li input").attr('checked','checked')
-                    } else {
-                        $(".allfacets ul li input").removeAttr('checked')
-                    }
-                });
-
-                toggleFacetSearch();
-
-            });
+            $.getJSON(contextPath+"/api/v1/"+(project? project : 'public')+'/facets/'+thisFacet+'/',params,
+                function(data) { showAllFacets(thisFacet, params, data)});
         });
 
         //handle escape key on fullscreen
@@ -173,7 +111,84 @@ var FacetRenderer = (function (_self) {
             }
             $('.toggle-facet', this).find('[data-fa-i2svg]').toggleClass('fa-angle-right fa-angle-down');
         });
+
+        handleProjectBasedScriptInjection();
     }
+
+    function showAllFacets (thisFacet, params, data) {
+        if ( !$('#facet-loader').length) return;
+        $('#facet-loader').hide();
+        var templateSource = $('script#all-facets-template').html();
+        var template = Handlebars.compile(templateSource);
+        var existing = getExistingParams(params, thisFacet);
+        $('body').append(template({facets:data, existing:  existing}));
+        if (project && project.toLowerCase() =='bioimages') {
+            handleBioImagesFacets($('.allfacets ul'));
+        }
+        $('#facet-search').focus()
+
+        //build lookup cache
+        var facetNames = [];
+        var facetListItems = $(".allfacets ul li");
+        for (var i = 0, len = data.children.length; i < len; i++) {
+            facetNames.push(data.children[i].name.toLowerCase());
+        }
+
+        // add filter
+        searchWaitInterval = null;
+        $('#facet-search').change( function(){
+            var filter = $('#facet-search').val().toLowerCase();
+            for (var i = 0, len = facetNames.length; i < len; i++) {
+                if (facetNames[i].indexOf(filter)>=0)
+                    $(facetListItems[i]).show();
+                else
+                    $(facetListItems[i]).hide();
+            }
+        }).keyup(function () {
+            var that = this;
+            clearInterval(searchWaitInterval);
+            searchWaitInterval = setTimeout(function(){
+                $(that).change();
+            },200);
+        });
+
+        //hook events
+        $(".allfacets ul li input").change(function() {
+            toggleFacetSearch();
+        });
+
+        $('#close-facet-search').click( function () {
+            closeFullScreen();
+        });
+
+        // check the currently selected face, if any
+        for (var v in params){
+            if (v.indexOf(thisFacet)!=0) continue;
+            $.each($.isArray(params[v]) ? params[v] : [params[v]], function (i,value) {
+                $('input[value="'+ value + '"]', $(".allfacets ul li")).attr('checked','checked');
+            });
+
+        };
+
+        //handle select all
+        $('#all-check').click(function () {
+            if ($("#all-check:checked").length) {
+                $(".allfacets ul li input").attr('checked','checked')
+            } else {
+                $(".allfacets ul li input").removeAttr('checked')
+            }
+        });
+
+        toggleFacetSearch();
+
+    }
+
+    function handleProjectBasedScriptInjection() {
+        if ($.inArray(project.toLowerCase(), projectScripts)==-1 ) return;
+        var scriptURL = window.contextPath + '/js/project/facets/' + project.toLowerCase() + '.js';
+        $.getScript(scriptURL);
+    }
+
 
 
     function toggleFacetSearch() {

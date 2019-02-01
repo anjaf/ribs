@@ -1,0 +1,1 @@
+$('label[for="facet-facet.gxa"]').append('<img style="width:16px; margin-top:-4px;" src="//www.ebi.ac.uk/gxa/resources/favicons/favicon-32x32.png"/>')

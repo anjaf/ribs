@@ -87,7 +87,7 @@ var Metadata = (function (_self) {
         $(DetailPage.projectScripts.filter(function (r) {
             return r.regex.test(acc)
         })).each(function (i,v) {
-            var scriptURL = window.contextPath + '/js/project/' + v.script;
+            var scriptURL = window.contextPath + '/js/project/detail/' + v.script;
             $.getScript(scriptURL);
         });
 
