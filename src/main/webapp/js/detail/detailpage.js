@@ -30,6 +30,7 @@ var DetailPage = (function (_self) {
         'rnacentral': 'http://rnacentral.org/rna/{0}',
         'nct': 'https://clinicaltrials.gov/ct2/show/{0}',
         'gxa': 'https://www.ebi.ac.uk/gxa/experiments/{0}?ref=biostudies',
+        'gxa-sc': 'https://www.ebi.ac.uk/gxa/sc/experiments/{0}?ref=biostudies',
     };
 
     _self.reverseLinkMap = {
@@ -61,6 +62,7 @@ var DetailPage = (function (_self) {
         '^rnacentral.org/rna/(.*)': 'RNAcentral',
         '^clinicaltrials.gov/ct2/show/(.*)': 'nct',
         '^www.ebi.ac.uk/gxa/experiments/(.*)': 'gxa',
+        '^www.ebi.ac.uk/gxa/sc/experiments/(.*)': 'gxa-sc',
     };
 
     _self.linkTypeMap = { //sync with normalised-text
@@ -86,7 +88,8 @@ var DetailPage = (function (_self) {
         'rfam': 'Rfam',
         'rnacentral': 'RNAcentral',
         'nct': 'NCT',
-        'gxa': 'Expression Atlas'
+        'gxa': 'Expression Atlas',
+        'gxa-sc': 'Single Cell Expression Atlas'
     };
 
     _self.projectScripts = [
