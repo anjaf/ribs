@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.NA;
 
-public class SimpleFacetParser extends AbstractParser {
+public class SimpleAttributeParser extends AbstractParser {
     private final static Logger LOGGER = LogManager.getLogger(JPathSimpleParser.class.getName());
 
     private static String jpath = "$.section.attributes[?(@.name=~ /%s/i)].value";

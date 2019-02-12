@@ -75,6 +75,7 @@ public interface Constants {
         String CREATION_TIME = "ctime";
         String RELEASE_DATE = "release_date";
         String SECTIONS_WITH_FILES = "sections_with_files";
+        String LINK_TYPE = "link_type";
         String LINK_VALUE = "link_value";
     }
 

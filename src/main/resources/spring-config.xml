@@ -25,8 +25,8 @@
             <ref bean="linkTypeParser" />
             <ref bean="linkValueParser" />
             <ref bean="fileTypeParser" />
-            <ref bean="generalFacetWithoutPathParser" />
-            <ref bean="generalFacetWithPathParser" />
+            <ref bean="generalWithoutPathParser" />
+            <ref bean="generalWithPathParser" />
         </list>
         </property>
     </bean>
@@ -96,7 +96,7 @@
         <property name="jsonFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Fields.ORCID" /></property>
         <property name="toLowerCase" value="false"/>
     </bean>
-    <bean id="linkTypeParser" class="uk.ac.ebi.biostudies.api.util.parser.JPathListParser">
+    <bean id="linkTypeFacetParser" class="uk.ac.ebi.biostudies.api.util.parser.JPathListParser">
         <property name="indexFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Facets.LINK_TYPE" /></property>
         <property name="jsonFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Facets.LINK_TYPE" /></property>
         <property name="toLowerCase" value="false"/>
@@ -106,19 +106,24 @@
         <property name="jsonFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Facets.FILE_TYPE" /></property>
         <property name="toLowerCase" value="false"/>
     </bean>
+    <bean id="linkTypeParser" class="uk.ac.ebi.biostudies.api.util.parser.JPathListParser">
+        <property name="indexFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Fields.LINK_TYPE" /></property>
+        <property name="jsonFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Fields.LINK_TYPE" /></property>
+        <property name="toLowerCase" value="true"/>
+    </bean>
     <bean id="linkValueParser" class="uk.ac.ebi.biostudies.api.util.parser.JPathListParser">
         <property name="indexFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Fields.LINK_VALUE" /></property>
         <property name="jsonFieldKey"><util:constant static-field="uk.ac.ebi.biostudies.api.util.Constants.Fields.LINK_VALUE" /></property>
         <property name="toLowerCase" value="true"/>
     </bean>
-    <bean id="generalFacetWithPathParser" class="uk.ac.ebi.biostudies.api.util.parser.JPathListParser">
-        <property name="indexFieldKey" value="generalFacetWithPathParser"/>
-        <property name="jsonFieldKey"  value="generalFacetWithPathParser"/>
+    <bean id="generalWithPathParser" class="uk.ac.ebi.biostudies.api.util.parser.JPathListParser">
+        <property name="indexFieldKey" value="generalWithPathParser"/>
+        <property name="jsonFieldKey"  value="generalWithPathParser"/>
         <property name="toLowerCase" value="false"/>
     </bean>
-    <bean id="generalFacetWithoutPathParser" class="uk.ac.ebi.biostudies.api.util.parser.SimpleFacetParser">
-        <property name="indexFieldKey" value="generalFacetWithoutPathParser"/>
-        <property name="jsonFieldKey"  value="generalFacetWithoutPathParser"/>
+    <bean id="generalWithoutPathParser" class="uk.ac.ebi.biostudies.api.util.parser.SimpleAttributeParser">
+        <property name="indexFieldKey" value="generalWithoutPathParser"/>
+        <property name="jsonFieldKey"  value="generalWithoutPathParser"/>
         <property name="toLowerCase" value="false"/>
     </bean>
 
