@@ -15,7 +15,7 @@
  *
  */
 
-package uk.ac.ebi.biostudies.api.util;
+package uk.ac.ebi.biostudies.api.util.analyzer;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Tokenizer;

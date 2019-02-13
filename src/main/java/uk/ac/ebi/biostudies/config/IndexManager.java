@@ -17,10 +17,9 @@ import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.util.Constants;
-import uk.ac.ebi.biostudies.api.util.LowercaseAnalyzer;
+import uk.ac.ebi.biostudies.api.util.analyzer.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.service.IndexService;
@@ -32,8 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by ehsan on 27/02/2017.
