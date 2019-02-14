@@ -22,7 +22,7 @@
     {"name":"study_type", "title":"Study type", "fieldType":"tokenized_string", "multiValued":true, "naVisible":false, "analyzer":"CaseInsensitiveKeywordAnalyzer"},
     {"name":"experimental_design", "title":"Experimental Design", "fieldType":"tokenized_string", "multiValued":true, "naVisible":false, "analyzer":"CaseInsensitiveKeywordAnalyzer"},
     {"name":"organism", "title":"Organism", "fieldType":"tokenized_string", "multiValued":true, "naVisible":false, "analyzer":"CaseInsensitiveKeywordAnalyzer"},
-    {"name":"technology", "title":"Technology", "fieldType":"tokenized_string", "multiValued":true, "naVisible":false, "analyzer":"LowercaseAnalyzer"},
+    {"name":"technology", "title":"Technology", "fieldType":"tokenized_string", "multiValued":true, "naVisible":false, "analyzer":"CaseInsensitiveKeywordAnalyzer"},
     {"name":"assay_by_molecule", "title":"Assay by Molecule", "fieldType":"tokenized_string", "multiValued":true, "naVisible":true, "analyzer":"CaseInsensitiveKeywordAnalyzer"},
     {"name":"raw", "title":"Raw Data Available", "fieldType":"tokenized_string",  "multiValued":false, "analyzer":"CaseInsensitiveKeywordAnalyzer", "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.name==\"Raw\" && @.value=='*')].concat(\"true\")", "retrieved":false, "expanded":false, "sortable":true, "naVisible":false },
     {"name":"processed", "title":"Processed Data Available", "fieldType":"tokenized_string", "multiValued":false, "analyzer":"CaseInsensitiveKeywordAnalyzer", "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.name==\"Processed\" && @.value=='*')].concat(\"true\")", "retrieved":false, "expanded":false, "sortable":true,"naVisible":false },
