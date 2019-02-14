@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
+import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
@@ -69,6 +70,8 @@ public class IndexManager {
     Autocompletion autocompletion;
     @Autowired
     IndexService indexService;
+    @Autowired
+    ParserManager parserManager;
 
     @PostConstruct
     public void init(){
@@ -77,6 +80,7 @@ public class IndexManager {
         indexDetails = readJson(indexJsonFile);
         fillAllFields();
         analyzerManager.init(AllFields);
+        parserManager.init(AllFields);
         String indexDir = indexConfig.getIndexDirectory();
         try {
             //TODO: Start - Remove this when backend supports subprojects

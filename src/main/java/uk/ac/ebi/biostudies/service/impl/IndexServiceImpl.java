@@ -226,10 +226,7 @@ public class IndexServiceImpl implements IndexService {
             Map<String, Object> valueMap = new HashMap<>();
             String accession="";
             try {
-                parserManager.setParserContext(new HashMap<>());
-                parserManager.setValueMap(valueMap);
                 ReadContext jsonPathContext = JsonPath.parse(json.toString());
-
                 accession = parserManager.getParserPool().get(Fields.ACCESSION).parse(valueMap, json, Fields.ACCESSION, null, jsonPathContext);
                 parserManager.getParserPool().get(Fields.SECRET_KEY).parse(valueMap, json, accession,null, jsonPathContext);
                 for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(PUBLIC)){//parsing common "public" facet and fields
@@ -243,22 +240,13 @@ public class IndexServiceImpl implements IndexService {
                     return;
                 }
                 String projectName = valueMap.get(Facets.PROJECT).toString().toLowerCase();
-                AbstractParser abstractParser = null;
                 JsonNode projectSpecificFields = indexManager.getIndexDetails().findValue(projectName);
                 if(projectSpecificFields != null) {
                     for (JsonNode fieldMetadataNode : projectSpecificFields) {//parsing project's facet and fields
-                        abstractParser = findParserAndParse(fieldMetadataNode, valueMap, accession, jsonPathContext);//there exist a specific parser for this field
-                        if (abstractParser == null) {
-                            if (fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH))//general facets with json path
-                                abstractParser = parserManager.getParserPool().get("generalWithPathParser");
-                            else
-                                abstractParser = parserManager.getParserPool().get("generalWithoutPathParser");
-
-                            if (abstractParser != null)
-                                abstractParser.parse(valueMap, json, accession, fieldMetadataNode, jsonPathContext);
-                        }
+                        findParserAndParse(fieldMetadataNode, valueMap, accession, jsonPathContext);//there exist a specific parser for this field
                     }
                 }
+
                 Set<String> columnSet = new LinkedHashSet<>();
                 if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study")) {
                     Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
@@ -288,11 +276,17 @@ public class IndexServiceImpl implements IndexService {
             }
         }
 
-        private AbstractParser findParserAndParse(JsonNode fieldMetadataNode, Map<String, Object> valueMap, String accession, ReadContext jsonPathContext){
-            AbstractParser abstrctParser = parserManager.getParserPool().get(fieldMetadataNode.get("name").asText());
-            if(abstrctParser!=null)
-                abstrctParser.parse(valueMap, json, accession, fieldMetadataNode, jsonPathContext);
-            return abstrctParser;
+        private void findParserAndParse(JsonNode fieldMetadataNode, Map<String, Object> valueMap, String accession, ReadContext jsonPathContext){
+            AbstractParser abstractParser = parserManager.getParserPool().get(fieldMetadataNode.get("name").asText());
+            if(abstractParser==null) {
+                if (fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH))//general facets with json path
+                    abstractParser = parserManager.getParserPool().get("generalWithPathParser");
+                else if(fieldMetadataNode.has(IndexEntryAttributes.PARSER) && fieldMetadataNode.get(IndexEntryAttributes.PARSER).asText().equalsIgnoreCase("null"))
+                    return;
+                else
+                    abstractParser = parserManager.getParserPool().get("generalWithoutPathParser");
+            }
+            abstractParser.parse(valueMap, json, accession, fieldMetadataNode, jsonPathContext);
         }
 
         private void updateDocument(Map<String, Object> valueMap) throws IOException {

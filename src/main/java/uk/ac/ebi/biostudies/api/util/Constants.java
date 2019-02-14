@@ -38,6 +38,9 @@ public interface Constants {
         String DEFAULT_VALUE = "defaultValue";
         String NA_IS_VISIBLE = "naVisible";
         String PRIVATE = "private";
+        String PARSER = "parser";
+        String JSON_FIELD_KEY = "jsonFieldKey";
+        String TO_LOWER_CASE = "toLowerCase";
 
         interface FieldTypeValues {
             String TOKENIZED_STRING = "tokenized_string";

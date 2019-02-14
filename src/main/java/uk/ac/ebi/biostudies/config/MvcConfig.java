@@ -28,7 +28,7 @@ import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 @EnableScheduling
 @ComponentScan(basePackages = "uk.ac.ebi.biostudies")
 @PropertySource("classpath:scheduler.properties")
-@ImportResource("classpath:spring-config.xml")
+//@ImportResource("classpath:spring-config.xml")
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
 
