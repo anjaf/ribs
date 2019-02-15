@@ -19,7 +19,7 @@ var FileTable = (function (_self) {
                     return;
                 }
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
-                handleFileDownloadSelection(params.key);
+                handleFileDownloadSelection(acc,params.key);
                 handleFileFilters(response.sections);
 
             }});
@@ -130,7 +130,7 @@ var FileTable = (function (_self) {
                 }
             ],
             ajax: {
-                url: '/biostudies/api/v1/filelist',
+                url: '/biostudies/api/v1/files/'+ acc,
                 type: 'post',
                 data: function (dtData) {
                     // add file search filter
@@ -140,7 +140,7 @@ var FileTable = (function (_self) {
                         firstRender = false;
                     }
 
-                    return $.extend($.extend(dtData, {acc: acc}), params)
+                    return $.extend(dtData, params)
                 },
                 complete: function (data) {
                     //handleFileDownloadSelection();
@@ -215,7 +215,7 @@ var FileTable = (function (_self) {
     }
 
 
-    function handleFileDownloadSelection(key) {
+    function handleFileDownloadSelection(acc,key) {
 
         // add select all checkboz
         $(filesTable.columns(0).header()).html('<input id="select-all-files"  type="checkbox"/>');
@@ -226,7 +226,7 @@ var FileTable = (function (_self) {
             if ($(this).is(':checked')) {
                 $('.select-checkbox').parent().addClass('selected');
                 $('.select-checkbox input').prop('checked',true);
-                $.post('/biostudies/api/v1/filelist', $.extend(true, {}, filesTable.ajax.params(), {
+                $.post('/biostudies/api/v1/files/'+ acc, $.extend(true, {}, filesTable.ajax.params(), {
                         length: -1,
                         metadata: false,
                         start: 0

@@ -48,7 +48,8 @@ public class TaxonomyManager {
 
         for (JsonNode jsonNode : allFields) {
             if (jsonNode.get(IndexEntryAttributes.FIELD_TYPE).textValue().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.FACET)) {
-                if (jsonNode.get(IndexEntryAttributes.MULTIVALUED).asBoolean() == true) {
+                if (!jsonNode.has(IndexEntryAttributes.MULTIVALUED)
+                        || jsonNode.get(IndexEntryAttributes.MULTIVALUED).asBoolean(true)) {
                     getFacetsConfig().setMultiValued(jsonNode.get(IndexEntryAttributes.NAME).asText(), true);
                 }
                 if (jsonNode.get(IndexEntryAttributes.NAME).textValue().equalsIgnoreCase(Facets.PROJECT)) {

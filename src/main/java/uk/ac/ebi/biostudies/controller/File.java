@@ -19,15 +19,14 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 @Api(value="api", description="Rest endpoint for searching and retrieving Biostudies")
 @RestController
 @RequestMapping(value="/api/v1")
-public class Pagination {
-    private Logger logger = LogManager.getLogger(Pagination.class.getName());
+public class File {
+    private Logger logger = LogManager.getLogger(File.class.getName());
 
     @Autowired
     FilePaginationService paginationService;
 
-    @PublicRESTMethod
-    @RequestMapping(value = "/filelist", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.POST)
-    public String search(@RequestParam(value="acc", required=false, defaultValue = "") String accession,
+    @RequestMapping(value = "/files/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.POST)
+    public String search(@PathVariable(value="accession") String accession,
                          @RequestParam(value="start", required=false, defaultValue = "0") Integer start,
                          @RequestParam(value="length", required=false, defaultValue = "5") Integer pageSize,
                          @RequestParam(value="search[value]", required=false, defaultValue = "") String search,
@@ -35,18 +34,10 @@ public class Pagination {
                          @RequestParam(value="metadata", required=false, defaultValue = "true") boolean metadata,
                          @RequestParam MultiValueMap<String,String> order,
                          @RequestParam(value="key", required=false) String seckey
-                        ) throws Exception
+    ) throws Exception
     {
-        Set<String> keySet = order.keySet();
         Map parseResult = DataTableColumnInfo.ParseDataTableRequest(order);
         return paginationService.getFileList(accession, start, pageSize, search, draw, metadata, parseResult, seckey);
-    }
-
-    @PublicRESTMethod
-    @RequestMapping(value = "/info/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getStudyInfo(@PathVariable String accession, @RequestParam(value="key", required=false) String seckey){
-        return paginationService.getStudyInfo(accession, seckey).toString();
-
     }
 
 }

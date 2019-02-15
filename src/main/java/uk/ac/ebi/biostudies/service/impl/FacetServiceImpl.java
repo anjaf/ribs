@@ -189,10 +189,10 @@ public class FacetServiceImpl implements FacetService {
                     &&  !indexManager.getSubProjectMap().containsKey(prjName.toLowerCase())) {
                 continue;
             }
-            boolean invisNA = false;
+            boolean invisibleNA = false;
             String naDefaultStr = Constants.NA;
-            if(facetNode.has(Constants.IndexEntryAttributes.NA_IS_VISIBLE) && facetNode.get(Constants.IndexEntryAttributes.NA_IS_VISIBLE).asBoolean()==false)
-                invisNA = true;
+            if(facetNode.has(Constants.IndexEntryAttributes.NA_IS_VISIBLE) && facetNode.get(Constants.IndexEntryAttributes.NA_IS_VISIBLE).asBoolean(false)==false)
+                invisibleNA = true;
             if(facetNode.has(Constants.IndexEntryAttributes.DEFAULT_VALUE))
                 naDefaultStr = facetNode.get(Constants.IndexEntryAttributes.DEFAULT_VALUE).asText();
             facet.put("title", facetNode.get(Constants.IndexEntryAttributes.TITLE).asText());
@@ -203,7 +203,7 @@ public class FacetServiceImpl implements FacetService {
             List<ObjectNode> children = new ArrayList<>();
             addSelectedFacetsToResponse(children, selectedFacetFreq.get(fcResult.dim));
             for (LabelAndValue labelVal : fcResult.labelValues) {
-                if(invisNA && labelVal.label.equalsIgnoreCase(naDefaultStr))
+                if(invisibleNA && labelVal.label.equalsIgnoreCase(naDefaultStr))
                     continue;
                 if(selectedFacetFreq.containsKey(fcResult.dim) && selectedFacetFreq.get(fcResult.dim).containsKey(labelVal.label))
                     continue;

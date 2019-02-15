@@ -121,7 +121,7 @@ public class Autocompletion {
         List<JsonNode> numericalFieldNameTitle = new ArrayList<JsonNode>();
         //Add the fields that you want autoComplete be Applied
         for(JsonNode bsField:indexManager.getAllValidFields().values()) {
-            if(bsField.has(Constants.IndexEntryAttributes.EXPANDED) && bsField.get(Constants.IndexEntryAttributes.EXPANDED).asBoolean()==true)
+            if(bsField.has(Constants.IndexEntryAttributes.EXPANDED) && bsField.get(Constants.IndexEntryAttributes.EXPANDED).asBoolean(false)==true)
                 numericalFieldNameTitle.add(bsField);
         }
 

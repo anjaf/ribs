@@ -7,10 +7,16 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.biostudies.api.util.DataTableColumnInfo;
+import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
+import uk.ac.ebi.biostudies.service.FilePaginationService;
 import uk.ac.ebi.biostudies.service.SearchService;
 
 import java.io.*;
+import java.util.Map;
+import java.util.Set;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 
@@ -26,6 +32,8 @@ public class Study {
 
     @Autowired
     SearchService searchService;
+    @Autowired
+    FilePaginationService paginationService;
 
     @RequestMapping(value = "/studies/{accession:.+}", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
     public ResponseEntity<String> getStudy(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
@@ -60,4 +68,14 @@ public class Study {
                 .contentType(MediaType.APPLICATION_JSON).body("{\"similarStudies\":[]}");
 
     }
+
+    @PublicRESTMethod
+    @RequestMapping(value = "/info/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    public String getStudyInfo(@PathVariable String accession, @RequestParam(value="key", required=false) String seckey){
+        return paginationService.getStudyInfo(accession, seckey).toString();
+
+    }
+
+
+
 }

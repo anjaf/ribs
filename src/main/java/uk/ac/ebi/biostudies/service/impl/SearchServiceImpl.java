@@ -133,16 +133,14 @@ public class SearchServiceImpl implements SearchService {
                     Document doc = reader.document(hits.scoreDocs[i].doc);
                     for (String field : indexManager.getAllValidFields().keySet()) {
                         JsonNode fieldData = indexManager.getAllValidFields().get(field);
-                        if (!fieldData.has(IndexEntryAttributes.RETRIEVED) || !fieldData.get(IndexEntryAttributes.RETRIEVED).asBoolean(false)) continue;
-                        switch (fieldData.get(IndexEntryAttributes.FIELD_TYPE).asText()) {
-                            case IndexEntryAttributes.FieldTypeValues.LONG:
-                                if (doc.get(field)!=null) {
-                                    docNode.put(field, Long.parseLong(doc.get(field)));
-                                }
-                                break;
-                            default:
+                        if ( fieldData.has(IndexEntryAttributes.RETRIEVED)
+                                && fieldData.get(IndexEntryAttributes.RETRIEVED).asBoolean(false)) {
+                            if (fieldData.get(IndexEntryAttributes.FIELD_TYPE).asText() ==IndexEntryAttributes.FieldTypeValues.LONG
+                                 && doc.get(field) != null) {
+                                        docNode.put(field, Long.parseLong(doc.get(field)));
+                            } else {
                                 docNode.put(field, doc.get(field));
-                                break;
+                            }
                         }
                     }
                     docNode.put("isPublic",
