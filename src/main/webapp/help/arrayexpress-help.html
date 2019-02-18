@@ -60,7 +60,8 @@
 <table>
     <thead>
     <tr>
-        <th>Field&nbsp;name</th>
+        <th>Old Field&nbsp;name</th>
+        <th>New Field&nbsp;name</th>
         <th>What is searched?</th>
         <th>ArrayExpress Example</th>
         <th>BioStudies URL</th>
@@ -68,20 +69,23 @@
     </thead>
     <tbody>
     <tr>
-        <td><strong>accession</strong></td>
+        <td>accession</td>
+        <td></td>
         <td>Experiment primary ArrayExpress or secondary (GEO, ENA, EGA etc) accession</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?accession=E-MEXP-31</td>
-        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/files/E-MEXP-31/E-MEXP-31.json
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/studies/E-MEXP-31
         </td>
     </tr>
     <tr>
-        <td><strong>array</strong></td>
+        <td>array</td>
+        <td>TBD</td>
         <td>Array design accession or name (wildcards supported)</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/files?array=A-AFFY-33</td>
         <td>TBD</td>
     </tr>
     <tr>
-        <td><strong>expdesign</strong></td>
+        <td>expdesign</td>
+        <td>experimental_design</td>
         <td>Experiment design type, related to the questions being addressed by the study, e.g. "time series design",
             "stimulus or stress design", "genetic modification design". Has EFO expansion.
         </td>
@@ -89,7 +93,8 @@
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?experimental_design="dose response"</td>
     </tr>
     <tr>
-        <td><strong>exptype</strong></td>
+        <td>exptype</td>
+        <td>study_type</td>
         <td>Experiment type, related to the assay technology used. <a href="experiment_types.html">List of experiment
             types in ArrayExpress</a>. Has EFO expansion.
         </td>
@@ -97,7 +102,8 @@
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?study_type="RNA-seq of non coding RNA"</td>
     </tr>
     <tr>
-        <td><strong>ef</strong> or <strong>ev</strong></td>
+        <td>ef</strong> or <strong>ev</td>
+        <td>experimental_factor</td>
         <td>Experimental factor (also called experimental variable), the name of the main variable under study in an
             experiment. E.g. if the factor is "sex" in a human study, the researchers would be comparing between male
             and female samples, and "sex" is not merely an attribute the samples happen to have. Has EFO expansion.
@@ -106,7 +112,8 @@
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?experimental_factor="cell type"</td>
     </tr>
     <tr>
-        <td><strong>efv</strong> or <strong>evv</strong></td>
+        <td>efv</strong> or <strong>evv</td>
+        <td>experimental_factor_value</td>
         <td>The value of an experimental factor. E.g. The values for "genotype" factor can be "wild type genotype",
             "p53-/-". Has EFO expansion.
         </td>
@@ -114,13 +121,15 @@
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?experimental_factor_value=HeLa</td>
     </tr>
     <tr>
-        <td><strong>sa</strong></td>
+        <td>sa</td>
+        <td>source_characteristics</td>
         <td>Sample attribute values, e.g. "male", "liver". Has EFO expansion.</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/files?sa=fibroblast</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?source_characteristics=fibroblast</td>
     </tr>
     <tr>
-        <td><strong>sac</strong></td>
+        <td>sac</td>
+        <td>source_characteristics_value</td>
         <td>Sample attribute category that is defined in an experiment, e.g. "age", "cell type", "disease". Has EFO
             expansion.
         </td>
@@ -128,7 +137,8 @@
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?source_characteristics_value=age</td>
     </tr>
     <tr>
-        <td><strong>species</strong></td>
+        <td>species</td>
+        <td>organism</td>
         <td>Species of the samples. Can use common name (e.g. "mouse") or binomial nomenclature/Latin names (e.g. "Mus
             musculus"). Has EFO expansion.
         </td>
@@ -136,13 +146,15 @@
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?organism="homo sapien"</td>
     </tr>
     <tr>
-        <td><strong>pmid</strong></td>
+        <td>pmid</td>
+        <td></td>
         <td>PubMed identifier</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?pmid=16553887</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?link_type=pmid&link_value=16553887</td>
     </tr>
     <tr>
-        <td><strong>gxa</strong></td>
+        <td>gxa</td>
+        <td>gxa</td>
         <td>Presence ("true") / absence ("false") of an ArrayExpress experiment in the <a href="/gxa">Expression
             Atlas</a>.
         </td>
@@ -150,7 +162,8 @@
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?gxa=true</td>
     </tr>
     <tr>
-        <td><strong>directsub</strong></td>
+        <td>directsub</td>
+        <td></td>
         <td>If "true" only returns experiments directly submitted to ArrayExpress (i.e. not imported from GEO). For more
             information about how we import data from GEO see the <a href="GEO_data.html">GEO data help page</a>.
         </td>
@@ -158,60 +171,69 @@
         <td>TBD</td>
     </tr>
     <tr>
-        <td><strong>raw</strong></td>
+        <td>raw</td>
+        <td>raw</td>
         <td>Experiment has raw data available.</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?raw=true</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?raw=true</td>
     </tr>
     <tr>
-        <td><strong>processed</strong></td>
+        <td>processed</td>
+        <td>processed</td>
         <td>Experiment has processed data available.</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?processed=true</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?processed=true</td>
     </tr>
     </tr>
     <tr>
-        <td><strong>assaycount</strong> [x&nbsp;TO&nbsp;y]</td>
+        <td>assaycount</td>
+        <td>assay_count</td>
         <td>The number of of assays where x &lt;= y and both values are between 0 and 99,999 (<strong>inclusive</strong>).
             To count <strong>excluding</strong> the values given use curly brackets e.g. assaycount={1 TO 5} will find
             experiments with 2-4 assays. Single numbers may also be given e.g. assaycount=10 will find experiments with
             10 assays.
         </td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?assaycount=[1 TO 5]</td>
-        <td>TBD</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?assay_count=[1 TO 5]</td>
     </tr>
     <tr>
-        <td><strong>samplecount</strong> [x&nbsp;TO&nbsp;y]</td>
+        <td>samplecount</td>
+        <td>sample_count</td>
         <td>The number of samples</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?samplecount=[1 TO 5]</td>
-        <td>TBD</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?sample_count=[1 TO 5]</td>
     </tr>
     <tr>
-        <td><strong>efcount</strong> [x&nbsp;TO&nbsp;y]</td>
+        <td>efcount</td>
+        <td>experimental_factor_count</td>
         <td>The number of experimental factors</td>
         <td>https://www.ebi.ac.uk/arrayexpressxml/v3/experiments?efcount=[1 TO 5]</td>
-        <td>TBD</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?experimental_factor_count=[1 TO 5]</td>
     </tr>
     <tr>
-        <td><strong>sacount</strong> [x&nbsp;TO&nbsp;y]</td>
+        <td>sacount</td>
+        <td></td>
         <td>The number of sample attribute categories</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?sacount=[1 TO 5]</td>
-        <td>TBD</td>
+        <td>deprecated</td>
     </tr>
     <tr>
-        <td><strong>miamescore</strong> [x&nbsp;TO&nbsp;y]</td>
+        <td>miamescore</td>
+        <td>miame_score</td>
         <td>The <a href="http://fged.org/projects/miame/">MIAME</a> compliance score (maximum score is 5)</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?miamescore=[1 TO 5]</td>
-        <td>TBD</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?miame_score=[1 TO 5]</td>
     </tr>
     <tr>
-        <td><strong>minseqe</strong> [x&nbsp;TO&nbsp;y]</td>
+        <td>minseqe</td>
+        <td>minseqe_score</td>
         <td>The <a href="http://www.fged.org/projects/minseqe/">MINSEQE</a> compliance score (maximum score is 5)</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?minseqescore=[1 TO 5]</td>
-        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?minseq_score=[1 TO 5]</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?minseqe_score=[1 TO 5]</td>
     </tr>
     <tr>
-        <td><strong>date</strong></td>
+        <td>date</td>
+        <td></td>
         <td>The release date of the experiment. Format is [YYYY-MM-DD]. Wildcards supported. For example:<br>
             <code>date=2009-12-01</code> will search for experiments released on 1st of Dec 2009.<br>
             <code>date=2009*</code> will search for experiments released in 2009.<br>

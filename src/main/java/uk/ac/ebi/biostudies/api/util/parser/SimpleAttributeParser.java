@@ -30,7 +30,7 @@ public class SimpleAttributeParser extends AbstractParser {
                     result =  String.join (Constants.Facets.DELIMITER, resultData);
                     break;
                 case Constants.IndexEntryAttributes.FieldTypeValues.LONG:
-                    result = resultData.stream().collect(Collectors.counting());
+                    result =  resultData.size()==1 ? Long.parseLong(resultData.get(0).toString()) :  resultData.stream().collect(Collectors.counting());
                     break;
                 default:
                     result =  String.join (" ", resultData);
