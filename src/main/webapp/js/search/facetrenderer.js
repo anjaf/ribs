@@ -112,7 +112,7 @@ var FacetRenderer = (function (_self) {
             $('.toggle-facet', this).find('[data-fa-i2svg]').toggleClass('fa-angle-right fa-angle-down');
         });
 
-        handleProjectBasedScriptInjection();
+        handleProjectBasedScriptInjection(data);
     }
 
     function showAllFacets (thisFacet, params, data) {
@@ -183,8 +183,8 @@ var FacetRenderer = (function (_self) {
 
     }
 
-    function handleProjectBasedScriptInjection() {
-        if ($.inArray(project.toLowerCase(), projectScripts)==-1 ) return;
+    function handleProjectBasedScriptInjection(data) {
+        if ($.inArray(data.project && data.project.toLowerCase(), projectScripts)==-1 ) return;
         var scriptURL = window.contextPath + '/js/project/facets/' + project.toLowerCase() + '.js';
         $.getScript(scriptURL);
     }

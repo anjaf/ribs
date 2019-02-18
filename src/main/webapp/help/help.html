@@ -1,12 +1,14 @@
 <style>
-    p{
+    p {
         text-align: justify;
     }
+
     .mono {
         font-family: Consolas, monospace, 'Courier New';
         font-size: 10pt;
         color: #58585a;
     }
+
     pre {
         font-family: Consolas, monospace, 'Courier New';
         font-size: 9pt;
@@ -15,6 +17,42 @@
         padding: 10pt;
         background-color: #eee;
     }
+
+    table.apidoc td:first-child {
+        font-weight: bold;
+    }
+
+    .api {
+        font-family: Consolas, monospace, 'Courier New';
+        font-size: 10pt;
+        color: #aaaaaa;
+        font-style: italic;
+    }
+
+    details {
+        padding: 10pt;
+    }
+
+    summary {
+        cursor: pointer;
+        padding: 10pt;
+        background-color: #efefef;
+    }
+
+    code {
+        border: 0;
+        background: #efefef;
+        font-family: Consolas, monospace, 'Courier New';
+        font-size: 90%;
+    }
+
+    .endpoint {
+        color: white;
+        background-color: #58585a;
+        padding: 3pt;
+        border-radius: 4pt;
+    }
+
 </style>
 <h3>How to search BioStudies database</h3>
 
@@ -64,17 +102,25 @@
 
 <h3 id="download">How to download public studies</h3>
 <p> In addition to file download from the BioStudies website, we also support FTP and Aspera based downloads. In
-    both cases you will need to know the location of the files belonging to a particular study. We partition data first by
-    the pipeline, such as <span class="mono">S-EPMC</span> for data imported from EuropePMC, <span class="mono">S-BSST</span> for data submitted via BioStudies
-    Submission Tool, or <span class="mono">S-DIXA-</span> for data belonging to the ‘diXa’ toxicogenomics data collection. The next
+    both cases you will need to know the location of the files belonging to a particular study. We partition data first
+    by
+    the pipeline, such as <span class="mono">S-EPMC</span> for data imported from EuropePMC, <span
+            class="mono">S-BSST</span> for data submitted via BioStudies
+    Submission Tool, or <span class="mono">S-DIXA-</span> for data belonging to the ‘diXa’ toxicogenomics data
+    collection. The next
     partition level is by the last 3 digits of the study accession number. E.g., all EuropePMC studies with
-    accession numbers ending on <span class="mono">001</span> will be in the folder <span class="mono">S-EPMC/S-EPMCxxx001</span>. So, if the study you want to
-    access is <span class="mono">S-EPMC521001</span>, the path will be <span class="mono">S-EPMC/S-EPMCxxx001/S-EPMC521001</span>. If there are less than 3 digits
-    in an accession number, e.g., <span class="mono">S-BSST12</span>, the directory will be <span class="mono">S-BSST/S-BSST0-99/S-BSST12</span>.</p>
+    accession numbers ending on <span class="mono">001</span> will be in the folder <span class="mono">S-EPMC/S-EPMCxxx001</span>.
+    So, if the study you want to
+    access is <span class="mono">S-EPMC521001</span>, the path will be <span class="mono">S-EPMC/S-EPMCxxx001/S-EPMC521001</span>.
+    If there are less than 3 digits
+    in an accession number, e.g., <span class="mono">S-BSST12</span>, the directory will be <span class="mono">S-BSST/S-BSST0-99/S-BSST12</span>.
+</p>
 
 <h4>FTP downloads</h4>
-<p>The FTP server is <span class="mono">ftp.biostudies.ebi.ac.uk</span>; anonymous downloads are enabled. You can explore access through
-    FTP via your web browser, e.g., <a target="_blank" href="ftp://ftp.biostudies.ebi.ac.uk/pub/S-BSST/S-BSST0-99/S-BSST12">
+<p>The FTP server is <span class="mono">ftp.biostudies.ebi.ac.uk</span>; anonymous downloads are enabled. You can
+    explore access through
+    FTP via your web browser, e.g., <a target="_blank"
+                                       href="ftp://ftp.biostudies.ebi.ac.uk/pub/S-BSST/S-BSST0-99/S-BSST12">
         <span class="mono">ftp://ftp.biostudies.ebi.ac.uk/pub/S-BSST/S-BSST0-99/S-BSST12</span></a>. Use any FTP
     client such as FileZilla, or issue FTP commands via a command line, e.g.,
     <span class="mono">wget ftp://ftp.biostudies.ebi.ac.uk/pub/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna</span>
@@ -90,31 +136,173 @@
 
 <h4>Aspera downloads</h4>
 <p>Aspera <span class="mono">ascp</span> command line client can be downloaded here:
-    <a href="http://www.asperasoft.com/downloads/connect" target="_blank">http://www.asperasoft.com/downloads/connect</a>. Please
+    <a href="http://www.asperasoft.com/downloads/connect"
+       target="_blank">http://www.asperasoft.com/downloads/connect</a>. Please
     select the correct operating system. The ascp command line client is distributed as part of the ‘Aspera
     connect’ high-performance transfer browser plug-in.
     Your command for download should be like this:
 <pre>ascp -P33001 -i &lt;aspera key&gt; bsaspera@fasp-beta.ebi.ac.uk:&lt;files to download&gt; &lt;download location on your machine&gt;</pre>
 where
 <ul>
-    <li>P33001 and <span class="mono">bsaspera@fasp-beta.ebi.ac.uk</span> defines the server, port and user for Aspera connection</li>
+    <li>P33001 and <span class="mono">bsaspera@fasp-beta.ebi.ac.uk</span> defines the server, port and user for Aspera
+        connection
+    </li>
     <li>Aspera key (<span class="mono">asperaweb_id_dsa.openssh</span>) is the public key for Aspera connection.
         &lt;aspera key&gt; might be:
         <ul>
-            <li>on Linux: <span class="mono">&lt;aspera connect installation directory&gt;/etc/asperaweb_id_dsa.openssh</span></li>
-            <li>on Mac OSX: <span class="mono">&lt;aspera connect installation directory&gt;/asperaweb_id_dsa.openssh</span></li>
-            <li>on Windows: <span class="mono">"%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span> for
+            <li>on Linux: <span
+                    class="mono">&lt;aspera connect installation directory&gt;/etc/asperaweb_id_dsa.openssh</span></li>
+            <li>on Mac OSX: <span
+                    class="mono">&lt;aspera connect installation directory&gt;/asperaweb_id_dsa.openssh</span></li>
+            <li>on Windows: <span class="mono">"%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span>
+                for
                 if Aspera Connect has been installed only for the current user or
                 <span class="mono">"%programfiles(x86)%\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span>
-                if Aspera Connect has been installed for all users</li>
+                if Aspera Connect has been installed for all users
+            </li>
         </ul>
     </li>
     <li><span class="mono">&lt;files to download&gt;</span> might be all files for a certain study, as explained above.
-        Please note that Aspera paths do not need to have <span class="mono">pub</span> as the root folder.</li>
+        Please note that Aspera paths do not need to have <span class="mono">pub</span> as the root folder.
+    </li>
 </ul>
 
-For instance, here's the command line to download the file <span class="mono">aeipf_denoised_reads.fna</span> from submission <span class="mono">S-BSST12</span> to the directory <span class="mono">C:\Temp</span> on Windows.
+For instance, here's the command line to download the file <span
+        class="mono">aeipf_denoised_reads.fna</span> from submission <span class="mono">S-BSST12</span> to the directory
+<span class="mono">C:\Temp</span> on Windows.
 <pre class="pre">
             "%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\bin\ascp.exe" -P33001  -i "%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh" bsaspera@fasp-beta.ebi.ac.uk:/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna C:\Temp\
         </pre>
 </p>
+
+<h3>REST API</h3>
+<details>
+    <summary id="api-search"><code class="endpoint">/api/v1/search</code> Returns a list of studies according to the search criteria</summary>
+    <p>
+        This end-point takes the following parameters and returns a list of studies according to the search criteria.
+        Minimal meta data is returned for each study &ndash; You need to download the study detail file separately for
+        a complete representation of each result.
+    <table class="apidoc">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>accession</td>
+            <td>Searches for a specific BioStudies accession. Wildcards are allowed after the first character e.g.
+                S-EPMC*
+            </td>
+        </tr>
+        <tr>
+            <td>title</td>
+            <td>Searches for presence of the parament in the title of the study</td>
+        </tr>
+        <tr>
+            <td>author</td>
+            <td>Searches for presence of the parameter in the name of the author(s)/submitter(s) of the study</td>
+        </tr>
+        <tr>
+            <td>release_date</td>
+            <td>Searches for a specific date when the study was released to public in BioStudies. Date format is
+                yyyy-mm-dd.
+            </td>
+        </tr>
+        <tr>
+            <td>content</td>
+            <td>Free-text search in any part of the study content (including file names and links)</td>
+        </tr>
+        <tr>
+            <td>links</td>
+            <td>Number of links in the study</td>
+        </tr>
+        <tr>
+            <td>files</td>
+            <td>Number of files in the study</td>
+        </tr>
+        <tr>
+            <td>orcid</td>
+            <td>Searched for the <a href="https://orcid.org/" target="_blank">ORCID</a> of any authors of the study (if
+                available)
+            </td>
+        </tr>
+        <tr>
+            <td>type</td>
+            <td>The types currently supported are <code>study</code> and <code>project</code></td>
+        </tr>
+        <tr id="link_type_doc">
+            <td>link_type</td>
+            <td>Searches for a specific type of link to external databases in the study. (cf. <a href="#link_value_doc">link_value</a>).
+                <details>
+                    <summary>Click here to view the types of supported link types and their corresponding websites.</summary>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Link Type</th>
+                            <th>Website</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>pmc</td><td>https://europepmc.org/articles/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>pmid</td><td>https://europepmc.org/abstract/MED/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>doi</td><td>https://dx.doi.org/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>chembl</td><td>https://www.ebi.ac.uk/chembldb/compound/inspect/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>ega</td><td>https://www.ebi.ac.uk/ega/studies/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>uniprot</td><td>http://www.uniprot.org/uniprot/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>ena</td><td>https://www.ebi.ac.uk/ena/data/view/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>arrayexpress files</td><td>https://www.ebi.ac.uk/arrayexpress/experiments/<span class="api">&lt;link_value&gt;</span>/files/</td></tr>
+                            <tr><td>arrayexpress</td><td>https://www.ebi.ac.uk/arrayexpress/experiments/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>dbsnp</td><td>http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>pdbe</td><td>https://www.ebi.ac.uk/pdbe-srv/view/entry/<span class="api">&lt;link_value&gt;</span>/summary</td></tr>
+                            <tr><td>pfam</td><td>http://pfam.xfam.org/family/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>omim</td><td>http://omim.org/entry/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>interpro</td><td>https://www.ebi.ac.uk/interpro/entry/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>nucleotide</td><td>http://www.ncbi.nlm.nih.gov/nuccore/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>geo</td><td>http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>intact</td><td>https://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc=<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>biostudies</td><td>/studies/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>biostudies title</td><td>/studies?first&query=title%3A%22<span class="api">&lt;link_value&gt;</span>%22</td></tr>
+                            <tr><td>biostudies search</td><td>/studies?query=<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>go</td><td>http://amigo.geneontology.org/amigo/term/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>chebi</td><td>https://www.ebi.ac.uk/chebi/searchId.do?chebiId=<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>bioproject</td><td>https://www.ncbi.nlm.nih.gov/bioproject/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>biosamples</td><td>https://www.ebi.ac.uk/biosamples/samples/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>chemagora</td><td>http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>compound</td><td>https://www.ebi.ac.uk/biostudies/studies/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>rfam</td><td>http://rfam.org/family/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>rnacentral</td><td>http://rnacentral.org/rna/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>nct</td><td>https://clinicaltrials.gov/ct2/show/<span class="api">&lt;link_value&gt;</span></td></tr>
+                            <tr><td>gxa</td><td>https://www.ebi.ac.uk/gxa/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies</td></tr>
+                            <tr><td>gxa-sc</td><td>https://www.ebi.ac.uk/gxa/sc/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies</td></tr>
+                        </tbody>
+                    </table>
+                </details>
+            </td>
+        </tr>
+        <tr id="link_value_doc">
+            <td>link_value</td>
+            <td>Searches in the value of the <a href="#link_type_doc">link type</a> field. Most link values are
+                accessions of the corresponding databases, e.g., you can combine link_value with link_type and use <code>/search?link_type=pmid&link_value=16553887</code>
+                to search search for a study with PMID 16553887.</td>
+        </tr>
+        </tbody>
+    </table>
+    </p>
+
+</details>
+<details>
+    <summary><code class="endpoint">/api/v1/{project}/search</code> Returns a list of studies in the specified project according to the search criteria</summary>
+    <p>
+        This end-point is similar to <a href="#api-search"><code>/api/v1/search</code></a> but limits the study list to the specified project.
+        You can use the API to get a list of <a href="api/v1/search?type=project" target="_blank">all available projects</a> to search in.
+    </p>
+</details>
+<details>
+    <summary><code class="endpoint">/api/v1/studies/{accession}</code> Returns the detailed JSON for a particular accession</summary>
+    <p>
+        This end-point returns the details of the study in the PageTab JSON format if accessible.
+    </p>
+</details>
+
