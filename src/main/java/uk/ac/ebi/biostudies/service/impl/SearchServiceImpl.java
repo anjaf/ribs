@@ -135,7 +135,7 @@ public class SearchServiceImpl implements SearchService {
                         JsonNode fieldData = indexManager.getAllValidFields().get(field);
                         if ( fieldData.has(IndexEntryAttributes.RETRIEVED)
                                 && fieldData.get(IndexEntryAttributes.RETRIEVED).asBoolean(false)) {
-                            if (fieldData.get(IndexEntryAttributes.FIELD_TYPE).asText() ==IndexEntryAttributes.FieldTypeValues.LONG
+                            if (fieldData.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.LONG)
                                  && doc.get(field) != null) {
                                         docNode.put(field, Long.parseLong(doc.get(field)));
                             } else {
