@@ -31,6 +31,9 @@ public class Study {
 
     @RequestMapping(value = "/studies/{accession:.+}", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
     public ResponseEntity<String> getStudy(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
+        if ("null".equalsIgnoreCase(seckey)) {
+            seckey = null;
+        }
         accession = searchService.getAccessionIfAccessible(accession, seckey);
         if(accession==null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -66,6 +69,9 @@ public class Study {
     @RequestMapping(value = "/studies/{accession:.+}/info", produces = {MediaType.TEXT_PLAIN_VALUE}, method = RequestMethod.GET)
     public ResponseEntity<String> getSecretKey(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
         String securityKey="{}";
+        if ("null".equalsIgnoreCase(seckey)) {
+            seckey = null;
+        }
         try {
             accession = searchService.getAccessionIfAccessible(accession, seckey);
             if(accession!=null) {
