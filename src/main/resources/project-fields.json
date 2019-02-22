@@ -15,7 +15,7 @@
     { "name": "experimental_factor_value", "title": "Experimental Factor Value", "jsonPath": "$..subsections[?(@.type==\"Experimental Factors\")]..attributes..value", "fieldType": "tokenized_string"},
     { "name": "source_characteristics", "title": "Source Characteristics", "jsonPath": "$..subsections[?(@.type==\"Source Characteristics\")]..attributes..name", "fieldType": "tokenized_string"},
     { "name": "source_characteristics_value", "title": "Source Characteristics Value", "jsonPath": "$..subsections[?(@.type==\"Source Characteristics\")]..attributes..value", "fieldType": "tokenized_string"},
-    {"name":"minseq_score", "title":"MinSeq Score", "fieldType":"long", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.value==\"*\")]", "parser":"NodeCounter", "retrieved":true, "expanded":false, "sortable":true},
+    { "name": "minseq_score", "title":"MinSeq Score", "fieldType":"long", "multiValued":false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.value==\"*\")]", "parser":"NodeCounter", "sortable":true},
     { "name": "study_type", "title": "Study type", "fieldType": "tokenized_string"},
     { "name": "experimental_design", "title": "Experimental Design", "fieldType": "tokenized_string"},
     { "name": "organism", "title": "Organism", "fieldType": "tokenized_string"},
