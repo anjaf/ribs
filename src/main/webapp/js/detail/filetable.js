@@ -291,8 +291,7 @@ var FileTable = (function (_self) {
         if(isZip)
             imgFormats.splice(1,0,'zip');
         $(filesTable.column(1).nodes()).each(function () {
-            var path = encodeURI($('input',$(this).prev()).data('name').replaceAll('#',
-            ;
+            var path = encodeURI($('input',$(this).prev()).data('name').replaceAll('#','%23'));
             $('a',this).addClass('overflow-name-column');
             $('a',this).attr('title',$(this).text());
             if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
