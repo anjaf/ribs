@@ -1128,7 +1128,7 @@ function handleAnchors() {
     //encode anchors in filenames
     $(filesTable.column(1).nodes()).each( function(){
         $('a[href]',this).each( function() {
-            $(this).attr('href', $(this).attr('href').replaceAll('#','%23') );
+            $(this).attr('href', encodeURI($(this).attr('href').replaceAll('#','%23')));
         })
     });
 
@@ -1219,7 +1219,7 @@ function clearLinkFilter() {
 
 function handleThumbnails() {
     $(filesTable.column(1).nodes()).each(function () {
-        var path = $('input',$(this).prev()).data('name').replaceAll('#','%23');
+        var path = encodeURI($('input',$(this).prev()).data('name')).replaceAll('#','%23');
         $('a',this).addClass('overflow-name-column');
         $('a',this).attr('title',$(this).text());
         if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
