@@ -36,6 +36,9 @@ public class File {
                          @RequestParam(value="key", required=false) String seckey
     ) throws Exception
     {
+        if ("null".equalsIgnoreCase(seckey)) {
+            seckey = null;
+        }
         Map parseResult = DataTableColumnInfo.ParseDataTableRequest(order);
         return paginationService.getFileList(accession, start, pageSize, search, draw, metadata, parseResult, seckey);
     }
