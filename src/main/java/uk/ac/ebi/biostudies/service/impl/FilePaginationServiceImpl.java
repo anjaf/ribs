@@ -28,7 +28,6 @@ import uk.ac.ebi.biostudies.service.FilePaginationService;
 import uk.ac.ebi.biostudies.service.SearchService;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Service
@@ -83,8 +82,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         String sectionsWithFiles = doc.get(Constants.Fields.SECTIONS_WITH_FILES);
         studyInfo.set("columns", fileColumnAttributes);
         studyInfo.put("files", doc.get(Constants.Fields.FILES));
-        studyInfo.put("modified", Long.parseLong(doc.get(Constants.Fields.MODIFICATION_TIME)) );
-        setSecretKey(studyInfo, doc);
+        setPrivateData(studyInfo, doc);
         try {
             if (sectionsWithFiles!=null) {
                 studyInfo.set("sections", mapper.readTree("[\"" +
@@ -213,7 +211,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         return logicQueryBuilder.build();
     }
 
-    private void setSecretKey(ObjectNode studyInfo, Document doc){
+    private void setPrivateData(ObjectNode studyInfo, Document doc){
         User currentUser = Session.getCurrentUser();
         if( !(doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public ")
                  || (currentUser!=null && currentUser.isSuperUser())) {
@@ -221,6 +219,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             if (key!=null) {
                 studyInfo.put(Constants.Fields.SECRET_KEY, key.stringValue());
             }
+            studyInfo.put("modified", Long.parseLong(doc.get(Constants.Fields.MODIFICATION_TIME)) );
         }
 
     }

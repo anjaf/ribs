@@ -33,6 +33,7 @@ var FileTable = (function (_self) {
     };
 
     function handleModificationDate(t) {
+        if (!t) return;
         $('.release-date').append('&nbsp; ' + String.fromCharCode(0x25AA)+' &nbsp; Modified: '+ getDateFromEpochTime(t));
     }
 
