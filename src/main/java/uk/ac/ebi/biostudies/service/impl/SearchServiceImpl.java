@@ -17,6 +17,7 @@ import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
@@ -143,9 +144,11 @@ public class SearchServiceImpl implements SearchService {
                             }
                         }
                     }
-                    docNode.put("isPublic",
-                            (" " + doc.get(Fields.ACCESS) + " ").toLowerCase().contains(" public ")
-                    );
+                    boolean isPublic = (" " + doc.get(Fields.ACCESS) + " ").toLowerCase().contains(" public ");
+                    docNode.put("isPublic", isPublic);
+                    if (!isPublic) {
+                        docNode.put("modification_time", doc.get(Fields.MODIFICATION_TIME));
+                    }
 
                     if (doHighlight) {
                         docNode.put(Fields.CONTENT,
