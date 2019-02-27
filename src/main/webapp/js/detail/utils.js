@@ -1,8 +1,3 @@
-function getDateFromEpochTime(t) {
-    var date = (new Date(t)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
-    return date == 'Invalid Date' ? (new Date()).getFullYear() : date;
-}
-
 
 String.format = function() {
     var s = arguments[0];

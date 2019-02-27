@@ -109,7 +109,7 @@ var Searcher = (function (_self) {
         });
 
         Handlebars.registerHelper('printDate', function(v) {
-            return new Date(v).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+            return getDateFromEpochTime(v);
         });
 
         Handlebars.registerHelper('dynamicLink', function(query) {
