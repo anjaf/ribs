@@ -1,12 +1,14 @@
 <style>
-    p{
+    p {
         text-align: justify;
     }
+
     .mono {
         font-family: Consolas, monospace, 'Courier New';
         font-size: 10pt;
         color: #58585a;
     }
+
     pre {
         font-family: Consolas, monospace, 'Courier New';
         font-size: 9pt;
@@ -15,8 +17,94 @@
         padding: 10pt;
         background-color: #eee;
     }
-</style>
-<h3>How to submit data to BioImages Archive</h3>
 
-<p>Please send us an email at <a href="mailto:biostudies@ebi.ac.uk" target="_blank">biostudies@ebi.ac.uk</a>
-     describing your study and data and we will guide you through the submission process.</p>
+    #creating li {
+        margin-top: 10pt;
+    }
+</style>
+<h3>Creating a Submission</h3>
+
+<p>
+<ol id="creating">
+    <li>You will need a BioStudies account. You can sign up here <a
+            href="https://www.ebi.ac.uk/biostudies/submissions/#/signup" target="_blank">https://www.ebi.ac.uk/biostudies/submissions/#/signup</a>
+        or follow the link from Submit on the BioStudies homepage.
+    </li>
+    <li>Once you have an account please email <a href="mailto:biostudies@ebi.ac.uk">biostudies@ebi.ac.uk</a> we will be
+        able to provide you with your secret
+        directory name to allow you to upload your raw image files.
+    </li>
+    <li>Visit <a target="_blank" href="ftp://ftp.biostudies.ebi.ac.uk/pub/BioImaging">ftp://ftp.biostudies.ebi.ac.uk/pub/BioImaging</a>
+        here you will find two templates. One for high content
+        screens and one for non-high content screen image studies please download the one most appropriate for your
+        study.
+    </li>
+    <li>Fill in <b>all the tabs</b> of the template and email it back to <a href="mailto:biostudies@ebi.ac.uk">biostudies@ebi.ac.uk</a>.
+        The first tab contains the
+        metadata for the study. The second tab is the "library file" this contains the information of what each image
+        contains and how it relates to your study.
+    </li>
+    <li>Prepare your raw data. Ideally your raw image files will be contained in a single directory with a logical
+        hierarchical file structure.
+    </li>
+    <li>Upload your raw files (see instructions below) and any other data applicable to the study, known as processed
+        data. Please ensure the file name and brief description of the files are inputted on the metadata submission.
+    </li>
+    <li>We will check the submission and will load it into the BioStudies database we will then e-mail you back your
+        unique BioStudies identifier and details on how to access and share your study with others.
+    </li>
+</ol>
+</p>
+
+<h3>Uploading Files using FTP and Aspera</h3>
+<p>
+    BioStudies submitters can use the BioStudies Submission Tool web application for uploading data file. However, for
+    large information volumes (i.e., number and/or size of files) this is not practical. This is particulaly applicable
+    for image studies. Therefore, FTP and Aspera can be used for uploads. You will need to know your secret directory
+    name to be able to upload data into your BioStudies ‘Files’ area.
+</p>
+
+<h4>FTP uploads</h4>
+<p>
+    The FTP server is ftp-private.ebi.ac.uk, FTP user is ‘bsftp’, and the password is ‘bsftp1’. Use any FTP client such
+    as FileZilla, or issue FTP commands via a command line, e.g.,
+</p>
+<p>
+<pre>
+    ftp ftp-private.ebi.ac.uk
+    Name: bsftp
+    Password: bsftp1
+    ftp> cd 78/348482-52fd-4ade-9273-bdeac6d93423-a116(this is an example of the secret key directory name)
+    ftp> put testFile
+    </pre>
+</p>
+<h4>Aspera uploads</h4>
+<p>Aspera <span class="mono">ascp</span> command line client can be downloaded here: <a target="_blank"
+                                                                href="http://www.asperasoft.com/downloads/connect">http://www.asperasoft.com/downloads/connect</a>.
+    Please select the correct operating system. The <span class="mono">ascp</span> command line client is distributed as part of the ‘Aspera
+    Connect’ high-performance transfer browser plug-in.
+</p>
+<p>Your command for upload should be like this:</p>
+<pre>
+    ascp -P33001 -i &lt;path to asperaweb_id_dsa.openssh file&gt; -d &lt;local directory to upload&gt; bsaspera_w@hx-fasp-1.ebi.ac.uk:.dropbox/&lt;secret directory name&gt;</pre>
+where
+<ul>
+    <li><span class="mono">-P33001</span> and <span class="mono">bsaspera@fasp-beta.ebi.ac.uk</span> defines the
+        server, port and user for Aspera connection
+    </li>
+    <li><span class="mono">-d</span> tells the server to create the directory if it does not yet exist</li>
+    <li><span class="mono">asperaweb_id_dsa.openssh</span> is the public key for Aspera connection. <span class="mono">&lt;path to asperaweb_id_dsa.openssh file&gt</span>;
+        might be:
+        <ol>
+            <li> on Linux: <span class="mono">&lt;aspera connect installation directory&gt;/etc/asperaweb_id_dsa.openssh</span></li>
+            <li> on Mac OSX: <span class="mono">&lt;aspera connect installation directory&gt;/asperaweb_id_dsa.openssh</span></li>
+            <li> on Windows: <span class="mono">"%userprofile%\AppData\Local\Programs\Aspera\Aspera
+                Connect\etc\asperaweb_id_dsa.openssh"</span>
+            </li>
+        </ol>
+    </li>
+    <li>
+        <secret directory name> looks like this: <span class="mono">12/348482-5ded-45de-9273-badec6d93423-a111</span>
+    </li>
+
+</ul>

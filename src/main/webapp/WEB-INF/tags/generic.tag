@@ -123,7 +123,7 @@
                         <li class="${pagename.equals('/jsp/search.jsp')? 'active':''}"><a href="${contextPath}/studies/" title="Browse BioStudies">Browse</a></li>
                         <li class="${pagename.equals('/jsp/submit.jsp')? 'active':''}"><a href="${contextPath}/submit" title="Submit a study">Submit</a></li>
                         <li class="${pagename.equals('/jsp/help.jsp')? 'active':''}"><a href="help" title="Help">Help</a></li>
-                        <li class="${pagename.equals('/jsp/about.jsp')? 'active':''}"><a href="${contextPath}/about" title="About BioStudies">About BioStudies</a></li>
+                        <li class="${pagename.equals('/jsp/about.jsp')? 'active':''}"><a id="about-link" href="${contextPath}/about" title="About BioStudies">About BioStudies</a></li>
                     </ul>
                     <ul class="dropdown menu float-right" data-description="tasks">
                         <li class=""><a href="mailto:biostudies@ebi.ac.uk?Subject=BioStudies Feedback" title="Send feedback"><span class="icon icon-functional" data-icon="n"></span> Feedback</a></li>

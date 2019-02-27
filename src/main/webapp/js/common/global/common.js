@@ -1,9 +1,18 @@
 $(function() {
+    function handleBioImagesUI() {
+        $('#local-title').html('<h1><img style="width:200px" src="' + contextPath + '/files/BioImages/3/logo.png"></img></h1>');
+        $('.menu.float-left li').slice(0, 3).hide();
+        $('.menu.float-left li a').last().attr('target', '_blank');
+        $('#query').attr('placeholder','Search BioImages');
+        $('.sample-query').first().text('brain');
+        $('.sample-query').first().next().text('capsid');
+        $('#about-link').text('About BioImages');
+        $('#about-link').attr('href','https://wwwdev.ebi.ac.uk/bioimage-archive/about-us/');
+        $('#elixir-banner').hide();
+    }
+
     if (project && project.toLowerCase()=='bioimages') {
-        $('#local-title').html('<h1><img style="width:200px" src="'+contextPath+'/files/BioImages/3/logo.png"></img></h1>');
-        $('.menu.float-left li').slice(0,3).hide();
-        $('.menu.float-left li a').last().attr('target','_blank');
-        $('#project-banner').hide();
+        handleBioImagesUI();
     }
     $('#login-button').click(function () {
         showLoginForm();
@@ -127,10 +136,12 @@ function showProjectBanner(data) {
         projectObj[this.name.toLowerCase()] = this.value
     })
     var html = template(projectObj);
-    $('#project-banner').html(html);
-
+    if (project.toLowerCase()!='bioimages') {
+        $('#project-banner').html(html);
+    }
     // add project search checkbox
-    $('#example').append('<label id="project-search"><input id="search-in-project" type="checkbox" />Search in '+projectObj.title+' only</label>');
+    $('#example').append('<label id="project-search"'+ ( project.toLowerCase()=='bioimages'? 'style="display:none;"' : '')
+        +'><input id="search-in-project" type="checkbox" />Search in '+projectObj.title+' only</label>');
     $('#search-in-project').bind('change', function(){
         $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');
     });
