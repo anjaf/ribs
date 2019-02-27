@@ -126,7 +126,7 @@ public class FileIndexServiceImpl implements FileIndexService {
 
     private long indexSingleFile(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode fNode) throws IOException {
         Document doc = getFileDocument(accession, columns, fNode, parent);
-        writer.updateDocument(new Term(Constants.Fields.ID, accession + counter++), doc);
+        writer.updateDocument(new Term(Constants.Fields.ID, accession + "-" + counter++), doc);
         if (doc.get(Constants.File.SECTION) != null) {
             sectionsWithFiles.add(doc.get(Constants.File.SECTION));
         }
