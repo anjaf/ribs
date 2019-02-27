@@ -3,6 +3,7 @@ package uk.ac.ebi.biostudies.service.impl;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,7 @@ import uk.ac.ebi.biostudies.service.FileIndexService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 @Service
@@ -62,9 +64,8 @@ public class FileIndexServiceImpl implements FileIndexService {
         for(JsonNode parent:libraryParents) {
             if(parent==null) continue;
             String path = StudyUtils.getPartitionedPath(accession);
-            JsonNode libraryFileNode =  mapper.readTree(
-                    new File(indexConfig.getFileRootDir() + "/"+ path + "/"+  parent.get("libraryFile").textValue() ));
-            counter = indexFileList(accession, writer, counter, columns, sectionsWithFiles, parent, libraryFileNode);
+            String libraryFilePath = indexConfig.getFileRootDir() + "/"+ path + "/"+  parent.get("libraryFile").textValue();
+            counter = ramFreindlyIndexFileList(accession, writer, counter, columns, sectionsWithFiles, parent, libraryFilePath);
         }
 
 
@@ -94,6 +95,34 @@ public class FileIndexServiceImpl implements FileIndexService {
         }
         return counter;
     }
+
+    private long ramFreindlyIndexFileList(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, String libraryFilePath) throws IOException {
+        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(libraryFilePath), "UTF-8")) {
+            JsonFactory factory = new JsonFactory();
+            JsonParser parser = factory.createParser(inputStreamReader);
+            JsonToken token = parser.nextToken();
+            while (!JsonToken.START_ARRAY.equals(token)) {
+                token = parser.nextToken();
+            }
+            token = parser.nextToken();//library file starts with two start_array tokens so I should discard extra one
+
+            ObjectMapper mapper = new ObjectMapper();
+            while (true) {
+                token = parser.nextToken();
+                if (!JsonToken.START_OBJECT.equals(token)) {
+                    break;
+                }
+                if (token == null) {
+                    break;
+                }
+
+                JsonNode singleFile = mapper.readTree(parser);
+                counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
+            }
+        }
+        return counter;
+    }
+
 
     private long indexSingleFile(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode fNode) throws IOException {
         Document doc = getFileDocument(accession, columns, fNode, parent);
