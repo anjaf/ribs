@@ -43,7 +43,8 @@
     { "name": "eutoxrisk.facet.organ", "title": "Organ", "fieldType": "facet"},
     { "name": "eutoxrisk.facet.organism", "title": "Organism", "fieldType": "facet"},
     { "name": "eutoxrisk.facet.toxicity_domain", "title": "Toxicity Domain", "fieldType": "facet"},
-    { "name": "eutoxrisk.facet.compound", "title": "Compound", "fieldType": "facet"},
+    { "name": "eutoxrisk.facet.compound", "title": "Compound", "fieldType": "facet", "jsonPath": "$.section.attributes[?(@.name=~ /Compound/i)].value OR $..subsections..[?(@.type=='(Target) Compounds')]..attributes[?(@.name=='Name')].value"
+    },
     { "name": "eutoxrisk.facet.method_name", "title": "Method name", "fieldType": "facet"},
     { "name": "eutoxrisk.facet.project_part", "title": "Project part", "fieldType": "facet"}
   ],

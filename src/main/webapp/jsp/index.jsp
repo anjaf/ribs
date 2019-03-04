@@ -25,13 +25,21 @@
                     to it from the publication.
                 </p>
             </div>
-            <div class="callout" id="latestContainer" style="display: none">
+            <div class="callout" id="latestContainer">
                 <h5 id="latestHeading">
                     <a href="studies" title="Latest studies">Latest</a>
                     <span id="lastUpdateTime"></span>
                 </h5>
-                <div id="latestLoader" style="text-align: center"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><span class="sr-only">Loading...</span></div>
-                <div id="latest"></div>
+                <div id="latest">
+                    <ul id="latestList">
+                        <li><span class="fader" style="width:70%"/></li>
+                        <li><span class="fader" style="width:80%"/></li>
+                        <li><span class="fader" style="width:70%"/></li>
+                        <li><span class="fader" style="width:90%"/></li>
+                        <li><span class="fader" style="width:70%"/></li>
+                        <span class="more"><a href="studies">more...</a></span>
+                    </ul>
+                </div>
             </div>
 
         </div>
@@ -41,19 +49,19 @@
                 <h6 id="fileCountStats">
                     <a href="studies/" title="Browse BioStudies">
                         <span class="icon icon-generic home-icon-small" id="filesIcon" data-icon=";"></span>
-                        <span id="fileCount">100000</span> files
+                        <span id="fileCount" class="fader"></span>
                     </a>
                 </h6>
                 <h6 id="linkCountStats">
                     <a href="studies/" title="Browse BioStudies">
                         <span class="icon icon-generic home-icon-small" id="linksIcon" data-icon="L"></span>
-                        <span id="linkCount">100000</span> links
+                        <span id="linkCount" class="fader"></span>
                     </a>
                 </h6>
                 <h6 id="studyCountStats">
                     <a href="studies/" title="Browse BioStudies">
                         <span class="icon icon-functional home-icon-small" id="studiesIcon" data-icon="b"></span>
-                        <span id="studyCount">100000</span> studies
+                        <span id="studyCount" class="fader"></span>
                     </a>
                 </h6>
             </div>

@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.ebi.biostudies.api.util.Constants;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,7 +22,12 @@ public class JPathListParser extends AbstractParser{
         String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
         String fieldType="";
         try {
-            List resultData = jsonPathContext.read(fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText());
+            String jsonPath = fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText();
+            List resultData = new ArrayList();
+            for (String jp: jsonPath.split(" OR ")) {
+                resultData.addAll(jsonPathContext.read(jp));
+            }
+
             fieldType = fieldMetadataNode.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText();
             switch (fieldType) {
                 case Constants.IndexEntryAttributes.FieldTypeValues.FACET:

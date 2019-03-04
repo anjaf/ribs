@@ -150,7 +150,6 @@
 }
 
 #latest {
-    display: none;
     padding-bottom: 10pt;
 }
 #studyCountStats, #fileCountStats, #linkCountStats{
@@ -217,3 +216,20 @@ ul#projectList li img {
     margin-bottom: 14pt;
 }
 
+
+@keyframes fader-animation {
+    0%   { opacity: 0.50;}
+    25%  { opacity: 0.15;}
+    50%  { opacity: 1.00;}
+    75%  { opacity: 0.15;}
+    100% { opacity: 0.50;}
+}
+
+.fader {
+    animation: fader-animation 5s infinite;
+    background: #ddd;
+    height: 7pt;
+    border-radius: 5pt;
+    width: 50%;
+    display: inline-block;
+}

@@ -1,10 +1,13 @@
 <script id='latest-studies-template' type='text/x-handlebars-template'>
     {{#each this.hits}}
-    {{#if @first}}<ul id="latestList">{{/if}}
         <li>
             <a href="studies/{{accession}}">{{title}}</a>
-            <span class="browse-study-accession">{{accession}}</span>
+            <span class="browse-study-accession">{{accession}}
+            {{#ifCond isPublic '==' false}}
+            <i class="fas fa-lock"></i>
+            {{/ifCond}}</span>
         </li>
-        {{#if @last}}<span class="more"><a href="studies">more...</a></span></ul>{{/if}}
     {{/each}}
 </script>
+
+
