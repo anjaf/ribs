@@ -62,7 +62,7 @@ public class FacetServiceImpl implements FacetService {
             queryAfterFacet = securityQueryBuilder.applySecurity(queryAfterFacet);
             FacetsCollector.search(indexManager.getIndexSearcher(), queryAfterFacet, Integer.MAX_VALUE, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
-            Map<String, JsonNode> allValidFields = indexManager.getAllValidFields();
+            Map<String, JsonNode> allValidFields = indexManager.getIndexEntryMap();
             JsonNode facet =  allValidFields.containsKey(dimension) ? allValidFields.get(dimension) : null;
             if(facet==null || facet.has(Constants.IndexEntryAttributes.PRIVATE) && facet.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean()==true && Session.getCurrentUser()==null) {
                 return facetJSON;
@@ -105,7 +105,7 @@ public class FacetServiceImpl implements FacetService {
             query = securityQueryBuilder.applySecurity(query);
             FacetsCollector.search(indexManager.getIndexSearcher(), query, limit, facetsCollector);
             facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
-            for (JsonNode field:indexManager.getAllValidFields().values()) {
+            for (JsonNode field:indexManager.getIndexEntryMap().values()) {
                 if(field.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.FACET)){
                     // Private fields (e.g.modification_year) are available only to users of a project with unreleased submissions e.g.
                     if(field.has(Constants.IndexEntryAttributes.PRIVATE) && field.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean()==true && Session.getCurrentUser()==null) {
@@ -182,7 +182,7 @@ public class FacetServiceImpl implements FacetService {
                 continue;
             }
             ObjectNode facet = mapper.createObjectNode();
-            JsonNode facetNode = indexManager.getAllValidFields().get(fcResult.dim);
+            JsonNode facetNode = indexManager.getIndexEntryMap().get(fcResult.dim);
             // show project facet only when the current project has sub-projects
             if (!prjName.equalsIgnoreCase(Constants.PUBLIC)
                     && facetNode == taxonomyManager.PROJECT_FACET
@@ -263,7 +263,7 @@ public class FacetServiceImpl implements FacetService {
                     dim = fieldNamesIterator.next();
                     if(dim==null)
                         continue;
-                    JsonNode field = indexManager.getAllValidFields().get(dim);
+                    JsonNode field = indexManager.getIndexEntryMap().get(dim);
                     JsonNode arrNode = facets.get(dim);
                     List<String> facetNames = new ArrayList<>();
                     if(arrNode==null)

@@ -9,8 +9,9 @@ import java.util.stream.Collectors;
 
 public class ContentParser extends AbstractParser {
     @Override
-    public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
-        StringBuilder content = new StringBuilder(String.join(" ", accession));
+    public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
+        String accession = valueMap.get(Constants.Fields.ACCESSION).toString();
+        StringBuilder content = new StringBuilder( String.join(" ", accession ));
         content.append(" ");
         if (accession.startsWith("S-EPMC")) {// hack to make sure we are indexing PMC accessions in full text
             content.append( accession.substring(3) ).append(" ");

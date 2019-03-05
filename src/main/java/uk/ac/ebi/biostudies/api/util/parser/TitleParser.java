@@ -17,9 +17,9 @@ public class TitleParser extends AbstractParser  {
     private final static Logger LOGGER = LogManager.getLogger(TitleParser.class.getName());
 
     @Override
-    public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
+    public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         String title = "";
-        String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
+        String indexKey = indexEntry.get(Constants.IndexEntryAttributes.NAME).asText();
 
         try {
             title = StreamSupport.stream(submission.get("section").get("attributes").spliterator(), false)
@@ -37,7 +37,7 @@ public class TitleParser extends AbstractParser  {
             }
         }
         if(title.isEmpty())
-            LOGGER.error("title is empty accession: {}", accession);
+            LOGGER.error("title is empty accession: {}", valueMap.toString());
         valueMap.put(indexKey, title);
         return title;
 

@@ -23,7 +23,6 @@ import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.FileIndexService;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -65,7 +64,7 @@ public class FileIndexServiceImpl implements FileIndexService {
             if(parent==null) continue;
             String path = StudyUtils.getPartitionedPath(accession);
             String libraryFilePath = indexConfig.getFileRootDir() + "/"+ path + "/"+  parent.get("libraryFile").textValue();
-            counter = ramFreindlyIndexFileList(accession, writer, counter, columns, sectionsWithFiles, parent, libraryFilePath);
+            counter = indexLibraryFile(accession, writer, counter, columns, sectionsWithFiles, parent, libraryFilePath);
         }
 
 
@@ -96,7 +95,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         return counter;
     }
 
-    private long ramFreindlyIndexFileList(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, String libraryFilePath) throws IOException {
+    private long indexLibraryFile(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, String libraryFilePath) throws IOException {
         try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(libraryFilePath), "UTF-8")) {
             JsonFactory factory = new JsonFactory();
             JsonParser parser = factory.createParser(inputStreamReader);

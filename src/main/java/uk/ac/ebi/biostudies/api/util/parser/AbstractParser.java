@@ -2,38 +2,18 @@ package uk.ac.ebi.biostudies.api.util.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.ReadContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import uk.ac.ebi.biostudies.config.IndexManager;
 
 import java.util.Map;
 
 public abstract class AbstractParser {
-    protected String indexFieldKey;
-    protected String jsonFieldKey;
-    protected boolean toLowerCase = false;
+    protected JsonNode indexEntry;
 
-    public abstract String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext);
+    public abstract String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext);
 
-    public String getIndexFieldKey() {
-        return indexFieldKey;
-    }
-
-    public void setIndexFieldKey(String indexFieldKey) {
-        this.indexFieldKey = indexFieldKey;
-    }
-
-    public String getJsonFieldKey() {
-        return jsonFieldKey;
-    }
-
-    public void setJsonFieldKey(String jsonFieldKey) {
-        this.jsonFieldKey = jsonFieldKey;
-    }
-
-    public boolean isToLowerCase() {
-        return toLowerCase;
-    }
-
-    public void setToLowerCase(boolean toLowerCase) {
-        this.toLowerCase = toLowerCase;
+    public void setIndexEntry(JsonNode indexEntry) {
+        this.indexEntry = indexEntry;
     }
 
 }

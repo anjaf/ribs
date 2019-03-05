@@ -17,11 +17,11 @@ public class FileTypeParser extends AbstractParser{
     private static final Logger LOGGER = LogManager.getLogger(FileTypeParser.class.getName());
 
     @Override
-    public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
+    public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         String result=NA;
         try {
-            String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
-            JSONArray resultData =  jsonPathContext.read(fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText());
+            String indexKey = indexEntry.get(Constants.IndexEntryAttributes.NAME).asText();
+            JSONArray resultData =  jsonPathContext.read(indexEntry.get(Constants.IndexEntryAttributes.JSON_PATH).asText());
             result = resultData.stream()
                     .map(jnode -> {
                         Map node = (Map)jnode;
@@ -34,7 +34,7 @@ public class FileTypeParser extends AbstractParser{
             valueMap.put(indexKey, result);
         }
         catch (Exception ex){
-            LOGGER.error("problem in parsing FILE_TYPE in {}", accession, ex);
+            LOGGER.error("problem in parsing FILE_TYPE in {}", indexEntry.get(Constants.IndexEntryAttributes.NAME), ex);
         }
         return result;
     }

@@ -17,7 +17,6 @@ import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
@@ -132,8 +131,8 @@ public class SearchServiceImpl implements SearchService {
                 for (int i = (page - 1) * hitsPerPage; i < to; i++) {
                     ObjectNode docNode = mapper.createObjectNode();
                     Document doc = reader.document(hits.scoreDocs[i].doc);
-                    for (String field : indexManager.getAllValidFields().keySet()) {
-                        JsonNode fieldData = indexManager.getAllValidFields().get(field);
+                    for (String field : indexManager.getIndexEntryMap().keySet()) {
+                        JsonNode fieldData = indexManager.getIndexEntryMap().get(field);
                         if ( fieldData.has(IndexEntryAttributes.RETRIEVED)
                                 && fieldData.get(IndexEntryAttributes.RETRIEVED).asBoolean(false)) {
                             if (fieldData.get(IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(IndexEntryAttributes.FieldTypeValues.LONG)
@@ -180,7 +179,7 @@ public class SearchServiceImpl implements SearchService {
             if(sortBy == null || sortBy.isEmpty() || sortBy.equalsIgnoreCase("relevance"))
                 return SortField.Type.LONG;
             else{
-                JsonNode field = indexManager.getAllValidFields().get(sortBy.toLowerCase());
+                JsonNode field = indexManager.getIndexEntryMap().get(sortBy.toLowerCase());
                 return field.get("fieldType").asText().toLowerCase().contains("str") ? SortField.Type.STRING : SortField.Type.LONG;
             }
         }

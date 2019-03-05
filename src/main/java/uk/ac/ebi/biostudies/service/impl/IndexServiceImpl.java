@@ -227,10 +227,12 @@ public class IndexServiceImpl implements IndexService {
             String accession="";
             try {
                 ReadContext jsonPathContext = JsonPath.parse(json.toString());
-                accession = parserManager.getParserPool().get(Fields.ACCESSION).parse(valueMap, json, Fields.ACCESSION, null, jsonPathContext);
-                parserManager.getParserPool().get(Fields.SECRET_KEY).parse(valueMap, json, accession,null, jsonPathContext);
+                accession = parserManager.getParser(Fields.ACCESSION).parse(valueMap, json, jsonPathContext);
+                parserManager.getParser(Fields.SECRET_KEY).parse(valueMap, json, jsonPathContext);
+
                 for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(PUBLIC)){//parsing common "public" facet and fields
-                    findParserAndParse(fieldMetadataNode, valueMap, accession, jsonPathContext);
+                    AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
+                    abstractParser.parse(valueMap, json, jsonPathContext);
                 }
                 //projects do not need more parsing
                 if(valueMap.getOrDefault(Fields.TYPE,"").toString().equalsIgnoreCase("project"))
@@ -243,12 +245,13 @@ public class IndexServiceImpl implements IndexService {
                 JsonNode projectSpecificFields = indexManager.getIndexDetails().findValue(projectName);
                 if(projectSpecificFields != null) {
                     for (JsonNode fieldMetadataNode : projectSpecificFields) {//parsing project's facet and fields
-                        findParserAndParse(fieldMetadataNode, valueMap, accession, jsonPathContext);//there exist a specific parser for this field
+                        AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
+                        abstractParser.parse(valueMap, json, jsonPathContext);
                     }
                 }
 
                 Set<String> columnSet = new LinkedHashSet<>();
-                if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study")) {
+                if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study") && !accession.startsWith("E-")) {
                     Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
                     if (fileValueMap!=null) {
                         valueMap.putAll(fileValueMap);
@@ -276,19 +279,6 @@ public class IndexServiceImpl implements IndexService {
             }
         }
 
-        private void findParserAndParse(JsonNode fieldMetadataNode, Map<String, Object> valueMap, String accession, ReadContext jsonPathContext){
-            AbstractParser abstractParser = parserManager.getParserPool().get(fieldMetadataNode.get("name").asText());
-            if(abstractParser==null) {
-                if (fieldMetadataNode.has(IndexEntryAttributes.JSON_PATH))//general facets with json path
-                    abstractParser = parserManager.getParserPool().get("generalWithPathParser");
-                else if(fieldMetadataNode.has(IndexEntryAttributes.PARSER) && fieldMetadataNode.get(IndexEntryAttributes.PARSER).asText().equalsIgnoreCase("null"))
-                    return;
-                else
-                    abstractParser = parserManager.getParserPool().get("generalWithoutPathParser");
-            }
-            abstractParser.parse(valueMap, json, accession, fieldMetadataNode, jsonPathContext);
-        }
-
         private void updateDocument(Map<String, Object> valueMap) throws IOException {
             Document doc = new Document();
 
@@ -298,7 +288,7 @@ public class IndexServiceImpl implements IndexService {
             //updateProjectParents(valueMap);
             addFileAttributes(doc, (Set<String>) valueMap.get(Constants.File.FILE_ATTS));
             for (String field: indexManager.getProjectRelatedFields(prjName.toLowerCase())) {
-                JsonNode curNode = indexManager.getAllValidFields().get(field);
+                JsonNode curNode = indexManager.getIndexEntryMap().get(field);
                 String fieldType = curNode.get(IndexEntryAttributes.FIELD_TYPE).asText();
                 try{
                     switch (fieldType) {

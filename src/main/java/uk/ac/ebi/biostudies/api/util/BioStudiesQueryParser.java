@@ -2,13 +2,10 @@ package uk.ac.ebi.biostudies.api.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
 
 import java.util.Map;
@@ -36,7 +33,7 @@ public class BioStudiesQueryParser extends MultiFieldQueryParser {
     @Override
     protected Query getRangeQuery(String field, String min, String max, boolean startInclusive, boolean endInclusive) throws ParseException {
 
-        Map<String, JsonNode> allValidFields = indexManager.getAllValidFields();
+        Map<String, JsonNode> allValidFields = indexManager.getIndexEntryMap();
         if (allValidFields.containsKey(field)) {
             if (allValidFields.get(field).get(Constants.IndexEntryAttributes.FIELD_TYPE).textValue().equals(Constants.IndexEntryAttributes.FieldTypeValues.LONG)) {
                 return LongPoint.newRangeQuery(field, Long.parseLong(min), Long.parseLong(max));

@@ -2,6 +2,8 @@ package uk.ac.ebi.biostudies.api.util.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.ReadContext;
+import net.minidev.json.JSONArray;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.ebi.biostudies.api.util.Constants;
@@ -17,18 +19,23 @@ public class JPathListParser extends AbstractParser{
     private static final Logger LOGGER = LogManager.getLogger(JPathListParser.class.getName());
 
     @Override
-    public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
+    public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         Object result= NA;
-        String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
+        String indexKey = indexEntry.get(Constants.IndexEntryAttributes.NAME).asText();
         String fieldType="";
         try {
-            String jsonPath = fieldMetadataNode.get(Constants.IndexEntryAttributes.JSON_PATH).asText();
+            String jsonPath = indexEntry.get(Constants.IndexEntryAttributes.JSON_PATH).asText();
             List resultData = new ArrayList();
             for (String jp: jsonPath.split(" OR ")) {
-                resultData.addAll(jsonPathContext.read(jp));
+                Object obj = jsonPathContext.read(jp)  ;
+                if (obj instanceof JSONArray) {
+                    resultData.addAll((JSONArray)obj);
+                } else {
+                    resultData.add(obj);
+                }
             }
 
-            fieldType = fieldMetadataNode.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText();
+            fieldType = indexEntry.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText();
             switch (fieldType) {
                 case Constants.IndexEntryAttributes.FieldTypeValues.FACET:
                     result =  String.join (Constants.Facets.DELIMITER, resultData);
@@ -41,12 +48,18 @@ public class JPathListParser extends AbstractParser{
                     break;
             }
 
+            if (indexEntry.has(Constants.IndexEntryAttributes.TO_LOWER_CASE)
+                    && indexEntry.get(Constants.IndexEntryAttributes.TO_LOWER_CASE).asBoolean(false)) {
+                result = result.toString().toLowerCase();
+            }
+
+
         } catch (Exception e) {
             if(valueMap.containsKey(Constants.Fields.TYPE) && valueMap.getOrDefault(Constants.Fields.TYPE, "").toString().equalsIgnoreCase("project"))
                 return "";
             if(indexKey.equalsIgnoreCase("author") || indexKey.equalsIgnoreCase("orcid"))
                 return "";
-            LOGGER.error("problem in parsing field:{} in {}", indexKey, accession);
+            LOGGER.error("problem in parsing field:{} in {}", valueMap, indexEntry);
         }
         valueMap.put(indexKey, result);
         return result.toString();

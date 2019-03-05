@@ -18,14 +18,14 @@ public class SimpleAttributeParser extends AbstractParser {
 
     private static String jpath = "$.section.attributes[?(@.name=~ /%s/i)].value";
     @Override
-    public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
+    public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         Object result= NA;
-        String indexKey = fieldMetadataNode.get(Constants.IndexEntryAttributes.NAME).asText();
+        String indexKey = indexEntry.get(Constants.IndexEntryAttributes.NAME).asText();
         try {
-            String title = StringUtils.replace(fieldMetadataNode.get(Constants.Fields.TITLE).asText(), "/", "\\/");
+            String title = StringUtils.replace(indexEntry.get(Constants.Fields.TITLE).asText(), "/", "\\/");
             String newJPath = String.format(jpath, title);
             List resultData = jsonPathContext.read(newJPath);
-            switch (fieldMetadataNode.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText()) {
+            switch (indexEntry.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText()) {
                 case Constants.IndexEntryAttributes.FieldTypeValues.FACET:
                     result =  String.join (Constants.Facets.DELIMITER, resultData);
                     break;
@@ -38,7 +38,7 @@ public class SimpleAttributeParser extends AbstractParser {
             }
 
         } catch (Exception ex) {
-            LOGGER.debug("problem in parsing facet: {} in accession: {}", indexKey, accession, ex);
+            LOGGER.debug("problem in parsing facet: {} in {}", indexKey, valueMap.toString(), ex);
         }
         valueMap.put(indexKey, result);
         return result.toString();

@@ -11,7 +11,7 @@ Home.StatsLoader = (function () {
     function getStats() {
         $.getJSON( contextPath + "/api/v1/stats", function( data ) {
 
-            if (data && data.files && data.links) {
+            if (data!=undefined && data.files!=undefined && data.links!=undefined) {
                 $('#fileCount').text(formatNumber(data.files)+' files').removeClass('fader');
                 $('#linkCount').text(formatNumber(data.links)+' links').removeClass('fader');
                 if (data.time) {

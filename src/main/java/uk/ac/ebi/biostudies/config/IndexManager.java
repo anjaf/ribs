@@ -50,7 +50,7 @@ public class IndexManager {
     private IndexReader efoIndexReader;
     private IndexSearcher efoIndexSearcher;
     private IndexWriter efoIndexWriter;
-    private Map<String, JsonNode> AllFields = new LinkedHashMap<>();
+    private Map<String, JsonNode> indexEntryMap = new LinkedHashMap<>();
     private Map<String, Set<String>> projectRelatedFields = new LinkedHashMap<>();
     private SpellChecker spellChecker;
     private JsonNode indexDetails;
@@ -79,8 +79,8 @@ public class IndexManager {
         InputStream indexJsonFile = this.getClass().getClassLoader().getResourceAsStream("project-fields.json");
         indexDetails = readJson(indexJsonFile);
         fillAllFields();
-        analyzerManager.init(AllFields);
-        parserManager.init(AllFields);
+        analyzerManager.init(indexEntryMap);
+        parserManager.init(indexEntryMap);
         String indexDir = indexConfig.getIndexDirectory();
         try {
             //TODO: Start - Remove this when backend supports subprojects
@@ -101,7 +101,7 @@ public class IndexManager {
                 efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
             efoIndexReader = DirectoryReader.open(efoIndexWriter);
             efoIndexSearcher = new IndexSearcher(getEfoIndexReader());
-            taxonomyManager.init(AllFields.values());
+            taxonomyManager.init(indexEntryMap.values());
             autocompletion.rebuild();
             spellChecker = new SpellChecker(FSDirectory.open(Paths.get(indexConfig.getSpellcheckerLocation())));
             spellChecker.indexDictionary(new LuceneDictionary(getIndexReader(), Constants.Fields.CONTENT), new IndexWriterConfig(), false);
@@ -153,8 +153,8 @@ public class IndexManager {
         }
     }
 
-    public Map<String, JsonNode> getAllValidFields(){
-        return AllFields;
+    public Map<String, JsonNode> getIndexEntryMap(){
+        return indexEntryMap;
     }
 
     private void fillAllFields(){
@@ -164,7 +164,7 @@ public class IndexManager {
             Set<String> curPrjRelatedFields = new LinkedHashSet<>();
             JsonNode curFieldsArray = indexDetails.get(key);
             for(JsonNode curField:curFieldsArray){
-                AllFields.put(curField.get("name").asText(), curField);
+                indexEntryMap.put(curField.get("name").asText(), curField);
                 curPrjRelatedFields.add(curField.get("name").asText());
             }
             projectRelatedFields.put(key, curPrjRelatedFields);

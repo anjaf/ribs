@@ -13,7 +13,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.RELEASE_DATE;
 
 public class DateParser extends AbstractParser{
     @Override
-    public String parse(Map<String, Object> valueMap, JsonNode submission, String accession, JsonNode fieldMetadataNode, ReadContext jsonPathContext) {
+    public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         long releaseDateLong = 0L;
         long creationDateLong = 0L;
 
