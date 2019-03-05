@@ -251,12 +251,12 @@ public class IndexServiceImpl implements IndexService {
                 }
 
                 Set<String> columnSet = new LinkedHashSet<>();
-                if(valueMap.get(Fields.TYPE).toString().equalsIgnoreCase("study") && !accession.startsWith("E-")) {
-                    Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
-                    if (fileValueMap!=null) {
-                        valueMap.putAll(fileValueMap);
-                    }
+
+                Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
+                if (fileValueMap!=null) {
+                    valueMap.putAll(fileValueMap);
                 }
+
                 valueMap.put(Constants.File.FILE_ATTS, columnSet);
                 updateDocument(valueMap);
 
