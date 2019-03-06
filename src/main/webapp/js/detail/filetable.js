@@ -94,7 +94,7 @@ var FileTable = (function (_self) {
         if (sectionColumn.length) {
             sectionColumn[0].render = function (data, type, row) {
             return '<img  height="100" width="100" src="'
-                + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + row.path + '" </img> ';
+                + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + row.path + (params.key? '?key='+params.key :'')+'" </img> ';
             }
         }
 
@@ -188,7 +188,7 @@ var FileTable = (function (_self) {
 
             // TODO: enable select on tr click
             updateSelectedFiles();
-            handleThumbnails();
+            handleThumbnails(params.key);
             //if (params.fs) filesTable.search(params.fs).draw();
 
         });
@@ -283,7 +283,7 @@ var FileTable = (function (_self) {
         $('#file-list_wrapper').css('pointer-events','auto');
     }
 
-    function handleThumbnails() {
+    function handleThumbnails(key) {
         var imgFormats = ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm'];
         var isZip = false;
         if(filesTable.column('Thumbnail')) {
@@ -309,7 +309,7 @@ var FileTable = (function (_self) {
             $('#thumbnail').css('top',$tn.offset().top - 10);
             $('#thumbnail').css('left',$tn.parent().offset().left - $('#thumbnail').width() - 10);
             $('#thumbnail').show();
-            var img = $("<img />").attr('src', $tn.data('thumbnail'))
+            var img = $("<img />").attr('src', $tn.data('thumbnail')+(key ? '?key='+key :''))
                 .on('load', function() {
                     if (!this.complete || typeof this.naturalWidth == "undefined" || this.naturalWidth == 0) {
                         $('#thumbnail').hide();

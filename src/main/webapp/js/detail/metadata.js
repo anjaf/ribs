@@ -539,7 +539,7 @@ var Metadata = (function (_self) {
             var templateSource = $('script#main-similar-studies').html();
             var template = Handlebars.compile(templateSource);
             $('#right-column-content').append(template(data.similarStudies));
-            if (type!='Study') {
+            if (type!='Study' && data.similarStudies && data.similarStudies.length>0) {
                 $('#similar-study-container .widge-title').html($('#similar-study-container .widge-title').html().replace(" Studies", ""));
             }
         })

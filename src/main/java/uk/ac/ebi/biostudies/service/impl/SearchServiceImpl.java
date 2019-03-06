@@ -201,11 +201,6 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public String getAccessionIfAccessible(String accession) {
-        return getAccessionIfAccessible(accession, null);
-    }
-
-    @Override
     /*
        Returns null if the accession is not accessible and the actual indexed
         case-sensitive accession if it is.

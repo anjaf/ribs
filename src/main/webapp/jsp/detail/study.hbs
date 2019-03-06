@@ -9,7 +9,7 @@
         <div id="release-date-download">
                     <span class="release-date">
                         {{#if releaseDate}}
-                            Release Date: <span  id="orcid-publication-year">{{formatDate releaseDate}}</span>
+                            Release Date: <span  id="orcid-publication-year">{{formatDateString releaseDate}}</span>
                         {{else}}
                             {{#ifCond accessTags 'contains' 'Public' }}
 

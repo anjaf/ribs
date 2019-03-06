@@ -96,8 +96,9 @@ var Metadata = (function (_self) {
             }
         });
 
-        Handlebars.registerHelper('formatDate', function(v) {
-            return getDateFromEpochTime(v);
+        Handlebars.registerHelper('formatDateString', function(v) {
+            var date = (new Date(v)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+            return date == 'Invalid Date' ? (new Date()).getFullYear() : date;
         });
 
         Handlebars.registerHelper('accToLink', function(val) {

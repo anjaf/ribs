@@ -3,7 +3,7 @@
         <div class="meta-data">
             <span class="accession">{{accession}}</span>
             {{#ifCond isPublic '==' true}}
-            <span class="release-date">{{formatDate release_date}}</span>
+            <span class="release-date">{{formatDateString release_date}}</span>
             {{/ifCond}}
             {{#ifCond type '!=' 'project'}}
             {{#ifCond links '!=' 0}}

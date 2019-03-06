@@ -99,7 +99,7 @@ var Searcher = (function (_self) {
             return this.name
         });
 
-        Handlebars.registerHelper('formatDate', function(v) {
+        Handlebars.registerHelper('formatDateString', function(v) {
             var date = (new Date(v.substr(0,4)+'-'+v.substr(4,2)+'-'+v.substr(6,2))).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
             return date == 'Invalid Date' ? (new Date()).getFullYear() : date;
         });
