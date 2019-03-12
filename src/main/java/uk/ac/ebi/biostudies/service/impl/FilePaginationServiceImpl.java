@@ -70,8 +70,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             node.put("title", att);
             node.put("visible", true);
             node.put("searchable", true);
-            att = att.replaceAll(" ", "_");
-            node.put("data", att);
+            node.put("data", att.replaceAll("[\\[\\]\\(\\)\\s]", "_"));
             node.put("defaultContent", "");
             fileColumnAttributes.add(node);
             if(counter++==1 && thumbnails.hasThumbnails(accession)){
@@ -152,7 +151,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
                     if (metadata) {
                         for (JsonNode field : columns) {
                             String fName = field.get("name").asText();
-                            docNode.put(field.get("name").asText().replaceAll(" ", "_"), doc.get(fName) == null ? "" : doc.get(fName));
+                            docNode.put(field.get("name").asText().replaceAll("[\\[\\]\\(\\)\\s]", "_"), doc.get(fName) == null ? "" : doc.get(fName));
                         }
                     }
                     docNode.put(Constants.File.PATH, doc.get(Constants.File.PATH)==null?"":doc.get(Constants.File.PATH));
