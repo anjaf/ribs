@@ -1,6 +1,8 @@
 $(function() {
     function handleBioImagesUI() {
-        $('#local-title').html('<h1><img style="width:200px" src="' + contextPath + '/files/BioImages/3/logo.png"></img></h1>');
+        $('#local-title').html('<h1><img src="' + contextPath + '/images/projects/bioimages/logo.png"></img></h1>');
+        $('#masthead').css("background-image","url("+contextPath +"/images/projects/bioimages/background.jpg)");
+        $('.masthead, #ebi_search .button, .pagination .current').css("background-color","rgb(0, 124, 130)");
         $('.menu.float-left li').slice(0, 3).hide();
         $('.menu.float-left li a').last().attr('target', '_blank');
         $('#query').attr('placeholder','Search BioImages');
