@@ -36,7 +36,7 @@ public class Thumbnail {
      * @param accession
      */
     @RequestMapping(value = "/{accession}/**", method = RequestMethod.GET)
-    public void getThumbnail(HttpServletResponse response, HttpServletRequest request, @PathVariable String accession, @RequestParam String key) {
+    public void getThumbnail(HttpServletResponse response, HttpServletRequest request, @PathVariable String accession, @RequestParam(value="key", required=false) String key) {
         String name = request.getAttribute( HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE ).toString();
         String prefix = "/thumbnail/"+accession+"/";
         name = name.substring(name.indexOf(prefix)+prefix.length());
