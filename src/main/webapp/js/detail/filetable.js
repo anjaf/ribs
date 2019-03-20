@@ -217,9 +217,10 @@ var FileTable = (function (_self) {
     }
 
     function hideEmptyColumns() {
+        var columnNames = filesTable.settings().init().columns
         // hide empty columns
-        filesTable.columns().every(function(){
-            if (this[0][0]==[0]) return;
+        filesTable.columns().every(function(index){
+            if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') return;
             var srchd = filesTable.cells({search:'applied'},this)
                 .data()
                 .join('')
