@@ -123,7 +123,7 @@ var FileTable = (function (_self) {
                         return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="'
                             + data
                             + '" href="'
-                            + window.contextPath+'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23')
+                            + window.contextPath+'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
                             + (params.key ? '?key='+params.key : '')
                             + '">'
                             + data + '</a>';
