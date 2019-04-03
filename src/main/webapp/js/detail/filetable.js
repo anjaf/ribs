@@ -189,6 +189,7 @@ var FileTable = (function (_self) {
             // TODO: enable select on tr click
             updateSelectedFiles();
             handleThumbnails(params.key);
+            hideEmptyColumns()
             //if (params.fs) filesTable.search(params.fs).draw();
 
         });
@@ -209,12 +210,24 @@ var FileTable = (function (_self) {
             //clearFileFilter();
             $('#all-files-expander').click();
             filesTable.column(':contains(Section)').search(expansionSource);
-            // hide empty columns
-            //filesTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
+            hideEmptyColumns()
             filesTable.draw();
+
         });
     }
 
+    function hideEmptyColumns() {
+        var columnNames = filesTable.settings().init().columns
+        // hide empty columns
+        filesTable.columns().every(function(index){
+            if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') return;
+            var srchd = filesTable.cells({search:'applied'},this)
+                .data()
+                .join('')
+                .trim();
+            this.visible(srchd!=null && srchd!='');
+        });
+    }
 
     function handleFileDownloadSelection(acc,key) {
 
@@ -292,7 +305,7 @@ var FileTable = (function (_self) {
         if(isZip)
             imgFormats.splice(1,0,'zip');
         $(filesTable.column(1).nodes()).each(function () {
-            var path = encodeURI($('input',$(this).prev()).data('name').replaceAll('#','%23'));
+            var path = encodeURI($('input',$(this).prev()).data('name')).replaceAll('#','%23');
             $('a',this).addClass('overflow-name-column');
             $('a',this).attr('title',$(this).text());
             if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
