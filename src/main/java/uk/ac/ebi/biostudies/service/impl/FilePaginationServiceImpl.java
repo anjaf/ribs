@@ -116,7 +116,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         ObjectNode studyInfo = getStudyInfo(accession, secretKey);
         if (studyInfo==null) return "";
         ArrayNode columns = (ArrayNode) studyInfo.get("columns");
-        search = search.toLowerCase();
+        search = modifySearchText(search);
         try {
             List<SortField> allSortedFields = new ArrayList();
             List<DataTableColumnInfo> searchedColumns = new ArrayList();
@@ -170,21 +170,21 @@ public class FilePaginationServiceImpl implements FilePaginationService {
 
     private Query applySearch(String search, Query firstQuery, ArrayNode columns){
         BooleanQuery.Builder builderSecond = new BooleanQuery.Builder();
-        BooleanClause.Occur[] occurs = new  BooleanClause.Occur[columns.size()];
+//        BooleanClause.Occur[] occurs = new  BooleanClause.Occur[columns.size()];
         String[] fields = new String[columns.size()];
         try {
             int counter = 0;
             for(JsonNode field:columns){
                String fName = QueryParser.escape(field.get("name").asText());
                fields[counter] = fName;
-               occurs[counter] = BooleanClause.Occur.SHOULD;
+//               occurs[counter] = BooleanClause.Occur.SHOULD;
                counter++;
             }
             MultiFieldQueryParser parser = new MultiFieldQueryParser(fields, new KeywordAnalyzer());
 
             parser.setAllowLeadingWildcard(true);
             parser.setLowercaseExpandedTerms(false);
-            Query tempSmallQuery = parser.parse(StudyUtils.escape("*"+search+"*"));
+            Query tempSmallQuery = parser.parse(StudyUtils.escape(search));
             logger.debug(tempSmallQuery);
             builderSecond.add(firstQuery, BooleanClause.Occur.MUST);
             builderSecond.add(tempSmallQuery, BooleanClause.Occur.MUST);
@@ -193,6 +193,25 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         }
         logger.debug("query is: {}", builderSecond.build().toString());
         return builderSecond.build();
+    }
+
+    private String modifySearchText(String search){
+        search = search.toLowerCase();
+        String []tokens =search.split(" ");
+        String newQuery ="";
+        if(tokens!=null) {
+            for (String token : tokens) {
+                token = " *"+token+"* ";
+                newQuery= newQuery+token;
+            }
+        }
+        if(newQuery.contains(" *and* "))
+            newQuery = newQuery.replaceAll(" \\*and\\* ", " AND ");
+        if(newQuery.contains(" *or* "))
+            newQuery = newQuery.replaceAll(" \\*or\\* "," OR ");
+        if(newQuery.contains(" *not* "))
+            newQuery = newQuery.replaceAll(" \\*not\\* "," NOT ");
+        return newQuery;
     }
 
     private Query applyPerFieldSearch(List<DataTableColumnInfo> searchedColumns, Query originalQuery){
