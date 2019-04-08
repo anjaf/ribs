@@ -121,7 +121,7 @@ public class UserSecurityService {
             return null;
         }
         user = new User();
-        user.setFullName(responseJSON.get("fullname").textValue());
+        user.setFullName(responseJSON.has("fullname") ? responseJSON.get("fullname").textValue() : responseJSON.get("username").textValue());
         user.setLogin(responseJSON.get("username").textValue());
         user.setToken(responseJSON.get("sessid").textValue());
         String[] allow = mapper.convertValue(responseJSON.get("allow"), String[].class);
