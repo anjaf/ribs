@@ -12,6 +12,9 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:security.properties")
 public class SecurityConfig {
 
+    @Value("${bs.users.authentication-url}")
+    private String oldAuthCheckUrl;
+
     @Value("${bs.users.auth-check-url}")
     private String authCheckUrl;
 
@@ -31,6 +34,10 @@ public class SecurityConfig {
 
     public String getAdminIPWhitelist() {
         return adminIPWhitelist;
+    }
+
+    public String getOldAuthCheckUrl() {
+        return oldAuthCheckUrl;
     }
 
 }

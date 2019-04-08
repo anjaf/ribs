@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
-import net.minidev.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -41,6 +41,8 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -92,6 +94,9 @@ public class UserSecurityService {
     public User login(String username, String password) throws IOException {
         User user = createUserFromJSONResponse(sendLoginRequest(username, password));
         if (user == null) return null;
+        if (user.getAllow()==null) {
+            fillAllowListUsingOldAuthCheck(username, password, user);
+        }
         return user;
     }
 
@@ -105,12 +110,12 @@ public class UserSecurityService {
         User user = (User) userAuthCache.getIfPresent(token);
         if (user != null && token.equals(user.getToken())) {
             logger.debug("Found authentication for user [{}] in local cache", user.getLogin());
-            return user;
+        } else {
+            logger.debug("Trying to authenticate user remotely");
+            user = createUserFromJSONResponse(sendAuthenticationCheckRequest(token));
         }
+        if (user == null || user.getAllow()==null) return null;
 
-        logger.debug("Trying to authenticate user remotely");
-        user = createUserFromJSONResponse(sendAuthenticationCheckRequest(token));
-        if (user == null) return null;
         return user;
     }
 
@@ -124,14 +129,32 @@ public class UserSecurityService {
         user.setFullName(responseJSON.has("fullname") ? responseJSON.get("fullname").textValue() : responseJSON.get("username").textValue());
         user.setLogin(responseJSON.get("username").textValue());
         user.setToken(responseJSON.get("sessid").textValue());
-        String[] allow = mapper.convertValue(responseJSON.get("allow"), String[].class);
-        String[] deny = mapper.convertValue(responseJSON.get("deny"), String[].class);
-        Set allowedSet = Sets.difference(Sets.newHashSet(allow), Sets.newHashSet(deny));
-        user.setAllow((String[]) allowedSet.toArray(new String[allowedSet.size()]));
-        user.setDeny(deny);
+        if (responseJSON.has("allow") && responseJSON.get("allow")!=null  && !StringUtils.isEmpty(responseJSON.asText("allow"))) {
+            String[] allow = mapper.convertValue(responseJSON.get("allow"), String[].class);
+            String[] deny = mapper.convertValue(responseJSON.get("deny"), String[].class);
+            Set allowedSet = Sets.difference(Sets.newHashSet(allow), Sets.newHashSet(deny));
+            user.setAllow((String[]) allowedSet.toArray(new String[allowedSet.size()]));
+            user.setDeny(deny);
+        }
         user.setSuperUser(responseJSON.get("superuser").asBoolean(false));
         userAuthCache.put(user.getToken(), user);
         return user;
+    }
+
+    private void fillAllowListUsingOldAuthCheck(String username, String password, User user) throws IOException {
+
+       // send request to backend for authentication
+        logger.debug("Sending old authentication request");
+        String response = sendAuthenticationRequest(username, generateHash(password));
+        String [] lines = response.split("\n");
+        if (lines.length<4 || !"Status: OK".equalsIgnoreCase(lines[0])) {
+            return;
+        }
+        Set<String> allowSet = new HashSet<>(Arrays.asList(StringUtils.split(StringUtils.split(lines[1], ':')[1].trim().replaceAll("~", ""), ';')));
+        Set<String> denySet = new HashSet<>(Arrays.asList(StringUtils.split(StringUtils.split(lines[2], ':')[1].trim().replaceAll("~", ""), ';')));
+        allowSet.removeAll(denySet);
+        user.setAllow(allowSet.toArray(new String[allowSet.size()]));
+        user.setDeny(denySet.toArray(new String[denySet.size()]));
     }
 
     //TODO: handle password flow
@@ -204,6 +227,48 @@ public class UserSecurityService {
             throw new RuntimeException(x);
         }*/
         return null;
+    }
+
+    // TODO: delete after unified auth has been released
+    public String sendAuthenticationRequest(String username, String passwordHash) throws IOException {
+        String responseString = null;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(securityConfig.getOldAuthCheckUrl());
+        httpPost.setHeader("Access-Control-Allow-Credentials","true");
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("login", username));
+        nvps.add(new BasicNameValuePair("hash", passwordHash));
+        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+        CloseableHttpResponse response = httpclient.execute(httpPost);
+        try {
+            responseString = EntityUtils.toString(response.getEntity());
+        } finally {
+            response.close();
+        }
+        return responseString;
+    }
+    // TODO: delete after unified auth has been released
+    private String toHexStr(byte[] dgst) {
+        if (dgst == null)
+            return "";
+        StringBuilder sb = new StringBuilder();
+        for (byte b : dgst) {
+            int hxd = (b >> 4) & 0x0F;
+            sb.append((char) (hxd >= 10 ? ('A' + (hxd - 10)) : ('0' + hxd)));
+            hxd = b & 0x0F;
+            sb.append((char) (hxd >= 10 ? ('A' + (hxd - 10)) : ('0' + hxd)));
+        }
+        return sb.toString();
+    }
+    // TODO: delete after unified auth has been released
+    public String generateHash(String password) {
+        MessageDigest sha1 = null;
+        try {
+            sha1 = MessageDigest.getInstance("SHA1");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return toHexStr(sha1.digest(password.getBytes()));
     }
 
 }
