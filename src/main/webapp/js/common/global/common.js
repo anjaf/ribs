@@ -29,17 +29,16 @@ $(function() {
         $('#query').val($(this).text());
         $('#ebi_search').submit();
     });
-
-    var message = $.cookie("AeAuthMessage");
+    var message = $.cookie("BioStudiesMessage");
     if (message) {
         $('#login-status').text(message).show();
         showLoginForm();
     }
-    var user = $.cookie("AeAuthUser");
-    if (user) {
-        $('#user-field').attr('value', user);
+    /*var login = $.cookie("BioStudiesLogin");
+    if (login) {
+        $('#user-field').attr('value', login);
         $('#pass-field').focus();
-    }
+    }*/
 
     if (project) {
         // display project banner

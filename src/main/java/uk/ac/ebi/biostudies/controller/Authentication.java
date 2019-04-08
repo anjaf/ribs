@@ -1,6 +1,11 @@
 package uk.ac.ebi.biostudies.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +13,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.api.util.HttpTools;
+import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.auth.User;
 import uk.ac.ebi.biostudies.auth.UserSecurityService;
 
@@ -29,39 +35,34 @@ public class Authentication {
     @Autowired
     UserSecurityService users;
 
-    @RequestMapping(value="/auth")
-    public void login( HttpServletRequest request, HttpServletResponse response) throws Exception{
+    @RequestMapping(value = "/auth")
+    public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String returnURL = request.getHeader(HttpTools.REFERER_HEADER);
         String username = request.getParameter("u");
         String password = request.getParameter("p");
         String remember = request.getParameter("r");
         String email = request.getParameter("e");
         String accession = request.getParameter("a");
-        String userAgent = request.getHeader("User-Agent");
 
         boolean isLoginSuccessful = false;
         if (null != email) {
             String message = users.remindPassword(StringUtils.trimToEmpty(email), StringUtils.trimToEmpty(accession));
             if (null != message) {
-                HttpTools.setCookie((HttpServletResponse) response, HttpTools.AE_AUTH_MESSAGE_COOKIE, message, null);
+                HttpTools.setCookie((HttpServletResponse) response, HttpTools.AUTH_MESSAGE_COOKIE, message, null);
             }
         } else {
             User authenticatedUser = users.login(username, password);
-            isLoginSuccessful = authenticatedUser!=null;
+            isLoginSuccessful = authenticatedUser != null;
             // 31,557,600 is a standard year in seconds
             Integer maxAge = "on".equals(remember) ? 31557600 : null;
 
             if (isLoginSuccessful) {
                 logger.info("Successfully authenticated user [{}]", username);
-                HttpTools.setCookie(response, HttpTools.AE_USERNAME_COOKIE, username, maxAge);
-                HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, username, maxAge);
-                HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, authenticatedUser.getHashedPassword(), maxAge);
-                HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE,null,0);
+                HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, authenticatedUser.getToken(), maxAge);
+                HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
             } else {
-                HttpTools.setCookie(response, HttpTools.AE_USERNAME_COOKIE, null,null);
-                HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, null,null);
-                    HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, username, 5);
-                HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE,URLEncoder.encode("Invalid username or password", "UTF-8"), 5);
+                HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, null);
+                HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, URLEncoder.encode("Invalid username or password", "UTF-8"), 5);
             }
         }
 
@@ -85,22 +86,17 @@ public class Authentication {
         }
     }
 
-    @RequestMapping(value="/logout")
-    public void logout(@CookieValue(HttpTools.AE_USERNAME_COOKIE) String  userName, @CookieValue(HttpTools.AE_TOKEN_COOKIE) String  token,  HttpServletRequest request, HttpServletResponse response){
+    @RequestMapping(value = "/logout")
+    public void logout(@CookieValue(HttpTools.TOKEN_COOKIE) String token, HttpServletRequest request, HttpServletResponse response) {
         try {
-            User user = users.checkAccess(userName, token);
-            String extractedUserName;
-            extractedUserName = user.getUsername();
-            users.logout(extractedUserName);
-            HttpTools.setCookie(response, HttpTools.AE_USERNAME_COOKIE, null, 0);
-            HttpTools.setCookie(response, HttpTools.AE_TOKEN_COOKIE, null, 0);
-            HttpTools.setCookie(response, HttpTools.AE_AUTH_MESSAGE_COOKIE, null, 0);
-            HttpTools.setCookie(response, HttpTools.AE_AUTH_USERNAME_COOKIE, null, 0);
-            logger.info("Logged out user [{}]", extractedUserName);
+            User user = Session.getCurrentUser();
+            logger.info("Logging out user [{}]", user.getLogin());
+            users.logout();
+            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, 0);
+            HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
             String returnURL = request.getHeader(HttpTools.REFERER_HEADER);
-            sendRedirect(response,returnURL,true);
-
-        }catch (Exception ex){
+            sendRedirect(response, returnURL, true);
+        } catch (Exception ex) {
             logger.error("logout exception", ex);
         }
     }

@@ -17,9 +17,23 @@
 
 package uk.ac.ebi.biostudies.auth;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.apache.commons.lang3.StringUtils;
+import com.google.common.collect.Sets;
+import net.minidev.json.JSONObject;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,73 +41,96 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserSecurityService {
+    public static final String X_SESSION_TOKEN = "X-Session-Token";
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final Cache<Object, Object> passwordCache;
+    private final Cache<Object, Object> userAuthCache;
+    private static ObjectMapper mapper = new ObjectMapper();
 
-    @Autowired
-    private AuthenticationHelper authHelper;
     @Autowired
     private SecurityConfig securityConfig;
 
+    private JsonNode sendAuthenticationCheckRequest(String token) throws IOException {
+        JsonNode responseJSON;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(securityConfig.getAuthCheckUrl());
+        httpGet.setHeader(X_SESSION_TOKEN, token);
+        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
+            responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
+        }
+
+        return responseJSON;
+    }
+
+    private JsonNode sendLoginRequest(String username, String password) throws IOException {
+        JsonNode responseJSON;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(securityConfig.getLoginUrl());
+        httpPost.setHeader("Content-Type", "application/json; charset=UTF-8");
+        ObjectNode creds = mapper.createObjectNode();
+        creds.put("login", username);
+        creds.put("password", password);
+        httpPost.setEntity(new StringEntity( mapper.writeValueAsString(creds)));
+        try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
+            responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
+        }
+        return responseJSON;
+    }
+
+
     public UserSecurityService() {
         // TODO: move password cache timeout to config file
-        passwordCache = CacheBuilder.newBuilder()
+        userAuthCache = CacheBuilder.newBuilder()
                 .expireAfterAccess(60, TimeUnit.MINUTES)
                 .build();
     }
 
-
     public User login(String username, String password) throws IOException {
-        return checkAccess(username, this.authHelper.generateHash(password));
+        User user = createUserFromJSONResponse(sendLoginRequest(username, password));
+        if (user == null) return null;
+        return user;
     }
 
-    public void logout(String username) {
-        passwordCache.invalidate(username);
+    public void logout() {
+        userAuthCache.invalidate(Session.getCurrentUser().getToken());
     }
 
-    public boolean currentUserIsSuperUser(){
-        User currentUser = Session.getCurrentUser();
-        if (currentUser==null) return false;
-        return  currentUser.isSuperUser();
-    }
+    User checkAccess(String token) throws IOException {
+        if (token == null) return null;
 
-    public User checkAccess(String username, String passwordHash) throws IOException {
-        if (username==null || passwordHash ==null) return null;
-
-        // if password is found in the cache, use it
-        User user =  (User) passwordCache.getIfPresent(username);
-        if (user!=null && username.equalsIgnoreCase(user.getUsername()) && passwordHash.equalsIgnoreCase(user.getHashedPassword())) {
-            logger.debug("Found authentication for user [{}] in local cache",username);
+        User user = (User) userAuthCache.getIfPresent(token);
+        if (user != null && token.equals(user.getToken())) {
+            logger.debug("Found authentication for user [{}] in local cache", user.getLogin());
             return user;
         }
 
-        // send request to backend for authentication
-        logger.debug("Trying to authenticate user [{}] remotely",username);
-        String response = this.authHelper.sendAuthenticationRequest(username
-                                    , passwordHash
-                                    , securityConfig.getAuthUrl()  );
-        String [] lines = response.split("\n");
-        if (lines.length<4 || !"Status: OK".equalsIgnoreCase(lines[0])) {
+        logger.debug("Trying to authenticate user remotely");
+        user = createUserFromJSONResponse(sendAuthenticationCheckRequest(token));
+        if (user == null) return null;
+        return user;
+    }
+
+    private User createUserFromJSONResponse(JsonNode responseJSON) throws IOException {
+        User user;
+        if (responseJSON == null || !responseJSON.has("status") ||
+                (responseJSON.has("status") && !responseJSON.get("status").asText().equalsIgnoreCase("ok"))) {
             return null;
         }
-
         user = new User();
-        user.setUsername(username);
-        user.setHashedPassword(passwordHash);
-        Set<String> allowSet = new HashSet<>(Arrays.asList(StringUtils.split(StringUtils.split(lines[1], ':')[1].trim().replaceAll("~", ""), ';')));
-        Set<String> denySet = new HashSet<>(Arrays.asList(StringUtils.split(StringUtils.split(lines[2], ':')[1].trim().replaceAll("~", ""), ';')));
-        allowSet.removeAll(denySet);
-        user.setAllow(allowSet.toArray(new String[allowSet.size()]));
-        user.setDeny(denySet.toArray(new String[denySet.size()]));
-        user.setSuperUser(StringUtils.split(lines[3], ':')[1].trim().toLowerCase().equals("true"));
-        passwordCache.put(username, user);
+        user.setFullName(responseJSON.get("fullname").textValue());
+        user.setLogin(responseJSON.get("username").textValue());
+        user.setToken(responseJSON.get("sessid").textValue());
+        String[] allow = mapper.convertValue(responseJSON.get("allow"), String[].class);
+        String[] deny = mapper.convertValue(responseJSON.get("deny"), String[].class);
+        Set allowedSet = Sets.difference(Sets.newHashSet(allow), Sets.newHashSet(deny));
+        user.setAllow((String[]) allowedSet.toArray(new String[allowedSet.size()]));
+        user.setDeny(deny);
+        user.setSuperUser(responseJSON.get("superuser").asBoolean(false));
+        userAuthCache.put(user.getToken(), user);
         return user;
     }
 

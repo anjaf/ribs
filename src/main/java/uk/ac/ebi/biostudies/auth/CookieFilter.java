@@ -32,19 +32,14 @@ public class CookieFilter implements Filter {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
         try {
             CookieMap cookies = new CookieMap(((HttpServletRequest) servletRequest).getCookies());
-            String userName = cookies.getCookieValue(HttpTools.AE_USERNAME_COOKIE);
-//            if (null != userName) { // Commenting this to enable + sign in username
-//                userName = URLDecoder.decode(userName, "UTF-8");
-//            }
-            //TODO: token is hashed password for now. Check if it should be replaced
-            String token = cookies.getCookieValue(HttpTools.AE_TOKEN_COOKIE);
-            User user = users.checkAccess(userName, token);
+            String token = cookies.getCookieValue(HttpTools.TOKEN_COOKIE);
+            User user = users.checkAccess(token);
             if (user != null)
                 Session.setCurrentUser(user);
             else
                 Session.clear();
         } catch (Throwable x) {
-            logger.error("problem happend in security filter");
+            logger.error("problem happened in security filter");
         }
         if(response instanceof HttpServletResponse)
             ((HttpServletResponse)response).setHeader("Cache-Control","no-cache");

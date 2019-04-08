@@ -30,11 +30,8 @@ import java.net.URLEncoder;
 
 public class HttpTools {
 
-    public static final String AE_TOKEN_COOKIE = "AeLoginToken";
-    public static final String AE_USERNAME_COOKIE = "AeLoggedUser";
-    public static final String AE_AUTH_MESSAGE_COOKIE = "AeAuthMessage";
-    public static final String AE_AUTH_USERNAME_COOKIE = "AeAuthUser";
-
+    public static final String TOKEN_COOKIE = "BioStudiesToken";
+    public static final String AUTH_MESSAGE_COOKIE = "BioStudiesMessage";
     public static final String REFERER_HEADER = "Referer";
 
     public static void setCookie(HttpServletResponse response, String name, String value, Integer maxAge) {
