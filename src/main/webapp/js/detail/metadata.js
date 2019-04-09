@@ -534,8 +534,8 @@ var Metadata = (function (_self) {
     }
     function handleSimilarStudies(type) {
         var accession = $('#accession').text();
-        var url = window.location.pathname;
-        url = url.replace('/studies/','/api/v1/studies/').replace(project,'')+"/similar";
+        var parts = window.location.pathname.split('/');
+        var url = '/biostudies/api/v1/studies/' + accession + '/similar';
         $.getJSON(url, function (data) {
             var templateSource = $('script#main-similar-studies').html();
             var template = Handlebars.compile(templateSource);
