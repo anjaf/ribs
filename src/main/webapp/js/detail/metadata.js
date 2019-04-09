@@ -11,9 +11,10 @@ var Metadata = (function (_self) {
         // Prepare template
         var templateSource = $('script#study-template').html();
         var template = Handlebars.compile(templateSource);
-        var url = window.location.pathname;
+        var parts = window.location.pathname.split('/');
+        var accession = parts[parts.length-1];
+        var url = '/biostudies/api/v1/studies/' + accession;
         var params = getParams();
-        url = url.replace('/studies/', '/api/v1/studies/').replace(project, '');
 
         $.getJSON(url, params, function (data) {
             if (!data.accno && data.submissions) data = data.submissions[0];
