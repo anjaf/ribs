@@ -129,7 +129,7 @@ public class UserSecurityService {
         user.setFullName(responseJSON.has("fullname") ? responseJSON.get("fullname").textValue() : responseJSON.get("username").textValue());
         user.setLogin(responseJSON.get("username").textValue());
         user.setToken(responseJSON.get("sessid").textValue());
-        if (responseJSON.has("allow") && responseJSON.get("allow")!=null  && !StringUtils.isEmpty(responseJSON.asText("allow"))) {
+        if (responseJSON.has("allow") && responseJSON.get("allow")!=null && responseJSON.get("allow").isArray()) {
             String[] allow = mapper.convertValue(responseJSON.get("allow"), String[].class);
             String[] deny = mapper.convertValue(responseJSON.get("deny"), String[].class);
             Set allowedSet = Sets.difference(Sets.newHashSet(allow), Sets.newHashSet(deny));
