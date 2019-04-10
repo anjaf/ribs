@@ -45,6 +45,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 @Service
 public class UserSecurityService {
@@ -135,6 +136,8 @@ public class UserSecurityService {
             Set allowedSet = Sets.difference(Sets.newHashSet(allow), Sets.newHashSet(deny));
             user.setAllow((String[]) allowedSet.toArray(new String[allowedSet.size()]));
             user.setDeny(deny);
+            user.allow = Stream.of(allow).map( item -> item.replaceAll("~", "")).toArray(String[]::new);
+            user.deny = Stream.of(deny).map( item -> item.replaceAll("~", "")).toArray(String[]::new);
         }
         user.setSuperUser(responseJSON.get("superuser").asBoolean(false));
         userAuthCache.put(user.getToken(), user);
