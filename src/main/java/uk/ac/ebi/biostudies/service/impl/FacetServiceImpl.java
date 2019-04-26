@@ -103,6 +103,7 @@ public class FacetServiceImpl implements FacetService {
         List<FacetResult> allResults = new ArrayList();
         Facets facets = null;
         try {
+            int tempLimit= limit;
             query = securityQueryBuilder.applySecurity(query);
             FacetsCollector.search(indexManager.getIndexSearcher(), query, limit, facetsCollector);
             facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
@@ -112,7 +113,8 @@ public class FacetServiceImpl implements FacetService {
                     if(field.has(Constants.IndexEntryAttributes.PRIVATE) && field.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean()==true && Session.getCurrentUser()==null) {
                         continue;
                     }
-                    allResults.add(facets.getTopChildren(limit, field.get(Constants.IndexEntryAttributes.NAME).asText()));
+                    tempLimit = field.get(Constants.IndexEntryAttributes.NAME).asText().equalsIgnoreCase(Constants.Facets.RELEASED_YEAR_FACET)?Integer.MAX_VALUE:limit;
+                    allResults.add(facets.getTopChildren(tempLimit, field.get(Constants.IndexEntryAttributes.NAME).asText()));
                 }
             }
         } catch (IOException e) {
@@ -208,8 +210,6 @@ public class FacetServiceImpl implements FacetService {
                     continue;
                 if(selectedFacetFreq.containsKey(fcResult.dim) && selectedFacetFreq.get(fcResult.dim).containsKey(labelVal.label))
                     continue;
-                if(children.size()==limit && !labelVal.label.equalsIgnoreCase(Constants.Facets.RELEASED_YEAR_FACET))
-                    break;
                 ObjectNode child = mapper.createObjectNode();
                 child.put("name", textService.getNormalisedString(labelVal.label));
                 child.put("value", labelVal.label);
@@ -220,8 +220,11 @@ public class FacetServiceImpl implements FacetService {
             Collections.sort(children, Comparator.comparing(o -> o.get("name").textValue()));
             if(facet.get("name").asText().equalsIgnoreCase(Constants.Facets.RELEASED_YEAR_FACET)) {
                 Collections.reverse(children);
-                if(children.size()>limit)
+                if(children.size()>limit) {
+                    if(children.get(0).get("name").asText().equalsIgnoreCase("N/A"))
+                        children.remove(0);
                     children = children.stream().limit(limit).collect(Collectors.toList());
+                }
             }
             ArrayNode childrenArray = mapper.createArrayNode();
             childrenArray.addAll(children);
