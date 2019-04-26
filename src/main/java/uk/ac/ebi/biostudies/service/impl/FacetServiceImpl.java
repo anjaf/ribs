@@ -23,6 +23,7 @@ import uk.ac.ebi.biostudies.service.TextService;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by ehsan on 09/03/2017.
@@ -207,7 +208,7 @@ public class FacetServiceImpl implements FacetService {
                     continue;
                 if(selectedFacetFreq.containsKey(fcResult.dim) && selectedFacetFreq.get(fcResult.dim).containsKey(labelVal.label))
                     continue;
-                if(children.size()==limit)
+                if(children.size()==limit && !labelVal.label.equalsIgnoreCase(Constants.Facets.RELEASED_YEAR_FACET))
                     break;
                 ObjectNode child = mapper.createObjectNode();
                 child.put("name", textService.getNormalisedString(labelVal.label));
@@ -217,6 +218,11 @@ public class FacetServiceImpl implements FacetService {
                 children.add(child);
             }
             Collections.sort(children, Comparator.comparing(o -> o.get("name").textValue()));
+            if(facet.get("name").asText().equalsIgnoreCase(Constants.Facets.RELEASED_YEAR_FACET)) {
+                Collections.reverse(children);
+                if(children.size()>limit)
+                    children = children.stream().limit(limit).collect(Collectors.toList());
+            }
             ArrayNode childrenArray = mapper.createArrayNode();
             childrenArray.addAll(children);
             facet.set("children", childrenArray);
