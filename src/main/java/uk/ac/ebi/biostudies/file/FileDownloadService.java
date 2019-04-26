@@ -82,14 +82,14 @@ public class FileDownloadService extends BaseDownloadServlet{
                 //TODO: Remove this bad^∞ hack
                 //Hack start: override relative path if fileis not found
                 if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                    this.logger.error( "{} not found ", downloadFile.toFile().getAbsolutePath());
+                    this.logger.warn( "{} not found ", downloadFile.toFile().getAbsolutePath());
                     downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
-                    this.logger.error( "Trying ", downloadFile.toFile().getAbsolutePath());
+                    this.logger.warn( "Trying ", downloadFile.toFile().getAbsolutePath());
                 }
                 if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                    this.logger.error( "{} not found ", downloadFile.toFile().getAbsolutePath());
+                    this.logger.warn( "{} not found ", downloadFile.toFile().getAbsolutePath());
                     downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" +relativePath+"/"+ name);
-                    this.logger.error( "Trying {}", downloadFile.toFile().getAbsolutePath());
+                    this.logger.warn( "Trying {}", downloadFile.toFile().getAbsolutePath());
                 }
                 //Hack end
                 if (Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
