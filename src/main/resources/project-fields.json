@@ -71,6 +71,7 @@
     { "name": "facet.released_year", "title": "Released", "fieldType": "facet", "multiValued": false, "parser": "NullParser"},
     { "name": "facet.modification_year", "title": "Created/Modified", "fieldType": "facet", "multiValued": false, "private": true, "parser": "NullParser"},
     { "name": "facet.link_type", "title": "Link Type", "fieldType": "facet", "jsonPath": "$..links..attributes[?(@.name=='Type')].value", "parser": "JPathListParser"},
-    { "name": "facet.file_type", "title": "File Type", "fieldType": "facet", "jsonPath": "$..files.*[?(@.type==\"file\")]", "parser": "FileTypeParser"}
+    { "name": "facet.file_type", "title": "File Type", "fieldType": "facet", "jsonPath": "$..files.*[?(@.type==\"file\")]", "parser": "FileTypeParser"},
+    { "name": "relPath", "title": "", "fieldType": "untokenized_string", "jsonPath": "$.relPath"}
   ]
 }

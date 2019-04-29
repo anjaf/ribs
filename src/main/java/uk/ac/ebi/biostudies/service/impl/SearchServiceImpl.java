@@ -201,31 +201,6 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    /*
-       Returns null if the accession is not accessible and the actual indexed
-        case-sensitive accession if it is.
-    */
-    public String getAccessionIfAccessible(String accession, String seckey) {
-        QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
-        parser.setSplitOnWhitespace(true);
-        Query query = null;
-        try {
-            query = parser.parse(Fields.ACCESSION+":"+accession);
-            Query result = securityQueryBuilder.applySecurity(query, seckey);
-            TopDocs topDocs = indexManager.getIndexSearcher().search(result,10);
-            if (topDocs.totalHits == 1) { // if totalHits!=1, something is wrong
-                Document doc = indexManager.getIndexReader().document(topDocs.scoreDocs[0].doc);
-                return doc.get(Fields.ID);
-            } else {
-                return null;
-            }
-        } catch (Throwable ex){
-            logger.error("Problem in checking security", ex);
-            return null;
-        }
-    }
-
-    @Override
     public String search(String queryString, JsonNode selectedFacetsAndFields, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
         boolean doHighlight = true;
         if(queryString.isEmpty() && sortBy.isEmpty()) {
@@ -273,9 +248,8 @@ public class SearchServiceImpl implements SearchService {
 
 
     @Override
-    public InputStreamResource getStudyAsStream(String accession) throws IOException {
-        String path = StudyUtils.getPartitionedPath(accession);
-        FileInputStream fileInputStream = new FileInputStream(indexConfig.getFileRootDir() + "/"+ path + "/"+accession+".json");
+    public InputStreamResource getStudyAsStream(String accession, String relativePath) throws IOException {
+        FileInputStream fileInputStream = new FileInputStream(indexConfig.getFileRootDir() + "/"+ relativePath + "/"+accession+".json");
         return new InputStreamResource(fileInputStream);
     }
 
@@ -346,8 +320,9 @@ public class SearchServiceImpl implements SearchService {
             query = parser.parse(Fields.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query, secretKey);
             TopDocs topDocs = indexManager.getIndexSearcher().search(result, 1);
-            if(topDocs.totalHits>0)
+            if(topDocs.totalHits==1) {
                 return topDocs.scoreDocs[0].doc;
+            }
         } catch (Throwable ex){
             logger.error("Problem in checking security", ex);
         }

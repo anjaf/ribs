@@ -51,6 +51,8 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         String orderedArray[] = {"Name", "Size"};
         ArrayNode fileColumnAttributes = mapper.createArrayNode();
         Document doc = searchService.getDocumentByAccession(accession, secretKey);
+        accession = doc.get(Constants.Fields.ACCESSION);
+        String relativePath = doc.get(Constants.Fields.RELATIVE_PATH);
         if (doc==null) return studyInfo;
         String attFiles = doc.get(Constants.File.FILE_ATTS);
         if (attFiles==null) return studyInfo;
@@ -73,7 +75,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             node.put("data", att.replaceAll("[\\[\\]\\(\\)\\s]", "_"));
             node.put("defaultContent", "");
             fileColumnAttributes.add(node);
-            if(counter++==1 && thumbnails.hasThumbnails(accession)){
+            if(counter++==1 && thumbnails.hasThumbnails(accession, relativePath)){
                 fileColumnAttributes.add(getThumbnailHeader(mapper));
             }
         }

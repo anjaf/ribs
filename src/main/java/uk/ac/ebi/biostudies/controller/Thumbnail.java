@@ -2,9 +2,11 @@ package uk.ac.ebi.biostudies.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.file.Thumbnails;
 import uk.ac.ebi.biostudies.service.SearchService;
@@ -44,12 +46,12 @@ public class Thumbnail {
             return;
 
         try {//Maybe I need to apply some modification to change accession to relative path
-            accession = searchService.getAccessionIfAccessible(accession, key);
-            if(accession==null) {
+            Document document = searchService.getDocumentByAccession(accession, key);
+            if(document==null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            String relativePath = StudyUtils.getPartitionedPath(accession);
+            String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
             thumbnails.sendThumbnail(response, relativePath, name);
         } catch (IOException e) {
             logger.error("problem in creating thumbnail ", e);

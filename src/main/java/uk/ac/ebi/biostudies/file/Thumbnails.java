@@ -142,8 +142,7 @@ public class Thumbnails {
             }
         }
     }
-    public boolean hasThumbnails(String accession){
-        String relativePath = StudyUtils.getPartitionedPath(accession);
+    public boolean hasThumbnails(String accession, String relativePath){
         File file = new File(indexConfig.getFileRootDir() + "/" + relativePath + "/Thumbnails/");
         return file.exists();
     }

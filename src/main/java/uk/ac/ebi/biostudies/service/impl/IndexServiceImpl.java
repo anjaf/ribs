@@ -252,7 +252,7 @@ public class IndexServiceImpl implements IndexService {
 
                 Set<String> columnSet = new LinkedHashSet<>();
 
-                Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
+                Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
                 if (fileValueMap!=null) {
                     valueMap.putAll(fileValueMap);
                 }

@@ -37,7 +37,7 @@ public class FileIndexServiceImpl implements FileIndexService {
 
 
 
-    public Map<String, Object> indexSubmissionFiles(String accession,JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
+    public Map<String, Object> indexSubmissionFiles(String accession, String relativePath, JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
         Map<String, Object> valueMap = new HashMap<>();
         long counter = 0;
         List<String> columns = new ArrayList<>();
@@ -62,8 +62,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         if(libraryParents==null) return null;
         for(JsonNode parent:libraryParents) {
             if(parent==null) continue;
-            String path = StudyUtils.getPartitionedPath(accession);
-            String libraryFilePath = indexConfig.getFileRootDir() + "/"+ path + "/"+  parent.get("libraryFile").textValue();
+            String libraryFilePath = indexConfig.getFileRootDir() + "/"+ relativePath + "/"+  parent.get("libraryFile").textValue();
             counter = indexLibraryFile(accession, writer, counter, columns, sectionsWithFiles, parent, libraryFilePath);
         }
 
