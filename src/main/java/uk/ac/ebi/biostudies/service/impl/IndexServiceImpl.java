@@ -61,7 +61,7 @@ public class IndexServiceImpl implements IndexService {
 
     public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
     static {
-        TYPE_NOT_ANALYZED.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
+        TYPE_NOT_ANALYZED.setIndexOptions(IndexOptions.DOCS);
         TYPE_NOT_ANALYZED.setTokenized(false);
         TYPE_NOT_ANALYZED.setStored(true);
     }

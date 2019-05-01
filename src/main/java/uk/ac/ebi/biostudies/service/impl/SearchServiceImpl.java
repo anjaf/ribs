@@ -120,13 +120,14 @@ public class SearchServiceImpl implements SearchService {
         try {
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
             int hitsPerPage = pageSize;
-            long to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
+            long totalHits = hits.totalHits!=null ? hits.totalHits.value :0;
+            long to = page * hitsPerPage > totalHits ? totalHits : page * hitsPerPage;
             response.put("page", page);
             response.put("pageSize", hitsPerPage);
-            response.put("totalHits", hits.totalHits);
+            response.put("totalHits", totalHits);
             response.put( "sortBy", sortBy.equalsIgnoreCase(Fields.RELEASE_TIME) ? RELEASE_DATE : sortBy);
             response.put( "sortOrder", sortOrder);
-            if (hits.totalHits > 0) {
+            if (totalHits > 0) {
                 ArrayNode docs = mapper.createArrayNode();
                 for (int i = (page - 1) * hitsPerPage; i < to; i++) {
                     ObjectNode docNode = mapper.createObjectNode();
@@ -295,7 +296,7 @@ public class SearchServiceImpl implements SearchService {
             similarStudies.add(study);
         }
         ObjectNode result = mapper.createObjectNode();
-        if (mltDocs.totalHits>1) {
+        if (mltDocs.totalHits.value>1) {
             result.set ("similarStudies", similarStudies);
         }
         return result;
@@ -320,7 +321,7 @@ public class SearchServiceImpl implements SearchService {
             query = parser.parse(Fields.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query, secretKey);
             TopDocs topDocs = indexManager.getIndexSearcher().search(result, 1);
-            if(topDocs.totalHits==1) {
+            if(topDocs.totalHits.value==1) {
                 return topDocs.scoreDocs[0].doc;
             }
         } catch (Throwable ex){

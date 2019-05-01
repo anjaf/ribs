@@ -17,10 +17,7 @@
 
 package uk.ac.ebi.biostudies.api.util.analyzer;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.StopFilter;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.util.CharTokenizer;
 import uk.ac.ebi.biostudies.config.IndexConfig;
@@ -30,8 +27,15 @@ public final class ExperimentTextAnalyzer extends Analyzer {
     protected TokenStreamComponents createComponents(String fieldName) {
         Tokenizer source = new ExperimentTextTokenizer();
         TokenStream filter = new StopFilter(new ASCIIFoldingFilter(source), IndexConfig.STOP_WORDS);
+        filter = new LowerCaseFilter(filter);
         return new TokenStreamComponents(source, filter);
     }
+
+    @Override
+    protected TokenStream normalize(String fieldName, TokenStream in) {
+        return new LowerCaseFilter(in);
+    }
+
 
     private static class ExperimentTextTokenizer extends CharTokenizer {
         @Override
@@ -39,9 +43,5 @@ public final class ExperimentTextAnalyzer extends Analyzer {
             return Character.isLetter(c) | Character.isDigit(c) | ('-' == c);
         }
 
-        @Override
-        protected int normalize(int c) {
-            return Character.toLowerCase(c);
-        }
     }
 }

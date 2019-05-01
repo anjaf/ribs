@@ -142,12 +142,12 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
             ObjectNode response = mapper.createObjectNode();
             response.put(Constants.File.DRAW, draw);
-            response.put(Constants.File.RECORDTOTAL, hits.totalHits);
-            response.put(Constants.File.RECORDFILTERED, hits.totalHits);
-            if (hits.totalHits >= 0) {
+            response.put(Constants.File.RECORDTOTAL, hits.totalHits.value);
+            response.put(Constants.File.RECORDFILTERED, hits.totalHits.value);
+            if (hits.totalHits.value >= 0) {
                 if (pageSize==-1) pageSize= Integer.MAX_VALUE;
                 ArrayNode docs = mapper.createArrayNode();
-                for (int i = start; i < start+pageSize && i<hits.totalHits; i++) {
+                for (int i = start; i < start+pageSize && i<hits.totalHits.value; i++) {
                     ObjectNode docNode = mapper.createObjectNode();
                     Document doc = reader.document(hits.scoreDocs[i].doc);
                     if (metadata) {
@@ -185,7 +185,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             MultiFieldQueryParser parser = new MultiFieldQueryParser(fields, new KeywordAnalyzer());
 
             parser.setAllowLeadingWildcard(true);
-            parser.setLowercaseExpandedTerms(false);
+            //parser.setLowercaseExpandedTerms(false);
             Query tempSmallQuery = parser.parse(StudyUtils.escape(search));
             logger.debug(tempSmallQuery);
             builderSecond.add(firstQuery, BooleanClause.Occur.MUST);
@@ -245,7 +245,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     private void generateDownloadAllFilePaths(TopDocs hits, ArrayNode filePaths, IndexReader reader){
-        for(int i=0; i<hits.totalHits; i++){
+        for(int i=0; i<hits.totalHits.value; i++){
             try {
                 filePaths.add(reader.document(i).get(Constants.File.PATH));
             } catch (IOException e) {

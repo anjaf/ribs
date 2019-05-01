@@ -82,7 +82,7 @@ public class Search {
 
     @RequestMapping(value = "/latest", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String getLatestStudies() throws Exception {
-        return searchService.search(URLDecoder.decode(Constants.Fields.TYPE + ":Study", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.SortOrder.DESCENDING);
+        return searchService.search(URLDecoder.decode(Constants.Fields.TYPE + ":study", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.SortOrder.DESCENDING);
     }
 
 

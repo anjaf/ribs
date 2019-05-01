@@ -17,10 +17,7 @@
 
 package uk.ac.ebi.biostudies.api.util.analyzer;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.StopFilter;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.util.CharTokenizer;
 import uk.ac.ebi.biostudies.config.IndexConfig;
@@ -33,15 +30,15 @@ public class AttributeFieldAnalyzer extends Analyzer {
         return new TokenStreamComponents(source, filter);
     }
 
+    @Override
+    protected TokenStream normalize(String fieldName, TokenStream in) {
+        return new LowerCaseFilter(in);
+    }
+
     private static class AttributeFieldTokenizer extends CharTokenizer {
         @Override
         protected boolean isTokenChar(int c) {
             return !Character.isWhitespace(c) && !(',' == c || ';' == c || '(' == c || ')' == c);
-        }
-
-        @Override
-        protected int normalize(int c) {
-            return Character.toLowerCase(c);
         }
     }
 }
