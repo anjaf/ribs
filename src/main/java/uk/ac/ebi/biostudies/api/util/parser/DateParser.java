@@ -29,8 +29,12 @@ public class DateParser extends AbstractParser{
         }
 
 
-        if(submission.has(Constants.Fields.RELEASE_TIME) && !submission.get(Constants.Fields.RELEASE_TIME).asText().equals("-1")) {
-            releaseDateLong = Long.valueOf(submission.get(Constants.Fields.RELEASE_TIME).asText()) * 1000;
+        if(submission.has(Constants.Fields.RELEASE_TIME)) {
+            if (!submission.get(Constants.Fields.RELEASE_TIME).asText().equals("-1")) {
+                releaseDateLong = Long.valueOf(submission.get(Constants.Fields.RELEASE_TIME).asText()) * 1000;
+            } else if (String.valueOf(valueMap.get(Constants.Fields.ACCESS)).contains(PUBLIC)) {
+                releaseDateLong = Long.valueOf(submission.get(Constants.Fields.MODIFICATION_TIME).asText()) * 1000;
+            }
         }
         if(releaseDateLong==0L && !String.valueOf(valueMap.get(Constants.Fields.ACCESS)).contains(PUBLIC)) {
             releaseDateLong = Long.MAX_VALUE;
