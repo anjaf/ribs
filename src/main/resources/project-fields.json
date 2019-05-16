@@ -40,6 +40,7 @@
     { "name": "europepmc.facet.funding_agency", "title": "Funding Agency", "fieldType": "facet", "jsonPath": "$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value"}
   ],
   "eu-toxrisk": [
+    { "name": "eutoxrisk.facet.data_type", "title": "Data Type", "fieldType": "facet", "parser": "EUToxRiskDataTypeParser"},
     { "name": "eutoxrisk.facet.organ", "title": "Organ", "fieldType": "facet"},
     { "name": "eutoxrisk.facet.organism", "title": "Organism", "fieldType": "facet"},
     { "name": "eutoxrisk.facet.toxicity_domain", "title": "Toxicity Domain", "fieldType": "facet"},
