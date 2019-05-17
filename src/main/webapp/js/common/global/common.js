@@ -45,7 +45,7 @@ $(function() {
         $('#pass-field').focus();
     }*/
 
-    if (project) {
+    if (project && project!=='projects') {
         // display project banner
         $.getJSON(contextPath + "/api/v1/studies/" + project, function (data) {
             var projectObj = showProjectBanner(data);
@@ -91,7 +91,7 @@ function showError(error) {
     var errorTemplateSource = $('script#error-template').html();
     var errorTemplate = Handlebars.compile(errorTemplateSource);
     var data;
-
+    debugger
     switch (error.status) {
         case 400:
             data = {
