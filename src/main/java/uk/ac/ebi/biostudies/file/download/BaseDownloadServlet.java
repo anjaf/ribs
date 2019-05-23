@@ -100,6 +100,7 @@ public abstract class BaseDownloadServlet {
                 logger.debug("Download of [{}] completed", downloadFile.getName());
             }
         } catch (Exception x) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
             if (x.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException")) {
                 // generate log entry for client abortion
                 logger.warn("Download aborted");

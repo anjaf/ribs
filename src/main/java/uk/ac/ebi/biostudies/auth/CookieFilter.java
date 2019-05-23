@@ -39,7 +39,7 @@ public class CookieFilter implements Filter {
             else
                 Session.clear();
         } catch (Throwable x) {
-            logger.error("problem happened in security filter");
+            logger.error(x);
         }
         if(response instanceof HttpServletResponse)
             ((HttpServletResponse)response).setHeader("Cache-Control","no-cache");

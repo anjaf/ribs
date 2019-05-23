@@ -79,6 +79,9 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
         registry.addViewController("/{project:.+}/studies/{accession:.+}/files").setViewName("files");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/files/").setViewName("files");
+
+        registry.addViewController("/{project:.+}/studies/{accession:.+}/sdrf").setViewName("sdrf");
+        registry.addViewController("/{project:.+}/studies/{accession:.+}/sdrf/").setViewName("sdrf");
     }
 
     @Override

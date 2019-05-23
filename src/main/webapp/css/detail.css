@@ -557,3 +557,11 @@ ul.recommendations li {
 #clear-file-filter {
     margin-left: 5px;
 }
+
+.sdrf-sample-attribute-column {
+    background: #96F8BD33;
+}
+
+.sdrf-variable-column {
+    background: #8190EF33;
+}
