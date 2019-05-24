@@ -15,15 +15,15 @@ $(function() {
             .split('\t')
             .map(function (header, i) {
                 var col = {name:header, targets:[i]};
-                if (header.indexOf('"Characteristics') === 0) {
+                if (header.indexOf('Characteristics') === 0) {
                     col.className = 'sdrf-sample-attribute-column';
-                } else if (header.indexOf('"Factor Value') === 0) {
+                } else if (header.indexOf('Factor Value') === 0) {
                     col.className = 'sdrf-variable-column';
-                } else if (header.indexOf('"Extract Name"') === 0) {
+                } else if (header.indexOf('Extract Name') === 0) {
                     col.className = 'sdrf-assay-column';
                     col.name='Assay Name';
                     colsToMove.push(i);
-                } else if (header.indexOf('"Source Name"') === 0) {
+                } else if (header.indexOf('Source Name') === 0) {
                     col.className = 'source-column';
                 } else if (header.indexOf('[ENA_RUN]') > 0) {
                     col.className = 'ena-column'
@@ -42,8 +42,8 @@ $(function() {
                 }
 
                 if (col.hasOwnProperty('className')) {
-                    var matches = /.*\[(.*)\]"/g.exec(header);
-                    col.name = (col.name!==header ||  matches==null ? col.name.replaceAll('"','') : matches[1]);
+                    var matches = /.*\[(.*)\]/g.exec(header);
+                    col.name = (col.name!==header ||  matches==null ? col.name : matches[1]);
                 }
                 col.visible = col.hasOwnProperty('className');
                 return col;

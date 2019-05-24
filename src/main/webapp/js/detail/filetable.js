@@ -225,7 +225,9 @@ var FileTable = (function (_self) {
                 .data()
                 .join('')
                 .trim();
-            this.visible(srchd!=null && srchd!='');
+            if (this.visible() && (srchd==null || srchd=='')) {
+                this.visible(false);
+            }
         });
     }
 
