@@ -23,5 +23,6 @@ public interface SearchService {
     InputStreamResource getStudyAsStream(String accession, String relativePath) throws IOException;
     ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception;
     Document getDocumentByAccession(String accession, String secretKey);
+    String getLatestStudies() throws Exception;
 }
 

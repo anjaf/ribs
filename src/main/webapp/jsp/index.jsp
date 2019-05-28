@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8" %>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@page import="uk.ac.ebi.biostudies.auth.Session" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
@@ -71,7 +72,38 @@
                         Projects
                     </a>
                 </h5>
-                <div id="projects"></div>
+
+                <c:choose>
+                    <c:when test="${Session.getCurrentUser()!=null}">
+                        <div id="projects"></div>
+                    </c:when>
+                    <c:otherwise>
+                        <div id="preloaded-projects">
+                            <ul id="projectList">
+                                <li>
+                                    <a data-type="project" data-accession="arrayexpress"
+                                       href="/biostudies/arrayexpress/studies"><img
+                                            src="/biostudies/files/arrayexpress/logo.png"></a>
+                                </li>
+                                <li>
+                                    <a data-type="project" data-accession="BioImages"
+                                       href="/biostudies/BioImages/studies"><img
+                                            src="/biostudies/files/BioImages/3/logo.png"></a>
+                                </li>
+                                <li>
+                                    <a data-type="project" data-accession="BioImages-EMPIAR"
+                                       href="/biostudies/BioImages-EMPIAR/studies"><img
+                                            src="/biostudies/files/BioImages-EMPIAR/3/EMPIAR.png"></a>
+                                </li>
+                                <li>
+                                    <a data-type="project" data-accession="EuropePMC" href="/biostudies/EuropePMC/studies"><img
+                                            src="/biostudies/files/EuropePMC/logo.png"></a>
+                                </li>
+                                <span class="more"><a href="projects">more...</a></span></ul>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+
             </div>
         </div>
         <%@include file="index/latest.hbs" %>

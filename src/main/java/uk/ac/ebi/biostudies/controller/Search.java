@@ -79,13 +79,6 @@ public class Search {
         return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project, page, pageSize, sortBy, sortOrder);
     }
 
-
-    @RequestMapping(value = "/latest", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getLatestStudies() throws Exception {
-        return searchService.search(URLDecoder.decode(Constants.Fields.TYPE + ":study", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.SortOrder.DESCENDING);
-    }
-
-
     @RequestMapping(value = "/{project}/facets", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String getDefaultFacets(@PathVariable String project,
                                    @RequestParam(value = "query", required = false, defaultValue = "") String queryString,
@@ -105,13 +98,6 @@ public class Search {
         ObjectNode selectedFacets = checkSelectedFacetsAndFields(params);
         return facetService.getDimension(project, dimension, queryString, selectedFacets).toString();
     }
-
-
-    @RequestMapping(value = "/stats", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getStats() throws Exception {
-        return searchService.getFieldStats();
-    }
-
 
     private ObjectNode checkSelectedFacetsAndFields(MultiValueMap<String, String> params) {
         Set<String> fieldNames = indexManager.getIndexEntryMap().keySet();
