@@ -23,6 +23,7 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
+import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.efo.EFOExpandedHighlighter;
 import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
@@ -348,11 +349,18 @@ public class SearchServiceImpl implements SearchService {
     }
 
     public String getLatestStudies() throws Exception {
-        String responseString = statsCache.getIfPresent(LATEST_ENDPOINT);
-        if (responseString == null) {
-            responseString = search(URLDecoder.decode(Constants.Fields.TYPE + ":study", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.SortOrder.DESCENDING);
-            statsCache.put(LATEST_ENDPOINT, responseString);
+        boolean isLoggedIn = Session.getCurrentUser()!=null;
+        String responseString = null;
+        if (!isLoggedIn) {
+            responseString = statsCache.getIfPresent(LATEST_ENDPOINT);
+            if (responseString == null) {
+                responseString = search(URLDecoder.decode(Constants.Fields.TYPE + ":study", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.SortOrder.DESCENDING);
+                statsCache.put(LATEST_ENDPOINT, responseString);
+            }
+        } else {
+            return search(URLDecoder.decode(Constants.Fields.TYPE + ":study", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.SortOrder.DESCENDING);
         }
+
         return responseString;
     }
 }
