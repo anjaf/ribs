@@ -43,8 +43,8 @@ var FacetRenderer = (function (_self) {
     function postRenderFacets (data, params) {
 
         // check the currently selected facet, if any
-         for (var fkey in params) {
-            if (fkey.toLowerCase().indexOf("facet.")!=0) continue;
+        for (var fkey in params) {
+            if (fkey.toLowerCase().indexOf("facet.")<0) continue;
             $.each( $.isArray(params[fkey]) ? params[fkey] : [params[fkey]] , function (i,v) {
                 $('input[name="'+fkey+'"][value="' + v + '"]').attr('checked', 'checked');
             });

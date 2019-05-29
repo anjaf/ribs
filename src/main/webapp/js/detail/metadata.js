@@ -445,12 +445,12 @@ var Metadata = (function (_self) {
 
     function handleAnchors(params) {
         // scroll to main anchor
-        if (location.hash) {
-            $('#left-column').show();
-            openHREF(location.hash);
-        } else {
-            $('#left-column').slideDown();
-        }
+
+        $('#left-column').slideDown(function() {
+            if (location.hash) {
+                openHREF(location.hash);
+            }
+        });
 
 
         //handle author list expansion

@@ -1,13 +1,13 @@
 {
   "idr": [
-    { "name": "idr.facet.study_type", "title": "Study Type", "fieldType": "facet"}
+    { "name": "facet.idr.study_type", "title": "Study Type", "fieldType": "facet"}
   ],
   "hecatos": [
-    { "name": "hecatos.facet.organ", "title": "Organ", "fieldType": "facet"},
-    { "name": "hecatos.facet.technology", "title": "Assay Technology Type", "fieldType": "facet"},
-    { "name": "hecatos.facet.data_type", "title": "Data Type", "fieldType": "facet"},
-    { "name": "hecatos.facet.compound", "title": "Compound", "fieldType": "facet"},
-    { "name": "hecatos.facet.raw_or_processed", "title": "Raw/Processed", "fieldType": "facet"}
+    { "name": "facet.hecatos.organ", "title": "Organ", "fieldType": "facet"},
+    { "name": "facet.hecatos.technology", "title": "Assay Technology Type", "fieldType": "facet"},
+    { "name": "facet.hecatos.data_type", "title": "Data Type", "fieldType": "facet"},
+    { "name": "facet.hecatos.compound", "title": "Compound", "fieldType": "facet"},
+    { "name": "facet.hecatos.raw_or_processed", "title": "Raw/Processed", "fieldType": "facet"}
   ],
   "arrayexpress": [
     { "name": "array", "title": "Array", "fieldType": "untokenized_string", "analyzer": "AttributeFieldAnalyzer"},
@@ -37,16 +37,17 @@
     { "name": "facet.gxa", "title": "In Expression Atlas", "fieldType": "facet", "facetType": "boolean", "multiValued": false, "jsonPath": "$..links..attributes[?(@.name=='Type' && @.value=='Expression Atlas')].concat(\"true\")", "sortable": true}
   ],
   "europepmc": [
-    { "name": "europepmc.facet.funding_agency", "title": "Funding Agency", "fieldType": "facet", "jsonPath": "$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value"}
+    { "name": "facet.europepmc.funding_agency", "title": "Funding Agency", "fieldType": "facet", "jsonPath": "$..subsections[?(@.type==\"Funding\")].attributes[?(@.name==\"Agency\")].value"}
   ],
   "eu-toxrisk": [
-    { "name": "eutoxrisk.facet.organ", "title": "Organ", "fieldType": "facet"},
-    { "name": "eutoxrisk.facet.organism", "title": "Organism", "fieldType": "facet"},
-    { "name": "eutoxrisk.facet.toxicity_domain", "title": "Toxicity Domain", "fieldType": "facet"},
-    { "name": "eutoxrisk.facet.compound", "title": "Compound", "fieldType": "facet", "jsonPath": "$.section.attributes[?(@.name=~ /Compound/i)].value OR $..subsections..[?(@.type=='(Target) Compounds')]..attributes[?(@.name=='Name')].value"
+    { "name": "facet.eutoxrisk.data_type", "title": "Data Type", "fieldType": "facet", "parser": "EUToxRiskDataTypeParser"},
+    { "name": "facet.eutoxrisk.organ", "title": "Organ", "fieldType": "facet"},
+    { "name": "facet.eutoxrisk.organism", "title": "Organism", "fieldType": "facet"},
+    { "name": "facet.eutoxrisk.toxicity_domain", "title": "Toxicity Domain", "fieldType": "facet"},
+    { "name": "facet.eutoxrisk.compound", "title": "Compound", "fieldType": "facet", "jsonPath": "$.section.attributes[?(@.name=~ /Compound/i)].value OR $..subsections..[?(@.type=='(Target) Compounds')]..attributes[?(@.name=='Name')].value"
     },
-    { "name": "eutoxrisk.facet.method_name", "title": "Method name", "fieldType": "facet"},
-    { "name": "eutoxrisk.facet.project_part", "title": "Project part", "fieldType": "facet"}
+    { "name": "facet.eutoxrisk.method_name", "title": "Method name", "fieldType": "facet"},
+    { "name": "facet.eutoxrisk.project_part", "title": "Project part", "fieldType": "facet"}
   ],
   "public": [
     { "name": "access", "title": "", "fieldType": "tokenized_string", "jsonPath": "$.accessTags.*", "analyzer": "AccessFieldAnalyzer", "parser": "JPathListParser", "toLowerCase": "true"},

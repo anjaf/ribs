@@ -169,7 +169,10 @@ label.facet-label {
 }
 
 label.facet-label span {
-    width: 80%;
+    width: 90%;
+    word-break: break-word;
+    display: inline-table;
+    text-indent: 0pt;
 }
 
 .all-facet-hits {

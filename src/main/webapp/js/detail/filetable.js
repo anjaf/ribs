@@ -135,7 +135,7 @@ var FileTable = (function (_self) {
                 {
                     targets: 1,
                     render: function (data, type, row) {
-                        return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="'
+                        return '<a class="overflow-name-column' + (data.indexOf('.sdrf.txt')>0 ? ' sdrf-file'  : '')+ ' target="_blank" style="max-width: 500px;" title="'
                             + data
                             + '" href="'
                             + window.contextPath+'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
@@ -252,7 +252,9 @@ var FileTable = (function (_self) {
                 .data()
                 .join('')
                 .trim();
-            this.visible(srchd!=null && srchd!='');
+            if (this.visible() && (srchd==null || srchd=='')) {
+                this.visible(false);
+            }
         });
     }
 
