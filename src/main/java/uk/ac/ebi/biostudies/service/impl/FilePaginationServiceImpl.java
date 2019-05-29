@@ -135,7 +135,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
                 allSortedFields.add( new SortField(Constants.File.NAME, SortField.Type.STRING, false));
             Sort sort = new Sort(allSortedFields.toArray(new SortField[allSortedFields.size()]));
             Query query = parser.parse(Constants.File.OWNER+":"+accession);
-            if(search!=null && !search.isEmpty())
+            if(search!=null && !search.isEmpty() &&!search.trim().equalsIgnoreCase("**"))
                 query = applySearch(search, query, columns);
             if(searchedColumns.size()>0)
                 query = applyPerFieldSearch(searchedColumns, query);
@@ -221,8 +221,9 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         logicQueryBuilder.add(originalQuery, BooleanClause.Occur.MUST);
         for(DataTableColumnInfo info : searchedColumns) {
             QueryParser parser = new QueryParser(QueryParser.escape(info.getName()), new KeywordAnalyzer());
+            parser.setAllowLeadingWildcard(true);
             try {
-                Query query = parser.parse(StudyUtils.escape(info.getSearchValue()));
+                Query query = parser.parse(StudyUtils.escape(modifySearchText(info.getSearchValue())));
                 logicQueryBuilder.add(query, BooleanClause.Occur.MUST);
             } catch (ParseException e) {
                 logger.debug("problem in search term {}", info.getSearchValue(), e);

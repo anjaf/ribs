@@ -21,6 +21,21 @@ var FileTable = (function (_self) {
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
                 handleFileDownloadSelection(acc,params.key);
                 handleFileFilters(response.sections);
+                $("#advsearchbtn").hide();
+                $("#advsearch").click( function(){
+                    $("#advsearchbtn").toggle();
+                    $(".col-advsearch-input").toggle();
+                    $(".col-size").prop('disabled', true);
+                });
+                $("#advsearchbtn").click(function(){
+                    $(".col-advsearch-input").each(function (index) {
+                        index++;//jump x column
+                        var table = filesTable.column(index);
+                        if (table.search() !== this.value) {
+                                table.search(this.value).draw();
+                        }
+                    });
+                });
 
             }});
     };
@@ -189,11 +204,23 @@ var FileTable = (function (_self) {
             // TODO: enable select on tr click
             updateSelectedFiles();
             handleThumbnails(params.key);
-            hideEmptyColumns()
-            //if (params.fs) filesTable.search(params.fs).draw();
-
+            hideEmptyColumns();
         });
 
+
+        $('#file-list thead th').each(function (index) {
+            var title = $(this).text();
+            $(this).html(title+' <input type="text" class="col-advsearch-input col-'+title.toLowerCase()+'" placeholder="Search ' + title + '" />');
+        });
+        $('.col-advsearch-input').click(function (e) {
+           e.preventDefault();
+           return false;
+        });
+
+        filesTable.columns().every(function () {
+            var table = this;
+            $('input', this.header()).hide();
+        });
     }
 
 
