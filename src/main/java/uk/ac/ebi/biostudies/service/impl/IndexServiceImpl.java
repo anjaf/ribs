@@ -34,6 +34,7 @@ import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.FileIndexService;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.config.IndexManager;
+import uk.ac.ebi.biostudies.service.SearchService;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -79,6 +80,9 @@ public class IndexServiceImpl implements IndexService {
 
     @Autowired
     FileIndexService fileIndexService;
+
+    @Autowired
+    SearchService searchService;
 
     @Autowired
     TaxonomyManager taxonomyManager;
@@ -184,6 +188,7 @@ public class IndexServiceImpl implements IndexService {
             indexManager.refreshIndexSearcherAndReader();
         }
         taxonomyManager.resetTaxonomyWriter();
+        searchService.clearStatsCache();
     }
 
     public synchronized String getCopiedSourceFile(String jsonFileName) throws IOException {
@@ -241,6 +246,7 @@ public class IndexServiceImpl implements IndexService {
                     updateDocument(valueMap);
                     return;
                 }
+
                 String projectName = valueMap.get(Facets.PROJECT).toString().toLowerCase();
                 JsonNode projectSpecificFields = indexManager.getIndexDetails().findValue(projectName);
                 if(projectSpecificFields != null) {

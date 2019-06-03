@@ -297,6 +297,11 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
+    public void clearStatsCache() {
+        statsCache.invalidateAll();
+    }
+
+    @Override
     public ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception {
         int maxHits = 4;
         MoreLikeThis mlt = new MoreLikeThis(indexManager.getIndexReader());

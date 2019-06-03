@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.file.FileDownloadService;
-import uk.ac.ebi.biostudies.file.ZipDownloadService;
+import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,12 +25,7 @@ public class FileDownload {
 
     @RequestMapping(value = "/files/**", method = RequestMethod.POST)
     public void getFilesInZippedFormat(HttpServletRequest request, HttpServletResponse response) throws Exception{
-        zipDownloadService.doRequest(request, response);
-    }
-
-    @RequestMapping(value = "/{datacenter}/files/**", method = RequestMethod.GET)
-    public void downloadZippedFile(HttpServletRequest request, HttpServletResponse response) throws Exception{
-        zipDownloadService.doRequest(request, response);
+        zipDownloadService.sendZip(request, response);
     }
 
     @RequestMapping(value = "/files/**", method = RequestMethod.GET)

@@ -27,6 +27,7 @@ public class AttributeFieldAnalyzer extends Analyzer {
     protected TokenStreamComponents createComponents(String fieldName) {
         Tokenizer source = new AttributeFieldTokenizer();
         TokenStream filter = new StopFilter(new ASCIIFoldingFilter(source), IndexConfig.STOP_WORDS);
+        filter = new LowerCaseFilter(filter);
         return new TokenStreamComponents(source, filter);
     }
 
