@@ -21,21 +21,8 @@ var FileTable = (function (_self) {
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
                 handleFileDownloadSelection(acc,params.key);
                 handleFileFilters(response.sections);
-                $("#advsearchbtn").hide();
-                $("#advsearch").click( function(){
-                    $("#advsearchbtn").toggle();
-                    $(".col-advsearch-input").toggle();
-                    $(".col-size").prop('disabled', true);
-                });
-                $("#advsearchbtn").click(function(){
-                    $(".col-advsearch-input").each(function (index) {
-                        index++;//jump x column
-                        var table = filesTable.column(index);
-                        if (table.search() !== this.value) {
-                                table.search(this.value).draw();
-                        }
-                    });
-                });
+
+                handleAdvancedSearch();
 
             }});
     };
@@ -44,6 +31,7 @@ var FileTable = (function (_self) {
     _self.clearFileFilter =  function() {
         if (!filesTable) return; // not yet initialised
         filesTable.columns().visible(true);
+        $(".col-advsearch-input").val('');
         filesTable.search('').columns().search('').draw();
     };
 
@@ -75,6 +63,20 @@ var FileTable = (function (_self) {
             });
         });
         $('#download-source').prepend($secret);
+
+    }
+
+    function handleAdvancedSearch() {
+        if ($("#advanced-search").length) return;
+        $('#file-list_filter').after('<label id="advanced-search" for="advsearch"  title="Search in columns"><input style=" margin:0;width:0; height:0; opacity: 0" type="checkbox" id="advsearchinput"></input>' +
+                '<i id="advanced-search-icon" class="far fa-plus-square"></i>\n' +
+            '</label>');
+
+        $("#advanced-search").click(function () {
+            $(".col-advsearch-input").toggle();
+            $('#advanced-search-icon').toggleClass('fa-plus-square').toggleClass('fa-minus-square');
+            $(".col-size").prop('disabled', true);
+        });
 
     }
 
@@ -205,6 +207,14 @@ var FileTable = (function (_self) {
             updateSelectedFiles();
             handleThumbnails(params.key);
             hideEmptyColumns();
+        }).on( 'search.dt', function () {
+            $(".col-advsearch-input").each(function (index) {
+                index++;//jump x column
+                var table = filesTable.column(index);
+                if (table.search() !== this.value) {
+                    table.search(this.value);
+                }
+            });
         });
 
 
@@ -244,6 +254,7 @@ var FileTable = (function (_self) {
     }
 
     function hideEmptyColumns() {
+        if($('#advsearchbtn').is(':visible')) return;
         var columnNames = filesTable.settings().init().columns
         // hide empty columns
         filesTable.columns().every(function(index){

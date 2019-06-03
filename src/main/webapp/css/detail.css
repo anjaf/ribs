@@ -565,3 +565,16 @@ ul.recommendations li {
 .sdrf-variable-column {
     background: #8190EF33;
 }
+
+#advanced-search {
+    cursor: pointer;
+    padding: 0 4pt 0 0;
+    float: right;
+    line-height: inherit
+}
+.col-advsearch-input {
+    height: 16pt;
+    font-size: 10pt;
+    width: auto;
+    margin-bottom: auto;
+}

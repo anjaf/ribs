@@ -82,6 +82,9 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
         registry.addViewController("/{project:.+}/studies/{accession:.+}/sdrf").setViewName("sdrf");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/sdrf/").setViewName("sdrf");
+
+        registry.addViewController("/{project:.+}/studies/{accession:.+}/csv").setViewName("csv");
+        registry.addViewController("/{project:.+}/studies/{accession:.+}/csv/").setViewName("csv");
     }
 
     @Override
