@@ -183,7 +183,7 @@ function getParams() {
         })
         .map(function (s) {
             s = s.split("=")
-            v = decodeURIComponent(s[1])//.split('+').join(' ');
+            v = decodeURIComponent(s[1]).split('+').join(' ');
             if (this[s[0]]) {
                 if ($.isArray(this[s[0]])) {
                     this[s[0]].push(v)
