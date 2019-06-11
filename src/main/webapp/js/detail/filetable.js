@@ -210,34 +210,42 @@ var FileTable = (function (_self) {
                 FileTable.clearFileFilter();
             });
 
+
             // TODO: enable select on tr click
             updateSelectedFiles();
             handleThumbnails(params.key);
+
+            $('#file-list thead th').each(function (index) {
+                if (index===0) return;
+                var title = $(this).text();
+                // debugger
+                $(this).html(title+' <input style="display:none" type="text" ' +
+                    'class="col-advsearch-input col-'+title.toLowerCase()+'" placeholder="Search ' + title + '"  />');
+                  //  ' value="'+ filesTable.columns(index).search() +'"   />');
+            });
+            if($('#advanced-search-icon').hasClass('fa-minus-square')) {
+                $(".col-advsearch-input").show();
+            }
+            $('.col-advsearch-input').click(function (e) {
+                e.preventDefault();
+                return false;
+            });
+
+
             hideEmptyColumns();
         }).on( 'search.dt', function () {
-            $(".col-advsearch-input").each(function (index) {
-                index++;//jump x column
-                var table = filesTable.column(index);
-                if (this.value && table.search() !== this.value) {
-                    table.search(this.value);
+
+            filesTable.columns().every(function (index) {
+                //debugger
+                var column = this;
+                var q = $('.col-advsearch-input', column.header()).val()
+                if (q && column.search() !== q && column.visible()) {
+                    column.search(q);
                 }
+        // filesTable.state.save();
             });
         });
 
-
-        $('#file-list thead th').each(function (index) {
-            var title = $(this).text();
-            $(this).html(title+' <input type="text" class="col-advsearch-input col-'+title.toLowerCase()+'" placeholder="Search ' + title + '" />');
-        });
-        $('.col-advsearch-input').click(function (e) {
-           e.preventDefault();
-           return false;
-        });
-
-        filesTable.columns().every(function () {
-            var table = this;
-            $('input', this.header()).hide();
-        });
     }
 
 
@@ -261,8 +269,9 @@ var FileTable = (function (_self) {
 
     function hideEmptyColumns() {
         var columnNames = filesTable.settings().init().columns
-        if($('#advsearchbtn').is(':visible')) return;
+        //if($('#advsearchbtn').is(':visible')) return;
         // hide empty columns
+        filesTable.columns().visible(true);
         filesTable.columns().every(function(index){
             if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') return;
             var srchd = filesTable.cells({search:'applied'},this)
@@ -271,8 +280,6 @@ var FileTable = (function (_self) {
                 .trim();
             if (this.visible() && (srchd==null || srchd=='')) {
                 this.visible(false);
-            } else {
-                this.visible(true)
             }
         });
     }
