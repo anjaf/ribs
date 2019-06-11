@@ -73,8 +73,15 @@ var FileTable = (function (_self) {
             '</label>');
 
         $("#advanced-search").click(function () {
-            $(".col-advsearch-input").toggle();
             $('#advanced-search-icon').toggleClass('fa-plus-square').toggleClass('fa-minus-square');
+            if($('#advanced-search-icon').hasClass('fa-minus-square')) {
+                $(".col-advsearch-input").show();
+                $('#file-list_filter input[type=search]').val('').prop('disabled','disabled');
+                //debugger;
+            } else {
+                $(".col-advsearch-input").hide();
+                $('#file-list_filter input[type=search]').removeAttr('disabled');
+            }
             $(".col-size").prop('disabled', true);
         });
 
@@ -211,7 +218,7 @@ var FileTable = (function (_self) {
             $(".col-advsearch-input").each(function (index) {
                 index++;//jump x column
                 var table = filesTable.column(index);
-                if (table.search() !== this.value) {
+                if (this.value && table.search() !== this.value) {
                     table.search(this.value);
                 }
             });
@@ -247,15 +254,14 @@ var FileTable = (function (_self) {
             //clearFileFilter();
             $('#all-files-expander').click();
             filesTable.column(':contains(Section)').search(expansionSource);
-            hideEmptyColumns()
             filesTable.draw();
 
         });
     }
 
     function hideEmptyColumns() {
-        if($('#advsearchbtn').is(':visible')) return;
         var columnNames = filesTable.settings().init().columns
+        if($('#advsearchbtn').is(':visible')) return;
         // hide empty columns
         filesTable.columns().every(function(index){
             if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') return;
@@ -265,6 +271,8 @@ var FileTable = (function (_self) {
                 .trim();
             if (this.visible() && (srchd==null || srchd=='')) {
                 this.visible(false);
+            } else {
+                this.visible(true)
             }
         });
     }
