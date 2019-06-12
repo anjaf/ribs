@@ -32,6 +32,7 @@ var FileTable = (function (_self) {
         if (!filesTable) return; // not yet initialised
         filesTable.columns().visible(true);
         $(".col-advsearch-input").val('');
+        filesTable.state.clear();
         filesTable.search('').columns().search('').draw();
     };
 
@@ -129,6 +130,10 @@ var FileTable = (function (_self) {
             columns: columns,
             scrollX: !isDetailPage,
             order: [[ 1, "asc" ]],
+            language:
+                {
+                    processing: '<i class="fa fa-3x fa-spinner fa-pulse"></i>',
+                },
             columnDefs: [
                 {
                     orderable: false,
@@ -190,62 +195,65 @@ var FileTable = (function (_self) {
                 json.recordsTotal = totalRows
             }
         }).on('draw.dt', function (e) {
-            $('.file-check-box input').on('click', function(){
-                if ($(this).is(':checked')) {
-                    selectedFiles.push( $(this).data('name'));
-                } else {
-                    selectedFiles.splice($.inArray($(this).data('name'), selectedFiles), 1);
-                }
-                $(this).parent().parent().parent().toggleClass('selected');
-                updateSelectedFiles();
-            });
-
-            $('.file-check-box input').each(function(){
-                if ($.inArray($(this).data('name'), selectedFiles)>=0 ) {
-                    $(this).attr('checked','checked');
-                }
-            });
-
-            $('#clear-file-filter').on('click', function () {
-                FileTable.clearFileFilter();
-            });
-
-
-            // TODO: enable select on tr click
-            updateSelectedFiles();
-            handleThumbnails(params.key);
-
-            $('#file-list thead th').each(function (index) {
-                if (index===0) return;
-                var title = $(this).text();
-                // debugger
-                $(this).html(title+' <input style="display:none" type="text" ' +
-                    'class="col-advsearch-input col-'+title.toLowerCase()+'" placeholder="Search ' + title + '"  />');
-                  //  ' value="'+ filesTable.columns(index).search() +'"   />');
-            });
-            if($('#advanced-search-icon').hasClass('fa-minus-square')) {
-                $(".col-advsearch-input").show();
-            }
-            $('.col-advsearch-input').click(function (e) {
-                e.preventDefault();
-                return false;
-            });
-
-
-            hideEmptyColumns();
+            handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable, hideEmptyColumns);
         }).on( 'search.dt', function () {
 
-            filesTable.columns().every(function (index) {
-                //debugger
-                var column = this;
-                var q = $('.col-advsearch-input', column.header()).val()
-                if (q && column.search() !== q && column.visible()) {
-                    column.search(q);
+            filesTable.columns().every(function () {
+                var q = $('.col-advsearch-input', this.header()).val()
+                if (q && this.search() !== q && this.visible()) {
+                    this.search(q);
                 }
-        // filesTable.state.save();
             });
         });
 
+    }
+
+    function handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable, hideEmptyColumns) {
+        $('.file-check-box input').on('click', function () {
+            if ($(this).is(':checked')) {
+                selectedFiles.push($(this).data('name'));
+            } else {
+                selectedFiles.splice($.inArray($(this).data('name'), selectedFiles), 1);
+            }
+            $(this).parent().parent().parent().toggleClass('selected');
+            updateSelectedFiles();
+        });
+
+        $('.file-check-box input').each(function () {
+            if ($.inArray($(this).data('name'), selectedFiles) >= 0) {
+                $(this).attr('checked', 'checked');
+            }
+        });
+
+        $('#clear-file-filter').on('click', function () {
+            FileTable.clearFileFilter();
+        });
+
+
+        // TODO: enable select on tr click
+        updateSelectedFiles();
+        handleThumbnails(params.key);
+
+        $('#file-list thead th').each(function (index) {
+            if (index === 0) return;
+            var title = $(this).text();
+            $(this).html(title + ' <input style="display:none" type="text" ' +
+                'class="col-advsearch-input col-' + title.toLowerCase() + '" placeholder="Search ' + title + '"  />');
+        });
+        if ($('#advanced-search-icon').hasClass('fa-minus-square')) {
+            $(".col-advsearch-input").show();
+        }
+        $('.col-advsearch-input').click(function (e) {
+            e.preventDefault();
+            return false;
+        });
+        if (filesTable && $('#advanced-search-icon').hasClass('fa-minus-square')) {
+            filesTable.ajax.params().columns.forEach(function (column, index) {
+                $('.col-advsearch-input', filesTable.column(index).header()).val(column.search.value)
+            })
+        }
+
+        hideEmptyColumns();
     }
 
 
