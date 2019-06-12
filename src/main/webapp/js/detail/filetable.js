@@ -5,6 +5,7 @@ var FileTable = (function (_self) {
     var selectedFilesCount=0;
     var filesTable;
     var firstRender = true;
+    var columnDefinitions=[];
 
     _self.render = function (acc, params, isDetailPage){
         $.ajax({url: window.contextPath+"/api/v1/info/"+acc,
@@ -21,9 +22,7 @@ var FileTable = (function (_self) {
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
                 handleFileDownloadSelection(acc,params.key);
                 handleFileFilters(response.sections);
-
-                handleAdvancedSearch();
-
+                handleAdvancedSearch(columnDefinitions);
             }});
     };
 
@@ -67,8 +66,18 @@ var FileTable = (function (_self) {
 
     }
 
-    function handleAdvancedSearch() {
+    function handleAdvancedSearch(columnDefinitions) {
         if ($("#advanced-search").length) return;
+        for (var index=0; index<columnDefinitions.length; index++) {
+            var col = filesTable.column(index);
+            if (!col.visible() || !columnDefinitions[index].searchable ) continue;
+            var title = $(col.header()).text();
+            var txtbox= $('<input style="display:none" type="text" class="col-advsearch-input col-' + title.toLowerCase() + '" placeholder="Search ' + title + '"  />')
+
+            $(col.header()).append(txtbox);
+            //$('.col-advsearch-input', this.header()).val(this.search())
+        }
+
         $('#file-list_filter').after('<label id="advanced-search" for="advsearch"  title="Search in columns"><input style=" margin:0;width:0; height:0; opacity: 0" type="checkbox" id="advsearchinput"></input>' +
                 '<i id="advanced-search-icon" class="far fa-plus-square"></i>\n' +
             '</label>');
@@ -84,6 +93,8 @@ var FileTable = (function (_self) {
                 $('#file-list_filter input[type=search]').removeAttr('disabled');
             }
             $(".col-size").prop('disabled', true);
+
+            filesTable.columns(8).search('11').draw();
         });
 
     }
@@ -122,7 +133,6 @@ var FileTable = (function (_self) {
                 + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + row.path + (params.key? '?key='+params.key :'')+'" </img> ';
             }
         }
-
         filesTable = $('#file-list').DataTable({
             lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
             processing: true,
@@ -194,21 +204,17 @@ var FileTable = (function (_self) {
             } else {
                 json.recordsTotal = totalRows
             }
+        }).on('preDraw', function (e) {
+            filesTable.columns().visible(true);
         }).on('draw.dt', function (e) {
-            handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable, hideEmptyColumns);
-        }).on( 'search.dt', function () {
-
-            filesTable.columns().every(function () {
-                var q = $('.col-advsearch-input', this.header()).val()
-                if (q && this.search() !== q && this.visible()) {
-                    this.search(q);
-                }
-            });
+            handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable);
+        }).on( 'search.dt', function (e) {
         });
+        columnDefinitions = columns;
 
     }
 
-    function handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable, hideEmptyColumns) {
+    function handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable) {
         $('.file-check-box input').on('click', function () {
             if ($(this).is(':checked')) {
                 selectedFiles.push($(this).data('name'));
@@ -234,12 +240,9 @@ var FileTable = (function (_self) {
         updateSelectedFiles();
         handleThumbnails(params.key);
 
-        $('#file-list thead th').each(function (index) {
-            if (index === 0) return;
-            var title = $(this).text();
-            $(this).html(title + ' <input style="display:none" type="text" ' +
-                'class="col-advsearch-input col-' + title.toLowerCase() + '" placeholder="Search ' + title + '"  />');
-        });
+
+
+
         if ($('#advanced-search-icon').hasClass('fa-minus-square')) {
             $(".col-advsearch-input").show();
         }
@@ -247,12 +250,16 @@ var FileTable = (function (_self) {
             e.preventDefault();
             return false;
         });
-        if (filesTable && $('#advanced-search-icon').hasClass('fa-minus-square')) {
-            filesTable.ajax.params().columns.forEach(function (column, index) {
-                $('.col-advsearch-input', filesTable.column(index).header()).val(column.search.value)
-            })
-        }
-
+        $('.col-advsearch-input').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                filesTable.columns().every(function (index) {
+                    var q = $('.col-advsearch-input', this.header()).val();
+                    if (this.search() !== q && this.visible()) {
+                        this.search(q);
+                    }
+                });
+            }
+        });
         hideEmptyColumns();
     }
 
@@ -279,7 +286,6 @@ var FileTable = (function (_self) {
         var columnNames = filesTable.settings().init().columns
         //if($('#advsearchbtn').is(':visible')) return;
         // hide empty columns
-        filesTable.columns().visible(true);
         filesTable.columns().every(function(index){
             if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') return;
             var srchd = filesTable.cells({search:'applied'},this)

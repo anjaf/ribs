@@ -71,7 +71,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             node.put("name", att);
             node.put("title", att);
             node.put("visible", true);
-            node.put("searchable", true);
+            node.put("searchable", !att.equalsIgnoreCase("size"));
             node.put("data", att.replaceAll("[\\[\\]\\(\\)\\s]", "_"));
             node.put("defaultContent", "");
             fileColumnAttributes.add(node);
