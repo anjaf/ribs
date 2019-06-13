@@ -177,13 +177,15 @@ var FileTable = (function (_self) {
                     if (firstRender && params['fs']) {
                         $('#all-files-expander').click();
                         dtData.search.value = params.fs;
-                        firstRender = false;
                     }
 
                     return $.extend(dtData, params)
                 },
                 complete: function (data) {
-                    //handleFileDownloadSelection();
+                    if (firstRender && params.fs) {
+                        firstRender = false;
+                        $('#file-list_filter input[type=search]').val(params.fs)
+                    }
                 }
             },
             rowCallback: function( row, data ) {
@@ -286,16 +288,26 @@ var FileTable = (function (_self) {
         var columnNames = filesTable.settings().init().columns
         //if($('#advsearchbtn').is(':visible')) return;
         // hide empty columns
+        var hiddenColumnCount = 0;
+        var thumbnailColumnIndex = -1;
         filesTable.columns().every(function(index){
-            if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') return;
+            if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') {
+                thumbnailColumnIndex = index;
+                return;
+            }
             var srchd = filesTable.cells({search:'applied'},this)
                 .data()
                 .join('')
                 .trim();
             if (this.visible() && (srchd==null || srchd=='')) {
                 this.visible(false);
+                hiddenColumnCount++;
             }
         });
+        if (hiddenColumnCount+2===columnDefinitions.length) { // count checkbox and thumbnail column
+            filesTable.column(0).visible(false);
+            filesTable.column(thumbnailColumnIndex).visible(false);
+        }
     }
 
     function handleFileDownloadSelection(acc,key) {
