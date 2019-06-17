@@ -4,6 +4,11 @@ Home.ProjectLoader = (function () {
 
 
     _self.render = function () {
+        if ($('#projects').length===0) {
+
+            $('#ProjectLoader').slideDown();
+            return;
+        }
         $.getJSON( contextPath + "/api/v1/search",{type:'project'}, function( data ) {
             if (data && data.totalHits && data.totalHits>0) {
                 data.hits = data.hits.sort(function(a, b) {

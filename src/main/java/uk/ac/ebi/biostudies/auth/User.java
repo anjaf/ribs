@@ -18,27 +18,24 @@
 package uk.ac.ebi.biostudies.auth;
 
 public class User {
-    protected String username;
-    protected String hashedPassword;
+    protected String login;
+    protected String fullName;
+    protected String token;
     protected String[] allow;
     protected String[] deny;
     protected boolean superUser;
 
-    public String getUsername() {
-        return username;
+    public String getLogin() {
+        return login;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
-    public String getHashedPassword() {
-        return hashedPassword;
-    }
+    public String getToken() { return token; }
 
-    public void setHashedPassword(String hashedPassword) {
-        this.hashedPassword = hashedPassword;
-    }
+    public void setToken(String token) { this.token = token; }
 
     public String[] getAllow() {
         return allow;
@@ -59,4 +56,12 @@ public class User {
     public boolean isSuperUser() { return superUser; }
 
     public void setSuperUser(boolean superUser) { this.superUser = superUser; }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 }

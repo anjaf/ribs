@@ -18,26 +18,23 @@
 package uk.ac.ebi.biostudies.api.util.analyzer;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.LowerCaseFilter;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LetterTokenizer;
+import org.apache.lucene.analysis.util.CharTokenizer;
 
 public final class LowercaseAnalyzer extends Analyzer {
+
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-        Tokenizer source = new LowercaseTokenizer();
-        //TokenStream filter = new ASCIIFoldingFilter(source);
+        Tokenizer source = new LetterTokenizer();
         return new TokenStreamComponents(source);
     }
 
-    private static class LowercaseTokenizer extends LetterTokenizer {
-        @Override
-        protected boolean isTokenChar(int c) {
-            return true;
-        }
-
-        @Override
-        protected int normalize(int c) {
-            return Character.toLowerCase(c);
-        }
+    @Override
+    protected TokenStream normalize(String fieldName, TokenStream in) {
+        return new LowerCaseFilter(in);
     }
+
 }

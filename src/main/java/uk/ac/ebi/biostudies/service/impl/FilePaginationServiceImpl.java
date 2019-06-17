@@ -51,6 +51,8 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         String orderedArray[] = {"Name", "Size"};
         ArrayNode fileColumnAttributes = mapper.createArrayNode();
         Document doc = searchService.getDocumentByAccession(accession, secretKey);
+        accession = doc.get(Constants.Fields.ACCESSION);
+        String relativePath = doc.get(Constants.Fields.RELATIVE_PATH);
         if (doc==null) return studyInfo;
         String attFiles = doc.get(Constants.File.FILE_ATTS);
         if (attFiles==null) return studyInfo;
@@ -69,12 +71,11 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             node.put("name", att);
             node.put("title", att);
             node.put("visible", true);
-            node.put("searchable", true);
-            att = att.replaceAll(" ", "_");
-            node.put("data", att);
+            node.put("searchable", !att.equalsIgnoreCase("size"));
+            node.put("data", att.replaceAll("[\\[\\]\\(\\)\\s]", "_"));
             node.put("defaultContent", "");
             fileColumnAttributes.add(node);
-            if(counter++==1 && thumbnails.hasThumbnails(accession)){
+            if(counter++==1 && thumbnails.hasThumbnails(accession, relativePath)){
                 fileColumnAttributes.add(getThumbnailHeader(mapper));
             }
         }
@@ -117,7 +118,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         ObjectNode studyInfo = getStudyInfo(accession, secretKey);
         if (studyInfo==null) return "";
         ArrayNode columns = (ArrayNode) studyInfo.get("columns");
-        search = search.toLowerCase();
+        search = modifySearchText(search);
         try {
             List<SortField> allSortedFields = new ArrayList();
             List<DataTableColumnInfo> searchedColumns = new ArrayList();
@@ -134,25 +135,25 @@ public class FilePaginationServiceImpl implements FilePaginationService {
                 allSortedFields.add( new SortField(Constants.File.NAME, SortField.Type.STRING, false));
             Sort sort = new Sort(allSortedFields.toArray(new SortField[allSortedFields.size()]));
             Query query = parser.parse(Constants.File.OWNER+":"+accession);
-            if(search!=null && !search.isEmpty())
+            if(search!=null && !search.isEmpty() &&!search.trim().equalsIgnoreCase("**"))
                 query = applySearch(search, query, columns);
             if(searchedColumns.size()>0)
                 query = applyPerFieldSearch(searchedColumns, query);
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
             ObjectNode response = mapper.createObjectNode();
             response.put(Constants.File.DRAW, draw);
-            response.put(Constants.File.RECORDTOTAL, hits.totalHits);
-            response.put(Constants.File.RECORDFILTERED, hits.totalHits);
-            if (hits.totalHits >= 0) {
+            response.put(Constants.File.RECORDTOTAL, hits.totalHits.value);
+            response.put(Constants.File.RECORDFILTERED, hits.totalHits.value);
+            if (hits.totalHits.value >= 0) {
                 if (pageSize==-1) pageSize= Integer.MAX_VALUE;
                 ArrayNode docs = mapper.createArrayNode();
-                for (int i = start; i < start+pageSize && i<hits.totalHits; i++) {
+                for (int i = start; i < start+pageSize && i<hits.totalHits.value; i++) {
                     ObjectNode docNode = mapper.createObjectNode();
                     Document doc = reader.document(hits.scoreDocs[i].doc);
                     if (metadata) {
                         for (JsonNode field : columns) {
                             String fName = field.get("name").asText();
-                            docNode.put(field.get("name").asText().replaceAll(" ", "_"), doc.get(fName) == null ? "" : doc.get(fName));
+                            docNode.put(field.get("name").asText().replaceAll("[\\[\\]\\(\\)\\s]", "_"), doc.get(fName) == null ? "" : doc.get(fName));
                         }
                     }
                     docNode.put(Constants.File.PATH, doc.get(Constants.File.PATH)==null?"":doc.get(Constants.File.PATH));
@@ -171,21 +172,21 @@ public class FilePaginationServiceImpl implements FilePaginationService {
 
     private Query applySearch(String search, Query firstQuery, ArrayNode columns){
         BooleanQuery.Builder builderSecond = new BooleanQuery.Builder();
-        BooleanClause.Occur[] occurs = new  BooleanClause.Occur[columns.size()];
+//        BooleanClause.Occur[] occurs = new  BooleanClause.Occur[columns.size()];
         String[] fields = new String[columns.size()];
         try {
             int counter = 0;
             for(JsonNode field:columns){
                String fName = QueryParser.escape(field.get("name").asText());
                fields[counter] = fName;
-               occurs[counter] = BooleanClause.Occur.SHOULD;
+//               occurs[counter] = BooleanClause.Occur.SHOULD;
                counter++;
             }
             MultiFieldQueryParser parser = new MultiFieldQueryParser(fields, new KeywordAnalyzer());
 
             parser.setAllowLeadingWildcard(true);
-            parser.setLowercaseExpandedTerms(false);
-            Query tempSmallQuery = parser.parse(StudyUtils.escape("*"+search+"*"));
+            //parser.setLowercaseExpandedTerms(false);
+            Query tempSmallQuery = parser.parse(StudyUtils.escape(search));
             logger.debug(tempSmallQuery);
             builderSecond.add(firstQuery, BooleanClause.Occur.MUST);
             builderSecond.add(tempSmallQuery, BooleanClause.Occur.MUST);
@@ -196,13 +197,33 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         return builderSecond.build();
     }
 
+    private String modifySearchText(String search){
+        search = search.toLowerCase();
+        String []tokens =search.split(" ");
+        String newQuery ="";
+        if(tokens!=null) {
+            for (String token : tokens) {
+                token = " *"+token+"* ";
+                newQuery= newQuery+token;
+            }
+        }
+        if(newQuery.contains(" *and* "))
+            newQuery = newQuery.replaceAll(" \\*and\\* ", " AND ");
+        if(newQuery.contains(" *or* "))
+            newQuery = newQuery.replaceAll(" \\*or\\* "," OR ");
+        if(newQuery.contains(" *not* "))
+            newQuery = newQuery.replaceAll(" \\*not\\* "," NOT ");
+        return newQuery;
+    }
+
     private Query applyPerFieldSearch(List<DataTableColumnInfo> searchedColumns, Query originalQuery){
         BooleanQuery.Builder logicQueryBuilder = new BooleanQuery.Builder();
         logicQueryBuilder.add(originalQuery, BooleanClause.Occur.MUST);
         for(DataTableColumnInfo info : searchedColumns) {
             QueryParser parser = new QueryParser(QueryParser.escape(info.getName()), new KeywordAnalyzer());
+            parser.setAllowLeadingWildcard(true);
             try {
-                Query query = parser.parse(StudyUtils.escape(info.getSearchValue()));
+                Query query = parser.parse(StudyUtils.escape(modifySearchText(info.getSearchValue())));
                 logicQueryBuilder.add(query, BooleanClause.Occur.MUST);
             } catch (ParseException e) {
                 logger.debug("problem in search term {}", info.getSearchValue(), e);
@@ -225,7 +246,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     private void generateDownloadAllFilePaths(TopDocs hits, ArrayNode filePaths, IndexReader reader){
-        for(int i=0; i<hits.totalHits; i++){
+        for(int i=0; i<hits.totalHits.value; i++){
             try {
                 filePaths.add(reader.document(i).get(Constants.File.PATH));
             } catch (IOException e) {

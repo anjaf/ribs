@@ -162,7 +162,7 @@ public class Autocompletion {
 
         try {
             IndexReader reader = indexManager.getIndexReader();
-            Terms terms = MultiFields.getTerms(reader, fieldName);
+            Terms terms = MultiTerms.getTerms(reader, fieldName);
             if (null != terms) {
                 TermsEnum iterator = terms.iterator();
                 BytesRef byteRef;

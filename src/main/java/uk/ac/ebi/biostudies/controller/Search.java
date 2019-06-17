@@ -12,10 +12,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
+import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 
 import java.net.URLDecoder;
+import java.util.Set;
 
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -38,6 +40,8 @@ public class Search {
     SearchService searchService;
     @Autowired
     FacetService facetService;
+    @Autowired
+    IndexManager indexManager;
 
     @ApiOperation(value = "Returns search result", notes = "Search your query in Biostudies and return the results")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Returns a JSON object with search results")})
@@ -75,13 +79,6 @@ public class Search {
         return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project, page, pageSize, sortBy, sortOrder);
     }
 
-
-    @RequestMapping(value = "/latest", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getLatestStudies() throws Exception {
-        return searchService.search(URLDecoder.decode(Constants.Fields.TYPE + ":Study", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.SortOrder.DESCENDING);
-    }
-
-
     @RequestMapping(value = "/{project}/facets", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String getDefaultFacets(@PathVariable String project,
                                    @RequestParam(value = "query", required = false, defaultValue = "") String queryString,
@@ -102,14 +99,8 @@ public class Search {
         return facetService.getDimension(project, dimension, queryString, selectedFacets).toString();
     }
 
-
-    @RequestMapping(value = "/stats", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getStats() throws Exception {
-        return searchService.getFieldStats();
-    }
-
-
     private ObjectNode checkSelectedFacetsAndFields(MultiValueMap<String, String> params) {
+        Set<String> fieldNames = indexManager.getIndexEntryMap().keySet();
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode allSelected = mapper.createObjectNode();
         ObjectNode selectedFacets = mapper.createObjectNode();
@@ -118,7 +109,7 @@ public class Search {
             for (String key : params.keySet()) {
                 if (key.equalsIgnoreCase("pageSize") || key.equalsIgnoreCase("page") || key.equalsIgnoreCase("sortBy") || key.equalsIgnoreCase("sortOrder") || key.equalsIgnoreCase("query") || key.equalsIgnoreCase("limit"))
                     continue;
-                if (!key.toLowerCase().contains("facet.")) {
+                if (!key.toLowerCase().contains("facet.") && fieldNames.contains(key.toLowerCase())) {
                     selectedFields.put(key, params.getFirst(key));
                 } else {
                     String facetKey = StringUtils.remove(key, "[]");

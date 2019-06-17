@@ -80,6 +80,7 @@ public interface Constants {
         String SECTIONS_WITH_FILES = "sections_with_files";
         String LINK_TYPE = "link_type";
         String LINK_VALUE = "link_value";
+        String RELATIVE_PATH = "relPath";
     }
 
     interface File{

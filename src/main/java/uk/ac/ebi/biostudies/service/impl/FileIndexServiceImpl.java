@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
@@ -19,7 +20,6 @@ import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
-import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.FileIndexService;
 
@@ -37,7 +37,7 @@ public class FileIndexServiceImpl implements FileIndexService {
 
 
 
-    public Map<String, Object> indexSubmissionFiles(String accession,JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
+    public Map<String, Object> indexSubmissionFiles(String accession, String relativePath, JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
         Map<String, Object> valueMap = new HashMap<>();
         long counter = 0;
         List<String> columns = new ArrayList<>();
@@ -62,8 +62,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         if(libraryParents==null) return null;
         for(JsonNode parent:libraryParents) {
             if(parent==null) continue;
-            String path = StudyUtils.getPartitionedPath(accession);
-            String libraryFilePath = indexConfig.getFileRootDir() + "/"+ path + "/"+  parent.get("libraryFile").textValue();
+            String libraryFilePath = indexConfig.getFileRootDir() + "/"+ relativePath + "/"+  parent.get("libraryFile").textValue();
             counter = indexLibraryFile(accession, writer, counter, columns, sectionsWithFiles, parent, libraryFilePath);
         }
 
@@ -127,7 +126,16 @@ public class FileIndexServiceImpl implements FileIndexService {
         Document doc = getFileDocument(accession, columns, fNode, parent);
         writer.updateDocument(new Term(Constants.Fields.ID, accession + "-" + counter++), doc);
         if (doc.get(Constants.File.SECTION) != null) {
-            sectionsWithFiles.add(doc.get(Constants.File.SECTION));
+            IndexableField []sectionFields = doc.getFields(Constants.File.SECTION);
+            //To take stored section field from lucene doc instead of indexedField for case sensivity difference in search and UI presentation
+            if(sectionFields.length>0) {
+                for (IndexableField secField : sectionFields) {
+                    if (secField.fieldType().stored() && secField.stringValue() != null) {
+                        sectionsWithFiles.add(secField.stringValue());
+                        break;
+                    }
+                }
+            }
         }
         return counter;
     }
@@ -170,7 +178,8 @@ public class FileIndexServiceImpl implements FileIndexService {
         // add section field if file is not global
         if (parent.has("accno") && (!parent.has("type") || !parent.get("type").textValue().toLowerCase().equalsIgnoreCase("study") )  ) {
             String section = parent.get("accno").textValue().replaceAll ("/","").replaceAll(" ", "");
-            doc.add(new StringField(Constants.File.SECTION,  section, Field.Store.NO));
+            //to lower case for search should be case insensitive
+            doc.add(new StringField(Constants.File.SECTION,  section.toLowerCase(), Field.Store.NO));
             doc.add(new StoredField(Constants.File.SECTION, section));
             doc.add(new SortedDocValuesField(Constants.File.SECTION, new BytesRef(section)));
             attributeColumns.add(Constants.File.SECTION);

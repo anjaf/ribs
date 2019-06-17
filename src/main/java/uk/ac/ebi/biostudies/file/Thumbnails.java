@@ -81,11 +81,11 @@ public class Thumbnails {
 
     public void sendThumbnail(HttpServletResponse response, String relativePath, String name) throws IOException {
         String fileType = FilenameUtils.getExtension(name).toLowerCase();
-        File preExistThumbnail;
-        if(fileType.equalsIgnoreCase("zip")) {
+        File preExistThumbnail=null;
+        if(fileType.equalsIgnoreCase("zip") || fileType.equalsIgnoreCase("tif")) {
             preExistThumbnail = new File(indexConfig.getFileRootDir() + "/" + relativePath + "/Thumbnails/" + name + ".thumbnail.png");
         }
-        else {
+        if (preExistThumbnail==null || !preExistThumbnail.exists()){
             preExistThumbnail = new File(getThumbnailsFolder() + "/" + relativePath + "/" + name + ".thumbnail.png");
         }
 
@@ -142,8 +142,7 @@ public class Thumbnails {
             }
         }
     }
-    public boolean hasThumbnails(String accession){
-        String relativePath = StudyUtils.getPartitionedPath(accession);
+    public boolean hasThumbnails(String accession, String relativePath){
         File file = new File(indexConfig.getFileRootDir() + "/" + relativePath + "/Thumbnails/");
         return file.exists();
     }

@@ -25,9 +25,9 @@ public class FileTypeParser extends AbstractParser{
             result = resultData.stream()
                     .map(jnode -> {
                         Map node = (Map)jnode;
-                        if (node==null) return NA;
+                        if (node==null) return "";
                         String s = (String)(node.containsKey("path") && node.get("path")!=null ? node.get("path"): node.get("name"));
-                        if ( StringUtils.isEmpty(s)) return NA;
+                        if ( StringUtils.isEmpty(s)) return "";
                         int k = s.lastIndexOf(".");
                         return k >= 0 ? s.substring(s.lastIndexOf(".") + 1) : NA;
                     }).collect(Collectors.joining(Constants.Facets.DELIMITER));

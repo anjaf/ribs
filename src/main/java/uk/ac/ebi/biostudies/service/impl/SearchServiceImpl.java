@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -17,9 +19,11 @@ import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
+import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.efo.EFOExpandedHighlighter;
 import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
@@ -33,9 +37,14 @@ import uk.ac.ebi.biostudies.config.IndexManager;
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static uk.ac.ebi.biostudies.api.util.Constants.*;
+import static uk.ac.ebi.biostudies.controller.Stats.LATEST_ENDPOINT;
+import static uk.ac.ebi.biostudies.controller.Stats.STATS_ENDPOINT;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -65,12 +74,18 @@ public class SearchServiceImpl implements SearchService {
     @Autowired
     QueryService queryService;
 
+
+    private static Cache<String, String> statsCache;
     private static Query excludeCompound;
     private static QueryParser parser;
     @PostConstruct
     void init(){
         parser = new QueryParser(Fields.TYPE, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
+        // TODO: move stats cache timeout to config file
+        statsCache = CacheBuilder.newBuilder()
+                .expireAfterAccess(720, TimeUnit.MINUTES)
+                .build();
         try {
             excludeCompound = parser.parse("type:compound");
         } catch (ParseException e) {
@@ -120,13 +135,14 @@ public class SearchServiceImpl implements SearchService {
         try {
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
             int hitsPerPage = pageSize;
-            long to = page * hitsPerPage > hits.totalHits ? hits.totalHits : page * hitsPerPage;
+            long totalHits = hits.totalHits!=null ? hits.totalHits.value :0;
+            long to = page * hitsPerPage > totalHits ? totalHits : page * hitsPerPage;
             response.put("page", page);
             response.put("pageSize", hitsPerPage);
-            response.put("totalHits", hits.totalHits);
+            response.put("totalHits", totalHits);
             response.put( "sortBy", sortBy.equalsIgnoreCase(Fields.RELEASE_TIME) ? RELEASE_DATE : sortBy);
             response.put( "sortOrder", sortOrder);
-            if (hits.totalHits > 0) {
+            if (totalHits > 0) {
                 ArrayNode docs = mapper.createArrayNode();
                 for (int i = (page - 1) * hitsPerPage; i < to; i++) {
                     ObjectNode docNode = mapper.createObjectNode();
@@ -201,31 +217,6 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    /*
-       Returns null if the accession is not accessible and the actual indexed
-        case-sensitive accession if it is.
-    */
-    public String getAccessionIfAccessible(String accession, String seckey) {
-        QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
-        parser.setSplitOnWhitespace(true);
-        Query query = null;
-        try {
-            query = parser.parse(Fields.ACCESSION+":"+accession);
-            Query result = securityQueryBuilder.applySecurity(query, seckey);
-            TopDocs topDocs = indexManager.getIndexSearcher().search(result,10);
-            if (topDocs.totalHits == 1) { // if totalHits!=1, something is wrong
-                Document doc = indexManager.getIndexReader().document(topDocs.scoreDocs[0].doc);
-                return doc.get(Fields.ID);
-            } else {
-                return null;
-            }
-        } catch (Throwable ex){
-            logger.error("Problem in checking security", ex);
-            return null;
-        }
-    }
-
-    @Override
     public String search(String queryString, JsonNode selectedFacetsAndFields, String prjName, int page, int pageSize, String sortBy, String sortOrder) {
         boolean doHighlight = true;
         if(queryString.isEmpty() && sortBy.isEmpty()) {
@@ -273,34 +264,41 @@ public class SearchServiceImpl implements SearchService {
 
 
     @Override
-    public InputStreamResource getStudyAsStream(String accession) throws IOException {
-        String path = StudyUtils.getPartitionedPath(accession);
-        FileInputStream fileInputStream = new FileInputStream(indexConfig.getFileRootDir() + "/"+ path + "/"+accession+".json");
+    public InputStreamResource getStudyAsStream(String accession, String relativePath) throws IOException {
+        FileInputStream fileInputStream = new FileInputStream(indexConfig.getFileRootDir() + "/"+ relativePath + "/"+accession+".json");
         return new InputStreamResource(fileInputStream);
     }
 
     @Override
     public String getFieldStats() throws Exception {
+        String responseString = statsCache.getIfPresent(STATS_ENDPOINT);
+        if (responseString == null) {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode response = mapper.createObjectNode();
+            IndexSearcher searcher = indexManager.getIndexSearcher();
 
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode response = mapper.createObjectNode();
-        IndexSearcher searcher = indexManager.getIndexSearcher();
+            DocValuesStats.SortedLongDocValuesStats  fileStats = new DocValuesStats.SortedLongDocValuesStats ("files");
+            searcher.search(new MatchAllDocsQuery(), new DocValuesStatsCollector(fileStats));
+            response.put("files", fileStats.sum());
 
-        DocValuesStats.SortedLongDocValuesStats  fileStats = new DocValuesStats.SortedLongDocValuesStats ("files");
-        searcher.search(new MatchAllDocsQuery(), new DocValuesStatsCollector(fileStats));
-        response.put("files", fileStats.sum());
+            DocValuesStats.SortedLongDocValuesStats  linkStats = new DocValuesStats.SortedLongDocValuesStats ("links");
+            searcher.search(new MatchAllDocsQuery(), new DocValuesStatsCollector(linkStats));
+            response.put("links", linkStats.sum());
 
-        DocValuesStats.SortedLongDocValuesStats  linkStats = new DocValuesStats.SortedLongDocValuesStats ("links");
-        searcher.search(new MatchAllDocsQuery(), new DocValuesStatsCollector(linkStats));
-        response.put("links", linkStats.sum());
+            indexManager.getIndexWriter().getLiveCommitData().forEach(entry -> {
+                if (entry.getKey().equalsIgnoreCase("@endTimeTS")) {
+                    response.put("time", Long.parseLong(entry.getValue()) );
+                }
+            });
+            responseString = response.toString();
+            statsCache.put(STATS_ENDPOINT, responseString);
+        }
+        return responseString;
+    }
 
-        indexManager.getIndexWriter().getLiveCommitData().forEach(entry -> {
-            if (entry.getKey().equalsIgnoreCase("@endTimeTS")) {
-                response.put("time", Long.parseLong(entry.getValue()) );
-            }
-        });
-
-        return response.toString();
+    @Override
+    public void clearStatsCache() {
+        statsCache.invalidateAll();
     }
 
     @Override
@@ -321,7 +319,7 @@ public class SearchServiceImpl implements SearchService {
             similarStudies.add(study);
         }
         ObjectNode result = mapper.createObjectNode();
-        if (mltDocs.totalHits>1) {
+        if (mltDocs.totalHits.value>1) {
             result.set ("similarStudies", similarStudies);
         }
         return result;
@@ -346,11 +344,28 @@ public class SearchServiceImpl implements SearchService {
             query = parser.parse(Fields.ACCESSION+":"+accession);
             Query result = securityQueryBuilder.applySecurity(query, secretKey);
             TopDocs topDocs = indexManager.getIndexSearcher().search(result, 1);
-            if(topDocs.totalHits>0)
+            if(topDocs.totalHits.value==1) {
                 return topDocs.scoreDocs[0].doc;
+            }
         } catch (Throwable ex){
             logger.error("Problem in checking security", ex);
         }
         return null;
+    }
+
+    public String getLatestStudies() throws Exception {
+        boolean isLoggedIn = Session.getCurrentUser()!=null;
+        String responseString = null;
+        if (!isLoggedIn) {
+            responseString = statsCache.getIfPresent(LATEST_ENDPOINT);
+            if (responseString == null) {
+                responseString = search(URLDecoder.decode(Constants.Fields.TYPE + ":study", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.SortOrder.DESCENDING);
+                statsCache.put(LATEST_ENDPOINT, responseString);
+            }
+        } else {
+            return search(URLDecoder.decode(Constants.Fields.TYPE + ":study", String.valueOf(UTF_8)), null, null, 1, 5, Constants.Fields.RELEASE_TIME, Constants.SortOrder.DESCENDING);
+        }
+
+        return responseString;
     }
 }

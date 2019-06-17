@@ -17,10 +17,11 @@
 
 package uk.ac.ebi.biostudies.file.download;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.document.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.efo.StringTools;
 import uk.ac.ebi.biostudies.service.SearchService;
@@ -74,12 +75,13 @@ public abstract class BaseDownloadServlet {
                 key=null;
             }
 
-            accession = searchService.getAccessionIfAccessible(accession, key);
-            if(accession==null) {
+            Document document = searchService.getDocumentByAccession(accession, key);
+            if(document==null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            String relativePath = StudyUtils.getPartitionedPath(accession);
+            accession = document.get(Constants.Fields.ACCESSION);
+            String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
             if (relativePath==null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 throw new DownloadServletException("File does not exist or user does not have the rights to download it.");
@@ -98,6 +100,7 @@ public abstract class BaseDownloadServlet {
                 logger.debug("Download of [{}] completed", downloadFile.getName());
             }
         } catch (Exception x) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
             if (x.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException")) {
                 // generate log entry for client abortion
                 logger.warn("Download aborted");

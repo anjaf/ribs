@@ -1,13 +1,20 @@
 $(function() {
     function handleBioImagesUI() {
-        $('#local-title').html('<h1><img style="width:200px" src="' + contextPath + '/files/BioImages/3/logo.png"></img></h1>');
-        $('.menu.float-left li').slice(0, 3).hide();
+        $('#local-title').html('<h1><img src="' + contextPath + '/images/projects/bioimages/logo.png"></img></h1>');
+        $('#masthead').css("background-image","url("+contextPath +"/images/projects/bioimages/background.jpg)");
+        $('.masthead, #ebi_search .button, .pagination .current').css("background-color","rgb(0, 124, 130)");
+        $('.menu.float-left li a').first().attr('href','/bioimage-archive/');
+        $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/our-roadmap/">Our roadmap</a></li>')
+        $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/case-studies/">Case studies</a></li>');
+        $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/faq/">FAQs</a></li>');
+        $('.menu.float-right').prepend('<li role="menuitem"><a href="/biostudies/bioimages/help">Help</a></li>');
+        $('.menu.float-left li').slice(1, 4).hide();
         $('.menu.float-left li a').last().attr('target', '_blank');
         $('#query').attr('placeholder','Search BioImages');
         $('.sample-query').first().text('brain');
         $('.sample-query').first().next().text('capsid');
-        $('#about-link').text('About BioImages');
-        $('#about-link').attr('href','https://wwwdev.ebi.ac.uk/bioimage-archive/about-us/');
+        $('#about-link').text('About us');
+        $('#about-link').attr('href','/bioimage-archive/about-us/');
         $('#elixir-banner').hide();
     }
 
@@ -27,19 +34,18 @@ $(function() {
         $('#query').val($(this).text());
         $('#ebi_search').submit();
     });
-
-    var message = $.cookie("AeAuthMessage");
+    var message = $.cookie("BioStudiesMessage");
     if (message) {
         $('#login-status').text(message).show();
         showLoginForm();
     }
-    var user = $.cookie("AeAuthUser");
-    if (user) {
-        $('#user-field').attr('value', user);
+    /*var login = $.cookie("BioStudiesLogin");
+    if (login) {
+        $('#user-field').attr('value', login);
         $('#pass-field').focus();
-    }
+    }*/
 
-    if (project) {
+    if (project && project!=='projects') {
         // display project banner
         $.getJSON(contextPath + "/api/v1/studies/" + project, function (data) {
             var projectObj = showProjectBanner(data);
@@ -85,7 +91,7 @@ function showError(error) {
     var errorTemplateSource = $('script#error-template').html();
     var errorTemplate = Handlebars.compile(errorTemplateSource);
     var data;
-
+    debugger
     switch (error.status) {
         case 400:
             data = {
@@ -166,7 +172,7 @@ function updateMenuForProject(data) {
     $('#masthead nav ul.float-left li').eq(1).after('<li class="'+activeClass+'"><a href="'
             + (contextPath + '/'+ data.accno + '/' + 'studies')
             + '" title="'+ data.title
-            +'">'+ data.title +'</a></li>')
+            +'">'+ (data.title.toLowerCase()=='bioimages' ? 'Browse' : data.title) +'</a></li>')
 }
 
 function getParams() {
@@ -176,8 +182,9 @@ function getParams() {
             return a != ''
         })
         .map(function (s) {
-            s = s.split("=")
-            v = decodeURIComponent(s[1]).split('+').join(' ');
+            s = s.split("=");
+            if (s.length<2) return this;
+            v = decodeURIComponent(s[1].split('+').join(' '));
             if (this[s[0]]) {
                 if ($.isArray(this[s[0]])) {
                     this[s[0]].push(v)

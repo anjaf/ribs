@@ -5,6 +5,7 @@ var FileTable = (function (_self) {
     var selectedFilesCount=0;
     var filesTable;
     var firstRender = true;
+    var columnDefinitions=[];
 
     _self.render = function (acc, params, isDetailPage){
         $.ajax({url: window.contextPath+"/api/v1/info/"+acc,
@@ -21,7 +22,7 @@ var FileTable = (function (_self) {
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
                 handleFileDownloadSelection(acc,params.key);
                 handleFileFilters(response.sections);
-
+                handleAdvancedSearch(columnDefinitions);
             }});
     };
 
@@ -29,6 +30,8 @@ var FileTable = (function (_self) {
     _self.clearFileFilter =  function() {
         if (!filesTable) return; // not yet initialised
         filesTable.columns().visible(true);
+        $(".col-advsearch-input").val('');
+        filesTable.state.clear();
         filesTable.search('').columns().search('').draw();
     };
 
@@ -60,6 +63,39 @@ var FileTable = (function (_self) {
             });
         });
         $('#download-source').prepend($secret);
+
+    }
+
+    function handleAdvancedSearch(columnDefinitions) {
+        if ($("#advanced-search").length) return;
+        for (var index=0; index<columnDefinitions.length; index++) {
+            var col = filesTable.column(index);
+            if (!col.visible() || !columnDefinitions[index].searchable ) continue;
+            var title = $(col.header()).text();
+            var txtbox= $('<input style="display:none" type="text" class="col-advsearch-input col-' + title.toLowerCase() + '" placeholder="Search ' + title + '"  />')
+
+            $(col.header()).append(txtbox);
+            //$('.col-advsearch-input', this.header()).val(this.search())
+        }
+
+        $('#file-list_filter').after('<label id="advanced-search" for="advsearch"  title="Search in columns"><input style=" margin:0;width:0; height:0; opacity: 0" type="checkbox" id="advsearchinput"></input>' +
+                '<i id="advanced-search-icon" class="far fa-plus-square"></i>\n' +
+            '</label>');
+
+        $("#advanced-search").click(function () {
+            $('#advanced-search-icon').toggleClass('fa-plus-square').toggleClass('fa-minus-square');
+            if($('#advanced-search-icon').hasClass('fa-minus-square')) {
+                $(".col-advsearch-input").show();
+                $('#file-list_filter input[type=search]').val('').prop('disabled','disabled');
+                //debugger;
+            } else {
+                $(".col-advsearch-input").hide();
+                $('#file-list_filter input[type=search]').removeAttr('disabled');
+            }
+            $(".col-size").prop('disabled', true);
+
+            filesTable.columns(8).search('11').draw();
+        });
 
     }
 
@@ -97,7 +133,6 @@ var FileTable = (function (_self) {
                 + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + row.path + (params.key? '?key='+params.key :'')+'" </img> ';
             }
         }
-
         filesTable = $('#file-list').DataTable({
             lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
             processing: true,
@@ -105,6 +140,10 @@ var FileTable = (function (_self) {
             columns: columns,
             scrollX: !isDetailPage,
             order: [[ 1, "asc" ]],
+            language:
+                {
+                    processing: '<i class="fa fa-3x fa-spinner fa-pulse"></i>',
+                },
             columnDefs: [
                 {
                     orderable: false,
@@ -120,10 +159,10 @@ var FileTable = (function (_self) {
                 {
                     targets: 1,
                     render: function (data, type, row) {
-                        return '<a class="overflow-name-column" target="_blank" style="max-width: 500px;" title="'
+                        return '<a class="overflow-name-column' + (data.indexOf('.sdrf.txt')>0 ? ' sdrf-file'  : '')+ ' target="_blank" style="max-width: 500px;" title="'
                             + data
                             + '" href="'
-                            + window.contextPath+'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23')
+                            + window.contextPath+'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
                             + (params.key ? '?key='+params.key : '')
                             + '">'
                             + data + '</a>';
@@ -138,13 +177,15 @@ var FileTable = (function (_self) {
                     if (firstRender && params['fs']) {
                         $('#all-files-expander').click();
                         dtData.search.value = params.fs;
-                        firstRender = false;
                     }
 
                     return $.extend(dtData, params)
                 },
                 complete: function (data) {
-                    //handleFileDownloadSelection();
+                    if (firstRender && params.fs) {
+                        firstRender = false;
+                        $('#file-list_filter input[type=search]').val(params.fs)
+                    }
                 }
             },
             rowCallback: function( row, data ) {
@@ -165,34 +206,63 @@ var FileTable = (function (_self) {
             } else {
                 json.recordsTotal = totalRows
             }
+        }).on('preDraw', function (e) {
+            filesTable.columns().visible(true);
         }).on('draw.dt', function (e) {
-            $('.file-check-box input').on('click', function(){
-                if ($(this).is(':checked')) {
-                    selectedFiles.push( $(this).data('name'));
-                } else {
-                    selectedFiles.splice($.inArray($(this).data('name'), selectedFiles), 1);
-                }
-                $(this).parent().parent().parent().toggleClass('selected');
-                updateSelectedFiles();
-            });
+            handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable);
+        }).on( 'search.dt', function (e) {
+        });
+        columnDefinitions = columns;
 
-            $('.file-check-box input').each(function(){
-                if ($.inArray($(this).data('name'), selectedFiles)>=0 ) {
-                    $(this).attr('checked','checked');
-                }
-            });
+    }
 
-            $('#clear-file-filter').on('click', function () {
-                FileTable.clearFileFilter();
-            });
-
-            // TODO: enable select on tr click
+    function handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable) {
+        $('.file-check-box input').on('click', function () {
+            if ($(this).is(':checked')) {
+                selectedFiles.push($(this).data('name'));
+            } else {
+                selectedFiles.splice($.inArray($(this).data('name'), selectedFiles), 1);
+            }
+            $(this).parent().parent().parent().toggleClass('selected');
             updateSelectedFiles();
-            handleThumbnails(params.key);
-            //if (params.fs) filesTable.search(params.fs).draw();
-
         });
 
+        $('.file-check-box input').each(function () {
+            if ($.inArray($(this).data('name'), selectedFiles) >= 0) {
+                $(this).attr('checked', 'checked');
+            }
+        });
+
+        $('#clear-file-filter').on('click', function () {
+            FileTable.clearFileFilter();
+        });
+
+
+        // TODO: enable select on tr click
+        updateSelectedFiles();
+        handleThumbnails(params.key);
+
+
+
+
+        if ($('#advanced-search-icon').hasClass('fa-minus-square')) {
+            $(".col-advsearch-input").show();
+        }
+        $('.col-advsearch-input').click(function (e) {
+            e.preventDefault();
+            return false;
+        });
+        $('.col-advsearch-input').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                filesTable.columns().every(function (index) {
+                    var q = $('.col-advsearch-input', this.header()).val();
+                    if (this.search() !== q && this.visible()) {
+                        this.search(q);
+                    }
+                });
+            }
+        });
+        hideEmptyColumns();
     }
 
 
@@ -209,12 +279,36 @@ var FileTable = (function (_self) {
             //clearFileFilter();
             $('#all-files-expander').click();
             filesTable.column(':contains(Section)').search(expansionSource);
-            // hide empty columns
-            //filesTable.columns().every(function(){ if (filesTable.cells({search:'applied'},this).data().join('').trim()=='') this.visible(false) });
             filesTable.draw();
+
         });
     }
 
+    function hideEmptyColumns() {
+        var columnNames = filesTable.settings().init().columns
+        //if($('#advsearchbtn').is(':visible')) return;
+        // hide empty columns
+        var hiddenColumnCount = 0;
+        var thumbnailColumnIndex = -1;
+        filesTable.columns().every(function(index){
+            if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') {
+                thumbnailColumnIndex = index;
+                return;
+            }
+            var srchd = filesTable.cells({search:'applied'},this)
+                .data()
+                .join('')
+                .trim();
+            if (this.visible() && (srchd==null || srchd=='')) {
+                this.visible(false);
+                hiddenColumnCount++;
+            }
+        });
+        if (hiddenColumnCount+2===columnDefinitions.length) { // count checkbox and thumbnail column
+            filesTable.column(0).visible(false);
+            filesTable.column(thumbnailColumnIndex).visible(false);
+        }
+    }
 
     function handleFileDownloadSelection(acc,key) {
 
@@ -292,7 +386,7 @@ var FileTable = (function (_self) {
         if(isZip)
             imgFormats.splice(1,0,'zip');
         $(filesTable.column(1).nodes()).each(function () {
-            var path = encodeURI($('input',$(this).prev()).data('name').replaceAll('#','%23'));
+            var path = encodeURI($('input',$(this).prev()).data('name')).replaceAll('#','%23');
             $('a',this).addClass('overflow-name-column');
             $('a',this).attr('title',$(this).text());
             if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),

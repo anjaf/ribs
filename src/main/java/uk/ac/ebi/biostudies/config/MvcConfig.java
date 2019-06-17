@@ -53,14 +53,14 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/about/*").setViewName("about");
         registry.addViewController("/help").setViewName("help");
         registry.addViewController("/help/").setViewName("help");
+        registry.addViewController("/studies/help").setViewName("help");
+        registry.addViewController("/studies/help/").setViewName("help");
         registry.addViewController("/{project:.+}/help").setViewName("help");
         registry.addViewController("/{project:.+}/help/").setViewName("help");
         registry.addViewController("/{project:.+}/studies/help").setViewName("help");
         registry.addViewController("/{project:.+}/studies/help/").setViewName("help");
         registry.addViewController("/submit").setViewName("submit");
         registry.addViewController("/submit/*").setViewName("submit");
-        registry.addViewController("/zip").setViewName("zip");
-        registry.addViewController("/zip/*").setViewName("zip");
 
         registry.addViewController("/projects").setViewName("projects");
         registry.addViewController("/projects/").setViewName("projects");
@@ -79,6 +79,12 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
         registry.addViewController("/{project:.+}/studies/{accession:.+}/files").setViewName("files");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/files/").setViewName("files");
+
+        registry.addViewController("/{project:.+}/studies/{accession:.+}/sdrf").setViewName("sdrf");
+        registry.addViewController("/{project:.+}/studies/{accession:.+}/sdrf/").setViewName("sdrf");
+
+        registry.addViewController("/{project:.+}/studies/{accession:.+}/csv").setViewName("csv");
+        registry.addViewController("/{project:.+}/studies/{accession:.+}/csv/").setViewName("csv");
     }
 
     @Override

@@ -48,3 +48,11 @@ var newIcon = $('<span class="fa-icon" title="Click to expand"><i class="fa fa-e
         window.open( contextPath + (project? '/'+project:'')+'/studies/'+ $('#accession').text() + '/files' );
     });
 $('#all-files-expander').before(newIcon);
+
+// add icon for sdrf
+var sdrfIcon = $('<a  href="#" class="fa-icon source-icon source-icon-json" title="Click to open SDRF Viewer"><i class="fas fa-table"></i> View SDRF</a>')
+    .css({'background-color': '#267799'})
+    .click(function() {
+        window.open( contextPath + (project? '/'+project:'')+'/studies/'+ $('#accession').text() + '/sdrf?file='+$('.sdrf-file').attr('href') );
+    });
+$('#download-source').prepend(sdrfIcon);

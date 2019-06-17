@@ -18,7 +18,7 @@
     <spring:eval expression="@externalServicesConfig.getAnalyticsCode()"/>
     <!-- shared variables -->
     <script>
-        var contextPath = '${contextPath}';
+        var contextPath = '/biostudies';//'${contextPath}';
         var parts = '${pathname}'.replace(contextPath+'/','').split('/');
         var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
     </script>
@@ -131,7 +131,7 @@
                             <c:choose>
                                 <c:when test="${currentUser!=null}">
                                     <a id="logout-button" href="#" title="Logout"><i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-                                        Logout ${currentUser.getUsername()}</a>
+                                        Logout ${currentUser.getFullName()!=null? currentUser.getFullName() : currentUser.getLogin()}</a>
                                 </c:when>
                                 <c:otherwise>
                                     <a id="login-button" href="#" title="Login"><span class="icon icon-functional" data-icon="l"></span>
@@ -182,8 +182,9 @@
                             <input class="submit button" type="submit" value="Login"/>
                         </fieldset>
                         <div id="login-status" class="alert" style="display:none"></div>
+                        <a style="font-size:9pt;float:right;margin-bottom:5pt;" href="/biostudies/submissions#/password_reset_request">Forgot your password?</a>
                     </form>
-                    <form id="logout-form" method="post" class="popup-content" action="${contextPath}/logout" >
+                    <form id="logout-form" method="post" action="${contextPath}/logout" >
                     </form>
                 </div>
             </div>

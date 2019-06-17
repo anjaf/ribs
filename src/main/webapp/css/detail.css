@@ -352,6 +352,7 @@ a.thumbnail-icon {
     border: 0;
 }
 
+
 #file-list input[type='checkbox'] {
     margin: auto;
     cursor: pointer;
@@ -551,4 +552,29 @@ ul.recommendations li {
 #secret-copied {
     color: green;
     display: none;
+}
+
+#clear-file-filter {
+    margin-left: 5px;
+}
+
+.sdrf-sample-attribute-column {
+    background: #96F8BD33;
+}
+
+.sdrf-variable-column {
+    background: #8190EF33;
+}
+
+#advanced-search {
+    cursor: pointer;
+    padding: 0 4pt 0 0;
+    float: right;
+    line-height: inherit
+}
+.col-advsearch-input {
+    height: 16pt;
+    font-size: 10pt;
+    width: auto;
+    margin-bottom: auto;
 }

@@ -34,6 +34,7 @@ import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.FileIndexService;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.config.IndexManager;
+import uk.ac.ebi.biostudies.service.SearchService;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -61,7 +62,7 @@ public class IndexServiceImpl implements IndexService {
 
     public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
     static {
-        TYPE_NOT_ANALYZED.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
+        TYPE_NOT_ANALYZED.setIndexOptions(IndexOptions.DOCS);
         TYPE_NOT_ANALYZED.setTokenized(false);
         TYPE_NOT_ANALYZED.setStored(true);
     }
@@ -79,6 +80,9 @@ public class IndexServiceImpl implements IndexService {
 
     @Autowired
     FileIndexService fileIndexService;
+
+    @Autowired
+    SearchService searchService;
 
     @Autowired
     TaxonomyManager taxonomyManager;
@@ -184,6 +188,7 @@ public class IndexServiceImpl implements IndexService {
             indexManager.refreshIndexSearcherAndReader();
         }
         taxonomyManager.resetTaxonomyWriter();
+        searchService.clearStatsCache();
     }
 
     public synchronized String getCopiedSourceFile(String jsonFileName) throws IOException {
@@ -241,6 +246,7 @@ public class IndexServiceImpl implements IndexService {
                     updateDocument(valueMap);
                     return;
                 }
+
                 String projectName = valueMap.get(Facets.PROJECT).toString().toLowerCase();
                 JsonNode projectSpecificFields = indexManager.getIndexDetails().findValue(projectName);
                 if(projectSpecificFields != null) {
@@ -252,7 +258,7 @@ public class IndexServiceImpl implements IndexService {
 
                 Set<String> columnSet = new LinkedHashSet<>();
 
-                Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), json, writer, columnSet, removeFileDocuments);
+                Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
                 if (fileValueMap!=null) {
                     valueMap.putAll(fileValueMap);
                 }
@@ -350,8 +356,11 @@ public class IndexServiceImpl implements IndexService {
         }
 
         private void addFacet(String value, String fieldName, Document doc, JsonNode facetConfig){
-            if(value==null || value.isEmpty()) {
-                value = NA;
+            if(value==null || value.isEmpty()){
+                if(fieldName.equalsIgnoreCase(Facets.FILE_TYPE) || fieldName.equalsIgnoreCase(Facets.LINK_TYPE))
+                    return;
+                else
+                    value = NA;
             }
             for(String subVal: org.apache.commons.lang3.StringUtils.split(value, Facets.DELIMITER)) {
                 if(subVal.equalsIgnoreCase(NA) && facetConfig.has(IndexEntryAttributes.DEFAULT_VALUE)){
