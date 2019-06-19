@@ -25,7 +25,7 @@ public class JPathListParser extends AbstractParser{
         String fieldType="";
         try {
             String jsonPath = indexEntry.get(Constants.IndexEntryAttributes.JSON_PATH).asText();
-            List resultData = new ArrayList();
+            List resultData = new ArrayList<>();
             for (String jp: jsonPath.split(" OR ")) {
                 Object obj = jsonPathContext.read(jp)  ;
                 if (obj instanceof JSONArray) {

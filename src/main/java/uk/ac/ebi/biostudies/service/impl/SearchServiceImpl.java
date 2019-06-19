@@ -34,7 +34,6 @@ import uk.ac.ebi.biostudies.service.QueryService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.config.IndexManager;
 
-import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -78,8 +77,11 @@ public class SearchServiceImpl implements SearchService {
     private static Cache<String, String> statsCache;
     private static Query excludeCompound;
     private static QueryParser parser;
-    @PostConstruct
-    void init(){
+
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
         parser = new QueryParser(Fields.TYPE, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         // TODO: move stats cache timeout to config file
@@ -367,5 +369,10 @@ public class SearchServiceImpl implements SearchService {
         }
 
         return responseString;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+
     }
 }

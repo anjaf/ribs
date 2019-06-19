@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,15 +28,14 @@ import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.api.util.parser.AbstractParser;
 import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
 import uk.ac.ebi.biostudies.config.IndexConfig;
+import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.schedule.jobs.ReloadOntologyJob;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.FileIndexService;
 import uk.ac.ebi.biostudies.service.IndexService;
-import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.service.SearchService;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,7 +46,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.ac.ebi.biostudies.api.util.Constants.*;
 
 /**
@@ -96,8 +95,8 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     ParserManager parserManager;
 
-    @PostConstruct
-    public void init(){
+    @Override
+    public void afterPropertiesSet() {
         indexFileQueue = new LinkedBlockingQueue<>();
         reloadOntologyJob.doExecute();
     }
@@ -205,6 +204,11 @@ public class IndexServiceImpl implements IndexService {
         return destFile.getAbsolutePath();
     }
 
+    @Override
+    public void destroy() {
+
+    }
+
     public static class JsonDocumentIndexer implements Runnable {
         private Logger logger = LogManager.getLogger(JsonDocumentIndexer.class.getName());
 
@@ -258,7 +262,7 @@ public class IndexServiceImpl implements IndexService {
 
                 Set<String> columnSet = new LinkedHashSet<>();
 
-                Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
+                Map<String, Object> fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
                 if (fileValueMap!=null) {
                     valueMap.putAll(fileValueMap);
                 }

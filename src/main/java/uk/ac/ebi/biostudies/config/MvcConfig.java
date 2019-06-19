@@ -28,8 +28,7 @@ import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 @EnableScheduling
 @ComponentScan(basePackages = "uk.ac.ebi.biostudies")
 @PropertySource("classpath:scheduler.properties")
-//@ImportResource("classpath:spring-config.xml")
-public class MvcConfig extends WebMvcConfigurerAdapter {
+public class MvcConfig implements WebMvcConfigurer{
 
 
     @Override
@@ -43,6 +42,8 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         matcher.setCaseSensitive(false);
         configurer.setPathMatcher(matcher);
     }
+
+
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -85,6 +86,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
 
         registry.addViewController("/{project:.+}/studies/{accession:.+}/csv").setViewName("csv");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/csv/").setViewName("csv");
+
     }
 
     @Override

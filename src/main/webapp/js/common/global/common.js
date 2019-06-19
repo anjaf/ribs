@@ -48,6 +48,7 @@ $(function() {
     if (project && project!=='projects') {
         // display project banner
         $.getJSON(contextPath + "/api/v1/studies/" + project, function (data) {
+            if (!data || !data.section || !data.section.type || data.section.type.toLowerCase()!='project') return;
             var projectObj = showProjectBanner(data);
             updateMenuForProject(projectObj);
         }).fail(function (error) {

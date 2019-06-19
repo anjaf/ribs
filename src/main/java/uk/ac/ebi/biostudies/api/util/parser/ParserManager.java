@@ -3,7 +3,6 @@ package uk.ac.ebi.biostudies.api.util.parser;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.semanticweb.HermiT.model.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -50,7 +49,7 @@ public class ParserManager {
         Class<?> clazz;
         try {
             clazz = Class.forName(parserClass);
-            AbstractParser parserObj = (AbstractParser) clazz.newInstance();
+            AbstractParser parserObj = (AbstractParser) clazz.getDeclaredConstructor().newInstance();
             parserObj.setIndexEntry(indexEntry);
             parserPool.put( indexEntry.get(IndexEntryAttributes.NAME).asText() , parserObj);
         } catch (Exception e) {

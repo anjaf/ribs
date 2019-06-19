@@ -26,8 +26,6 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.IndexService;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-
 @Service
 public class ReloadStudiesJob {
     // logging machinery

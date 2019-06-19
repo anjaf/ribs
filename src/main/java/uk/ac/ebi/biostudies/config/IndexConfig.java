@@ -1,13 +1,13 @@
 package uk.ac.ebi.biostudies.config;
 
 import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.store.Directory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import uk.ac.ebi.biostudies.api.util.Constants;
 
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 
 /**
@@ -16,30 +16,30 @@ import java.util.Arrays;
 
 @Configuration
 @PropertySource("classpath:index.properties")
-public class IndexConfig {
+public class IndexConfig implements InitializingBean, DisposableBean {
 
     @Value("${index.directory}")
     private String indexDirectory;
 
-    @ Value("${index.facetDirectory}")
+    @Value("${index.facetDirectory}")
     private String facetDirectory;
 
-    @ Value("${studiesFileDirectory}")
+    @Value("${studiesFileDirectory}")
     private String studiesFileDirectory;
 
-    @ Value("${indexer.threadCount}")
+    @Value("${indexer.threadCount}")
     private int threadCount;
 
     @Value("${indexer.queueSize}")
     private int queueSize;
 
-    @ Value("${index.fields}")
+    @Value("${index.fields}")
     private String indexFields;
 
-     @ Value("${defaultField}")
+    @Value("${defaultField}")
     private String defaultField;
 
-    @ Value("${searchSnippetFragmentSize}")
+    @Value("${searchSnippetFragmentSize}")
     private int searchSnippetFragmentSize;
 
     @Value("${bs.studies.thumbnails-location}")
@@ -68,8 +68,8 @@ public class IndexConfig {
     public static CharArraySet STOP_WORDS;
 
 
-    @PostConstruct
-    private void init(){
+    @Override
+    public void afterPropertiesSet() {
         STOP_WORDS =  new CharArraySet(Arrays.asList(stopwords.split(",")), false);
     }
 
@@ -136,4 +136,10 @@ public class IndexConfig {
     public String getTypeFilterQuery() {
         return typeFilterQuery;
     }
+
+    @Override
+    public void destroy() {
+
+    }
+
 }

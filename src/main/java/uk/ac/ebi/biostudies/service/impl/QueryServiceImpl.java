@@ -28,7 +28,6 @@ import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.QueryService;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Service
@@ -55,8 +54,8 @@ public class QueryServiceImpl implements QueryService {
     private static Query typeFilterQuery;
 
 
-    @PostConstruct
-    void init(){
+    @Override
+    public void afterPropertiesSet() {
         QueryParser parser = new QueryParser(Constants.Fields.TYPE, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         try {
@@ -114,7 +113,7 @@ public class QueryServiceImpl implements QueryService {
 
     public Query applyProjectFilter(Query query, String prjName){
         Map<JsonNode, List<String>> hm = new HashMap<JsonNode, List<String>>();
-        List projects = Lists.newArrayList(prjName);
+        List<String> projects = Lists.newArrayList(prjName);
         if (indexManager.getSubProjectMap().containsKey(prjName)) {
             projects.addAll(indexManager.getSubProjectMap().get(prjName));
         }
@@ -154,6 +153,11 @@ public class QueryServiceImpl implements QueryService {
             }
         }
         return fieldQueryBuilder.build();
+    }
+
+    @Override
+    public void destroy() {
+
     }
 
 }

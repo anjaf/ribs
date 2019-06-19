@@ -8,7 +8,6 @@ import uk.ac.ebi.biostudies.integration.IntegrationTestSuite;
 import static junit.framework.TestCase.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.IsEqual.equalTo;
 
 /**
  * Created by awais on 18/08/2015.

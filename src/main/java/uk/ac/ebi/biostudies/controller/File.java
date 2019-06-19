@@ -8,15 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.biostudies.api.util.DataTableColumnInfo;
-import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 import uk.ac.ebi.biostudies.service.FilePaginationService;
 
 import java.util.Map;
-import java.util.Set;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 
-@Api(value="api", description="Rest endpoint for searching and retrieving Biostudies")
+@Api(value="api")
 @RestController
 @RequestMapping(value="/api/v1")
 public class File {
@@ -39,7 +37,7 @@ public class File {
         if ("null".equalsIgnoreCase(seckey)) {
             seckey = null;
         }
-        Map parseResult = DataTableColumnInfo.ParseDataTableRequest(order);
+        Map<Integer, DataTableColumnInfo> parseResult = DataTableColumnInfo.ParseDataTableRequest(order);
         return paginationService.getFileList(accession, start, pageSize, search, draw, metadata, parseResult, seckey);
     }
 

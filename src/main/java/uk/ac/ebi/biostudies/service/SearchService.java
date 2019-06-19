@@ -7,6 +7,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.InputStreamResource;
 
 import java.io.IOException;
@@ -15,7 +17,7 @@ import java.util.Map;
 /**
  * Created by ehsan on 27/02/2017.
  */
-public interface SearchService {
+public interface SearchService extends InitializingBean, DisposableBean {
     String search(String query, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder);
     String getKeywords(String query, String field, Integer limit);
     String getEfoTree(String query);

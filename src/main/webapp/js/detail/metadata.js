@@ -13,7 +13,7 @@ var Metadata = (function (_self) {
         var template = Handlebars.compile(templateSource);
         var parts = window.location.pathname.split('/');
         var accession = parts[parts.length-1];
-        var url = '/biostudies/api/v1/studies/' + accession;
+        var url = contextPath + '/api/v1/studies/' + accession;
         var params = getParams();
 
         $.getJSON(url, params, function (data) {

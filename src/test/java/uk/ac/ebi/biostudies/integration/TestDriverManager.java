@@ -41,12 +41,9 @@ public class TestDriverManager {
         System.out.println(integProps.getBaseUrl());
         driver.navigate().to(integProps.getBaseUrl());
         WebDriverWait wdw = new WebDriverWait(driver, 10);
-        wdw.until(new ExpectedCondition<Boolean>() {
-            @Override
-            public Boolean apply(WebDriver d) {
-                String result = d.findElement(By.id("projectCount")).getText();
-                return result.length()>0 ;
-            }
+        wdw.until((ExpectedCondition<Boolean>) d -> {
+            String result = d.findElement(By.id("projectCount")).getText();
+            return result.length()>0 ;
         });
         String prjCount = IntegrationTestSuite.driver.findElement(By.id("projectCount")).getText();
         int count = Integer.valueOf(prjCount);

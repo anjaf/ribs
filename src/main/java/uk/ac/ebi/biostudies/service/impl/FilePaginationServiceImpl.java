@@ -57,8 +57,8 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         String attFiles = doc.get(Constants.File.FILE_ATTS);
         if (attFiles==null) return studyInfo;
         String allAtts[] = attFiles.split("\\|");
-        Set<String> headerSet = new HashSet(Arrays.asList(orderedArray));
-        List<String> orderedList = new ArrayList(Arrays.asList(orderedArray));
+        Set<String> headerSet = new HashSet<>(Arrays.asList(orderedArray));
+        List<String> orderedList = new ArrayList<>(Arrays.asList(orderedArray));
         for(String att:allAtts) {
             if (att.isEmpty() || headerSet.contains(att))
                 continue;
@@ -120,8 +120,8 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         ArrayNode columns = (ArrayNode) studyInfo.get("columns");
         search = modifySearchText(search);
         try {
-            List<SortField> allSortedFields = new ArrayList();
-            List<DataTableColumnInfo> searchedColumns = new ArrayList();
+            List<SortField> allSortedFields = new ArrayList<>();
+            List<DataTableColumnInfo> searchedColumns = new ArrayList<>();
             for(DataTableColumnInfo ftInfo:dataTableUiResult.values()){
                 if (ftInfo.getDir() != null && !ftInfo.getName().equalsIgnoreCase("x")) {
                     allSortedFields.add(ftInfo.getName().equalsIgnoreCase("size") ? new SortedNumericSortField(ftInfo.getName(), SortField.Type.LONG, ftInfo.getDir().equalsIgnoreCase("desc") ? true : false)

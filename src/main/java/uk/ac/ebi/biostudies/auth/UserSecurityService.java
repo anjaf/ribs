@@ -133,8 +133,8 @@ public class UserSecurityService {
         if (responseJSON.has("allow") && responseJSON.get("allow")!=null && responseJSON.get("allow").isArray()) {
             String[] allow = mapper.convertValue(responseJSON.get("allow"), String[].class);
             String[] deny = mapper.convertValue(responseJSON.get("deny"), String[].class);
-            Set allowedSet = Sets.difference(Sets.newHashSet(allow), Sets.newHashSet(deny));
-            user.setAllow((String[]) allowedSet.toArray(new String[allowedSet.size()]));
+            Set<String> allowedSet = Sets.difference(Sets.newHashSet(allow), Sets.newHashSet(deny));
+            user.setAllow(allowedSet.toArray(new String[allowedSet.size()]));
             user.setDeny(deny);
             user.allow = Stream.of(allow).map( item -> item.replaceAll("~", "")).toArray(String[]::new);
             user.deny = Stream.of(deny).map( item -> item.replaceAll("~", "")).toArray(String[]::new);

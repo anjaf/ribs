@@ -1,10 +1,11 @@
 package uk.ac.ebi.biostudies.config;
 
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +17,7 @@ import java.util.Set;
 
 @Configuration
 @PropertySource("classpath:efo.properties")
-public class EFOConfig {
+public class EFOConfig implements InitializingBean, DisposableBean {
 
     @Value("${efo.stopWords}")
     private String stopWords;
@@ -46,8 +47,8 @@ public class EFOConfig {
 
     private Set<String> stopWordsSet = new HashSet<>();
 
-    @PostConstruct
-    private void init(){
+    @Override
+    public void afterPropertiesSet() {
         String[] words = stopWords.split("\\s*,\\s*");
         stopWordsSet.addAll(Arrays.asList(words));
     }
@@ -81,5 +82,9 @@ public class EFOConfig {
     }
 
 
+    @Override
+    public void destroy() {
+
+    }
 
 }
