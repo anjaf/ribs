@@ -21,6 +21,7 @@ import uk.ac.ebi.biostudies.api.util.DataTableColumnInfo;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.auth.User;
+import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
 import uk.ac.ebi.biostudies.file.Thumbnails;
@@ -41,6 +42,8 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     SearchService searchService;
     @Autowired
     SecurityConfig securityConfig;
+    @Autowired
+    IndexConfig indexConfig;
     @Autowired
     Thumbnails thumbnails;
 
@@ -82,7 +85,9 @@ public class FilePaginationServiceImpl implements FilePaginationService {
 
         String sectionsWithFiles = doc.get(Constants.Fields.SECTIONS_WITH_FILES);
         studyInfo.set("columns", fileColumnAttributes);
-        studyInfo.put("files", doc.get(Constants.Fields.FILES));
+        studyInfo.put(Constants.Fields.FILES, doc.get(Constants.Fields.FILES));
+        studyInfo.put("ftpLink", indexConfig.getFtpDir() +  doc.get(Constants.Fields.RELATIVE_PATH));
+        studyInfo.put("isPublic", (" " + doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public ")  );
         setPrivateData(studyInfo, doc);
         try {
             if (sectionsWithFiles!=null) {

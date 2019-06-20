@@ -328,6 +328,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public Document getDocumentByAccession(String accession, String secretKey) {
         Integer docNumber = getDocumentNumberByAccession(accession, secretKey);
+        if (docNumber==null) return null;
         try {
             return indexManager.getIndexReader().document(docNumber);
         } catch (IOException ex) {

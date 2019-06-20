@@ -14,6 +14,7 @@ var FileTable = (function (_self) {
                 if (isDetailPage) {
                     handleSecretKey(response.seckey);
                     handleModificationDate(response.modified);
+                    if (response.isPublic) handleFTPLink(response.ftpLink);
                 }
                 if (!response.files || response.files==0) {
                     $('#file-list-container').parent().remove();
@@ -34,6 +35,11 @@ var FileTable = (function (_self) {
         filesTable.state.clear();
         filesTable.search('').columns().search('').draw();
     };
+
+    function handleFTPLink(ftpLink) {
+        $('#ftp-link').attr('href',ftpLink);
+        $('#ftp-link').show();
+    }
 
     function handleModificationDate(t) {
         if (!t) return;

@@ -13,7 +13,7 @@ var Metadata = (function (_self) {
         var template = Handlebars.compile(templateSource);
         var parts = window.location.pathname.split('/');
         var accession = parts[parts.length-1];
-        var url = '/biostudies/api/v1/studies/' + accession;
+        var url = contextPath + '/api/v1/studies/' + accession;
         var params = getParams();
 
         $.getJSON(url, params, function (data) {
@@ -25,10 +25,6 @@ var Metadata = (function (_self) {
             $('#accession').text(data.accno);
             data.section.accno = data.accno;
             data.section.accessTags = data.accessTags;
-            var rootPath = data.attributes.filter(function (v, i) {
-                return v.name == 'RootPath';
-            });
-            data.section.root = rootPath.length ? rootPath[0].value : '';
             var releaseDate = data.attributes.filter(function (v, i) {
                 return v.name == 'ReleaseDate';
             });
@@ -126,23 +122,6 @@ var Metadata = (function (_self) {
             $("i",$(this)).toggleClass('fa-angle-double-left fa-angle-double-right');
             $(this).find('[data-fa-i2svg]').toggleClass('fa-angle-double-left fa-angle-double-right');
         });
-    }
-
-
-    function createBigFileTable(acc, params){
-        $.ajax({url: window.contextPath+"/api/v1/info/"+acc,
-            data:params,
-            success: function(response){
-                if (!response.files || response.files==0) {
-                    $('#file-list-container').parent().remove();
-                    return;
-                }
-                handleSecretKey(response.seckey);
-                handleFileTableColumns(response.columns, acc, params);
-                handleFileDownloadSelection();
-                handleFileFilters(response.sections);
-                handleModificationDate(response.modified);
-            }});
     }
 
     function createDataTables() {
