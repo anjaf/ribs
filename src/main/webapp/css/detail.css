@@ -578,3 +578,11 @@ ul.recommendations li {
     width: auto;
     margin-bottom: auto;
 }
+
+span.file-list-buttons {
+    font-size: 12pt;
+}
+
+span.file-list-buttons .fa-file-download {
+    margin-right: 2px;
+}

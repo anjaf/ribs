@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.jayway.jsonpath.ReadContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +21,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import springfox.documentation.spring.web.json.Json;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.FileIndexService;
@@ -27,10 +30,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class FileIndexServiceImpl implements FileIndexService {
-    private static Logger LOGGER = LogManager.getLogger(FileIndexServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(FileIndexServiceImpl.class.getName());
 
     @Autowired
     IndexConfig indexConfig;
@@ -39,7 +43,7 @@ public class FileIndexServiceImpl implements FileIndexService {
 
     public Map<String, Object> indexSubmissionFiles(String accession, String relativePath, JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
         Map<String, Object> valueMap = new HashMap<>();
-        long counter = 0;
+        AtomicLong counter = new AtomicLong();
         List<String> columns = new ArrayList<>();
         Set<String> sectionsWithFiles = new HashSet<>();
         if(removeFileDocuments) {
@@ -51,20 +55,36 @@ public class FileIndexServiceImpl implements FileIndexService {
         if(filesParents!=null) {
             for (JsonNode parent : filesParents) {
                 if (parent == null) continue;
-                counter = indexFileList(accession, writer, counter, columns, sectionsWithFiles, parent, parent);
+                counter.set(indexFileList(accession, writer, counter.get(), columns, sectionsWithFiles, parent, parent));
             }
         }
 
         ObjectMapper mapper = new ObjectMapper();
 
-        //find libraryfiles
-        List<JsonNode> libraryParents = json.findParents("libraryFile");
-        if(libraryParents==null) return null;
-        for(JsonNode parent:libraryParents) {
-            if(parent==null) continue;
-            String libraryFilePath = indexConfig.getFileRootDir() + "/"+ relativePath + "/"+  parent.get("libraryFile").textValue();
-            counter = indexLibraryFile(accession, writer, counter, columns, sectionsWithFiles, parent, libraryFilePath);
+        //find file lists
+        List<JsonNode> subSections = json.findParents("attributes") ;
+        Map<String, JsonNode> parents = new HashMap<>();
+        for (JsonNode subSection: subSections) {
+            ArrayNode attributes = (ArrayNode) subSection.get("attributes");
+            for (JsonNode attribute : attributes) {
+                if (attribute.get("name").textValue().equalsIgnoreCase("file list")) {
+                    parents.put(attribute.get("value").textValue(),subSection);
+                }
+            }
+
         }
+
+        parents.forEach((filename, jsonNode) -> {
+            if(jsonNode==null) return;
+            String libraryFilePath = indexConfig.getFileRootDir() + "/"+ relativePath + "/"+  filename+".json";
+            try {
+                counter.set(indexLibraryFile(accession, writer, counter.get(), columns, sectionsWithFiles, jsonNode, libraryFilePath));
+            } catch (IOException e) {
+                logger.error(e);
+            }
+        });
+
+
 
 
         //put Section as the first column. Name and size would be prepended later
@@ -76,7 +96,7 @@ public class FileIndexServiceImpl implements FileIndexService {
 
         valueMap.put(Constants.Fields.SECTIONS_WITH_FILES,
                 sectionsWithFiles.size()==0 ? null : String.join(" ", sectionsWithFiles) );
-        valueMap.put(Constants.Fields.FILES, counter);
+        valueMap.put(Constants.Fields.FILES, counter.longValue());
 
         return valueMap;
     }
@@ -102,7 +122,6 @@ public class FileIndexServiceImpl implements FileIndexService {
             while (!JsonToken.START_ARRAY.equals(token)) {
                 token = parser.nextToken();
             }
-            token = parser.nextToken();//library file starts with two start_array tokens so I should discard extra one
 
             ObjectMapper mapper = new ObjectMapper();
             while (true) {
@@ -196,7 +215,7 @@ public class FileIndexServiceImpl implements FileIndexService {
                 if(name!=null && value!=null && !name.isEmpty() && ! value.isEmpty()) {
                     if(doc.getField(name)!=null)
                     {
-//                                        LOGGER.debug("this value is repeated accno: {} firstAppearance value: {}, secondAppearance value: {}", accession, doc.getField(Constants.File.FILE_ATTS + name).stringValue(), name);
+    //                                        logger.debug("this value is repeated accno: {} firstAppearance value: {}, secondAppearance value: {}", accession, doc.getField(Constants.File.FILE_ATTS + name).stringValue(), name);
                         continue;
                     }
                     if(name.equalsIgnoreCase("type") && accession.toLowerCase().contains("epmc"))
@@ -218,7 +237,7 @@ public class FileIndexServiceImpl implements FileIndexService {
             Query query = parser.parse(Constants.File.OWNER+":"+deleteAccession);
             writer.deleteDocuments(query);
         } catch (Exception e) {
-            LOGGER.error("Problem in deleting old files", e);
+            logger.error("Problem in deleting old files", e);
         }
     }
 

@@ -1,0 +1,13 @@
+<script id='file-list-buttons-template' type='text/x-handlebars-template'>
+    <span class="file-list-buttons">
+        <a href="${contextPath}/files/{{accno}}/{{file}}.json{{keyString}}" target="_blank"
+           title="Download Study as JSON" class="source-icon source-icon-json"
+           data-icon="="><i class="fa fa-file-download shrink-8"/>{JSON}</a>
+        <a href="${contextPath}/files/{{accno}}/{{file}}.xml{{keyString}}" target="_blank"
+           title="Download Study as XML" class="source-icon source-icon-xml" data-icon="=">
+            <i class="fa fa-file-download shrink-8"/>&lt;XML&gt;</a>
+        <a href="${contextPath}/files/{{accno}}/{{file}}.pagetab.tsv{{keyString}}" target="_blank"
+           title="Download Study as PageTab" class="source-icon source-icon-pagetab"
+           data-icon="="><i class="fa fa-file-download shrink-8"/>&rarr;PageTab&#8626;</a>
+    </span>
+</script>
