@@ -75,7 +75,7 @@ public class SecurityQueryBuilder {
             finalQuery = queryBuilder.build();
         }
 
-        logger.debug("security query: {}", finalQuery);
+        logger.trace("security query: {}", finalQuery);
 
         return finalQuery;
     }

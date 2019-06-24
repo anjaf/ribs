@@ -58,7 +58,8 @@ public class Search {
         params.remove("query");
         queryString = queryString == null ? "" : queryString;
         ObjectNode selectedFacets = checkSelectedFacetsAndFields(params);
-        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, null, page, pageSize, sortBy, sortOrder);
+        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, null,
+                page, pageSize, sortBy, sortOrder);
     }
 
 
@@ -76,7 +77,8 @@ public class Search {
         String queryString = params.getFirst("query");
         params.remove("query");
         queryString = queryString == null ? "" : queryString;
-        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project, page, pageSize, sortBy, sortOrder);
+        return searchService.search(URLDecoder.decode(queryString, String.valueOf(UTF_8)), selectedFacets, project,
+                page, pageSize, sortBy, sortOrder);
     }
 
     @RequestMapping(value = "/{project}/facets", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)

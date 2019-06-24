@@ -17,7 +17,6 @@
 
 package uk.ac.ebi.biostudies.efo;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.lucene.index.Term;
@@ -37,9 +36,7 @@ import java.util.Map;
 public class EFOQueryExpander {
     // logging machinery
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
-//    public BooleanQuery.Builder synonymBooleanBuilder = new BooleanQuery.Builder();
-//    public BooleanQuery.Builder efoBooleanBuilder = new BooleanQuery.Builder();
+    public static final int MAX_EXPANSION_TERMS = 1000;
 
     @Autowired
     EFOExpansionLookupIndex efoExpansionLookupIndex;
@@ -72,39 +69,35 @@ public class EFOQueryExpander {
         }
     }
 
-    private boolean isExpandable(String fieldName){
-        return true;
-    }
-
     private Pair<Query, EFOExpansionTerms> doExpand(Map<String, String> fieldsAndQueryInfo, Query query) throws IOException {
         String field = getQueryField(query);
-        if (null != field) {
+        if (null == field || !fieldsAndQueryInfo.containsKey(field)) {
+            return new MutablePair<>(query, null);
+        }
 
-//            if (env.fields.containsKey(field) && "string".equalsIgnoreCase(env.fields.get(field).type) && env.fields.get(field).shouldExpand) {
-            if (fieldsAndQueryInfo.containsKey(field) && isExpandable(field)) {
-                EFOExpansionTerms expansionTerms = efoExpansionLookupIndex.getExpansionTerms(query);
-                if (1000 < expansionTerms.efo.size() + expansionTerms.synonyms.size()
-                        && !fieldsAndQueryInfo.containsKey("expand")) {
-                    fieldsAndQueryInfo.put("tooManyExpansionTerms","true");
-                } else if (0 != expansionTerms.efo.size() || 0 != expansionTerms.synonyms.size()) {
-                    BooleanQuery.Builder boolQueryBuilder = new BooleanQuery.Builder();
-                    boolQueryBuilder.add(query, BooleanClause.Occur.SHOULD);
+        EFOExpansionTerms expansionTerms = efoExpansionLookupIndex.getExpansionTerms(query);
+        if (expansionTerms.efo.size() + expansionTerms.synonyms.size() > MAX_EXPANSION_TERMS ) {
+            logger.warn("Too many expansion terms for "+ query);
+            return new MutablePair<>(query, expansionTerms);
+        }
 
-                    for (String term : expansionTerms.synonyms) {
-                        Query synonymPart = newQueryFromString(term.trim(), field);
-                        if (!queryPartIsRedundant(query, synonymPart)) {
-                            boolQueryBuilder.add(synonymPart, BooleanClause.Occur.SHOULD);
-                        }
-                    }
+        if (expansionTerms.efo.size()!=0 || expansionTerms.synonyms.size()!=0) {
+            BooleanQuery.Builder boolQueryBuilder = new BooleanQuery.Builder();
+            boolQueryBuilder.add(query, BooleanClause.Occur.SHOULD);
 
-                    for (String term : expansionTerms.efo) {
-                        Query expansionPart = newQueryFromString(term.trim(), field);
-                        boolQueryBuilder.add(expansionPart, BooleanClause.Occur.SHOULD);
-                    }
-
-                    return new MutablePair<>(boolQueryBuilder.build(), expansionTerms);
+            for (String term : expansionTerms.synonyms) {
+                Query synonymPart = newQueryFromString(term.trim(), field);
+                if (!queryPartIsRedundant(query, synonymPart)) {
+                    boolQueryBuilder.add(synonymPart, BooleanClause.Occur.SHOULD);
                 }
             }
+
+            for (String term : expansionTerms.efo) {
+                Query expansionPart = newQueryFromString(term.trim(), field);
+                boolQueryBuilder.add(expansionPart, BooleanClause.Occur.SHOULD);
+            }
+
+            return new MutablePair<>(boolQueryBuilder.build(), expansionTerms);
         }
         return new MutablePair<>(query, null);
     }
