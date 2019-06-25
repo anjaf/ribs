@@ -101,8 +101,8 @@ var Searcher = (function (_self) {
             if (data.expandedEfoTerms) highlights = highlights.concat(data.expandedEfoTerms.map(function (v) {
                 return {word: v, class: 'efo'}
             }));
-            var split = data.query.match(/(?:[^\s"]+|"[^"]*")+/g).map(function (v) {
-                return v.replace(/\"/g, '')
+            var split = data.query.match(/(?:[^\s"]+|"[^"]*"|[\(\)]+)+/g).map(function (v) {
+                return v.replace(/[\"|(|)]/g, '')
             });
             highlights = highlights.concat(split.map(function (v) {
                 return {word: v, class: 'highlight'}
