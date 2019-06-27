@@ -112,7 +112,7 @@ var Searcher = (function (_self) {
             })
             $.each(highlights, function (i, v) {
                 if (v.word != 'AND' && v.word != 'OR' && v.word != 'NOT') {
-                    $("#search-results").highlight(v.word, {className: v.class, wordsOnly: v.word.indexOf('*') < 0});
+                    $("#search-results").mark(v.word, {className: v.class, wildcards:'enabled',separateWordSearch: false, accuracy:'exactly'});
                 }
             });
 
