@@ -29,6 +29,7 @@ import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.QueryService;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -80,12 +81,12 @@ public class QueryServiceImpl implements QueryService {
         try {
             logger.debug("User queryString: {}", queryString);
             Query query = parser.parse(queryString);
-            Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query);
             Query expandedQuery = null;
-            if (selectedFields != null)
+            Pair<Query, EFOExpansionTerms> queryEFOExpansionTermsPair = expandQuery(query);
+            if (selectedFields != null) {
                 expandedQuery = applySelectedFields((ObjectNode) selectedFields, queryEFOExpansionTermsPair.getKey(), parser);
+            }
             expandedQuery = (expandedQuery == null ? queryEFOExpansionTermsPair.getKey() : expandedQuery);
-            //expandedQuery = excludeCompoundStudies(expandedQuery);
 
             if (!queryString.toLowerCase().contains("type:")){
                 if (selectedFields!=null && !selectedFields.has("type")) {
@@ -97,7 +98,7 @@ public class QueryServiceImpl implements QueryService {
                 expandedQuery = applyProjectFilter(expandedQuery, projectName.toLowerCase());
             }
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
-            logger.debug("Lucene query: {}",queryAfterSecurity.toString());
+            logger.trace("Lucene query: {}",queryAfterSecurity.toString());
             finalQuery =  new MutablePair<>(queryAfterSecurity, queryEFOExpansionTermsPair.getValue());
         } catch (Throwable ex){
             logger.error(ex);
@@ -122,14 +123,9 @@ public class QueryServiceImpl implements QueryService {
         return facetService.addFacetDrillDownFilters(query, hm);
     }
 
-    public Pair<Query, EFOExpansionTerms> expandQuery(Query query){
+    public Pair<Query, EFOExpansionTerms> expandQuery(Query query) throws IOException {
         Map<String, String> queryInfo = analyzerManager.getExpandableFields();
-        try {
-            return efoQueryExpander.expand(queryInfo, query);
-        }catch (Exception ex){
-            logger.error("Problem in expanding query {}", query, ex);
-        }
-        return new MutablePair<>(query, null);
+        return efoQueryExpander.expand(queryInfo, query);
     }
 
     private Query applySelectedFields(ObjectNode selectedFields, Query query, QueryParser queryParser){

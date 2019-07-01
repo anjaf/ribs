@@ -101,8 +101,8 @@ var Searcher = (function (_self) {
             if (data.expandedEfoTerms) highlights = highlights.concat(data.expandedEfoTerms.map(function (v) {
                 return {word: v, class: 'efo'}
             }));
-            var split = data.query.match(/(?:[^\s"]+|"[^"]*")+/g).map(function (v) {
-                return v.replace(/\"/g, '')
+            var split = data.query.match(/(?:[^\s"]+|"[^"]*"|[\(\)]+)+/g).map(function (v) {
+                return v.replace(/[\"|(|)]/g, '')
             });
             highlights = highlights.concat(split.map(function (v) {
                 return {word: v, class: 'highlight'}
@@ -112,7 +112,7 @@ var Searcher = (function (_self) {
             })
             $.each(highlights, function (i, v) {
                 if (v.word != 'AND' && v.word != 'OR' && v.word != 'NOT') {
-                    $("#search-results").highlight(v.word, {className: v.class, wordsOnly: v.word.indexOf('*') < 0});
+                    $("#search-results").mark(v.word, {className: v.class, wildcards:'enabled',separateWordSearch: false, accuracy:'exactly'});
                 }
             });
 

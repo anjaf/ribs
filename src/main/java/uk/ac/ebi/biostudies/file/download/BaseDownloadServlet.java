@@ -98,6 +98,8 @@ public abstract class BaseDownloadServlet {
                     sendSequentialFile(downloadFile, request, response);
                 }
                 logger.debug("Download of [{}] completed", downloadFile.getName());
+            } else {
+                throw new DownloadServletException("File does not exist or user does not have the rights to download it.");
             }
         } catch (Exception x) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);

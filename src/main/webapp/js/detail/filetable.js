@@ -14,6 +14,7 @@ var FileTable = (function (_self) {
                 if (isDetailPage) {
                     handleSecretKey(response.seckey);
                     handleModificationDate(response.modified);
+                    if (response.isPublic) handleFTPLink(response.ftpLink);
                 }
                 if (!response.files || response.files==0) {
                     $('#file-list-container').parent().remove();
@@ -21,8 +22,9 @@ var FileTable = (function (_self) {
                 }
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
                 handleFileDownloadSelection(acc,params.key);
-                handleFileFilters(response.sections);
+                handleFileFilters(acc, params, response.sections);
                 handleAdvancedSearch(columnDefinitions);
+                handleFileListButtons(acc, params.key);
             }});
     };
 
@@ -34,6 +36,25 @@ var FileTable = (function (_self) {
         filesTable.state.clear();
         filesTable.search('').columns().search('').draw();
     };
+
+    function handleFileListButtons(acc, key){
+        var templateSource = $('script#file-list-buttons-template').html();
+        var template = Handlebars.compile(templateSource);
+        $('.bs-name:contains("File List")').each( function (node) {
+            $(this).next().append(
+                template({
+                    accno:acc,
+                    file:$(this).next().text().trim(),
+                    keyString: key ? '?key='+key : ''
+                })
+            );
+        });
+    }
+
+    function handleFTPLink(ftpLink) {
+        $('#ftp-link').attr('href',ftpLink);
+        $('#ftp-link').show();
+    }
 
     function handleModificationDate(t) {
         if (!t) return;
@@ -170,7 +191,7 @@ var FileTable = (function (_self) {
                 }
             ],
             ajax: {
-                url: '/biostudies/api/v1/files/'+ acc,
+                url: contextPath + '/api/v1/files/'+ acc,
                 type: 'post',
                 data: function (dtData) {
                     // add file search filter
@@ -266,11 +287,12 @@ var FileTable = (function (_self) {
     }
 
 
-    function handleFileFilters(sections) {
+    function handleFileFilters(acc,params, sections) {
         // add file filter button for section
         $(sections).each(function (i,divId) {
             var bar = $('#' + divId + '> .bs-name > .section-title-bar');
             bar.append('<a class="section-button" data-files-id="'+ divId + '"><i class="fa fa-filter"></i> show files in this section</a>');
+            var listFile = $('section#'+this).data('filelist');
         });
         // handle clicks on file filters in section
         $("a.section-button[data-files-id]").click(function () {
@@ -321,7 +343,7 @@ var FileTable = (function (_self) {
             if ($(this).is(':checked')) {
                 $('.select-checkbox').parent().addClass('selected');
                 $('.select-checkbox input').prop('checked',true);
-                $.post('/biostudies/api/v1/files/'+ acc, $.extend(true, {}, filesTable.ajax.params(), {
+                $.post(contextPath+ '/api/v1/files/'+ acc, $.extend(true, {}, filesTable.ajax.params(), {
                         length: -1,
                         metadata: false,
                         start: 0

@@ -7,7 +7,7 @@ $(function() {
         $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/our-roadmap/">Our roadmap</a></li>')
         $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/case-studies/">Case studies</a></li>');
         $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/faq/">FAQs</a></li>');
-        $('.menu.float-right').prepend('<li role="menuitem"><a href="/biostudies/bioimages/help">Help</a></li>');
+        $('.menu.float-right').prepend('<li role="menuitem"><a href="'+contextPath+'/bioimages/help">Help</a></li>');
         $('.menu.float-left li').slice(1, 4).hide();
         $('.menu.float-left li a').last().attr('target', '_blank');
         $('#query').attr('placeholder','Search BioImages');
@@ -48,6 +48,7 @@ $(function() {
     if (project && project!=='projects') {
         // display project banner
         $.getJSON(contextPath + "/api/v1/studies/" + project, function (data) {
+            if (!data || !data.section || !data.section.type || data.section.type.toLowerCase()!='project') return;
             var projectObj = showProjectBanner(data);
             updateMenuForProject(projectObj);
         }).fail(function (error) {
@@ -91,7 +92,7 @@ function showError(error) {
     var errorTemplateSource = $('script#error-template').html();
     var errorTemplate = Handlebars.compile(errorTemplateSource);
     var data;
-    debugger
+    //debugger
     switch (error.status) {
         case 400:
             data = {
@@ -154,7 +155,7 @@ function showProjectBanner(data) {
     $('#search-in-project').click();
 
     //fix breadcrumbs
-    $('ul.breadcrumbs').children().first().next().html('<a href="/biostudies/'+project+'/studies">'+projectObj.title+'</a>')
+    $('ul.breadcrumbs').children().first().next().html('<a href="'+contextPath+'/'+project+'/studies">'+projectObj.title+'</a>')
     return projectObj;
 }
 

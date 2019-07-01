@@ -35,6 +35,7 @@
         <%@include file="detail/study.hbs" %>
         <%@include file="detail/valqual.hbs" %>
         <%@include file="detail/secret.hbs" %>
+        <%@include file="detail/file-list-buttons.hbs" %>
     </jsp:attribute>
     <jsp:body>
         <div id="loader">
