@@ -22,36 +22,28 @@
         margin-top: 10pt;
     }
 </style>
-<h3>Creating a Submission</h3>
+<h3>Submitting image data to BioStudies</h3>
 
 <p>
 <ol id="creating">
-    <li>You will need a BioStudies account. You can sign up here <a
-            href="https://www.ebi.ac.uk/biostudies/submissions/#/signup" target="_blank">https://www.ebi.ac.uk/biostudies/submissions/#/signup</a>
-        or follow the link from Submit on the BioStudies homepage.
-    </li>
-    <li>Once you have an account please email <a href="mailto:biostudies@ebi.ac.uk">biostudies@ebi.ac.uk</a> we will be
-        able to provide you with your secret
-        directory name to allow you to upload your raw image files.
-    </li>
-    <li>Visit <a target="_blank" href="ftp://ftp.biostudies.ebi.ac.uk/pub/BioImaging">ftp://ftp.biostudies.ebi.ac.uk/pub/BioImaging</a>
-        here you will find two templates. One for high content
-        screens and one for non-high content screen image studies please download the one most appropriate for your
-        study.
-    </li>
-    <li>Fill in <b>all the tabs</b> of the template and email it back to <a href="mailto:biostudies@ebi.ac.uk">biostudies@ebi.ac.uk</a>.
-        The first tab contains the
-        metadata for the study. The second tab is the "library file" this contains the information of what each image
-        contains and how it relates to your study.
+    <li>You will need a BioStudies account. You can sign up here: <a
+            href="https://www.ebi.ac.uk/biostudies/submissions/#/signup" target="_blank">https://www.ebi.ac.uk/biostudies/submissions/#/signup</a>.
+        Or, follow the link from Submit on the BioStudies homepage.
     </li>
     <li>Prepare your raw data. Ideally your raw image files will be contained in a single directory with a logical
         hierarchical file structure.
     </li>
-    <li>Upload your raw files (see instructions below) and any other data applicable to the study, known as processed
-        data. Please ensure the file name and brief description of the files are inputted on the metadata submission.
+    <li>To upload image files into your BioStudies account, go to the Files area in the BioStudies submission tool. If you have a smaller number of files (e.g., processed data files), you can use web upload - click on "Upload Files". For uploading large data volumes please use FTP or Aspera file transfer - instructions and the path to use are available under "FTP/Aspera" button; instructions are also below.
     </li>
-    <li>We will check the submission and will load it into the BioStudies database we will then e-mail you back your
-        unique BioStudies identifier and details on how to access and share your study with others.
+    <li>Visit <a target="_blank" href="ftp://ftp.biostudies.ebi.ac.uk/pub/BioImaging">ftp://ftp.biostudies.ebi.ac.uk/pub/BioImaging</a>
+        and download the metadata description template.
+    </li>
+    <li>You will find guidance for filling in this template in README and 'Example' tabs; fill in the other two tabs of the template with information about your study and the individual image files. Email it back to <a href="mailto:biostudies@ebi.ac.uk">biostudies@ebi.ac.uk</a>.
+    </li>
+    <li>We will check the submission and will load it into the BioStudies database; we will then e-mail you back your
+        unique BioStudies accession number (i.e., dataset identifier) and details on how to access and share your study with others.
+    </li>
+    <li>We are working on an online submission tool where, instead of filling in an Excel template, you will be able to use web forms.
     </li>
 </ol>
 </p>
@@ -74,7 +66,7 @@
     ftp ftp-private.ebi.ac.uk
     Name: bsftp
     Password: bsftp1
-    ftp> cd 78/348482-52fd-4ade-9273-bdeac6d93423-a116(this is an example of the secret key directory name)
+    ftp> cd 78/348482-52fd-4ade-9273-bdeac6d93423-a116 (this is an example of the secret key directory name)
     ftp> put testFile
     </pre>
 </p>
@@ -109,5 +101,5 @@ where
 
 </ul>
 
-<h4>Finding and accessing data</h4>
+<h3>Finding and accessing data</h3>
 <p>Please see the <a href="../help">BioStudies help page</a> to learn how to search and download data.</p>
