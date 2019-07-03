@@ -23,7 +23,8 @@ public interface SearchService {
     void clearStatsCache();
     InputStreamResource getStudyAsStream(String accession, String relativePath) throws IOException;
     ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception;
-    Document getDocumentByAccession(String accession, String secretKey);
+    Document getDocumentByAccession(String accession, String secretKey) throws SubmissionNotAccessibleException;
+    boolean isDocumentPresent(String accession);
     String getLatestStudies() throws Exception;
 }
 

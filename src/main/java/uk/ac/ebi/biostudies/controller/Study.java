@@ -13,6 +13,7 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 import uk.ac.ebi.biostudies.service.FilePaginationService;
 import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import java.io.*;
 
@@ -38,7 +39,13 @@ public class Study {
         if ("null".equalsIgnoreCase(seckey)) {
             seckey = null;
         }
-        Document document = searchService.getDocumentByAccession(accession, seckey);
+        Document document = null;
+        try {
+            document = searchService.getDocumentByAccession(accession, seckey);
+        } catch (SubmissionNotAccessibleException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("{\"errorMessage\":\"Study not accessible!\"}");
+        }
         if(document==null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
@@ -70,6 +77,9 @@ public class Study {
             }
         } catch (Exception e) {
             logger.error(e);
+        } catch (SubmissionNotAccessibleException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("{\"errorMessage\":\"Study not accessible!\"}");
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON).body("{\"similarStudies\":[]}");
@@ -78,11 +88,16 @@ public class Study {
 
     @PublicRESTMethod
     @RequestMapping(value = "/info/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String getStudyInfo(@PathVariable String accession, @RequestParam(value="key", required=false) String seckey){
+    public ResponseEntity<String> getStudyInfo(@PathVariable String accession, @RequestParam(value="key", required=false) String seckey){
         if ("null".equalsIgnoreCase(seckey)) {
             seckey = null;
         }
-        return paginationService.getStudyInfo(accession, seckey).toString();
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(paginationService.getStudyInfo(accession, seckey).toString());
+        } catch (SubmissionNotAccessibleException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("{\"errorMessage\":\"Study not accessible!\"}");
+        }
 
     }
 

@@ -98,29 +98,31 @@ function showError(error) {
             data = {
                 title: 'We’re sorry that we cannot process your request',
                 message: 'There was a query syntax error in <span class="alert"><xsl:value-of select="$error-message"/></span>. Please try a different query or check our <a href="{$context-path}/help/index.html">query syntax help</a>.'
-            }
+            };
             break;
 
         case 403:
             data = {
                 title: 'We’re sorry that you don’t have access to this page or file',
-                message: 'Please <a href="#" class="login">log in</a> to access <span class="alert"><xsl:value-of select="$error-request-uri"/></span>.'
-            }
+                message: 'It may take up to 24 hours after submission for any new studies to become available in the database. <br/>' +
+                    ' Please login if the study has not been publicly released yet.',
+                forbidden:true
+            };
             break;
 
         case 404:
             data = {
-                title: 'We’re sorry that the page or file you’ve requested is not publicly available',
+                title: 'We’re sorry that the page or file you’ve requested is not present',
                 message: 'The resource may have been removed, had its name changed, or has restricted access. <br/>' +
                 ' It may take up to 24 hours after submission for any new studies to become available in the database. <br/>' +
                 ' Please login if the study has not been publicly released yet.'
-            }
+            };
             break;
         default:
             data = {
                 title: 'Oops! Something has gone wrong with BioStudies',
                 message: 'The service you are trying to access is currently unavailable. We’re very sorry. Please try again later or use the feedback link to report if the problem persists.'
-            }
+            };
             break;
     }
 
