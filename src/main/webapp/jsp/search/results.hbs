@@ -36,7 +36,7 @@
 
                     <ul id="search-results">
                         {{#each this.hits}}
-                        <li>{{&result this}}</li>
+                        <li>{{&result this ../query}}</li>
                         {{/each}}
                     </ul>
                     {{&pager}}
