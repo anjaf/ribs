@@ -11,6 +11,7 @@
 <c:set var="currentUser" value="${Session.getCurrentUser()}"/>
 <c:set var="pathname" value="${requestScope['javax.servlet.forward.request_uri']}"/>
 <c:set var="pagename" value="${fn:replace(pageContext.request.requestURI,pageContext.request.contextPath,'')}"/>
+<c:set var="announce"><spring:eval expression="@announcementConfig.isEnabled()"/></c:set>
 
 <!doctype html>
 <html lang="en">
@@ -239,7 +240,17 @@
 <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.3/js/foundationExtendEBI.js"></script>
 <script>$(document).foundation();</script>
 <script>$(document).foundationExtendEBI();</script>
-
+<c:if test="${announce}">
+<script>
+$(function() {
+    ebiInjectAnnouncements({
+        headline: '<spring:eval expression="@announcementConfig.getHeadline()"/>'
+        , message: '<spring:eval expression="@announcementConfig.getMessage()"/>'
+        , priority: '<spring:eval expression="@announcementConfig.getPriority()"/>'
+    });
+});
+</script>
+</c:if>
 <jsp:invoke fragment="postBody"/>
 
 <script id='error-template' type='text/x-handlebars-template'>

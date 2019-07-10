@@ -87,7 +87,7 @@ public class Study {
     }
 
     @PublicRESTMethod
-    @RequestMapping(value = "/info/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    @RequestMapping(value = "/studies/{accession:.+}/info", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> getStudyInfo(@PathVariable String accession, @RequestParam(value="key", required=false) String seckey){
         if ("null".equalsIgnoreCase(seckey)) {
             seckey = null;

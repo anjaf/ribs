@@ -8,7 +8,7 @@ var FileTable = (function (_self) {
     var columnDefinitions=[];
 
     _self.render = function (acc, params, isDetailPage){
-        $.ajax({url: window.contextPath+"/api/v1/info/"+acc,
+        $.ajax({url: contextPath + '/api/v1/studies/' + acc + '/info',
             data:params,
             success: function(response){
                 if (isDetailPage) {
