@@ -3,6 +3,7 @@ package uk.ac.ebi.biostudies.config;
 /**
  * Created by ehsan on 23/02/2017.
  */
+import net.jawr.web.servlet.JawrServlet;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
@@ -10,19 +11,21 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
-import org.springframework.web.servlet.view.JstlView;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+
+import java.util.HashMap;
+import java.util.Map;
+
 
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 @EnableSwagger2
 @EnableAsync
 @EnableScheduling
@@ -110,15 +113,15 @@ public class MvcConfig implements WebMvcConfigurer{
 
         return properties;
     }
-
-    @Bean
-    public ViewResolver viewResolver() {
-        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-        viewResolver.setViewClass(JstlView.class);
-        viewResolver.setPrefix("/jsp/");
-        viewResolver.setSuffix(".jsp");
-        return viewResolver;
-    }
+//
+//    @Bean
+//    public ViewResolver viewResolver() {
+//        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+//        viewResolver.setViewClass(JstlView.class);
+//        viewResolver.setPrefix("/jsp/");
+//        viewResolver.setSuffix(".jsp");
+//        return viewResolver;
+//    }
 
     @Bean
     public Docket api() {
@@ -128,6 +131,33 @@ public class MvcConfig implements WebMvcConfigurer{
                 .apis(RequestHandlerSelectors.withMethodAnnotation(PublicRESTMethod.class))
                 .paths(PathSelectors.any())
                 .build();
+    }
+
+    @Bean
+    public ServletRegistrationBean<JawrServlet> JavascriptServlet() {
+        ServletRegistrationBean<JawrServlet> javascriptServletBean = new ServletRegistrationBean<>();
+        Map<String, String> initParams = new HashMap<>();
+        initParams.put("configLocation","/jawr.properties");
+        javascriptServletBean.setServlet(new JawrServlet());
+        javascriptServletBean.setInitParameters(initParams);
+        javascriptServletBean.setName("JavascriptServlet");
+        javascriptServletBean.addUrlMappings("*.js");
+        javascriptServletBean.setLoadOnStartup(1);
+        return javascriptServletBean;
+    }
+
+    @Bean
+    public ServletRegistrationBean<JawrServlet> CSSServlet() {
+        ServletRegistrationBean<JawrServlet> cssServletBean = new ServletRegistrationBean<>();
+        Map<String, String> initParams = new HashMap<>();
+        initParams.put("configLocation","/jawr.properties");
+        initParams.put("type","css");
+        cssServletBean.setServlet(new JawrServlet());
+        cssServletBean.setInitParameters(initParams);
+        cssServletBean.setName("CSSServlet");
+        cssServletBean.addUrlMappings("*.css");
+        cssServletBean.setLoadOnStartup(1);
+        return cssServletBean;
     }
 
 }
