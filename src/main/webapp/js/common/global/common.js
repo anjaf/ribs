@@ -52,7 +52,7 @@ $(function() {
             var projectObj = showProjectBanner(data);
             updateMenuForProject(projectObj);
         }).fail(function (error) {
-            showError(error);
+            //showError(error);
         });
     }
 

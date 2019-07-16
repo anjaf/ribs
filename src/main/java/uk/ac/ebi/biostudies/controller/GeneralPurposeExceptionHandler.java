@@ -21,6 +21,6 @@ public class GeneralPurposeExceptionHandler extends ResponseEntityExceptionHandl
     @ExceptionHandler(value = { Exception.class })
     protected ModelAndView handleConflict(Exception ex, WebRequest request) {
         logger.error(ex.getMessage(), ex);
-        return new ModelAndView("detail");
+        return new ModelAndView("404");
     }
 }
