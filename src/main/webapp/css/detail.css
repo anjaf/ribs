@@ -525,7 +525,6 @@ a.thumbnail-icon {
     white-space: pre-wrap;
     white-space: -o-pre-wrap;
     white-space: -moz-pre-wrap;
-    white-space: -pre-wrap;
     word-wrap: break-word;
 }
 
@@ -577,4 +576,12 @@ ul.recommendations li {
     font-size: 10pt;
     width: auto;
     margin-bottom: auto;
+}
+
+span.file-list-buttons {
+    font-size: 12pt;
+}
+
+span.file-list-buttons .fa-file-download {
+    margin-right: 2px;
 }

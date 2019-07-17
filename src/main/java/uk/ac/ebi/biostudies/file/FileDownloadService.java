@@ -43,7 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class FileDownloadService extends BaseDownloadServlet{
+public class FileDownloadService extends BaseDownloadServlet {
 
     private static final Logger logger = LogManager.getLogger(FileDownloadService.class);
 
@@ -80,16 +80,21 @@ public class FileDownloadService extends BaseDownloadServlet{
                 Path downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/" + name);
 
                 //TODO: Remove this bad^∞ hack
-                //Hack start: override relative path if fileis not found
+                //Hack start: override relative path if file is not found
                 if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                    this.logger.error( "{} not found ", downloadFile.toFile().getAbsolutePath());
+                    this.logger.debug( "{} not found ", downloadFile.toFile().getAbsolutePath());
                     downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
-                    this.logger.error( "Trying ", downloadFile.toFile().getAbsolutePath());
+                    this.logger.debug( "Trying {}", downloadFile.toFile().getAbsolutePath());
                 }
                 if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                    this.logger.error( "{} not found ", downloadFile.toFile().getAbsolutePath());
+                    this.logger.debug( "{} not found ", downloadFile.toFile().getAbsolutePath());
                     downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" +relativePath+"/"+ name);
-                    this.logger.error( "Trying {}", downloadFile.toFile().getAbsolutePath());
+                    this.logger.debug( "Trying {}", downloadFile.toFile().getAbsolutePath());
+                }
+                if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) { // for file list
+                    this.logger.debug( "{} not found ", downloadFile.toFile().getAbsolutePath());
+                    downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath+"/"+ name);
+                    this.logger.debug( "Trying file list file {}", downloadFile.toFile().getAbsolutePath());
                 }
                 //Hack end
                 if (Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
@@ -102,13 +107,14 @@ public class FileDownloadService extends BaseDownloadServlet{
                     file = new RegularDownloadFile(downloadFile);
 
                 } else {
-                    throw new DownloadServletException("Could not open " + downloadFile.toFile().getAbsolutePath());
+                    this.logger.error( "Could not find {}", downloadFile.toFile().getAbsolutePath());
+
                 }
             }
 
 
         } catch (Exception x) {
-            throw new DownloadServletException(x);
+            this.logger.error( x);
         }
         return file;
     }

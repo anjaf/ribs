@@ -18,7 +18,7 @@
     <spring:eval expression="@externalServicesConfig.getAnalyticsCode()"/>
     <!-- shared variables -->
     <script>
-        var contextPath = '/biostudies';//'${contextPath}';
+        var contextPath = '${contextPath}';
         var parts = '${pathname}'.replace(contextPath+'/','').split('/');
         var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
     </script>

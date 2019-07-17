@@ -13,7 +13,7 @@
         <li>
             <a data-type="project" data-accession="BioImages-EMPIAR"
                href="${contextPath}/BioImages-EMPIAR/studies"><img
-                    src="/biostudies/images/projects/bioimages-empiar/logo.png"></a>
+                    src="${contextPath}/images/projects/bioimages-empiar/logo.png"></a>
         </li>
         <li>
             <a data-type="project" data-accession="EuropePMC"

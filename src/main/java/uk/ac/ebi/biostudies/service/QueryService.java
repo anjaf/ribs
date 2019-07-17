@@ -8,6 +8,6 @@ import org.springframework.beans.factory.InitializingBean;
 import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
 
 
-public interface QueryService extends InitializingBean, DisposableBean {
+public interface QueryService{
     Pair<Query, EFOExpansionTerms> makeQuery(String queryString, String projectName, JsonNode selectedFields);
 }

@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Created by ehsan on 27/02/2017.
  */
-public interface SearchService extends InitializingBean, DisposableBean {
+public interface SearchService {
     String search(String query, JsonNode selectedFacets, String prjName, int page, int pageSize, String sortBy, String sortOrder);
     String getKeywords(String query, String field, Integer limit);
     String getEfoTree(String query);

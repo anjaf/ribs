@@ -3,17 +3,28 @@
         <div class="small-12 columns">
             <div id="facets" class="small-2 columns"></div>
             <div class="small-10 columns">
+
+                {{#if tooManyExpansionTerms}}
+                <div class="small-10 columns callout" style="font-size: 80%">You query contains a term which has too
+                    many synonyms and more specific phrases in <a href="http://www.ebi.ac.uk/efo" target="_blank">
+                        EFO</a>.
+                    The results shown below do not include those expanded terms.
+                </div>
+                {{/if}}
+
                 {{#ifCond query '&&' hits}}
                     <div class="small-10 columns"><h4 id="search-results-query">Search results for <span class="query">{{query}}</span></h4></div>
                 {{/ifCond}}
 
-                {{#if this.hits}}
+                 {{#if this.hits}}
                     <div class="clearboth small-10 columns" id="facet-filters"></div>
                     <div class="small-5 columns">{{&resultcount}}</div>
                     <div id="sort-by-div"  class="small-5 columns">
                         <span>Sort by:</span>
                         <select id="sort-by">
+                            {{#ifCond query '&&' hits}}
                             <option value="relevance">Relevance</option>
+                            {{/ifCond}}
                             <option value="release_date">Released</option>
                             <option value="files">Files</option>
                             <option value="links">Links</option>
