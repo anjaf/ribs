@@ -10,6 +10,7 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.file.Thumbnails;
 import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,7 +47,13 @@ public class Thumbnail {
             return;
 
         try {//Maybe I need to apply some modification to change accession to relative path
-            Document document = searchService.getDocumentByAccession(accession, key);
+            Document document = null;
+            try {
+                document = searchService.getDocumentByAccession(accession, key);
+            } catch (SubmissionNotAccessibleException e) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
             if(document==null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;

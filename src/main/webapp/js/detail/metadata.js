@@ -77,6 +77,14 @@ var Metadata = (function (_self) {
         handleProjectBasedScriptInjection();
         handleTableCentering();
         handleAnchors(params);
+        handleHighlights(params);
+    }
+
+    function handleHighlights(params) {
+        var url = contextPath + '/api/v1/search';
+        $.getJSON(url, {query:params.query, pageSize:0}, function (data) {
+            addHighlights('#renderedContent', data);
+        });
     }
 
     function handleProjectBasedScriptInjection() {

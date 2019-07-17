@@ -27,6 +27,7 @@ import uk.ac.ebi.biostudies.config.SecurityConfig;
 import uk.ac.ebi.biostudies.file.Thumbnails;
 import uk.ac.ebi.biostudies.service.FilePaginationService;
 import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,7 +48,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     @Autowired
     Thumbnails thumbnails;
 
-    public ObjectNode getStudyInfo(String accession, String secretKey) {
+    public ObjectNode getStudyInfo(String accession, String secretKey) throws SubmissionNotAccessibleException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode studyInfo = mapper.createObjectNode();
 
@@ -115,13 +116,13 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     @Override
-    public String getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey){
+    public ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey) throws SubmissionNotAccessibleException {
         IndexSearcher searcher = indexManager.getIndexSearcher();
         QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
         ObjectMapper mapper = new ObjectMapper();
         IndexReader reader = indexManager.getIndexReader();
         ObjectNode studyInfo = getStudyInfo(accession, secretKey);
-        if (studyInfo==null) return "";
+        if (studyInfo==null) return mapper.createObjectNode();
         ArrayNode columns = (ArrayNode) studyInfo.get("columns");
         search = modifySearchText(search);
         try {
@@ -165,14 +166,14 @@ public class FilePaginationServiceImpl implements FilePaginationService {
                     docs.add(docNode);
                 }
                 response.set(Constants.File.DATA, docs);
-                return response.toString();
+                return response;
             }
 
 
-        }catch (Exception ex){
+        } catch (Exception ex){
             logger.debug("problem in file atts preparation", ex);
         }
-        return  mapper.createObjectNode().toString();
+        return  mapper.createObjectNode();
     }
 
     private Query applySearch(String search, Query firstQuery, ArrayNode columns){

@@ -12,6 +12,7 @@ import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.file.download.BaseDownloadServlet;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +46,12 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
             key=null;
         }
 
-        Document doc = searchService.getDocumentByAccession(args[0], key);
+        Document doc = null;
+        try {
+            doc = searchService.getDocumentByAccession(args[0], key);
+        } catch (SubmissionNotAccessibleException e) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        }
         if(doc==null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

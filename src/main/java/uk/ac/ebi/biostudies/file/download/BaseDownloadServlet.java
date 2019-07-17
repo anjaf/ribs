@@ -25,6 +25,7 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.efo.StringTools;
 import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -109,6 +110,9 @@ public abstract class BaseDownloadServlet {
             } else {
                 throw new ServletException(x);
             }
+        } catch (SubmissionNotAccessibleException e) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
         } finally {
             if (null != downloadFile) {
                 downloadFile.close();
