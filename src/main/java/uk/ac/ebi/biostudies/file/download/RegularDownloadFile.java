@@ -67,14 +67,6 @@ public final class RegularDownloadFile implements IDownloadFile {
     }
 
 
-    public boolean isRandomAccessSupported() {
-        return true;
-    }
-
-    public DataInput getRandomAccessFile() throws IOException {
-        return new RandomAccessFile(getFile(), "r");
-    }
-
     public InputStream getInputStream() throws IOException {
         return new FileInputStream(getFile());
     }
