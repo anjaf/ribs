@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
-import uk.ac.ebi.biostudies.file.download.BaseDownloadServlet;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
