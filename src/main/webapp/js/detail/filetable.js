@@ -114,8 +114,6 @@ var FileTable = (function (_self) {
                 $('#file-list_filter input[type=search]').removeAttr('disabled');
             }
             $(".col-size").prop('disabled', true);
-
-            filesTable.columns(8).search('11').draw();
         });
 
     }
