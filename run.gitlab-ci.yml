@@ -1,0 +1,18 @@
+stages:
+  - build
+  # - deploy
+
+
+maven-build:
+  stage: build
+  script: "clean install spring-boot:repackage"
+  artifacts:
+    paths:
+      - target/
+
+
+
+  #jdk-run-app:
+  #  stage: deploy
+  #  script:
+  #    -java -D$(server -s))
