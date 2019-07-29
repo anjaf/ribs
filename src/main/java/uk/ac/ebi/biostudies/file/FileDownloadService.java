@@ -30,6 +30,7 @@ import uk.ac.ebi.biostudies.file.download.RegularDownloadFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -55,7 +56,7 @@ public class FileDownloadService extends BaseDownloadServlet {
             HttpServletRequest request
             , HttpServletResponse response
             , String relativePath
-    ) throws DownloadServletException {
+    ) throws FileNotFoundException {
         String accession = "";
         String name = "";
         IDownloadFile file = null;

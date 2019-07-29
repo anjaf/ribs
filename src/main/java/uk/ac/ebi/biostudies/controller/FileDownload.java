@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.file.FileDownloadService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +30,7 @@ public class FileDownload {
     }
 
     @RequestMapping(value = "/files/**", method = RequestMethod.GET)
-    public void getSingleFile(HttpServletRequest request, HttpServletResponse response) throws Exception{
+    public void getSingleFile(HttpServletRequest request, HttpServletResponse response) throws Exception, SubmissionNotAccessibleException {
         fileDownloadService.doRequest(request, response);
     }
 }
