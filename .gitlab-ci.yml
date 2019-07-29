@@ -5,7 +5,9 @@ stages:
 
 maven-build:
   stage: build
-  script: "clean install spring-boot:repackage"
+  image: maven:3.3.9-jdk-8
+  script:
+    - 'mvn clean install spring-boot:repackage'
   artifacts:
     paths:
       - target/
