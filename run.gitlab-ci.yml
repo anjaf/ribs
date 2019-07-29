@@ -15,4 +15,4 @@ maven-build:
   #jdk-run-app:
   #  stage: deploy
   #  script:
-  #    -java -D$(server -s))
+  #    -java -D$(hostname -s))
