@@ -1,0 +1,3 @@
+<div id="preloaded-projects">
+    Coming soon...
+</div>
