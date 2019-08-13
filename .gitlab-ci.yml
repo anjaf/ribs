@@ -1,20 +1,51 @@
-stages:
-  - build
-  # - deploy
+image: maven:3.3.9-jdk-8
+cache:
+  paths:
+    - target/
 
+stages:
+  #   - init
+  - build-war
+  - deploy
 
 maven-build:
-  stage: build
-  image: maven:3.3.9-jdk-8
+  stage: build-war
   script:
-    - 'mvn clean install spring-boot:repackage'
+    - echo 'Copying properties files for ribs'
+    - echo "$INDEX_PROPERTIES"
+    - cat "$INDEX_PROPERTIES"
+    - mv "$INDEX_PROPERTIES" /tmp/index.properties
+    - mv "$SECURITY_PROPERTIES" /tmp/security.properties
+    - mv -fv /tmp/index.properties ./src/main/resources
+    - mv -fv /tmp/security.properties ./src/main/resources
+
+    # maven-build:
+    #   stage: build-war
+    #   script:
+    - mkdir -p ~/.ssh
+    - echo "$RIBS_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh/id_rsa
+    - eval $(ssh-agent -s)
+    - ssh-add ~/.ssh/id_rsa
+    - echo 'copy to ribs'
+    - mvn clean install spring-boot:repackage
+    - scp -oStrictHostKeyChecking=no -v ./target/biostudies.war ma-svc@ribs:/ebi/teams/biostudies/frontend/
   artifacts:
     paths:
-      - target/
+      - target/biostudies.war
 
 
-
-  #jdk-run-app:
-  #  stage: deploy
-  #  script:
-  #    -java -D$(hostname -s))
+run-war:
+  stage: deploy
+  script:
+    - mkdir -p ~/.ssh
+    - echo "$RIBS_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh/id_rsa
+    - eval $(ssh-agent -s)
+    - ssh-add ~/.ssh/id_rsa
+    - ssh -v -o StrictHostKeyChecking=no ma-svc@ribs <<'ENDSSH'
+    - cd /ebi/teams/biostudies/frontend/
+    - pkill -9 -f war
+    - /nfs/ma/home/java/jdk-11.0.2/bin/java -Dtomcat.hostname=$(hostname -s) -Xmx12G -jar biostudies.war > /dev/null 2>&1 &
+    - disown -h %1
+    - ENDSSH
