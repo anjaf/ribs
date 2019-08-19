@@ -19,4 +19,4 @@ chmod 700 ~/.ssh/id_rsa
 ssh-add ~/.ssh/id_rsa
 echo 'copy to ribs'
 mvn clean install spring-boot:repackage
-scp -oStrictHostKeyChecking=no -v ../target/biostudies.war ma-svc@ribs:/ebi/teams/biostudies/frontend/
+scp -oStrictHostKeyChecking=no -v ../target/biostudies.war ma-svc@ribs:/tmp
