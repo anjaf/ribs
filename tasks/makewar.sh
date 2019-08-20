@@ -40,7 +40,7 @@ eval $(ssh-agent -s)
 ssh-add ~/.ssh/id_rsa
 echo 'copy to ribs'
 mvn clean install spring-boot:repackage
-scp -oStrictHostKeyChecking=no -v ./target/biostudies.war "ma-svc@$1:$2"
+scp -oStrictHostKeyChecking=no ./target/biostudies.war "ma-svc@$1:$2"
 
 
 
