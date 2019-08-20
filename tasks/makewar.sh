@@ -22,9 +22,15 @@ eval sshKey='$'"$1_key"
 eval submissionsFilePath='$'"submissions_file_path_$1"
 eval ftpUrl='$'"ftp_url_$1"
 
-sed -i -e "s@studies.json@$studiesJsonAddress@g" $indexDir
+eval securityHost='$'"security_host_$1"
+eval securityPath='$'"security_path_$1"
+
+sed -i -e "s@studies.json@${studiesJsonAddress}@g" $indexDir
 sed -i -e "s@subfilepath@${submissionsFilePath}@g" $indexDir
 sed -i -e "s@ftpurl@${ftpUrl}@g" $indexDir
+
+sed -i -e "s@biostudy-dev@${securityHost}@g" $securityDir
+sed -i -e "s@subfilepath@${securityPath}@g" $securityDir
 
 
 mkdir -p ~/.ssh
@@ -34,7 +40,7 @@ eval $(ssh-agent -s)
 ssh-add ~/.ssh/id_rsa
 echo 'copy to ribs'
 mvn clean install spring-boot:repackage
-scp -oStrictHostKeyChecking=no -v ./target/biostudies.war "$2"
+scp -oStrictHostKeyChecking=no -v ./target/biostudies.war "ma-svc@$1:$2"
 
 
 

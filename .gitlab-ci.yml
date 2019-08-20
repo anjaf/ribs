@@ -5,12 +5,12 @@ cache:
 
 stages:
   - build-war
-#  - deploy
+  - deploy
 
 maven-build:
   stage: build-war
   script:
-    - sh ./tasks/makewar.sh ribs ma-svc@ribs:/ebi/teams/biostudies/frontend/
+    - sh ./tasks/makewar.sh ribs /ebi/teams/biostudies/frontend/
   only:
     - java12
   environment: ribs
@@ -19,17 +19,10 @@ maven-build:
       - target/biostudies.war
 
 
-#run-war:
-#  stage: deploy
-#  script:
-#    - mkdir -p ~/.ssh
-#    - echo "$RIBS_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-#    - chmod 700 ~/.ssh/id_rsa
-#    - eval $(ssh-agent -s)
-#    - ssh-add ~/.ssh/id_rsa
-#    - ssh -v -o StrictHostKeyChecking=no ma-svc@ribs <<'ENDSSH'
-#    - cd /ebi/teams/biostudies/frontend/
-#    - pkill -9 -f war
-#    - /nfs/ma/home/java/jdk-11.0.2/bin/java -Dtomcat.hostname=$(hostname -s) -Xmx12G -jar biostudies.war > /dev/null 2>&1 &
-#    - disown -h %1
-#    - ENDSSH
+run-war:
+  stage: deploy
+  script:
+    - sh ./tasks/runwar.sh ribs /ebi/teams/biostudies/frontend/
+  only:
+    - java12
+  environment: ribs
