@@ -10,7 +10,10 @@ stages:
 maven-build:
   stage: build-war
   script:
-    - sh ./tasks/makewar.sh hello "$INDEX_PROPERTIES"
+    - sh ./tasks/makewar.sh ribs ma-svc@ribs:/ebi/teams/biostudies/frontend/
+  only:
+    - java12
+  environment: ribs
   artifacts:
     paths:
       - target/biostudies.war
