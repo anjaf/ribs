@@ -14,14 +14,17 @@ echo "Copying properties files for $1"
 #mv -fv /tmp/index.properties ./src/main/resources
 #mv -fv /tmp/security.properties ./src/main/resources
 
+indexDir="./src/main/resources/index.properties"
+securityDir="./src/main/resources/security.properties"
+
 eval studiesJsonAddress='$'"studies_json_address_$1"
 eval sshKey='$'"$1_key"
 eval submissionsFilePath='$'"submissions_file_path_$1"
 eval ftpUrl='$'"ftp_url_$1"
 
-sed -i -v -e "s@studies.json@$studiesJsonAddress@g" ./src/main/resources/index.properties
-sed -i -v -e "s/subfilepath/${submissionsFilePath}/g" ./src/main/resources/index.properties
-sed -i -e "s/ftpurl/${ftpUrl}/g" ./src/main/resources/index.properties
+sed -i -e "s@studies.json@$studiesJsonAddress@g" $indexDir
+sed -i -e "s@subfilepath@${submissionsFilePath}@g" $indexDir
+sed -i -e "s@ftpurl@${ftpUrl}@g" $indexDir
 
 
 mkdir -p ~/.ssh
