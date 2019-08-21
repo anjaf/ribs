@@ -13,9 +13,11 @@ echo "$sshKey" | tr -d '\r' > ~/.ssh/id_rsa
 chmod 700 ~/.ssh/id_rsa
 eval $(ssh-agent -s)
 ssh-add ~/.ssh/id_rsa
-ssh -o StrictHostKeyChecking=no ma-svc@$1 <<'ENDSSH'
-cd $2
+ssh -o StrictHostKeyChecking=no ma-svc@"$1" <<'ENDSSH'
 pkill -9 -f war
-/nfs/ma/home/java/jdk-11.0.2/bin/java -Dtomcat.hostname=$(hostname -s) -Xmx12G -jar biostudies.war > /dev/null 2>&1 &
-disown -h %1
+cd "$2"
+pwd
+/nfs/ma/home/java/jdk-11.0.2/bin/java -Dtomcat.hostname=$(hostname -s) -Xmx12G -jar $2/biostudies.war
+#> /dev/null 2>&1 &
+#disown -h %1
 ENDSSH
