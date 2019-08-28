@@ -34,7 +34,7 @@ maven-build-6f:
   script:
     - sh ./tasks/makewar.sh sixf /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy ves-ebi-6f tc_fg01
   only:
-    - dev
+    - develop
   environment:
     name: sixf
     url: http://ribs.ebi.ac.uk:8080/biostudies/
@@ -48,5 +48,5 @@ run-war-6f:
   script:
     - sh ./tasks/runwar.sh sixf /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy ves-ebi-6f tc_fg01
   only:
-    - dev
+    - develop
   environment: sixf
