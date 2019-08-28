@@ -10,7 +10,7 @@ stages:
 maven-build-ribs:
   stage: build-war
   script:
-    - sh ./tasks/makewar.sh ribs /ebi/teams/biostudies/frontend/ ribs ma-svc
+    - sh ./tasks/makewar.sh ribs /ebi/teams/biostudies/frontend/ ribs ma-svc /nfs/ma/home/java/jdk-11.0.2/bin/java
   only:
     - java12
   environment:
