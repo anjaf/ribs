@@ -1,4 +1,4 @@
-image: maven:3.3.9-jdk-8
+image: maven:latest
 cache:
   paths:
     - target/
@@ -24,7 +24,8 @@ maven-build-ribs:
 run-war-ribs:
   stage: deploy
   script:
-    - sh ./tasks/runwar.sh ribs /ebi/teams/biostudies/frontend/ ribs ma-svc /nfs/ma/home/java/jdk-11.0.2/bin/java
+    - sh ./tasks/jdkset.sh /nfs/ma/home/java/jdk-11.0.2/bin/java
+    - sh ./tasks/runwar.sh ribs /ebi/teams/biostudies/frontend/ ribs ma-svc
   only:
     - java12
   environment: ribs
@@ -46,7 +47,8 @@ maven-build-6f:
 run-war-6f:
   stage: deploy
   script:
-    - sh ./tasks/runwar.sh sixf /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy ves-ebi-6f tc_fg01 /net/isilonP/public/rw/homes/tc_fg01/jdk-12.0.2/bin/java
+    - sh ./tasks/jdkset.sh /net/isilonP/public/rw/homes/tc_fg01/jdk-12.0.2/bin/java
+    - sh ./tasks/runwar.sh sixf /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy ves-ebi-6f tc_fg01
   only:
     - develop
   environment: sixf
