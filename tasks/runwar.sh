@@ -16,3 +16,4 @@ chmod 700 ~/.ssh/id_rsa
 eval $(ssh-agent -s)
 ssh-add ~/.ssh/id_rsa
 ssh -o StrictHostKeyChecking=no "$4@$3" "cd $2; bash -s" < ./tasks/runscript.sh
+exit 0
