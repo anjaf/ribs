@@ -46,7 +46,7 @@ maven-build-6f:
 run-war-6f:
   stage: deploy
   script:
-    - sh ./tasks/runwar.sh sixf /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy ves-ebi-6f tc_fg01 /net/isilonP/public/rw/homes/tc_fg01/jdk-12.0.2/bin
+    - sh ./tasks/runwar.sh sixf /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy ves-ebi-6f tc_fg01 /net/isilonP/public/rw/homes/tc_fg01/jdk-12.0.2/bin/java
   only:
     - develop
   environment: sixf
