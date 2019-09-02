@@ -1,20 +1,54 @@
+image: maven:latest
+cache:
+  paths:
+    - target/
+
 stages:
-  - build
-  # - deploy
+  - build-war
+  - deploy
 
-
-maven-build:
-  stage: build
-  image: maven:3.3.9-jdk-8
+maven-build-ribs:
+  stage: build-war
   script:
-    - 'mvn clean install spring-boot:repackage'
+    - sh ./tasks/makewar.sh ribs /ebi/teams/biostudies/frontend/ ribs ma-svc
+  only:
+    - java12
+  environment:
+    name: ribs
+    url: http://ribs.ebi.ac.uk:8080/biostudies/
   artifacts:
     paths:
-      - target/
+      - target/biostudies.war
 
 
+run-war-ribs:
+  stage: deploy
+  script:
+    - sh ./tasks/jdkset.sh /nfs/ma/home/java/jdk-11.0.2/bin/java
+    - sh ./tasks/runwar.sh ribs /ebi/teams/biostudies/frontend/ ribs ma-svc
+  only:
+    - java12
+  environment: ribs
 
-  #jdk-run-app:
-  #  stage: deploy
-  #  script:
-  #    -java -D$(hostname -s))
+maven-build-6f:
+  stage: build-war
+  script:
+    - sh ./tasks/makewar.sh sixf /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy ves-ebi-6f tc_fg01
+  only:
+    - develop
+  environment:
+    name: sixf
+    url: http://ribs.ebi.ac.uk:8080/biostudies/
+  artifacts:
+    paths:
+      - target/biostudies.war
+
+
+run-war-6f:
+  stage: deploy
+  script:
+    - sh ./tasks/jdkset.sh /net/isilonP/public/rw/homes/tc_fg01/jdk-12.0.2/bin/java
+    - sh ./tasks/runwar.sh sixf /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy ves-ebi-6f tc_fg01
+  only:
+    - develop
+  environment: sixf
