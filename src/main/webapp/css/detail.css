@@ -496,13 +496,10 @@ a.thumbnail-icon {
 
 .orcid {
     border: 0;
-    height: 20px;
-    display: inline-block;
 }
 .orcid img {
-    margin: 4px;
+    margin: -4px 0px 0px 0px;
     width: 16px;
-    height: 16px;
 }
 
 #biostudies-citation{
