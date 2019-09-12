@@ -41,29 +41,20 @@ public class Authentication {
         String username = request.getParameter("u");
         String password = request.getParameter("p");
         String remember = request.getParameter("r");
-        String email = request.getParameter("e");
-        String accession = request.getParameter("a");
 
         boolean isLoginSuccessful = false;
-        if (null != email) {
-            String message = users.remindPassword(StringUtils.trimToEmpty(email), StringUtils.trimToEmpty(accession));
-            if (null != message) {
-                HttpTools.setCookie((HttpServletResponse) response, HttpTools.AUTH_MESSAGE_COOKIE, message, null);
-            }
-        } else {
-            User authenticatedUser = users.login(username, password);
-            isLoginSuccessful = authenticatedUser != null;
-            // 31,557,600 is a standard year in seconds
-            Integer maxAge = "on".equals(remember) ? 31557600 : null;
+        User authenticatedUser = users.login(username, password);
+        isLoginSuccessful = authenticatedUser != null;
+        // 31,557,600 is a standard year in seconds
+        Integer maxAge = "on".equals(remember) ? 31557600 : null;
 
-            if (isLoginSuccessful) {
-                logger.info("Successfully authenticated user [{}]", username);
-                HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, authenticatedUser.getToken(), maxAge);
-                HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
-            } else {
-                HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, null);
-                HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, URLEncoder.encode("Invalid username or password", "UTF-8"), 5);
-            }
+        if (isLoginSuccessful) {
+            logger.info("Successfully authenticated user [{}]", username);
+            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, authenticatedUser.getToken(), maxAge);
+            HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
+        } else {
+            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, null);
+            HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, URLEncoder.encode("Invalid username or password", "UTF-8"), 5);
         }
 
         sendRedirect(response, returnURL, isLoginSuccessful);
