@@ -1,6 +1,4 @@
 #!/bin/bash
-set -e
-set -v
 
 # setup ssh key
 eval sshKey='$'"sshKey"
@@ -17,9 +15,8 @@ eval deployDirectory='$'"deployDirectory"
 eval user='$'"user"
 eval host='$'"host"
 scp -oStrictHostKeyChecking=no ./target/biostudies.war "${user}@${host}:${deployDirectory}"
-echo "$jdkHome" -Dbiostudies -Dtomcat.hostname=$(hostname -s) -Xmx12G -jar ./biostudies.war > /dev/null 2>&1 &
-ssh -oStrictHostKeyChecking=no "${user}@${host}" <<'ENDSSH'
-cd "$deployDirectory"
+ssh -oStrictHostKeyChecking=no "${user}@${host}" << ENDSSH
+cd $deployDirectory
 pkill -9 -f biostudies
-"$jdkHome" -Dbiostudies -Dtomcat.hostname=$(hostname -s) -Xmx12G -jar ./biostudies.war > /dev/null 2>&1 &
+$jdkHome -Dbiostudies -Dtomcat.hostname=$(hostname -s) -Xmx12G -jar ./biostudies.war > /dev/null 2>&1 &
 ENDSSH
