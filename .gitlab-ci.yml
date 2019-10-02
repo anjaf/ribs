@@ -31,6 +31,8 @@ build:dev:
   artifacts:
     paths:
       - target/biostudies.war
+  only:
+    - java12
 
 build:test:
   stage: build
@@ -39,6 +41,8 @@ build:test:
   artifacts:
     paths:
       - target/biostudies.war
+  only:
+    - develop
 
 
 deploy:dev:
@@ -46,10 +50,14 @@ deploy:dev:
   script:
     - sh ./tasks/deploy.sh
   environment: dev
+  only:
+    - java12
 
 deploy:test:
   stage: deploy
   script:
     - sh ./tasks/deploy.sh
   environment: test
+  only:
+    - develop
   when: manual
