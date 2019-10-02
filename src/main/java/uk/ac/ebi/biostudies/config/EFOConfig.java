@@ -22,28 +22,22 @@ public class EFOConfig implements InitializingBean, DisposableBean {
     @Value("${efo.stopWords}")
     private String stopWords;
 
-    @Value("${efo.index.location}")
+    @Value("${efo.indexDirectory}")
     private String indexLocation;
 
-    @Value("${bs.efo.synonyms}")
+    @Value("${efo.synonyms}")
     private String synonymFilename;
 
-    @Value("${bs.efo.ignoreList}")
+    @Value("${efo.ignoreList}")
     private String ignoreListFilename;
 
-    @Value("${bs.efo.owl}")
+    @Value("${efo.owlFilename}")
     private String owlFilename;
 
-    @Value("${bs.efo.update.source}")
+    @Value("${efo.updateUrl}")
     private String url;
 
-    @Value("${bs.efo.source}")
-    private String localOwlFilename;
-
-//    @Value("${bs.efo.location}")
-//    private String efoLocation;
-
-
+    private String localOwlFilename = "efo.owl";
 
     private Set<String> stopWordsSet = new HashSet<>();
 

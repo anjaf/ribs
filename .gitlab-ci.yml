@@ -8,25 +8,10 @@ stages:
   - build
   - deploy
 
-setup:dev:
-  stage: setup
-  script:
-    - sh ./tasks/setup.sh
-  environment: dev
-  only:
-    - java12
-
-setup:test:
-  stage: setup
-  script:
-    - sh ./tasks/setup.sh
-  environment: test
-  only:
-    - develop
-
 build:dev:
   stage: build
   script:
+    - sh ./tasks/setup.sh
     - sh ./tasks/build.sh
   artifacts:
     paths:
@@ -37,6 +22,7 @@ build:dev:
 build:test:
   stage: build
   script:
+    - sh ./tasks/setup.sh
     - sh ./tasks/build.sh
   artifacts:
     paths:
