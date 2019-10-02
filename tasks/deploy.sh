@@ -17,7 +17,7 @@ eval host='$'"host"
 echo "Copying ./target/biostudies.war to ${user}@${host}:${deployDirectory}"
 scp -oStrictHostKeyChecking=no ./target/biostudies.war "${user}@${host}:${deployDirectory}"
 ssh -oStrictHostKeyChecking=no "${user}@${host}" <<'ENDSSH'
-cd waraddress
+cd "${deployDirectory}"
 pkill -9 -f biostudies
 "${jdkhome}" -Dbiostudies -Dtomcat.hostname=$(hostname -s) -Xmx12G -jar ./biostudies.war > /dev/null 2>&1 &
 ENDSSH
