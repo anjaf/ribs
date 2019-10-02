@@ -16,7 +16,6 @@ setup:ribs:
   only:
     - java12
 
-
 setup:test:
   stage: setup
   script:
@@ -25,19 +24,22 @@ setup:test:
   only:
     - develop
 
-    #- sh ./tasks/build.sh ribs ma-svc@ribs:/ebi/teams/biostudies/frontend/
-    #- sh ./tasks/build.sh sixf tc_fg01@ves-ebi-6f:/nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy
-    #- sh ./tasks/jdkset.sh /net/isilonP/public/rw/homes/tc_fg01/jdk-12.0.2/bin/java /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy
-    #- sh ./tasks/deploy.sh sixf ves-ebi-6f tc_fg01
-
-
-build:
+build:dev:
   stage: build
   script:
     - sh ./tasks/build.sh
   artifacts:
     paths:
       - target/biostudies.war
+
+build:test:
+  stage: build
+  script:
+    - sh ./tasks/build.sh
+  artifacts:
+    paths:
+      - target/biostudies.war
+
 
 deploy:dev:
   stage: deploy
