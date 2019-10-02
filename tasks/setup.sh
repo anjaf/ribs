@@ -11,5 +11,5 @@ sed -i -e "s@\(files\.ftpUrl=\).*@\1${ftpUrl}@g" $indexPropertiesFile
 securityPropertiesFile="./src/main/resources/security.properties"
 eval profileUrl='$'"security_auth_profileUrl"
 eval loginUrl='$'"security_auth_loginUrl"
-sed -i -e "s@\(auth\.profileUrl=\).*@\1${profileUrl}@g" $indexPropertiesFile
-sed -i -e "s@\(auth\.loginUrl=\).*@\1${loginUrl}@g" $indexPropertiesFile
+sed -i -e "s@\(auth\.profileUrl=\).*@\1${profileUrl}@g" $securityPropertiesFile
+sed -i -e "s@\(auth\.loginUrl=\).*@\1${loginUrl}@g" $securityPropertiesFile
