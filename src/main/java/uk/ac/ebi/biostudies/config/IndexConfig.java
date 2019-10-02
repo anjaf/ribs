@@ -24,8 +24,8 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     @Value("${index.facetDirectory}")
     private String facetDirectory;
 
-    @Value("${studiesFileDirectory}")
-    private String studiesFileDirectory;
+    @Value("${files.baseDirectory}")
+    private String baseDirectory;
 
     @Value("${indexer.threadCount}")
     private int threadCount;
@@ -36,31 +36,25 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     @Value("${index.fields}")
     private String indexFields;
 
-    @Value("${defaultField}")
+    @Value("${index.defaultField}")
     private String defaultField;
 
-    @Value("${searchSnippetFragmentSize}")
+    @Value("${index.searchSnippetFragmentSize}")
     private int searchSnippetFragmentSize;
 
-    @Value("${bs.studies.thumbnails-location}")
+    @Value("${files.thumbnailsDirectory}")
     private String thumbnailDir;
 
-    @Value("${bs.files.temp-zip.location}")
-    private String zipTempDir;
-
-    @Value("${bs.studies.files-root-location}")
-    private String fileRootDir;
-
-    @Value("${bs.files.ftp.url}")
+    @Value("${files.ftpUrl}")
     private String ftpDir;
 
     @Value("${indexer.stopwords}")
     private String stopwords;
 
-    @Value("${indexer.spellchecker-location}")
+    @Value("${index.spellcheckerDirectory}")
     private String spellcheckerLocation;
 
-    @Value("${query.type.filter}")
+    @Value("${indexer.queryTypeFilter}")
     private String typeFilterQuery;
 
 
@@ -87,11 +81,7 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     }
 
     public String getStudiesInputFile() {
-        return studiesFileDirectory + Constants.STUDIES_JSON_FILE;
-    }
-
-    public String getStudiesFileDirectory() {
-        return studiesFileDirectory;
+        return baseDirectory + "updates/" + Constants.STUDIES_JSON_FILE;
     }
 
     public String getDefaultField() {
@@ -109,16 +99,12 @@ public class IndexConfig implements InitializingBean, DisposableBean {
         return fields;
     }
 
-     public String getThumbnailDir() {
+    public String getThumbnailDir() {
         return thumbnailDir;
     }
 
-    public String getZipTempDir() {
-        return zipTempDir;
-    }
-
     public String getFileRootDir() {
-        return fileRootDir;
+        return baseDirectory + "submissions";
     }
 
     public String getFtpDir() {

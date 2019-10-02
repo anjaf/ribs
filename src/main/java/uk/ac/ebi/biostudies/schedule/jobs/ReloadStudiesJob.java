@@ -28,7 +28,6 @@ import uk.ac.ebi.biostudies.service.IndexService;
 
 @Service
 public class ReloadStudiesJob {
-    // logging machinery
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired

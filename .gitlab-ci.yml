@@ -4,51 +4,43 @@ cache:
     - target/
 
 stages:
-  - build-war
-  - deploy
+  - setup
+  - build
+  #- deploy
 
-maven-build-ribs:
-  stage: build-war
+setup:ribs:
+  stage: setup
   script:
-    - sh ./tasks/makewar.sh ribs /ebi/teams/biostudies/frontend/ ribs ma-svc
+    - sh ./tasks/setup.sh /nfs/ma/home/java/jdk-11.0.2/bin/java /ebi/teams/biostudies/frontend/
+  environment: dev
   only:
     - java12
-  environment:
-    name: ribs
-    url: http://ribs.ebi.ac.uk:8080/biostudies/
+
+
+setup:test:
+  stage: setup
+  script:
+    - sh ./tasks/setup.sh /nfs/ma/home/java/jdk-11.0.2/bin/java /ebi/teams/biostudies/frontend/
+  environment: test
+  only:
+    - develop
+
+    #- sh ./tasks/build.sh ribs ma-svc@ribs:/ebi/teams/biostudies/frontend/
+    #- sh ./tasks/build.sh sixf tc_fg01@ves-ebi-6f:/nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy
+    #- sh ./tasks/jdkset.sh /net/isilonP/public/rw/homes/tc_fg01/jdk-12.0.2/bin/java /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy
+    #- sh ./tasks/deploy.sh sixf ves-ebi-6f tc_fg01
+
+
+build:
+  stage: build
+  script:
+    - sh ./tasks/build.sh
   artifacts:
     paths:
       - target/biostudies.war
 
-
-run-war-ribs:
+deploy:
   stage: deploy
   script:
-    - sh ./tasks/jdkset.sh /nfs/ma/home/java/jdk-11.0.2/bin/java /ebi/teams/biostudies/frontend/
-    - sh ./tasks/runwar.sh ribs ribs ma-svc
-  only:
-    - java12
-  environment: ribs
-
-maven-build-6f:
-  stage: build-war
-  script:
-    - sh ./tasks/makewar.sh sixf /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy ves-ebi-6f tc_fg01
-  only:
-    - develop
-  environment:
-    name: sixf
-    url: http://ribs.ebi.ac.uk:8080/biostudies/
-  artifacts:
-    paths:
-      - target/biostudies.war
-
-
-run-war-6f:
-  stage: deploy
-  script:
-    - sh ./tasks/jdkset.sh /net/isilonP/public/rw/homes/tc_fg01/jdk-12.0.2/bin/java /nfs/www-prod/web_hx2/webadmin/tomcat/bases/fg/tc-fg-biostudies_test/deploy
-    - sh ./tasks/runwar.sh sixf ves-ebi-6f tc_fg01
-  only:
-    - develop
-  environment: sixf
+    - sh ./tasks/deploy.sh
+  when: manual
