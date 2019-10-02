@@ -6,7 +6,7 @@ cache:
 stages:
   - setup
   - build
-  #- deploy
+  - deploy
 
 setup:ribs:
   stage: setup
