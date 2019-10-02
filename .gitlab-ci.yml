@@ -11,7 +11,7 @@ stages:
 setup:ribs:
   stage: setup
   script:
-    - sh ./tasks/setup.sh /nfs/ma/home/java/jdk-11.0.2/bin/java /ebi/teams/biostudies/frontend/
+    - sh ./tasks/setup.sh
   environment: dev
   only:
     - java12
@@ -20,7 +20,7 @@ setup:ribs:
 setup:test:
   stage: setup
   script:
-    - sh ./tasks/setup.sh /nfs/ma/home/java/jdk-11.0.2/bin/java /ebi/teams/biostudies/frontend/
+    - sh ./tasks/setup.sh
   environment: test
   only:
     - develop
@@ -39,8 +39,16 @@ build:
     paths:
       - target/biostudies.war
 
-deploy:
+deploy:dev:
   stage: deploy
   script:
     - sh ./tasks/deploy.sh
+  environment: dev
+  when: manual
+
+deploy:test:
+  stage: deploy
+  script:
+    - sh ./tasks/deploy.sh
+  environment: test
   when: manual
