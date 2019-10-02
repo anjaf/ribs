@@ -2,11 +2,6 @@
 set -e
 set -v
 
-eval jdkHome='$'"jdkHome"
-eval deployDirectory='$'"deployDirectory"
-sed -i -e "s@jdkhome@${jdkHome}@g" ./tasks/deploy.sh
-sed -i -e "s@waraddress@${deployDirectory}@g" ./tasks/deploy.sh
-
 echo "Updating properties files for ${CI_ENVIRONMENT_SLUG}"
 indexPropertiesFile="./src/main/resources/index.properties"
 eval baseDirectory='$'"index_files_baseDirectory"

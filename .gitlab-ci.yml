@@ -8,7 +8,7 @@ stages:
   - build
   - deploy
 
-setup:ribs:
+setup:dev:
   stage: setup
   script:
     - sh ./tasks/setup.sh
