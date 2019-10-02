@@ -2,14 +2,6 @@
 set -e
 set -v
 
-# setup ssh key
-eval sshKey='$'"sshKey"
-mkdir -p ~/.ssh
-echo "$sshKey" | tr -d '\r' > ~/.ssh/id_rsa
-chmod 700 ~/.ssh/id_rsa
-eval $(ssh-agent -s)
-ssh-add ~/.ssh/id_rsa
-
 eval jdkHome='$'"jdkHome"
 eval deployDirectory='$'"deployDirectory"
 sed -i -e "s@jdkhome@${jdkHome}@g" ./tasks/deploy.sh

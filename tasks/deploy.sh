@@ -1,4 +1,14 @@
 #!/bin/bash
+
+# setup ssh key
+eval sshKey='$'"sshKey"
+mkdir -p ~/.ssh
+echo "$sshKey" | tr -d '\r' > ~/.ssh/id_rsa
+chmod 700 ~/.ssh/id_rsa
+eval $(ssh-agent -s)
+ssh-add ~/.ssh/id_rsa
+
+#deploy
 eval user='$'"user"
 eval host='$'"host"
 echo "Copying ./target/biostudies.war to $dest"

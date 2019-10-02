@@ -44,7 +44,6 @@ deploy:dev:
   script:
     - sh ./tasks/deploy.sh
   environment: dev
-  when: manual
 
 deploy:test:
   stage: deploy
