@@ -16,6 +16,7 @@ build:dev:
   artifacts:
     paths:
       - target/biostudies.war
+  environment: dev
   only:
     - java12
 
@@ -27,6 +28,7 @@ build:test:
   artifacts:
     paths:
       - target/biostudies.war
+  environment: test
   only:
     - develop
 
