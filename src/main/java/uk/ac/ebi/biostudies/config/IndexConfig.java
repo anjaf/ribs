@@ -104,7 +104,7 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     }
 
     public String getFileRootDir() {
-        return baseDirectory + "submissions";
+        return baseDirectory + "submission";
     }
 
     public String getFtpDir() {
