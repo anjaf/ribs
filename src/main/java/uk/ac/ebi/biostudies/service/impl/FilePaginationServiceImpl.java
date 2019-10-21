@@ -182,7 +182,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         try {
             int counter = 0;
             for(JsonNode field:columns){
-               String fName = QueryParser.escape(field.get("name").asText());
+               String fName = field.get("name").asText();
                fields[counter] = fName;
 //               occurs[counter] = BooleanClause.Occur.SHOULD;
                counter++;
@@ -225,7 +225,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         BooleanQuery.Builder logicQueryBuilder = new BooleanQuery.Builder();
         logicQueryBuilder.add(originalQuery, BooleanClause.Occur.MUST);
         for(DataTableColumnInfo info : searchedColumns) {
-            QueryParser parser = new QueryParser(QueryParser.escape(info.getName()), new KeywordAnalyzer());
+            QueryParser parser = new QueryParser(info.getName(), new KeywordAnalyzer());
             parser.setAllowLeadingWildcard(true);
             try {
                 Query query = parser.parse(StudyUtils.escape(modifySearchText(info.getSearchValue())));
