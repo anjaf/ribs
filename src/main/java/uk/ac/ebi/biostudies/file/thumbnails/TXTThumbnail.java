@@ -17,6 +17,8 @@
 
 package uk.ac.ebi.biostudies.file.thumbnails;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.util.ImageIOUtil;
 
 import java.awt.*;
@@ -32,8 +34,10 @@ import java.text.AttributedString;
 
 public class TXTThumbnail implements IThumbnail{
 
+    private static final Logger LOGGER = LogManager.getLogger(TXTThumbnail.class.getName());
+
     private Color background = Color.WHITE;
-    private Font font = new Font("sans-serif", Font.PLAIN, 4);
+    private static Font font;  //new Font("SansSerif", Font.PLAIN, 4);
     private static String [] supportedTypes= {"txt","csv"};
 
     @Override
@@ -42,6 +46,13 @@ public class TXTThumbnail implements IThumbnail{
     }
     @Override
     public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException{
+
+        try {
+            initFont();
+        }catch (Exception ex){
+            LOGGER.error("problem in loading sansSerif font file", ex);
+        }
+
         try(FileInputStream source = new FileInputStream(sourceFilePath) )
         {
             byte[] data      = new byte[512]; // get only the first 0.5K
@@ -71,6 +82,13 @@ public class TXTThumbnail implements IThumbnail{
 
             ImageIOUtil.writeImage(image, thumbnailFile.getAbsolutePath(), 96);
         }
+    }
 
+    private static synchronized void initFont() throws IOException, FontFormatException{
+        if(font!=null)
+            return;
+        LOGGER.debug("initiating font file");
+        font = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("micross.ttf"));
+        font.deriveFont(4);
     }
 }
