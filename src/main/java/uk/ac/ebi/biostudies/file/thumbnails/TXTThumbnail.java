@@ -20,6 +20,8 @@ package uk.ac.ebi.biostudies.file.thumbnails;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.util.ImageIOUtil;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -88,7 +90,8 @@ public class TXTThumbnail implements IThumbnail{
         if(font!=null)
             return;
         LOGGER.debug("initiating font file");
-        font = Font.createFont(Font.TRUETYPE_FONT, ClassLoader.getSystemClassLoader().getResourceAsStream("micross.ttf"));
+        Resource resource = new ClassPathResource("micross.ttf");
+        font = Font.createFont(Font.TRUETYPE_FONT, resource.getInputStream());
         font.deriveFont(4);
     }
 }
