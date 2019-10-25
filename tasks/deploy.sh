@@ -18,5 +18,5 @@ scp -oStrictHostKeyChecking=no ./target/biostudies.war "${user}@${host}:${deploy
 ssh -oStrictHostKeyChecking=no "${user}@${host}" << ENDSSH
 cd $deployDirectory
 pkill -9 -f biostudies
-$jdkCommandLine -Dtomcat.hostname=\$(hostname -s) -Xmx12G -jar ./biostudies.war > /dev/null 2>&1 &
+$jdkCommandLine -Dtomcat.hostname=\$(hostname -s) -Xmx12G -jar ./biostudies.war > console-log-\$(hostname -s).txt 2>&1 &
 ENDSSH
