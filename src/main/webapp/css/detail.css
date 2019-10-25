@@ -582,3 +582,10 @@ span.file-list-buttons {
 span.file-list-buttons .fa-file-download {
     margin-right: 2px;
 }
+
+#file-list_filter input {
+    width: 140px;
+}
+#file-list_length select {
+    width: 48px;
+}

@@ -1,6 +1,7 @@
 temp/
 logs/
 target/
+work/
 .idea/
 *.iml
 pom.xml.tag
