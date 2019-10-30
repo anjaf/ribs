@@ -4,6 +4,10 @@ package uk.ac.ebi.biostudies.config;
  * Created by ehsan on 23/02/2017.
  */
 import net.jawr.web.servlet.JawrServlet;
+import net.jawr.web.servlet.JawrSpringController;
+import org.apache.commons.collections4.bag.HashBag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
@@ -11,7 +15,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
@@ -21,6 +27,7 @@ import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 
@@ -134,30 +141,17 @@ public class MvcConfig implements WebMvcConfigurer{
     }
 
     @Bean
-    public ServletRegistrationBean<JawrServlet> JavascriptServlet() {
-        ServletRegistrationBean<JawrServlet> javascriptServletBean = new ServletRegistrationBean<>();
-        Map<String, String> initParams = new HashMap<>();
-        initParams.put("configLocation","/jawr.properties");
-        javascriptServletBean.setServlet(new JawrServlet());
-        javascriptServletBean.setInitParameters(initParams);
-        javascriptServletBean.setName("JavascriptServlet");
-        javascriptServletBean.addUrlMappings("*.js");
-        javascriptServletBean.setLoadOnStartup(1);
-        return javascriptServletBean;
+    public JawrSpringController jawrJsController() {
+        JawrSpringController jawrJsController = new JawrSpringController();
+        jawrJsController.setConfigLocation("/jawr.properties");
+        jawrJsController.setType("js");
+        return jawrJsController;
     }
-
     @Bean
-    public ServletRegistrationBean<JawrServlet> CSSServlet() {
-        ServletRegistrationBean<JawrServlet> cssServletBean = new ServletRegistrationBean<>();
-        Map<String, String> initParams = new HashMap<>();
-        initParams.put("configLocation","/jawr.properties");
-        initParams.put("type","css");
-        cssServletBean.setServlet(new JawrServlet());
-        cssServletBean.setInitParameters(initParams);
-        cssServletBean.setName("CSSServlet");
-        cssServletBean.addUrlMappings("*.css");
-        cssServletBean.setLoadOnStartup(1);
-        return cssServletBean;
+    public JawrSpringController jawrCssController() {
+        JawrSpringController jawrCssController = new JawrSpringController();
+        jawrCssController.setConfigLocation("/jawr.properties");
+        jawrCssController.setType("css");
+        return jawrCssController;
     }
-
 }
