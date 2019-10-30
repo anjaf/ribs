@@ -75,7 +75,7 @@ public class FacetServiceImpl implements FacetService {
             boolean ignoreHapaxLegomena = dimension.equalsIgnoreCase(Constants.Facets.FILE_TYPE) || dimension.equalsIgnoreCase(Constants.Facets.LINK_TYPE);
             if (childrenFacets!=null) {
                 for (LabelAndValue labelVal : childrenFacets.labelValues) {
-                    if (ignoreHapaxLegomena && labelVal.value.intValue()==1) continue;
+                    //if (ignoreHapaxLegomena && labelVal.value.intValue()==1) continue;
                     ObjectNode child = mapper.createObjectNode();
                     child.put("name", textService.getNormalisedString(labelVal.label));
                     child.put("value", labelVal.label);

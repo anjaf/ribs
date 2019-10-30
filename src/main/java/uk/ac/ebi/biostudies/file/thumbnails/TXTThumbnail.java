@@ -26,6 +26,7 @@ import org.springframework.core.io.Resource;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
+import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -34,38 +35,44 @@ import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 
-public class TXTThumbnail implements IThumbnail{
+public class TXTThumbnail implements IThumbnail {
 
     private static final Logger LOGGER = LogManager.getLogger(TXTThumbnail.class.getName());
 
     private Color background = Color.WHITE;
-    private static Font font;  //new Font("SansSerif", Font.PLAIN, 4);
-    private static String [] supportedTypes= {"txt","csv"};
+    private static Font font;
+    private static final String FONT = "NotoMono-Regular.ttf";
+
+    static {
+        try {
+            font = Font.createFont(Font.TRUETYPE_FONT, new ClassPathResource("fonts/" + FONT).getInputStream())
+                    .deriveFont(12.0f);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String[] supportedTypes = {"txt", "csv"};
 
     @Override
     public String[] getSupportedTypes() {
         return supportedTypes;
     }
+
     @Override
-    public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException{
+    public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException {
 
-        try {
-            initFont();
-        }catch (Exception ex){
-            LOGGER.error("problem in loading sansSerif font file", ex);
-        }
-
-        try(FileInputStream source = new FileInputStream(sourceFilePath) )
-        {
-            byte[] data      = new byte[512]; // get only the first 0.5K
+        try (FileInputStream source = new FileInputStream(sourceFilePath)) {
+            byte[] data = new byte[512]; // get only the first 0.5K
             int bytesRead = source.read(data);
-            AttributedString text =  new AttributedString(new String(data));
-            BufferedImage image = new BufferedImage(THUMBNAIL_WIDTH,THUMBNAIL_HEIGHT, BufferedImage.TYPE_INT_RGB);
+            AttributedString text = new AttributedString(new String(data));
+            BufferedImage image = new BufferedImage(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, BufferedImage.TYPE_INT_RGB);
             Graphics2D g = image.createGraphics();
             g.setColor(background);
             g.fillRect(0, 0, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
             g.setColor(Color.BLACK);
-            g.setFont(font);
+            text.addAttribute(TextAttribute.FONT, font);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             AttributedCharacterIterator paragraph = text.getIterator();
             int paragraphStart = paragraph.getBeginIndex();
             int paragraphEnd = paragraph.getEndIndex();
@@ -86,12 +93,4 @@ public class TXTThumbnail implements IThumbnail{
         }
     }
 
-    private static synchronized void initFont() throws IOException, FontFormatException{
-        if(font!=null)
-            return;
-        LOGGER.debug("initiating font file");
-        Resource resource = new ClassPathResource("micross.ttf");
-        font = Font.createFont(Font.TRUETYPE_FONT, resource.getInputStream());
-        font.deriveFont(4);
-    }
 }
