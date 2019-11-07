@@ -6,6 +6,7 @@ var FileTable = (function (_self) {
     var filesTable;
     var firstRender = true;
     var columnDefinitions=[];
+    var sorting = false;
 
     _self.render = function (acc, params, isDetailPage){
         $.ajax({url: contextPath + '/api/v1/studies/' + acc + '/info',
@@ -230,7 +231,7 @@ var FileTable = (function (_self) {
         }).on('draw.dt', function (e) {
             handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable);
         }).on( 'search.dt', function (e) {
-        });
+        }).on( 'order.dt', function () {sorting=true;});
         columnDefinitions = columns;
 
     }
@@ -281,7 +282,10 @@ var FileTable = (function (_self) {
                 });
             }
         });
-        hideEmptyColumns();
+        if(!sorting) {
+            hideEmptyColumns();
+            sorting=false;
+        }
     }
 
 
