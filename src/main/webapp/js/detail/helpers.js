@@ -36,6 +36,7 @@ var Metadata = (function (_self) {
             if (obj==null) return new Handlebars.SafeString('<td></td>');
             var e = obj.filter( function(o) { return o['name']==val})[0];
             if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
+            e.value = e.value || '';
             var value = val.toLowerCase()=='type' && DetailPage.linkTypeMap[e.value.toLowerCase()] ? DetailPage.linkTypeMap[e.value.toLowerCase()] : e.value;
             return new Handlebars.SafeString( e.url ?
                 '<td'+ ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'') + '><a href="'

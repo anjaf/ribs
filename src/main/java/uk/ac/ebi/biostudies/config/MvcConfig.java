@@ -3,32 +3,29 @@ package uk.ac.ebi.biostudies.config;
 /**
  * Created by ehsan on 23/02/2017.
  */
-import net.jawr.web.servlet.JawrServlet;
+
 import net.jawr.web.servlet.JawrSpringController;
-import org.apache.commons.collections4.bag.HashBag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.*;
+import org.apache.catalina.Context;
+import org.apache.catalina.core.StandardHost;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.config.annotation.*;
-import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 
 
 @Configuration
@@ -38,7 +35,7 @@ import java.util.Map;
 @EnableScheduling
 @ComponentScan(basePackages = "uk.ac.ebi.biostudies")
 @PropertySource("classpath:scheduler.properties")
-public class MvcConfig implements WebMvcConfigurer{
+public class MvcConfig implements WebMvcConfigurer {
 
 
     @Override
@@ -52,7 +49,6 @@ public class MvcConfig implements WebMvcConfigurer{
         matcher.setCaseSensitive(false);
         configurer.setPathMatcher(matcher);
     }
-
 
 
     @Override
@@ -115,7 +111,7 @@ public class MvcConfig implements WebMvcConfigurer{
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
 
-        properties.setLocation(new ClassPathResource( "scheduler.properties" ));
+        properties.setLocation(new ClassPathResource("scheduler.properties"));
         properties.setIgnoreResourceNotFound(false);
 
         return properties;
@@ -147,11 +143,25 @@ public class MvcConfig implements WebMvcConfigurer{
         jawrJsController.setType("js");
         return jawrJsController;
     }
+
     @Bean
     public JawrSpringController jawrCssController() {
         JawrSpringController jawrCssController = new JawrSpringController();
         jawrCssController.setConfigLocation("/jawr.properties");
         jawrCssController.setType("css");
         return jawrCssController;
+    }
+
+    @Bean
+    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> containerCustomizer() {
+        return factory -> {
+            factory.addContextCustomizers(MvcConfig::customize);
+        };
+    }
+
+    private static void customize(Context context) {
+        ((StandardHost) context.getParent()).setErrorReportValveClass(CustomErrorReportValve.class.getCanonicalName());
+        context.getParent().getPipeline().addValve(new CustomErrorReportValve());
+
     }
 }
