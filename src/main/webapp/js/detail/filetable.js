@@ -284,6 +284,7 @@ var FileTable = (function (_self) {
         });
         if(!sorting) {
             hideEmptyColumns();
+        }else {
             sorting=false;
         }
     }
