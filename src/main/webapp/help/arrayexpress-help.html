@@ -12,14 +12,16 @@
         font-family: Consolas, monospace, 'Courier New';
         font-size: 10pt;
     }
+
     dl dt {
         font-weight: bold;
         font-size: 100%;
     }
+
     dt:before {
         font-family: 'EBI-Generic';
-        content:'i';
-        margin-right:10pt;
+        content: 'i';
+        margin-right: 10pt;
     }
 </style>
 
@@ -45,18 +47,20 @@
 
     <dt>Response bundling</dt>
     <dd>Search API will return a <a href="#">paged response</a> containing only the metadata about the experiments.
-        Results would not be bundled and you'll have to iterate through the set and request each experiment individually.  </dd>
+        Results would not be bundled and you'll have to iterate through the set and request each experiment
+        individually.
+    </dd>
 
     <dt>Endpoint changes</dt>
     <dd>The endpoint has changed from <code>https://www.ebi.ac.uk/arrayexpress/xml/v3</code> to
-    <code>https://www.ebi.ac.uk/biostudies/api/v1/arrayexpress</code>. Here's a list of all searchable fields and their
-        BioStudies equivalent. </dd>
+        <code>https://www.ebi.ac.uk/biostudies/api/v1</code>. Here's a list of all searchable fields and their
+        BioStudies equivalent.
+    </dd>
 
 </dl>
-    <p>
+<p>
     Please send all questions and feedback to <a href="mailto://biostudies@ebi.ac.uk">biostudies@ebi.ac.uk</a>.
 </p>
-<p>
 <table>
     <thead>
     <tr>
@@ -73,15 +77,16 @@
         <td></td>
         <td>Experiment primary ArrayExpress or secondary (GEO, ENA, EGA etc) accession</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?accession=E-MEXP-31</td>
-        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/studies/E-MEXP-31
-        </td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/studies/E-MEXP-31</td>
     </tr>
     <tr>
         <td>array</td>
         <td>TBD</td>
         <td>Array design accession or name (wildcards supported)</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/files?array=A-AFFY-33</td>
-        <td>TBD</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/files/A-AFFY-33
+            <a data-open="files-help"><i class="fa fa-info-circle"></i></a>
+        </td>
     </tr>
     <tr>
         <td>expdesign</td>
@@ -102,7 +107,7 @@
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?study_type="RNA-seq of non coding RNA"</td>
     </tr>
     <tr>
-        <td>ef</strong> or <strong>ev</td>
+        <td>ef/ev</td>
         <td>experimental_factor</td>
         <td>Experimental factor (also called experimental variable), the name of the main variable under study in an
             experiment. E.g. if the factor is "sex" in a human study, the researchers would be comparing between male
@@ -112,7 +117,7 @@
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?experimental_factor="cell type"</td>
     </tr>
     <tr>
-        <td>efv</strong> or <strong>evv</td>
+        <td>efv/evv</td>
         <td>experimental_factor_value</td>
         <td>The value of an experimental factor. E.g. The values for "genotype" factor can be "wild type genotype",
             "p53-/-". Has EFO expansion.
@@ -194,21 +199,27 @@
             10 assays.
         </td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?assaycount=[1 TO 5]</td>
-        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?assay_count=[1 TO 5]</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?assay_count=[1 TO 5]
+            <a data-open="range-help"><i class="fa fa-info-circle"></i></a>
+        </td>
     </tr>
     <tr>
         <td>samplecount</td>
         <td>sample_count</td>
         <td>The number of samples</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?samplecount=[1 TO 5]</td>
-        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?sample_count=[1 TO 5]</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?sample_count=[1 TO 5]
+            <a data-open="range-help"><i class="fa fa-info-circle"></i></a>
+        </td>
     </tr>
     <tr>
         <td>efcount</td>
         <td>experimental_factor_count</td>
         <td>The number of experimental factors</td>
         <td>https://www.ebi.ac.uk/arrayexpressxml/v3/experiments?efcount=[1 TO 5]</td>
-        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?experimental_factor_count=[1 TO 5]</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?experimental_factor_count=[1 TO 5]
+            <a data-open="range-help"><i class="fa fa-info-circle"></i></a>
+        </td>
     </tr>
     <tr>
         <td>sacount</td>
@@ -222,14 +233,18 @@
         <td>miame_score</td>
         <td>The <a href="http://fged.org/projects/miame/">MIAME</a> compliance score (maximum score is 5)</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?miamescore=[1 TO 5]</td>
-        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?miame_score=[1 TO 5]</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?miame_score=[1 TO 5]
+            <a data-open="range-help"><i class="fa fa-info-circle"></i></a>
+        </td>
     </tr>
     <tr>
         <td>minseqe</td>
         <td>minseqe_score</td>
         <td>The <a href="http://www.fged.org/projects/minseqe/">MINSEQE</a> compliance score (maximum score is 5)</td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?minseqescore=[1 TO 5]</td>
-        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?minseqe_score=[1 TO 5]</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?minseqe_score=[1 TO 5]
+            <a data-open="range-help"><i class="fa fa-info-circle"></i></a>
+        </td>
     </tr>
     <tr>
         <td>date</td>
@@ -241,8 +256,29 @@
             May 2008.
         </td>
         <td class="api"><span class="opt">&lt;endpoint&gt;</span>/experiments?date=[2008-01-01 2008-05-31]</td>
-        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?release_date=[2008-01-01 TO 2008-05-31]</td>
+        <td class="api"><span class="opt">&lt;endpoint&gt;</span>/search?release_date=[2008-01-01 TO 2008-05-31]
+            <a data-open="range-help"><i class="fa fa-info-circle"></i></a>
+        </td>
     </tr>
     </tbody>
 </table>
-</p>
+<div class="reveal" id="files-help" data-reveal>
+    <h4><i class="fa fa-info-circle"></i> POST works too!</h4>
+    <p>In some cases, the request header length is quite large which generates a <span class="api">400</span> HTTP
+        response status codes. To avoid this, please use a <span class="api">POST</span> request.</p>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="reveal" id="range-help" data-reveal>
+    <h4><i class="fa fa-info-circle"></i> Encode your requests! </h4>
+    <p>As per the <a href="https://tools.ietf.org/html/rfc3986#section-2.2" target="_blank">HTTP standard</a>, square
+        brackets (<span class="api">[</span> and <span class="api">]</span>)  are reserved characters. All range
+        requests thus need to be URL encoded to get the correct results. For example,
+        <span class="api">/search?sample_count=[1 TO 5]</span> needs to be encoded as
+        <span class="api">/search?sample_count=%5B1%20TO%205%5D</span>.</p>
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+

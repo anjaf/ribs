@@ -28,7 +28,8 @@ public class File {
     @Autowired
     FilePaginationService paginationService;
 
-    @RequestMapping(value = "/files/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.POST)
+
+    @RequestMapping(value = "/files/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = {RequestMethod.POST, RequestMethod.GET})
     public ResponseEntity<String> search(@PathVariable(value="accession") String accession,
                                              @RequestParam(value="start", required=false, defaultValue = "0") Integer start,
                                              @RequestParam(value="length", required=false, defaultValue = "5") Integer pageSize,
