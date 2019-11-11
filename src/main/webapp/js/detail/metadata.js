@@ -11,8 +11,9 @@ var Metadata = (function (_self) {
         // Prepare template
         var templateSource = $('script#study-template').html();
         var template = Handlebars.compile(templateSource);
-        var parts = window.location.pathname.split('/');
-        var accession = parts[parts.length-1];
+        var slashOffset = window.location.pathname[window.location.pathname.length-1]==='/';
+        var parts =  window.location.pathname.split('/');
+        var accession = parts[parts.length - 1 - slashOffset];
         var url = contextPath + '/api/v1/studies/' + accession;
         var params = getParams();
 
