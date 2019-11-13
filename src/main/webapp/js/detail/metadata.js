@@ -4,6 +4,7 @@ var Metadata = (function (_self) {
     var linksTable;
     var expansionSource;
     var lastExpandedTable;
+    var generatedID = 0;
 
     _self.render = function() {
         this.registerHelpers();
@@ -57,6 +58,11 @@ var Metadata = (function (_self) {
     _self.setExpansionSource = function (s) {
         expansionSource = s;
     };
+
+    _self.getNextGeneratedId = function () {
+        return generatedID++;
+    };
+
 
     function postRender(params, data) {
         FileTable.render(data.accno, params, true);
