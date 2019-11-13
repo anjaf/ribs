@@ -52,6 +52,7 @@ import static uk.ac.ebi.biostudies.controller.Stats.STATS_ENDPOINT;
 @Service
 public class SearchServiceImpl implements SearchService {
 
+    private static final int MAX_PAGE_SIZE = 100;
     private Logger logger = LogManager.getLogger(SearchServiceImpl.class.getName());
 
     @Autowired
@@ -133,18 +134,19 @@ public class SearchServiceImpl implements SearchService {
             sort = new Sort(sortField, new SortedNumericSortField(Fields.MODIFICATION_TIME, SortField.Type.LONG, shouldReverse));
 
         try {
-            TopDocs hits = searcher.search(query, Integer.MAX_VALUE, sort);
-            int hitsPerPage = pageSize;
+            pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
+            int searchResultsSize = Math.min(page * pageSize, Integer.MAX_VALUE);
+            TopDocs hits = searcher.search(query, searchResultsSize, sort);
             long totalHits = hits.totalHits != null ? hits.totalHits.value : 0;
-            long to = page * hitsPerPage > totalHits ? totalHits : page * hitsPerPage;
+            long to = page * pageSize > totalHits ? totalHits : page * pageSize;
             response.put("page", page);
-            response.put("pageSize", hitsPerPage);
+            response.put("pageSize", pageSize);
             response.put("totalHits", totalHits);
             response.put("sortBy", sortBy.equalsIgnoreCase(Fields.RELEASE_TIME) ? RELEASE_DATE : sortBy);
             response.put("sortOrder", sortOrder);
             if (totalHits > 0) {
                 ArrayNode docs = mapper.createArrayNode();
-                for (int i = (page - 1) * hitsPerPage; i < to; i++) {
+                for (int i = (page - 1) * pageSize; i < to; i++) {
                     ObjectNode docNode = mapper.createObjectNode();
                     Document doc = reader.document(hits.scoreDocs[i].doc);
                     for (String field : indexManager.getIndexEntryMap().keySet()) {
