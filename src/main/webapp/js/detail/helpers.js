@@ -1,7 +1,6 @@
 var Metadata = (function (_self) {
 
     var orgOrder = [];
-    var generatedID=0;
 
 
     _self.registerHelpers = function() {
@@ -464,7 +463,7 @@ var Metadata = (function (_self) {
                 if (!obj.root) {
                     var accno = obj.accno, type = obj['type'];
                     if (!accno) {
-                        accno= obj.accno = 'genid'+ generatedID++;
+                        accno= obj.accno = 'genid'+ this.getNextGeneratedId();
                     }
                     if (type=='Publication' || type=='Funding') continue;
                     $.each(obj[k], function () {
