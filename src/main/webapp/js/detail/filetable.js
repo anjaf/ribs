@@ -1,6 +1,4 @@
 var FileTable = (function (_self) {
-
-    var totalRows=-1;
     var selectedFiles=[];
     var selectedFilesCount=0;
     var filesTable;
@@ -221,12 +219,6 @@ var FileTable = (function (_self) {
                     +'<span class="fa-layers-text" data-fa-transform="shrink-2 down-4 right-6">×</span>'
                     +'</span> show all files');
                 return (total== max) ? out : out + btn.html();
-            }
-        }).on('xhr.dt', function (e, settings, json, xhr) {
-            if (totalRows == -1) { //override totalFiles
-                totalRows = json.recordsTotal
-            } else {
-                json.recordsTotal = totalRows
             }
         }).on('preDraw', function (e) {
             filesTable.columns().visible(true);

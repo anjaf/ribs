@@ -122,6 +122,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         ObjectMapper mapper = new ObjectMapper();
         IndexReader reader = indexManager.getIndexReader();
         ObjectNode studyInfo = getStudyInfo(accession, secretKey);
+        long totalFiles = studyInfo.get(Constants.Fields.FILES).asLong();
         if (studyInfo==null) return mapper.createObjectNode();
         ArrayNode columns = (ArrayNode) studyInfo.get("columns");
         search = modifySearchText(search);
@@ -148,7 +149,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
             ObjectNode response = mapper.createObjectNode();
             response.put(Constants.File.DRAW, draw);
-            response.put(Constants.File.RECORDTOTAL, hits.totalHits.value);
+            response.put(Constants.File.RECORDTOTAL, totalFiles);
             response.put(Constants.File.RECORDFILTERED, hits.totalHits.value);
             if (hits.totalHits.value >= 0) {
                 if (pageSize==-1) pageSize= Integer.MAX_VALUE;
