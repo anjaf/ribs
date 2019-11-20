@@ -93,6 +93,8 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addViewController("/{project:.+}/studies/{accession:.+}/csv").setViewName("csv");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/csv/").setViewName("csv");
 
+        registry.addRedirectViewController("/{accession:.+}", "/studies/{accession}");
+        registry.addRedirectViewController("/{accession:.+}/", "/studies/{accession}");
     }
 
     @Override
