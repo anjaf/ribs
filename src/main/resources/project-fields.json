@@ -26,7 +26,7 @@
     { "name": "processed", "title": "Processed Data Available", "fieldType": "tokenized_string", "multiValued": false, "jsonPath": "$..subsections[?(@.type==\"MinSeq Score\")]..attributes[?(@.name==\"Processed\" && @.value=='*')].concat(\"true\")", "sortable": true},
     { "name": "gxa", "title": "In Expression Atlas", "fieldType": "tokenized_string", "multiValued": false, "jsonPath": "$..links..attributes[?(@.name=='Type' && @.value=='Expression Atlas')].concat(\"true\")", "sortable": true},
     { "name": "assay_count", "title": "Assay count", "fieldType": "long"},
-    { "name": "sample_count", "title": "Sample count", "fieldType": "long"},
+    { "name": "sample_count", "title": "Sample count", "fieldType": "long", "retrieved": true},
     { "name": "experimental_factor_count", "title": "Experimental Factor count", "fieldType": "long"},
     { "name": "facet.study_type", "title": "Study type", "fieldType": "facet"},
     { "name": "facet.experimental_design", "title": "Experimental Design", "fieldType": "facet"},

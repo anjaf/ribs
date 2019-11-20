@@ -1,5 +1,8 @@
 var Searcher = (function (_self) {
 
+    var projectScripts = ['arrayexpress'];
+    var responseData;
+
     _self.render = function () {
         var params = getParams();
         this.registerHelpers(params);
@@ -16,6 +19,7 @@ var Searcher = (function (_self) {
             if(project) {
                 data.project = project;
             }
+            responseData = data;
             var html = template(data);
             $('#renderedContent').html(html);
 
@@ -25,11 +29,48 @@ var Searcher = (function (_self) {
         });
     };
 
+    _self.getResponseData = function() { return responseData; };
+
+    _self.setSortParameters = function (data, params) {
+        var projectPath = contextPath + (project ? '/' + project : '');
+        $('#sort-by').val(data.sortBy);
+        $('#sort-by').change(function (e) {
+            params.sortBy = $(this).val();
+            params.sortOrder = 'descending';
+            window.location = projectPath + '/studies/?' + $.param(params, true);
+        });
+        if (data.sortOrder == 'ascending') {
+            $('#sort-desc').removeClass('selected');
+            $('#sort-asc').addClass('selected');
+        } else {
+            $('#sort-desc').addClass('selected');
+            $('#sort-asc').removeClass('selected');
+        }
+        $('#sort-desc').click(function (e) {
+            if ($(this).hasClass('selected')) return;
+            params.sortOrder = 'descending';
+            window.location = projectPath + '/studies/?' + $.param(params, true);
+        });
+        $('#sort-asc').click(function (e) {
+            if ($(this).hasClass('selected')) return;
+            params.sortOrder = 'ascending';
+            window.location = projectPath + '/studies/?' + $.param(params, true);
+        });
+    };
+
+
     function postRender(data, params) {
         addHighlights('#search-results',data);
         getProjectLogo();
-        setSortParameters(data, params);
+        Searcher.setSortParameters(data, params);
         limitAuthors();
+        handleProjectBasedScriptInjection(data);
+    }
+
+    function handleProjectBasedScriptInjection(data) {
+        if ($.inArray(data.project && data.project.toLowerCase(), projectScripts)==-1 ) return;
+        var scriptURL = window.contextPath + '/js/project/search/' + project.toLowerCase() + '.js';
+        $.getScript(scriptURL);
     }
 
     function limitAuthors() {
@@ -64,35 +105,6 @@ var Searcher = (function (_self) {
             })
         });
     }
-
-    function setSortParameters(data, params) {
-        var projectPath = contextPath + (project ? '/' + project : '');
-        $('#sort-by').val(data.sortBy);
-        $('#sort-by').change(function (e) {
-            params.sortBy = $(this).val();
-            params.sortOrder = 'descending';
-            window.location = projectPath + '/studies/?' + $.param(params, true);
-        });
-        if (data.sortOrder == 'ascending') {
-            $('#sort-desc').removeClass('selected');
-            $('#sort-asc').addClass('selected');
-        } else {
-            $('#sort-desc').addClass('selected');
-            $('#sort-asc').removeClass('selected');
-        }
-        $('#sort-desc').click(function (e) {
-            if ($(this).hasClass('selected')) return;
-            params.sortOrder = 'descending';
-            window.location = projectPath + '/studies/?' + $.param(params, true);
-        });
-        $('#sort-asc').click(function (e) {
-            if ($(this).hasClass('selected')) return;
-            params.sortOrder = 'ascending';
-            window.location = projectPath + '/studies/?' + $.param(params, true);
-        });
-    }
-
-
 
     return _self;
 })(Searcher || {});
