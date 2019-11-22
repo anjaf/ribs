@@ -19,6 +19,11 @@ var Metadata = (function (_self) {
         var params = getParams();
 
         $.getJSON(url, params, function (data) {
+            // redirect to project page if accession is a project
+            if (data.section.type.toLowerCase()==='project') {
+                location.href= contextPath + '/'+ accession + '/studies';
+                return;
+            }
             if (!data.accno && data.submissions) data = data.submissions[0];
             if (params.key) {
                 data.section.keyString = '?key='+params.key;
