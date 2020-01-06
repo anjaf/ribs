@@ -49,9 +49,10 @@ var newIcon = $('<span class="fa-icon" title="Click to expand"><i class="fa fa-e
 $('#all-files-expander').before(newIcon);
 
 // add icon for sdrf
-var sdrfIcon = $('<a  href="#" class="fa-icon source-icon source-icon-json" title="Click to open SDRF Viewer"><i class="fas fa-table"></i> View SDRF</a>')
-    .css({'background-color': '#267799'})
+var sdrfIcon = $('<a href="#" title="Click to open SDRF Viewer">' +
+    '<i class="fas fa-external-link-square-alt"></i> Click for detailed sample information and links to data</a>')
+    .css({'color': '#A66A27', 'margin-left': '4pt'})
     .click(function() {
         window.open( contextPath + (project? '/'+project:'')+'/studies/'+ $('#accession').text() + '/sdrf?file='+$('.sdrf-file').attr('href') );
     });
-$('#download-source').prepend(sdrfIcon);
+$('.bs-name:contains("Sample count")').next().append(sdrfIcon);
