@@ -367,22 +367,33 @@ var FileTable = (function (_self) {
         });
 
         $("#download-selected-files").on('click', function () {
+            $('#detail-dl').toggle();
             // select all checked input boxes and get the href in the links contained in their siblings
-            var html = '<form method="POST" target="_blank" action="'
-                + window.contextPath + "/files/"
-                + $('#accession').text() + '/zip">';
-            $(selectedFiles).each( function(i,v) {
-                html += '<input type="hidden" name="files" value="'+v+'"/>'
-            });
-            if (key) {
-                html += '<input type="hidden" name="key" value="'+key+'"/>' ;
-            }
-            html += '</form>';
-            var submissionForm = $(html);
-            $('body').append(submissionForm);
-            $(submissionForm).submit();
         });
 
+        $("#normal-dl").on('click', function () {getSelectedFilesForm(key, '/zip')});
+        $("#ftp-dl").on('click', function () {getSelectedFilesForm(key, '/ftp')});
+        $("#aspera-dl").on('click', function () {getSelectedFilesForm(key, '/aspera')});
+
+    }
+
+    function getSelectedFilesForm(key, type){
+        var selectedHtml = '<form method="POST" target="_blank" action="'
+            + window.contextPath + "/files/"
+            + $('#accession').text() +  type + '">';
+        $(selectedFiles).each( function(i,v) {
+            selectedHtml += '<input type="hidden" name="files" value="'+v+'"/>'
+        });
+        if (key) {
+            selectedHtml += '<input type="hidden" name="key" value="'+key+'"/>' ;
+        }
+        if(type){
+            selectedHtml += '<input type="hidden" name="type" value="'+type+'"/>' ;
+        }
+        selectedHtml+='</form>';
+        var submissionForm = $(selectedHtml);
+        $('body').append(submissionForm);
+        $(submissionForm).submit();
     }
 
     function updateSelectedFiles() {
