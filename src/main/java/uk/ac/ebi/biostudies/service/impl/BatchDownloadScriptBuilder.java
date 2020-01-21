@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostudies.service.impl;
 
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
@@ -9,6 +10,7 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +21,8 @@ public class BatchDownloadScriptBuilder {
     public String fillTemplate(String downloadType, List<String> fileNames , String baseDirectory, String os){
         String content="";
         try{
-            File templateFile = new ClassPathResource("batchdl/"+getTemplate(downloadType, os)).getFile();
-            String fileTemplate = new String ( Files.readAllBytes(templateFile.toPath()), "UTF-8" );
+            InputStream templateStream = new ClassPathResource("batchdl/"+getTemplate(downloadType, os)).getInputStream();
+            String fileTemplate = IOUtils.toString(templateStream, "UTF-8");
             content = fillFileTemplate(fileTemplate, fileNames, baseDirectory, downloadType);
         }catch (Exception ex){
             LOGGER.error("Cant open download template file {}", getTemplate(downloadType, os), ex);
