@@ -12,17 +12,22 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class BatchDownloadScriptBuilder {
     private static final Logger LOGGER = LogManager.getLogger(BatchDownloadScriptBuilder.class.getName());
+    static Map<String, String> DownloadTemplates = new HashMap<>();
+    static{
+        loadDlTemplates();
+    }
     public String fillTemplate(String downloadType, List<String> fileNames , String baseDirectory, String os){
         String content="";
         try{
-            InputStream templateStream = new ClassPathResource("batchdl/"+getTemplate(downloadType, os)).getInputStream();
-            String fileTemplate = IOUtils.toString(templateStream, "UTF-8");
+            String fileTemplate = DownloadTemplates.get(getTemplate(downloadType, os));
             content = fillFileTemplate(fileTemplate, fileNames, baseDirectory, downloadType);
         }catch (Exception ex){
             LOGGER.error("Cant open download template file {}", getTemplate(downloadType, os), ex);
@@ -49,5 +54,19 @@ public class BatchDownloadScriptBuilder {
             content = String.format(fileTemplate, allFiles);
         }
         return content;
+    }
+
+    private static void loadDlTemplates(){
+        String fileNames[]= {"aspera-unix", "aspera-windows", "ftp-unix", "ftp-windows"};
+        for(String fName:fileNames){
+            try {
+                InputStream templateStream = new ClassPathResource("batchdl/" + fName).getInputStream();
+                String fileTemplate = IOUtils.toString(templateStream, "UTF-8");
+                DownloadTemplates.put(fName, fileTemplate);
+                templateStream.close();
+            }catch (Exception ex){
+                LOGGER.error("Cant open download template file {}", fName, ex);
+            }
+        }
     }
 }
