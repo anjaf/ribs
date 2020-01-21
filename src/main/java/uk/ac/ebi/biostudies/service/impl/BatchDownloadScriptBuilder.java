@@ -1,6 +1,8 @@
 package uk.ac.ebi.biostudies.service.impl;
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
@@ -13,13 +15,17 @@ import java.util.stream.Collectors;
 
 @Service
 public class BatchDownloadScriptBuilder {
+    private static final Logger LOGGER = LogManager.getLogger(BatchDownloadScriptBuilder.class.getName());
+
     public String fillTemplate(String downloadType, List<String> fileNames , String baseDirectory, String os){
         String content="";
         try{
             File templateFile = new ClassPathResource("batchdl/"+getTemplate(downloadType, os)).getFile();
             String fileTemplate = new String ( Files.readAllBytes(templateFile.toPath()), "UTF-8" );
             content = fillFileTemplate(fileTemplate, fileNames, baseDirectory, downloadType);
-        }catch (Exception ex){}
+        }catch (Exception ex){
+            LOGGER.error("Cant open download template file {}", getTemplate(downloadType, os), ex);
+        }
         return content;
     }
     String getTemplate(String type, String os){
