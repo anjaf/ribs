@@ -71,29 +71,23 @@
     </pre>
 </p>
 <h4>Aspera uploads</h4>
-<p>Aspera <span class="mono">ascp</span> command line client can be downloaded here: <a target="_blank"
-                                                                                        href="http://www.asperasoft.com/downloads/connect">http://www.asperasoft.com/downloads/connect</a>.
-    Please select the correct operating system. The <span class="mono">ascp</span> command line client is distributed as part of the ‘Aspera
-    Connect’ high-performance transfer browser plug-in.
+<p>Aspera <span class="mono">ascp</span> command line interface can be downloaded here: <a target="_blank"
+                                                                                        href="https://downloads.asperasoft.com/en/downloads/62">aspera cli</a>.
+    Please select the correct operating system. The <span class="mono">ascp</span> command line client is present in the <span class="mono">bin</span> folder
+    in the installation directory.
 </p>
 <p>Your command for upload should be like this:</p>
 <pre>
-    ascp -P33001 -i &lt;path to asperaweb_id_dsa.openssh file&gt; -d &lt;local directory to upload&gt; bsaspera_w@hx-fasp-1.ebi.ac.uk:.dropbox/&lt;secret directory name&gt;</pre>
+    ascp -P33001 -i &lt;key&gt; -d &lt;local directory to upload&gt; bsaspera_w@hx-fasp-1.ebi.ac.uk:.dropbox/&lt;secret directory name&gt;</pre>
 where
 <ul>
-    <li><span class="mono">-P33001</span> and <span class="mono">bsaspera@fasp-beta.ebi.ac.uk</span> defines the
-        server, port and user for Aspera connection
+    <li><span class="mono"> -P33001</span> and <span class="mono">bsaspera@fasp-beta.ebi.ac.uk</span> defines the
+        port, user and server for the Aspera connection
     </li>
     <li><span class="mono">-d</span> tells the server to create the directory if it does not yet exist</li>
-    <li><span class="mono">asperaweb_id_dsa.openssh</span> is the public key for Aspera connection. <span class="mono">&lt;path to asperaweb_id_dsa.openssh file&gt</span>;
-        might be:
-        <ol>
-            <li> on Linux: <span class="mono">&lt;aspera connect installation directory&gt;/etc/asperaweb_id_dsa.openssh</span></li>
-            <li> on Mac OSX: <span class="mono">&lt;aspera connect installation directory&gt;/asperaweb_id_dsa.openssh</span></li>
-            <li> on Windows: <span class="mono">"%userprofile%\AppData\Local\Programs\Aspera\Aspera
-                Connect\etc\asperaweb_id_dsa.openssh"</span>
-            </li>
-        </ol>
+    <li><span class="mono">&lt;key&gt;</span> is the public key for the Aspera connection which has the value
+        <span class="mono">&lt;aspera cli installation directory&gt;/etc/asperaweb_id_dsa.openssh</span> for Linux/MacOS and
+        <span class="mono">&lt;aspera cli installation directory&gt;\etc\asperaweb_id_dsa.openssh</span> for Windows.
     </li>
     <li>
         <span class="mono">&lt;secret directory name&gt;</span> looks like this: <span class="mono">12/348482-5ded-45de-9273-badec6d93423-a111</span>
