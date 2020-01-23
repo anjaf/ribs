@@ -136,32 +136,20 @@
 </p>
 
 <h4>Aspera downloads</h4>
-<p>Aspera <span class="mono">ascp</span> command line client can be downloaded here:
-    <a href="http://www.asperasoft.com/downloads/connect"
-       target="_blank">http://www.asperasoft.com/downloads/connect</a>. Please
-    select the correct operating system. The ascp command line client is distributed as part of the ‘Aspera
-    connect’ high-performance transfer browser plug-in.
+<p>Aspera <span class="mono">ascp</span> command line interface can be downloaded here: <a target="_blank"
+                                                                                           href="https://downloads.asperasoft.com/en/downloads/62">aspera cli</a>.
+    Please select the correct operating system. The <span class="mono">ascp</span> command line client is present in the <span class="mono">bin</span> folder
+    in the installation directory.
     Your command for download should be like this:
-<pre>ascp -P33001 -i &lt;aspera key&gt; bsaspera@fasp-beta.ebi.ac.uk:&lt;files to download&gt; &lt;download location on your machine&gt;</pre>
+<pre>ascp -P33001 -i &lt;key&gt; bsaspera@fasp-beta.ebi.ac.uk:&lt;files to download&gt; &lt;download location on your machine&gt;</pre>
 where
 <ul>
-    <li>P33001 and <span class="mono">bsaspera@fasp-beta.ebi.ac.uk</span> defines the server, port and user for Aspera
-        connection
+    <li><span class="mono"> -P33001</span> and <span class="mono">bsaspera@fasp-beta.ebi.ac.uk</span> defines the
+        port, user and server for the Aspera connection
     </li>
-    <li>Aspera key (<span class="mono">asperaweb_id_dsa.openssh</span>) is the public key for Aspera connection.
-        &lt;aspera key&gt; might be:
-        <ul>
-            <li>on Linux: <span
-                    class="mono">&lt;aspera connect installation directory&gt;/etc/asperaweb_id_dsa.openssh</span></li>
-            <li>on Mac OSX: <span
-                    class="mono">&lt;aspera connect installation directory&gt;/asperaweb_id_dsa.openssh</span></li>
-            <li>on Windows: <span class="mono">"%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span>
-                for
-                if Aspera Connect has been installed only for the current user or
-                <span class="mono">"%programfiles(x86)%\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span>
-                if Aspera Connect has been installed for all users
-            </li>
-        </ul>
+    <li><span class="mono">&lt;key&gt;</span> is the public key for the Aspera connection which has the value
+        <span class="mono">&lt;aspera cli installation directory&gt;/etc/asperaweb_id_dsa.openssh</span> for Linux/MacOS and
+        <span class="mono">&lt;aspera cli installation directory&gt;\etc\asperaweb_id_dsa.openssh</span> for Windows.
     </li>
     <li><span class="mono">&lt;files to download&gt;</span> might be all files for a certain study, as explained above.
         Please note that Aspera paths do not need to have <span class="mono">pub</span> as the root folder.
@@ -172,7 +160,7 @@ For instance, here's the command line to download the file <span
         class="mono">aeipf_denoised_reads.fna</span> from submission <span class="mono">S-BSST12</span> to the directory
 <span class="mono">C:\Temp</span> on Windows.
 <pre class="pre">
-            "%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\bin\ascp.exe" -P33001  -i "%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh" bsaspera@fasp-beta.ebi.ac.uk:/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna C:\Temp\
+            "C:\cli\bin\ascp.exe" -P33001  -i "C:\cli\etc\asperaweb_id_dsa.openssh" bsaspera@fasp-beta.ebi.ac.uk:/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna C:\Temp\
         </pre>
 </p>
 
