@@ -7,7 +7,7 @@ $(function() {
     $('#accession').html('<a href="'+contextPath + (project? '/'+project:'')+'/studies/'+accession+'">'+accession+'</a>')
         .parent().parent().append('<li>SDRF</li>');
     updateTitleFromBreadCrumbs();
-    $.get(params.file).done(function(data) {
+    $.get(contextPath + '/files/'+accession+  '/' + accession + '.sdrf.txt' ).done(function(data) {
         var html = '<table id="sdrf" width="100%"><thead>';
         var rows = data.split('\n');
         var colsToMove = [];

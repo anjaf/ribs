@@ -53,6 +53,7 @@ var sdrfIcon = $('<a href="#" title="Click to open SDRF Viewer">' +
     '<i class="fas fa-external-link-square-alt"></i> Click for detailed sample information and links to data</a>')
     .css({'color': '#A66A27', 'margin-left': '4pt'})
     .click(function() {
-        window.open( contextPath + (project? '/'+project:'')+'/studies/'+ $('#accession').text() + '/sdrf?file='+$('.sdrf-file').attr('href') );
+        var acc = $('#accession').text();
+        window.open( contextPath + (project? '/'+project:'')+'/studies/'+ acc + '/sdrf');
     });
 $('.bs-name:contains("Sample count")').next().append(sdrfIcon);
