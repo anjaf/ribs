@@ -41,7 +41,12 @@ public class Authentication {
         String username = request.getParameter("u");
         String password = request.getParameter("p");
         String remember = request.getParameter("r");
+        String requestURL = request.getRequestURL().toString();
+        String applicationRoot = requestURL.substring(0, requestURL.indexOf(request.getServletPath()));
 
+        if (!returnURL.startsWith(applicationRoot)) {
+            returnURL = applicationRoot;
+        }
         boolean isLoginSuccessful = false;
         User authenticatedUser = users.login(username, password);
         isLoginSuccessful = authenticatedUser != null;
