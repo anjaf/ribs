@@ -562,6 +562,10 @@ ul.recommendations li {
     background: #8190EF33;
 }
 
+.sdrf-assay-column {
+    background: #FFCF9A30;
+}
+
 #advanced-search {
     cursor: pointer;
     padding: 0 4pt 0 0;
