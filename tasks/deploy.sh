@@ -14,7 +14,7 @@ eval deployDirectory='$'"deployDirectory"
 #deploy
 eval user='$'"user"
 eval host='$'"host"
-scp -oStrictHostKeyChecking=no ./target/biostudies.war "${user}@${host}:${deployDirectory}"
+scp -oStrictHostKeyChecking=no ./target/biostudies-$1.war "${user}@${host}:${deployDirectory}-$1"
 ssh -oStrictHostKeyChecking=no "${user}@${host}" << ENDSSH
 cd $deployDirectory
 pkill -9 -f biostudies

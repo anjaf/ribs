@@ -8,64 +8,53 @@ stages:
   - build
   - deploy
 
-build:dev:
+.build-template: &build
   stage: build
   script:
     - sh ./tasks/setup.sh
     - sh ./tasks/build.sh
   artifacts:
     paths:
-      - target/biostudies.war
+      - target/biostudies-$CI_ENVIRONMENT_NAME.war
+
+build:dev:
+  <<: &build
   environment: dev
   only:
     - develop
 
 build:test:
-  stage: build
-  script:
-    - sh ./tasks/setup.sh
-    - sh ./tasks/build.sh
-  artifacts:
-    paths:
-      - target/biostudies.war
+  <<: &build
   environment: test
   only:
     - develop
 
 build:beta:
-  stage: build
-  script:
-    - sh ./tasks/setup.sh
-    - sh ./tasks/build.sh
-  artifacts:
-    paths:
-      - target/biostudies.war
+  <<: &build
   environment: beta
   only:
     - develop
 
-
-deploy:dev:
+.deploy-template: &deploy
   stage: deploy
   script:
-    - sh ./tasks/deploy.sh
+    - sh ./tasks/deploy.sh $CI_ENVIRONMENT_NAME
+
+deploy:dev:
+  <<: &deploy
   environment: dev
   only:
     - develop
 
 deploy:test:
-  stage: deploy
-  script:
-    - sh ./tasks/deploy.sh
+  <<: &deploy
   environment: test
   only:
     - develop
   when: manual
 
 deploy:beta:
-  stage: deploy
-  script:
-    - sh ./tasks/deploy.sh
+  <<: &deploy
   environment: beta
   only:
     - develop
