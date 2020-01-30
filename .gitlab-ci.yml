@@ -18,7 +18,7 @@ build:dev:
       - target/biostudies.war
   environment: dev
   only:
-    - java12
+    - develop
 
 build:test:
   stage: build
@@ -32,6 +32,18 @@ build:test:
   only:
     - develop
 
+build:beta:
+  stage: build
+  script:
+    - sh ./tasks/setup.sh
+    - sh ./tasks/build.sh
+  artifacts:
+    paths:
+      - target/biostudies.war
+  environment: beta
+  only:
+    - develop
+
 
 deploy:dev:
   stage: deploy
@@ -39,13 +51,22 @@ deploy:dev:
     - sh ./tasks/deploy.sh
   environment: dev
   only:
-    - java12
+    - develop
 
 deploy:test:
   stage: deploy
   script:
     - sh ./tasks/deploy.sh
   environment: test
+  only:
+    - develop
+  when: manual
+
+deploy:beta:
+  stage: deploy
+  script:
+    - sh ./tasks/deploy.sh
+  environment: beta
   only:
     - develop
   when: manual

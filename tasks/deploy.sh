@@ -19,5 +19,5 @@ ssh -oStrictHostKeyChecking=no "${user}@${host}" << ENDSSH
 cd $deployDirectory
 pkill -9 -f biostudies
 sleep 5
-$jdkCommandLine -Dtomcat.hostname=\$(hostname -s) -Xmx12G -jar ./biostudies.war > console-log-\$(hostname -s).txt 2>&1 &
+$jdkCommandLine -Dtomcat.hostname=\$(hostname -s) -Xmx12G -jar ./biostudies.war > logs/console-log-\$(hostname -s).txt 2>&1 &
 ENDSSH
