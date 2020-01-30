@@ -15,22 +15,22 @@ stages:
     - sh ./tasks/build.sh
   artifacts:
     paths:
-      - target/biostudies-$CI_ENVIRONMENT_NAME.war
+      - target/biostudies-$CI_ENVIRONMENT_SLUG.war
 
 build:dev:
-  <<: &build
+  <<: *build
   environment: dev
   only:
     - develop
 
 build:test:
-  <<: &build
+  <<: *build
   environment: test
   only:
     - develop
 
 build:beta:
-  <<: &build
+  <<: *build
   environment: beta
   only:
     - develop
@@ -38,23 +38,23 @@ build:beta:
 .deploy-template: &deploy
   stage: deploy
   script:
-    - sh ./tasks/deploy.sh $CI_ENVIRONMENT_NAME
+    - sh ./tasks/deploy.sh $CI_ENVIRONMENT_SLUG
 
 deploy:dev:
-  <<: &deploy
+  <<: *deploy
   environment: dev
   only:
     - develop
 
 deploy:test:
-  <<: &deploy
+  <<: *deploy
   environment: test
   only:
     - develop
   when: manual
 
 deploy:beta:
-  <<: &deploy
+  <<: *deploy
   environment: beta
   only:
     - develop
