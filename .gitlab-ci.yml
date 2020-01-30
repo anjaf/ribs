@@ -12,10 +12,10 @@ stages:
   script:
     - sh ./tasks/setup.sh
     - sh ./tasks/build.sh
-    - sh ./tasks/deploy.sh $CI_ENVIRONMENT_SLUG
+    - sh ./tasks/deploy.sh
   artifacts:
     paths:
-      - target/biostudies-$CI_ENVIRONMENT_SLUG.war
+      - target/biostudies.war
 
 dev:
   <<: *build-and-deploy
