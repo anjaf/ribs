@@ -1,4 +1,4 @@
-ar FileTable = (function (_self) {
+var FileTable = (function (_self) {
     var selectedFiles=[];
     var selectedFilesCount=0;
     var filesTable;
