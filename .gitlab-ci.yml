@@ -5,63 +5,34 @@ cache:
 
 stages:
   - setup
-  - build
-  - deploy
+  - build-and-deploy
 
-.build-template: &build
-  stage: build
+.build-template: &build-and-deploy
+  stage: build-and-deploy
   script:
     - sh ./tasks/setup.sh
     - sh ./tasks/build.sh
+    - sh ./tasks/deploy.sh $CI_ENVIRONMENT_SLUG
   artifacts:
     paths:
       - target/biostudies-$CI_ENVIRONMENT_SLUG.war
 
-build:dev:
-  <<: *build
+dev:
+  <<: *build-and-deploy
   environment: dev
   only:
     - develop
 
-build:test:
-  <<: *build
+test:
+  <<: *build-and-deploy
   environment: test
   only:
     - develop
 
-build:beta:
-  <<: *build
+beta:
+  <<: *build-and-deploy
   environment: beta
-  only:
-    - develop
-
-.deploy-template: &deploy
-  stage: deploy
-  script:
-    - sh ./tasks/deploy.sh $CI_ENVIRONMENT_SLUG
-
-deploy:dev:
-  <<: *deploy
-  environment: dev
-  dependencies:
-    - build:dev
-  only:
-    - develop
-
-deploy:test:
-  <<: *deploy
-  environment: test
-  dependencies:
-    - build:test
   only:
     - develop
   when: manual
 
-deploy:beta:
-  <<: *deploy
-  environment: beta
-  dependencies:
-    - build:beta
-  only:
-    - develop
-  when: manual
