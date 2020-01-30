@@ -103,4 +103,13 @@ public interface Constants {
         String DATA = "data";
     }
 
+    interface OS{
+        String WINDOWS = "windows";
+        String UNIX = "unix";
+        String MAC = "mac";
+        String ANDROID = "android";
+        String IPHONE = "iphone";
+        String UNKNOWN = "unknown";
+    }
+
 }

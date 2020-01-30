@@ -36,7 +36,7 @@ public class AnalyzerManager {
                 Class<?> clazz;
                 try {
                     clazz = Class.forName(analyzer);
-                    Analyzer analyzerObj = (Analyzer) clazz.newInstance();
+                    Analyzer analyzerObj = (Analyzer) clazz.getDeclaredConstructor().newInstance();
                     perFieldAnalyzerMap.put(key, analyzerObj);
                 } catch (Exception e) {
                     logger.error("cant create analyzer with name {}", analyzer, e);

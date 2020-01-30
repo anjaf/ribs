@@ -17,8 +17,6 @@
 
 package uk.ac.ebi.biostudies.schedule.jobs;
 
-import com.google.common.io.CharStreams;
-import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +30,8 @@ import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class ReloadOntologyJob{
@@ -55,8 +53,7 @@ public class ReloadOntologyJob{
             if (!efoFile.exists()) {
                 String efoBuiltinSource = efoConfig.getLocalOwlFilename();
                 try (InputStream is = new ClassPathResource(efoBuiltinSource).getInputStream()) {
-                    Files.write(CharStreams.toString(new InputStreamReader(is, "UTF-8")),
-                            efoFile, Charset.forName("UTF-8"));
+                    Files.copy( is, efoFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 }
             }
 

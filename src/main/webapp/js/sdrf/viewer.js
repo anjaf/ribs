@@ -5,9 +5,9 @@ $(function() {
     var accession = url.substr(url.lastIndexOf('/')+1);
     var params = getParams();
     $('#accession').html('<a href="'+contextPath + (project? '/'+project:'')+'/studies/'+accession+'">'+accession+'</a>')
-        .parent().parent().append('<li>SDRF</li>');
+        .parent().parent().append('<li>Samples and Data</li>');
     updateTitleFromBreadCrumbs();
-    $.get(params.file).done(function(data) {
+    $.get(contextPath + '/files/'+accession+  '/' + accession + '.sdrf.txt' ).done(function(data) {
         var html = '<table id="sdrf" width="100%"><thead>';
         var rows = data.split('\n');
         var colsToMove = [];
@@ -19,9 +19,8 @@ $(function() {
                     col.className = 'sdrf-sample-attribute-column';
                 } else if (header.indexOf('Factor Value') === 0) {
                     col.className = 'sdrf-variable-column';
-                } else if (header.indexOf('Extract Name') === 0) {
+                } else if ($.inArray(header,['Assay Name', 'Hybridization Name', 'Label'])>=0) {
                     col.className = 'sdrf-assay-column';
-                    col.name='Assay Name';
                     colsToMove.push(i);
                 } else if (header.indexOf('Source Name') === 0) {
                     col.className = 'source-column';
@@ -32,15 +31,21 @@ $(function() {
                     col.render = function (data, type, row) {
                         return '<a href="'+getURL(data, 'ena').url+'" target="_blank"><i class="icon icon-generic" data-icon="L"></i></a>';
                     }
-                } else if (header.indexOf('[FASTQ_URI]') > 0) {
-                    col.className = 'fastq-column';
-                    col.name = 'FASTQ';
+                } else if (header.indexOf('[FASTQ_URI]') > 0 || header.indexOf('[BAM_URI]') > 0) {
+                    col.className = header.replace('Comment[','').replace('_URI]','');
+                    col.name = col.className;
                     colsToMove.push(i);
                     col.render = function (data, type, row) {
                         return '<a href="'+data+'" target="_blank"><i class="icon icon-functional" data-icon="="></i></a>';
                     }
+                } else if (/^(derived |)array (data )(matrix |)file$/i.test(header)) {
+                    col.name = (header.indexOf("Derived")==0 ? 'Processed' : 'Raw') + header.replace('Derived','').replace('Array Data','').replace('File','').trim();
+                    col.className = col.name.replace(" ","-").toLowerCase();
+                    colsToMove.push(i);
+                    col.render = function (data, type, row) {
+                        return '<a href="'+ contextPath + '/files/'+accession+  '/' + data + '" target="_blank"><i class="icon icon-functional" data-icon="="></i></a>';
+                    }
                 }
-
                 if (col.hasOwnProperty('className')) {
                     var matches = /.*\[(.*)\]/g.exec(header);
                     col.name = (col.name!==header ||  matches==null ? col.name : matches[1]);
@@ -66,7 +71,6 @@ $(function() {
 
         html += "</tbody></table>";
         $('#main-content-area').append($(html));
-
         var sdrfTable = $('#sdrf').DataTable( {
             "columnDefs": columnDefs,
             lengthMenu: [[10,25, 50, 100, 250, 500, -1], [10,25, 50, 100, 250, 500,'All']],
@@ -80,6 +84,9 @@ $(function() {
         });
         sdrfTable.colReorder.order($.merge(newOrder, colsToMove)).draw();
 
+        if(('.sdrf-assay-column').length>1) {
+            $('#assay-column-legend').show();
+        }
 
     }).fail(function (error) {
         showError(error);

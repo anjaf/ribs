@@ -23,14 +23,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.util.ImageIOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.config.IndexConfig;
-import uk.ac.ebi.biostudies.file.thumbnails.IThumbnail;
 import uk.ac.ebi.biostudies.file.thumbnails.*;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -41,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class Thumbnails {
+public class Thumbnails implements InitializingBean, DisposableBean {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private String thumbnailsFolder;
     private Map<String, IThumbnail> thumbnailGenerators = new HashMap<>();
@@ -50,8 +49,9 @@ public class Thumbnails {
     IndexConfig indexConfig;
 
 
-    @PostConstruct
-    public void init() {
+
+    @Override
+    public void afterPropertiesSet() {
         //register thumbnail generators
         //TODO: use ServiceLoader or annotations instead
         registerThumbnailHandler(new ImageThumbnail());
@@ -147,4 +147,8 @@ public class Thumbnails {
         return file.exists();
     }
 
+    @Override
+    public void destroy() {
+
+    }
 }

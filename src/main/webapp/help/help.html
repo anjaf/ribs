@@ -136,32 +136,20 @@
 </p>
 
 <h4>Aspera downloads</h4>
-<p>Aspera <span class="mono">ascp</span> command line client can be downloaded here:
-    <a href="http://www.asperasoft.com/downloads/connect"
-       target="_blank">http://www.asperasoft.com/downloads/connect</a>. Please
-    select the correct operating system. The ascp command line client is distributed as part of the ‘Aspera
-    connect’ high-performance transfer browser plug-in.
+<p>Aspera <span class="mono">ascp</span> command line interface can be downloaded here: <a target="_blank"
+                                                                                           href="https://downloads.asperasoft.com/en/downloads/62">aspera cli</a>.
+    Please select the correct operating system. The <span class="mono">ascp</span> command line client is present in the <span class="mono">bin</span> folder
+    in the installation directory.
     Your command for download should be like this:
-<pre>ascp -P33001 -i &lt;aspera key&gt; bsaspera@fasp-beta.ebi.ac.uk:&lt;files to download&gt; &lt;download location on your machine&gt;</pre>
+<pre>ascp -P33001 -i &lt;key&gt; bsaspera@fasp-beta.ebi.ac.uk:&lt;files to download&gt; &lt;download location on your machine&gt;</pre>
 where
 <ul>
-    <li>P33001 and <span class="mono">bsaspera@fasp-beta.ebi.ac.uk</span> defines the server, port and user for Aspera
-        connection
+    <li><span class="mono"> -P33001</span> and <span class="mono">bsaspera@fasp-beta.ebi.ac.uk</span> defines the
+        port, user and server for the Aspera connection
     </li>
-    <li>Aspera key (<span class="mono">asperaweb_id_dsa.openssh</span>) is the public key for Aspera connection.
-        &lt;aspera key&gt; might be:
-        <ul>
-            <li>on Linux: <span
-                    class="mono">&lt;aspera connect installation directory&gt;/etc/asperaweb_id_dsa.openssh</span></li>
-            <li>on Mac OSX: <span
-                    class="mono">&lt;aspera connect installation directory&gt;/asperaweb_id_dsa.openssh</span></li>
-            <li>on Windows: <span class="mono">"%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span>
-                for
-                if Aspera Connect has been installed only for the current user or
-                <span class="mono">"%programfiles(x86)%\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh"</span>
-                if Aspera Connect has been installed for all users
-            </li>
-        </ul>
+    <li><span class="mono">&lt;key&gt;</span> is the public key for the Aspera connection which has the value
+        <span class="mono">&lt;aspera cli installation directory&gt;/etc/asperaweb_id_dsa.openssh</span> for Linux/MacOS and
+        <span class="mono">&lt;aspera cli installation directory&gt;\etc\asperaweb_id_dsa.openssh</span> for Windows.
     </li>
     <li><span class="mono">&lt;files to download&gt;</span> might be all files for a certain study, as explained above.
         Please note that Aspera paths do not need to have <span class="mono">pub</span> as the root folder.
@@ -172,21 +160,23 @@ For instance, here's the command line to download the file <span
         class="mono">aeipf_denoised_reads.fna</span> from submission <span class="mono">S-BSST12</span> to the directory
 <span class="mono">C:\Temp</span> on Windows.
 <pre class="pre">
-            "%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\bin\ascp.exe" -P33001  -i "%userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh" bsaspera@fasp-beta.ebi.ac.uk:/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna C:\Temp\
+            "C:\cli\bin\ascp.exe" -P33001  -i "C:\cli\etc\asperaweb_id_dsa.openssh" bsaspera@fasp-beta.ebi.ac.uk:/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna C:\Temp\
         </pre>
 </p>
 
-<h3>REST API</h3>
+<h3 id="rest-api-docs">REST API</h3>
 <details>
-    <summary id="api-search"><code class="endpoint">/api/v1/search</code> Returns a list of studies according to the search criteria</summary>
+    <summary id="api-search"><code class="endpoint">/api/v1/search</code> Returns a list of studies according to the
+        search criteria
+    </summary>
     <p>
         This end-point takes the following parameters and returns a list of studies according to the search criteria.
         Minimal meta data is returned for each study &ndash; You need to download the study detail file separately for
-        a complete representation of each result.
+        a complete representation of each result.</p>
     <table class="apidoc">
         <thead>
         <tr>
-            <th>Name</th>
+            <th>Parameter</th>
             <th>Description</th>
         </tr>
         </thead>
@@ -237,7 +227,8 @@ For instance, here's the command line to download the file <span
             <td>link_type</td>
             <td>Searches for a specific type of link to external databases in the study. (cf. <a href="#link_value_doc">link_value</a>).
                 <details>
-                    <summary>Click here to view the types of supported link types and their corresponding websites.</summary>
+                    <summary>Click here to view the types of supported link types and their corresponding websites.
+                    </summary>
                     <table>
                         <thead>
                         <tr>
@@ -246,37 +237,145 @@ For instance, here's the command line to download the file <span
                         </tr>
                         </thead>
                         <tbody>
-                            <tr><td>pmc</td><td>https://europepmc.org/articles/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>pmid</td><td>https://europepmc.org/abstract/MED/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>doi</td><td>https://dx.doi.org/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>chembl</td><td>https://www.ebi.ac.uk/chembldb/compound/inspect/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>ega</td><td>https://www.ebi.ac.uk/ega/studies/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>uniprot</td><td>http://www.uniprot.org/uniprot/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>ena</td><td>https://www.ebi.ac.uk/ena/data/view/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>arrayexpress files</td><td>https://www.ebi.ac.uk/arrayexpress/experiments/<span class="api">&lt;link_value&gt;</span>/files/</td></tr>
-                            <tr><td>arrayexpress</td><td>https://www.ebi.ac.uk/arrayexpress/experiments/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>dbsnp</td><td>http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>pdbe</td><td>https://www.ebi.ac.uk/pdbe-srv/view/entry/<span class="api">&lt;link_value&gt;</span>/summary</td></tr>
-                            <tr><td>pfam</td><td>http://pfam.xfam.org/family/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>omim</td><td>http://omim.org/entry/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>interpro</td><td>https://www.ebi.ac.uk/interpro/entry/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>nucleotide</td><td>http://www.ncbi.nlm.nih.gov/nuccore/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>geo</td><td>http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>intact</td><td>https://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>biostudies</td><td>/studies/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>biostudies title</td><td>/studies?first&query=title%3A%22<span class="api">&lt;link_value&gt;</span>%22</td></tr>
-                            <tr><td>biostudies search</td><td>/studies?query=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>go</td><td>http://amigo.geneontology.org/amigo/term/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>chebi</td><td>https://www.ebi.ac.uk/chebi/searchId.do?chebiId=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>bioproject</td><td>https://www.ncbi.nlm.nih.gov/bioproject/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>biosamples</td><td>https://www.ebi.ac.uk/biosamples/samples/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>chemagora</td><td>http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>compound</td><td>https://www.ebi.ac.uk/biostudies/studies/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>rfam</td><td>http://rfam.org/family/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>rnacentral</td><td>http://rnacentral.org/rna/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>nct</td><td>https://clinicaltrials.gov/ct2/show/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>gxa</td><td>https://www.ebi.ac.uk/gxa/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies</td></tr>
-                            <tr><td>gxa-sc</td><td>https://www.ebi.ac.uk/gxa/sc/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies</td></tr>
+                        <tr>
+                            <td>pmc</td>
+                            <td>https://europepmc.org/articles/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>pmid</td>
+                            <td>https://europepmc.org/abstract/MED/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>doi</td>
+                            <td>https://dx.doi.org/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>chembl</td>
+                            <td>https://www.ebi.ac.uk/chembldb/compound/inspect/<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>ega</td>
+                            <td>https://www.ebi.ac.uk/ega/studies/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>uniprot</td>
+                            <td>http://www.uniprot.org/uniprot/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>ena</td>
+                            <td>https://www.ebi.ac.uk/ena/data/view/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>arrayexpress files</td>
+                            <td>https://www.ebi.ac.uk/arrayexpress/experiments/<span
+                                    class="api">&lt;link_value&gt;</span>/files/
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>arrayexpress</td>
+                            <td>https://www.ebi.ac.uk/arrayexpress/experiments/<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>dbsnp</td>
+                            <td>http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>pdbe</td>
+                            <td>https://www.ebi.ac.uk/pdbe-srv/view/entry/<span class="api">&lt;link_value&gt;</span>/summary
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>pfam</td>
+                            <td>http://pfam.xfam.org/family/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>omim</td>
+                            <td>http://omim.org/entry/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>interpro</td>
+                            <td>https://www.ebi.ac.uk/interpro/entry/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>nucleotide</td>
+                            <td>http://www.ncbi.nlm.nih.gov/nuccore/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>geo</td>
+                            <td>http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>intact</td>
+                            <td>https://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc=<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>biostudies</td>
+                            <td>/studies/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>biostudies title</td>
+                            <td>/studies?first&query=title%3A%22<span class="api">&lt;link_value&gt;</span>%22</td>
+                        </tr>
+                        <tr>
+                            <td>biostudies search</td>
+                            <td>/studies?query=<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>go</td>
+                            <td>http://amigo.geneontology.org/amigo/term/<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>chebi</td>
+                            <td>https://www.ebi.ac.uk/chebi/searchId.do?chebiId=<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>bioproject</td>
+                            <td>https://www.ncbi.nlm.nih.gov/bioproject/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>biosamples</td>
+                            <td>https://www.ebi.ac.uk/biosamples/samples/<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>chemagora</td>
+                            <td>http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>compound</td>
+                            <td>https://www.ebi.ac.uk/biostudies/studies/<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>rfam</td>
+                            <td>http://rfam.org/family/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>rnacentral</td>
+                            <td>http://rnacentral.org/rna/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>nct</td>
+                            <td>https://clinicaltrials.gov/ct2/show/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>gxa</td>
+                            <td>https://www.ebi.ac.uk/gxa/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>gxa-sc</td>
+                            <td>https://www.ebi.ac.uk/gxa/sc/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </details>
@@ -285,23 +384,50 @@ For instance, here's the command line to download the file <span
         <tr id="link_value_doc">
             <td>link_value</td>
             <td>Searches in the value of the <a href="#link_type_doc">link type</a> field. Most link values are
-                accessions of the corresponding databases, e.g., you can combine link_value with link_type and use <code>/search?link_type=pmid&link_value=15307895</code>
-                to search search for a study with PMID 15307895.</td>
+                accessions of the corresponding databases, e.g., you can combine link_value with link_type and use
+                <code>/search?link_type=pmid&link_value=15307895</code>
+                to search search for a study with PMID 15307895.
+            </td>
+        </tr>
+        <tr id="page_doc">
+            <td>page</td>
+            <td>Returns the specified result page, where each page contains <a href="#page_size_doc"><code>pageSize</code></a>
+                results. Default = 1
+            </td>
+        </tr>
+        <tr id="page_size_doc">
+            <td>pageSize</td>
+            <td>Determines the number of results returned in each <a href="#page_doc"><code>page</code></a> in the results. Default = 20,
+                Max = 100
+            </td>
+        </tr>
+        <tr>
+            <td>sortBy</td>
+            <td>Determines the sorting key in the results. Works only for numeric fields.</td>
+        </tr>
+        <tr>
+            <td>sortOrder</td>
+            <td>Determines the sorting order i.e. <code>ascending</code> or <code>descending</code>. Default = <code>descending</code>
+            </td>
         </tr>
         </tbody>
     </table>
-    </p>
-
 </details>
 <details>
-    <summary><code class="endpoint">/api/v1/{project}/search</code> Returns a list of studies in the specified project according to the search criteria</summary>
+    <summary><code class="endpoint">/api/v1/{project}/search</code> Returns a list of studies in the specified project
+        according to the search criteria
+    </summary>
     <p>
-        This end-point is similar to <a href="#api-search"><code>/api/v1/search</code></a> but limits the study list to the specified project.
-        You can use the API to get a list of <a href="api/v1/search?type=project" target="_blank">all available projects</a> to search in.
+        This end-point is similar to <a href="#api-search"><code>/api/v1/search</code></a> but limits the study list to
+        the specified project.
+        You can use the API to get a list of <a href="api/v1/search?type=project" target="_blank">all available
+        projects</a> to search in.
     </p>
 </details>
 <details>
-    <summary><code class="endpoint">/api/v1/studies/{accession}</code> Returns the detailed JSON for a particular accession</summary>
+    <summary><code class="endpoint">/api/v1/studies/{accession}</code> Returns the detailed JSON for a particular
+        accession
+    </summary>
     <p>
         This end-point returns the details of the study in the PageTab JSON format if accessible.
     </p>

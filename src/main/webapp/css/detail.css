@@ -496,13 +496,10 @@ a.thumbnail-icon {
 
 .orcid {
     border: 0;
-    height: 20px;
-    display: inline-block;
 }
 .orcid img {
-    margin: 4px;
+    margin: -4px 0px 0px 0px;
     width: 16px;
-    height: 16px;
 }
 
 #biostudies-citation{
@@ -525,7 +522,6 @@ a.thumbnail-icon {
     white-space: pre-wrap;
     white-space: -o-pre-wrap;
     white-space: -moz-pre-wrap;
-    white-space: -pre-wrap;
     word-wrap: break-word;
 }
 
@@ -559,11 +555,15 @@ ul.recommendations li {
 }
 
 .sdrf-sample-attribute-column {
-    background: #96F8BD33;
+    background: #75c8ec30;
 }
 
 .sdrf-variable-column {
-    background: #8190EF33;
+    background: #B0B0B030;
+}
+
+.sdrf-assay-column {
+    background: #60ECDF30;
 }
 
 #advanced-search {
@@ -585,4 +585,11 @@ span.file-list-buttons {
 
 span.file-list-buttons .fa-file-download {
     margin-right: 2px;
+}
+
+#file-list_filter input {
+    width: 140px;
+}
+#file-list_length select {
+    width: 48px;
 }

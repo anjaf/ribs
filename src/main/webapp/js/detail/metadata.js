@@ -4,6 +4,7 @@ var Metadata = (function (_self) {
     var linksTable;
     var expansionSource;
     var lastExpandedTable;
+    var generatedID = 0;
 
     _self.render = function() {
         this.registerHelpers();
@@ -11,12 +12,18 @@ var Metadata = (function (_self) {
         // Prepare template
         var templateSource = $('script#study-template').html();
         var template = Handlebars.compile(templateSource);
-        var parts = window.location.pathname.split('/');
-        var accession = parts[parts.length-1];
+        var slashOffset = window.location.pathname[window.location.pathname.length-1]==='/';
+        var parts =  window.location.pathname.split('/');
+        var accession = parts[parts.length - 1 - slashOffset];
         var url = contextPath + '/api/v1/studies/' + accession;
         var params = getParams();
 
         $.getJSON(url, params, function (data) {
+            // redirect to project page if accession is a project
+            if (data.section.type.toLowerCase()==='project') {
+                location.href= contextPath + '/'+ accession + '/studies';
+                return;
+            }
             if (!data.accno && data.submissions) data = data.submissions[0];
             if (params.key) {
                 data.section.keyString = '?key='+params.key;
@@ -57,6 +64,11 @@ var Metadata = (function (_self) {
         expansionSource = s;
     };
 
+    _self.getNextGeneratedId = function () {
+        return generatedID++;
+    };
+
+
     function postRender(params, data) {
         FileTable.render(data.accno, params, true);
         $('body').append('<div id="blocker"/><div id="tooltip"/>');
@@ -82,7 +94,7 @@ var Metadata = (function (_self) {
 
     function handleHighlights(params) {
         var url = contextPath + '/api/v1/search';
-        $.getJSON(url, {query:params.query, pageSize:0}, function (data) {
+        $.getJSON(url, {query:params.query, pageSize:1}, function (data) {
             addHighlights('#renderedContent', data);
         });
     }

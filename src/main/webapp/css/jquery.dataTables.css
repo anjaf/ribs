@@ -68,7 +68,7 @@ table.dataTable tbody tr {
   background-color: #ffffff;
 }
 table.dataTable tbody tr.odd {
-  background-color: #f7fcff;
+  background-color: #f7f7f7;
 }
 
 table.dataTable tbody tr.selected {

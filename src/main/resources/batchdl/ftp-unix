@@ -1,0 +1,12 @@
+#!/bin/bash
+# Run this file in bash with this command:  ftp -i -s:./windows.sh
+open ftp.biostudies.ebi.ac.uk
+anonymous
+youremail@domain.com
+cd pub/%s/Files
+#pub/S-BSST/S-BSST0-99/S-BSST1
+binary
+mget %s
+#"LAMB_phyloseq_data.rda" "LAMB_denoised_reads.fna"
+disconnect
+quit

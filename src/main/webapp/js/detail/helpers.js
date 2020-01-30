@@ -1,7 +1,6 @@
 var Metadata = (function (_self) {
 
     var orgOrder = [];
-    var generatedID=0;
 
 
     _self.registerHelpers = function() {
@@ -36,6 +35,7 @@ var Metadata = (function (_self) {
             if (obj==null) return new Handlebars.SafeString('<td></td>');
             var e = obj.filter( function(o) { return o['name']==val})[0];
             if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
+            e.value = e.value || '';
             var value = val.toLowerCase()=='type' && DetailPage.linkTypeMap[e.value.toLowerCase()] ? DetailPage.linkTypeMap[e.value.toLowerCase()] : e.value;
             return new Handlebars.SafeString( e.url ?
                 '<td'+ ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'') + '><a href="'
@@ -463,7 +463,7 @@ var Metadata = (function (_self) {
                 if (!obj.root) {
                     var accno = obj.accno, type = obj['type'];
                     if (!accno) {
-                        accno= obj.accno = 'genid'+ generatedID++;
+                        accno= obj.accno = 'genid'+ this.getNextGeneratedId();
                     }
                     if (type=='Publication' || type=='Funding') continue;
                     $.each(obj[k], function () {

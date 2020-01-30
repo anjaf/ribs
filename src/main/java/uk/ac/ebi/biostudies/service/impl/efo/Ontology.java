@@ -2,6 +2,8 @@ package uk.ac.ebi.biostudies.service.impl.efo;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
@@ -12,7 +14,6 @@ import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
 import uk.ac.ebi.biostudies.efo.*;
 import uk.ac.ebi.biostudies.config.EFOConfig;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,7 +25,7 @@ import java.util.*;
  */
 @Service
 @Scope("singleton")
-public class Ontology {
+public class Ontology implements InitializingBean, DisposableBean {
 
     private final Logger logger = LogManager.getLogger(Ontology.class.getName());
 
@@ -47,11 +48,8 @@ public class Ontology {
 
 
 
-    @PostConstruct
-    /**
-     * This is temporary and will change soon
-     */
-    private void init(){
+    @Override
+    public void afterPropertiesSet() {
         this.assayByMolecule = new EFOSubclassesOptions("All assays by molecule");
         this.assayByInstrument = new EFOSubclassesOptions("All technologies");
     }
@@ -148,6 +146,10 @@ public class Ontology {
         logger.debug("Removed [{}] -> [{}]", node.getId(), node.getTerm());
     }
 
+    @Override
+    public void destroy() {
+
+    }
 
 
     private class EFOSubclassesOptions extends HTMLOptions {

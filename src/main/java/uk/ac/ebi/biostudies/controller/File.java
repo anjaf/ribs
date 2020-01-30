@@ -12,16 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.biostudies.api.util.DataTableColumnInfo;
-import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 import uk.ac.ebi.biostudies.service.FilePaginationService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import java.util.Map;
-import java.util.Set;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 
-@Api(value="api", description="Rest endpoint for searching and retrieving Biostudies")
+@Api(value="api")
 @RestController
 @RequestMapping(value="/api/v1")
 public class File {
@@ -30,7 +28,8 @@ public class File {
     @Autowired
     FilePaginationService paginationService;
 
-    @RequestMapping(value = "/files/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.POST)
+
+    @RequestMapping(value = "/files/{accession:.+}", produces = JSON_UNICODE_MEDIA_TYPE, method = {RequestMethod.POST, RequestMethod.GET})
     public ResponseEntity<String> search(@PathVariable(value="accession") String accession,
                                              @RequestParam(value="start", required=false, defaultValue = "0") Integer start,
                                              @RequestParam(value="length", required=false, defaultValue = "5") Integer pageSize,
@@ -44,7 +43,7 @@ public class File {
         if ("null".equalsIgnoreCase(seckey)) {
             seckey = null;
         }
-        Map parseResult = DataTableColumnInfo.ParseDataTableRequest(order);
+        Map<Integer, DataTableColumnInfo> parseResult = DataTableColumnInfo.ParseDataTableRequest(order);
         try {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(paginationService.getFileList(accession, start, pageSize, search, draw, metadata, parseResult, seckey).toString());

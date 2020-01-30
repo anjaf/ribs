@@ -1,12 +1,10 @@
-var FileTable = (function (_self) {
-
-    var totalRows=-1;
+ar FileTable = (function (_self) {
     var selectedFiles=[];
     var selectedFilesCount=0;
     var filesTable;
     var firstRender = true;
     var columnDefinitions=[];
-    var sorting = false;
+    var sorting=false;
 
     _self.render = function (acc, params, isDetailPage){
         $.ajax({url: contextPath + '/api/v1/studies/' + acc + '/info',
@@ -37,6 +35,37 @@ var FileTable = (function (_self) {
         filesTable.state.clear();
         filesTable.search('').columns().search('').draw();
     };
+
+    _self.getFilesTable = function() {
+        return filesTable;
+    }
+
+    _self.hideEmptyColumns= function() {
+        var columnNames = filesTable.settings().init().columns
+        //if($('#advsearchbtn').is(':visible')) return;
+        // hide empty columns
+        var hiddenColumnCount = 0;
+        var thumbnailColumnIndex = -1;
+        filesTable.columns().every(function(index){
+            if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') {
+                thumbnailColumnIndex = index;
+                return;
+            }
+            var srchd = filesTable.cells({search:'applied'},this)
+                .data()
+                .join('')
+                .trim();
+            if (this.visible() && (srchd==null || srchd=='')) {
+                this.visible(false);
+                hiddenColumnCount++;
+            }
+        });
+        if (hiddenColumnCount+2===columnDefinitions.length) { // count checkbox and thumbnail column
+            filesTable.column(0).visible(false);
+            filesTable.column(thumbnailColumnIndex).visible(false);
+        }
+    };
+
 
     function handleFileListButtons(acc, key){
         var templateSource = $('script#file-list-buttons-template').html();
@@ -220,12 +249,6 @@ var FileTable = (function (_self) {
                     +'</span> show all files');
                 return (total== max) ? out : out + btn.html();
             }
-        }).on('xhr.dt', function (e, settings, json, xhr) {
-            if (totalRows == -1) { //override totalFiles
-                totalRows = json.recordsTotal
-            } else {
-                json.recordsTotal = totalRows
-            }
         }).on('preDraw', function (e) {
             filesTable.columns().visible(true);
         }).on('draw.dt', function (e) {
@@ -283,7 +306,7 @@ var FileTable = (function (_self) {
             }
         });
         if(!sorting) {
-            hideEmptyColumns();
+            FileTable.hideEmptyColumns();
         }else {
             sorting=false;
         }
@@ -307,32 +330,6 @@ var FileTable = (function (_self) {
             filesTable.draw();
 
         });
-    }
-
-    function hideEmptyColumns() {
-        var columnNames = filesTable.settings().init().columns
-        //if($('#advsearchbtn').is(':visible')) return;
-        // hide empty columns
-        var hiddenColumnCount = 0;
-        var thumbnailColumnIndex = -1;
-        filesTable.columns().every(function(index){
-            if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') {
-                thumbnailColumnIndex = index;
-                return;
-            }
-            var srchd = filesTable.cells({search:'applied'},this)
-                .data()
-                .join('')
-                .trim();
-            if (this.visible() && (srchd==null || srchd=='')) {
-                this.visible(false);
-                hiddenColumnCount++;
-            }
-        });
-        if (hiddenColumnCount+2===columnDefinitions.length) { // count checkbox and thumbnail column
-            filesTable.column(0).visible(false);
-            filesTable.column(thumbnailColumnIndex).visible(false);
-        }
     }
 
     function handleFileDownloadSelection(acc,key) {
@@ -370,22 +367,33 @@ var FileTable = (function (_self) {
         });
 
         $("#download-selected-files").on('click', function () {
+            $('#detail-dl').toggle();
             // select all checked input boxes and get the href in the links contained in their siblings
-            var html = '<form method="POST" target="_blank" action="'
-                + window.contextPath + "/files/"
-                + $('#accession').text() + '/zip">';
-            $(selectedFiles).each( function(i,v) {
-                html += '<input type="hidden" name="files" value="'+v+'"/>'
-            });
-            if (key) {
-                html += '<input type="hidden" name="key" value="'+key+'"/>' ;
-            }
-            html += '</form>';
-            var submissionForm = $(html);
-            $('body').append(submissionForm);
-            $(submissionForm).submit();
         });
 
+        $("#normal-dl").on('click', function () {getSelectedFilesForm(key, '/zip')});
+        $("#ftp-dl").on('click', function () {getSelectedFilesForm(key, '/ftp')});
+        $("#aspera-dl").on('click', function () {getSelectedFilesForm(key, '/aspera')});
+
+    }
+
+    function getSelectedFilesForm(key, type){
+        var selectedHtml = '<form method="POST" target="_blank" action="'
+            + window.contextPath + "/files/"
+            + $('#accession').text() +  type + '">';
+        $(selectedFiles).each( function(i,v) {
+            selectedHtml += '<input type="hidden" name="files" value="'+v+'"/>'
+        });
+        if (key) {
+            selectedHtml += '<input type="hidden" name="key" value="'+key+'"/>' ;
+        }
+        if(type){
+            selectedHtml += '<input type="hidden" name="type" value="'+type+'"/>' ;
+        }
+        selectedHtml+='</form>';
+        var submissionForm = $(selectedHtml);
+        $('body').append(submissionForm);
+        $(submissionForm).submit();
     }
 
     function updateSelectedFiles() {

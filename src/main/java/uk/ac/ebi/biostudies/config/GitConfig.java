@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:git.properties")
 public class GitConfig {
 
-    @Value("${git.commit.id.abbrev}")
+    @Value("${git.commit.id.abbrev:xxx}")
     private String gitCommitIdAbbrev;
 
     public String getGitCommitIdAbbrev() {

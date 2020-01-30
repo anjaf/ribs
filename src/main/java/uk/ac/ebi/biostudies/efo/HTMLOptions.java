@@ -17,7 +17,8 @@
 
 package uk.ac.ebi.biostudies.efo;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
