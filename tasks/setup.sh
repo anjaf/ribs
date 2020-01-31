@@ -6,7 +6,7 @@ eval baseDirectory='$'"index_files_baseDirectory"
 eval ftpUrl='$'"index_files_ftpUrl"
 sed -i -e "s@\(files\.baseDirectory=\).*@\1${baseDirectory}@g" $indexPropertiesFile
 sed -i -e "s@\(files\.ftpUrl=\).*@\1${ftpUrl}@g" $indexPropertiesFile
-cp "$default-projects.jsp" ./src/main/webapp/jsp/
+mv "$default_jsp" ./src/main/webapp/jsp/default-projects.jsp
 
 securityPropertiesFile="./src/main/resources/security.properties"
 eval profileUrl='$'"security_auth_profileUrl"
