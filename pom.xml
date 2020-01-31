@@ -338,31 +338,31 @@
                         </excludes>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <executions>
-                        <execution>
-                            <id>copy-resources</id>
-                            <phase>validate</phase>
-                            <goals>
-                                <goal>copy-resources</goal>
-                            </goals>
-                            <configuration>
-                                <outputDirectory>${basedir}/target/biostudies/jsp</outputDirectory>
-                                <resources>
-                                    <resource>
-                                        <directory>src/main/resources</directory>
-                                        <includes>
-                                            <include>**/*.jsp</include>
-                                        </includes>
-                                        <filtering>true</filtering>
-                                    </resource>
-                                </resources>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
+<!--                <plugin>-->
+<!--                    <artifactId>maven-resources-plugin</artifactId>-->
+<!--                    <version>3.1.0</version>-->
+<!--                    <executions>-->
+<!--                        <execution>-->
+<!--                            <id>copy-resources</id>-->
+<!--                            <phase>validate</phase>-->
+<!--                            <goals>-->
+<!--                                <goal>copy-resources</goal>-->
+<!--                            </goals>-->
+<!--                            <configuration>-->
+<!--                                <outputDirectory>${basedir}/target/biostudies/jsp</outputDirectory>-->
+<!--                                <resources>-->
+<!--                                    <resource>-->
+<!--                                        <directory>src/main/resources</directory>-->
+<!--                                        <includes>-->
+<!--                                            <include>**/*.jsp</include>-->
+<!--                                        </includes>-->
+<!--                                        <filtering>true</filtering>-->
+<!--                                    </resource>-->
+<!--                                </resources>-->
+<!--                            </configuration>-->
+<!--                        </execution>-->
+<!--                    </executions>-->
+<!--                </plugin>-->
             </plugins>
         </pluginManagement>
 
