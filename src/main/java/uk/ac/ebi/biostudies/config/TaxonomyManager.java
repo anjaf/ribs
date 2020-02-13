@@ -59,12 +59,19 @@ public class TaxonomyManager {
         }
 
         try {
+            if(taxonomyWriter!=null && taxonomyReader!=null)
+            {
+                taxonomyWriter.commit();
+                taxonomyWriter.close();
+                taxonomyReader.close();
+            }
             taxoDirectory = FSDirectory.open(new File(indexConfig.getFacetDirectory()).toPath());
             taxonomyWriter = new DirectoryTaxonomyWriter(getTaxoDirectory(), IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             taxonomyReader = new DirectoryTaxonomyReader(taxoDirectory);
-        } catch (IOException e) {
+        } catch (Throwable e) {
             logger.error("can not create taxonomy writer or reader", e);
         }
+
     }
 
 
