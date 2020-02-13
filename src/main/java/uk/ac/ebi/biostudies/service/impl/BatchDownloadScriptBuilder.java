@@ -26,6 +26,8 @@ public class BatchDownloadScriptBuilder {
         try{
             String fileTemplate = DownloadTemplates.get(getTemplate(downloadType, os));
             content = fillFileTemplate(fileTemplate, fileNames, baseDirectory, downloadType);
+            if(!os.equalsIgnoreCase(Constants.OS.WINDOWS))
+                content = "#!/bin/bash\r\n"+content;
         }catch (Exception ex){
             LOGGER.error("Cant open download template file {}", getTemplate(downloadType, os), ex);
         }
@@ -43,12 +45,11 @@ public class BatchDownloadScriptBuilder {
     String fillFileTemplate(String fileTemplate,List<String> fileNames, String baseDirectory, String downloadType){
         String content = "";
         if(downloadType.equalsIgnoreCase("ftp")){
-            String allFiles = fileNames.stream().map(name -> "\""+name+"\"").collect(Collectors.joining(" "));
+            String allFiles = fileNames.stream().map(name -> "mget \""+name+"\"").collect(Collectors.joining("\r\n"));
             content = String.format(fileTemplate, baseDirectory, allFiles);
         }
         else if(downloadType.equalsIgnoreCase("aspera")){
-            String allFiles = fileNames.stream().map(name -> "\""+baseDirectory+"/"+name+"\"").collect(Collectors.joining(" "));
-            content = String.format(fileTemplate, allFiles);
+            content = fileNames.stream().map(name -> String.format(fileTemplate, "\""+baseDirectory+"/"+name+"\"")).collect(Collectors.joining("\r\n"));
         }
         return content;
     }

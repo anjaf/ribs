@@ -1,2 +1,1 @@
-#!/bin/bash
 ascp -P33001 -i "<aspera connect installation directory>/etc/asperaweb_id_dsa.openssh" --host=fasp-beta.ebi.ac.uk --user=bsaspera --mode=recv  %s ./
