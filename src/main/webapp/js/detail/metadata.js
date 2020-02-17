@@ -161,9 +161,17 @@ var Metadata = (function (_self) {
         $("tr",$("#link-list")).each( function (i,row) {
             if (i==0) return;
             var type =  $($('td',row)[typeIndex]).text().toLowerCase();
-            var url = getURL($($('td',row)[0]).text(), type);
+            var name = $($('td',row)[0]).text();
+            var url = getURL(name, type);
             if (url) {
                 $($('td',row)[0]).wrapInner('<a href="'+ url.url +'" target="_blank">');
+            } else {
+                $.getJSON( 'https://resolver.api.identifiers.org/'+type+':'+name , function (data) {
+                    if (data && data.payload && data.payload.resolvedResources) {
+                        var url = data.payload.resolvedResources[0].compactIdentifierResolvedUrl
+                        $($('td',row)[0]).wrapInner('<a href="'+ url +'" target="_blank">');
+                    }
+                })
             }
             $($('td',row)[0]).addClass("overflow-name-column");
         });
