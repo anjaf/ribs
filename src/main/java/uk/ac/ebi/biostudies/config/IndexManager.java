@@ -74,8 +74,12 @@ public class IndexManager implements InitializingBean, DisposableBean {
     ParserManager parserManager;
 
     @Override
-    public void afterPropertiesSet() {
-        logger.debug("Initializing IndexManager");
+    public void afterPropertiesSet() { logger.debug("Initializing IndexManager");
+        refreshIndexWriterAndWholeOtherIndices();
+        indexService.processFileForIndexing();
+    }
+
+    public void refreshIndexWriterAndWholeOtherIndices(){
         InputStream indexJsonFile = this.getClass().getClassLoader().getResourceAsStream("project-fields.json");
         indexDetails = readJson(indexJsonFile);
         fillAllFields();
@@ -105,8 +109,6 @@ public class IndexManager implements InitializingBean, DisposableBean {
             autocompletion.rebuild();
             spellChecker = new SpellChecker(FSDirectory.open(Paths.get(indexConfig.getSpellcheckerLocation())));
             spellChecker.indexDictionary(new LuceneDictionary(getIndexReader(), Constants.Fields.CONTENT), new IndexWriterConfig(), false);
-            indexService.processFileForIndexing();
-
         }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);
         }

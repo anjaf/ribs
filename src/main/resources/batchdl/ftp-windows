@@ -4,6 +4,6 @@ anonymous
 youremail@domain.com
 cd pub/%s/Files
 binary
-mget %s
+%s
 disconnect
 quit

@@ -26,6 +26,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.arrayexpress.utils.efo.EFONode;
 import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
@@ -114,6 +115,7 @@ public class Autocompletion implements InitializingBean, DisposableBean {
         return sb.toString();
     }
 
+    @Async
     public void rebuild() throws IOException {
         getStore().clear();
         List<JsonNode> numericalFieldNameTitle = new ArrayList<JsonNode>();

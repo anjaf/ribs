@@ -384,6 +384,13 @@ public class IndexServiceImpl implements IndexService {
                 filename = indexFileQueue.take();
                 logger.log(Level.INFO, "Started indexing {}. {} files left in the queue.", filename, indexFileQueue.size());
                 boolean removeFileDocuments = true;
+                if(indexManager.getIndexWriter()==null || !indexManager.getIndexWriter().isOpen()){
+                    logger.log(Level.INFO,"IndexWriter was closed trying to construct a new IndexWriter");
+                    indexManager.refreshIndexWriterAndWholeOtherIndices();
+                    Thread.sleep(30000);
+                    indexFileQueue.put(filename);
+                    continue;
+                }
                 if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))  {
                     clearIndex(false);
                     filename = Constants.STUDIES_JSON_FILE;
