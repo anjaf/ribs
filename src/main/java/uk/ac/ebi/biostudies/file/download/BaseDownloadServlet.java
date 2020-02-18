@@ -65,10 +65,9 @@ public abstract class BaseDownloadServlet {
             if(document==null) {
                 throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
                }
-            accession = document.get(Constants.Fields.ACCESSION);
             String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
             if (relativePath==null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+//                response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
             }
 
