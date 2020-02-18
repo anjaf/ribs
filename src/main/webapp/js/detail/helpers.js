@@ -463,7 +463,7 @@ var Metadata = (function (_self) {
                 if (!obj.root) {
                     var accno = obj.accno, type = obj['type'];
                     if (!accno) {
-                        accno= obj.accno = 'genid'+ this.getNextGeneratedId();
+                        accno= obj.accno = 'genid'+ Metadata.getNextGeneratedId();
                     }
                     if (type=='Publication' || type=='Funding') continue;
                     $.each(obj[k], function () {
