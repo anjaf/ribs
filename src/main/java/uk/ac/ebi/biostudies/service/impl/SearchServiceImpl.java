@@ -89,7 +89,9 @@ public class SearchServiceImpl implements SearchService {
                 .build();
         try {
             excludeCompound = parser.parse("type:compound");
-        } catch (ParseException e) {
+            getFieldStats();
+            getLatestStudies();
+        } catch (Exception e) {
             logger.error(e);
         }
     }

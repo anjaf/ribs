@@ -156,6 +156,7 @@ public class IndexServiceImpl implements IndexService {
             taxonomyManager.refreshTaxonomyReader();
             logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
             ActiveExecutorService.decrementAndGet();
+            searchService.clearStatsCache();
         }
         catch (Throwable error){
             logger.error("problem in parsing "+ fileName , error);
@@ -176,6 +177,7 @@ public class IndexServiceImpl implements IndexService {
         indexManager.getIndexWriter().deleteDocuments(query);
         indexManager.getIndexWriter().commit();
         indexManager.refreshIndexSearcherAndReader();
+        searchService.clearStatsCache();
     }
 
     @Override
