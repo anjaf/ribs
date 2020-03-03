@@ -44,7 +44,7 @@ public class Authentication {
         String requestURL = request.getRequestURL().toString();
         String applicationRoot = requestURL.substring(0, requestURL.indexOf(request.getServletPath()));
 
-        if (!returnURL.startsWith(applicationRoot)) {
+        if (returnURL !=null && !returnURL.startsWith(applicationRoot)) {
             returnURL = applicationRoot;
         }
         boolean isLoginSuccessful = false;
