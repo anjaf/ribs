@@ -365,16 +365,39 @@ var FileTable = (function (_self) {
                 updateSelectedFiles();
             }
         });
-
+        $('#batchdl-popup').foundation();
         $("#download-selected-files").on('click', function () {
-            $('#detail-dl').toggle();
-            // select all checked input boxes and get the href in the links contained in their siblings
+            var templateSource = $('script#batchdl-template').html();
+            var template = Handlebars.compile(templateSource);
+            $('#batchdl-popup').html(template);
+            $('#batchdl-popup').foundation('open');
+            var dltype = "/zip";
+            $("#download-files-tabs li").on('click', function () {
+                // remove classes from all
+                $("#download-files-tabs li").removeClass("is-active");
+                $("#download-files-tabs a").removeAttr('aria-selected');
+                $(this).addClass("is-active");
+                $(this).children(":first").attr('aria-selected',true);
+                $(".tabs-panel.is-active").removeClass("is-active");
+                if($(this).text().trim() == "HTTP") {
+                    $("#via-http").addClass("is-active");
+                    dltype = "/zip";
+                }
+                else if($(this).text().trim() == "FTP") {
+                    $("#via-ftp").addClass("is-active");
+                    dltype = "/ftp";
+                }
+                else if($(this).text().trim() == "Aspera") {
+                    $("#via-aspera").addClass("is-active");
+                    dltype="/aspera";
+                }
+
+            });
+            $("input.button").on('click', function () {
+                getSelectedFilesForm(key, dltype);
+            });
+
         });
-
-        $("#normal-dl").on('click', function () {getSelectedFilesForm(key, '/zip')});
-        $("#ftp-dl").on('click', function () {getSelectedFilesForm(key, '/ftp')});
-        $("#aspera-dl").on('click', function () {getSelectedFilesForm(key, '/aspera')});
-
     }
 
     function getSelectedFilesForm(key, type){
