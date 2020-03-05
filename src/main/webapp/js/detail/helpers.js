@@ -25,8 +25,8 @@ var Metadata = (function (_self) {
                 return ( urls[i] ? '<a href="'
                     + urls[i]
                     + (urls[i][0]!='#' ? '" target="_blank':'')
-                    +'">'+v+'</a>'
-                    : v)  })
+                    +'">'+v+renderValQuals(e.valquals)+'</a>'
+                    : v+renderValQuals(e.valqual))  })
                 .join(', ')
             return new Handlebars.SafeString(html);
         });
@@ -205,22 +205,7 @@ var Metadata = (function (_self) {
 
 
         Handlebars.registerHelper('renderOntologySubAttribute', function(arr) {
-            if (!arr) return;
-            arr = arr.filter( function (o) {
-                return $.inArray(o.name.toLowerCase(), ['ontology', 'termname', 'termid'])>=0
-            })
-            var ret = '';
-            $.each(arr, function (i,o) {
-                if (o.name.toLowerCase()=='ontology') {
-                    var termname = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termname' })[0];
-                    var termid = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termid' })[0];
-                    ret += '<span data-ontology="'+ o.value+'" ' +
-                        (termid ? 'data-term-id="'+ termid.value+'" ' : '') +
-                        (termname ? 'data-term-name="'+ termname.value : '') +
-                        '"></span>';
-                }
-            });
-            return ret;
+            return renderValQuals(arr);
         });
 
         Handlebars.registerHelper('eachSubAttribute', function(arr, options) {
@@ -496,5 +481,23 @@ var Metadata = (function (_self) {
         return  ret;
     }
 
+    function renderValQuals(arr) {
+        var ret = '';
+        if (!arr || !arr.length) return ret;
+        arr = arr.filter( function (o) {
+            return $.inArray(o.name.toLowerCase(), ['ontology', 'termname', 'termid'])>=0
+        });
+        $.each(arr, function (i,o) {
+            if (o.name.toLowerCase()=='ontology') {
+                var termname = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termname' })[0];
+                var termid = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termid' })[0];
+                ret += '<span data-ontology="'+ o.value+'" ' +
+                    (termid ? 'data-term-id="'+ termid.value+'" ' : '') +
+                    (termname ? 'data-term-name="'+ termname.value : '') +
+                    '"></span>';
+            }
+        });
+        return ret;
+    }
     return _self;
 })(Metadata || {});
