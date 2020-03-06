@@ -316,20 +316,30 @@ var FileTable = (function (_self) {
     function handleFileFilters(acc,params, sections) {
         // add file filter button for section
         $(sections).each(function (i,divId) {
-            var bar = $('#' + divId + '> .bs-name > .section-title-bar');
-            bar.append('<a class="section-button" data-files-id="'+ divId + '"><i class="fa fa-filter"></i> show files in this section</a>');
-            var listFile = $('section#'+this).data('filelist');
-        });
-        // handle clicks on file filters in section
-        $("a.section-button[data-files-id]").click(function () {
-            var expansionSource = '' + $(this).data('files-id');
-            Metadata.setExpansionSource(expansionSource);
-            //clearFileFilter();
-            $('#all-files-expander').click();
-            filesTable.column(':contains(Section)').search(expansionSource);
-            filesTable.draw();
+            var column = 'columns['+filesTable.column(':contains(Section)').index()+']';
+            var section = this;
+            var fileSearchParams = {};
+            fileSearchParams[column+'[name]']='Section';
+            fileSearchParams[column+'[search][value]']=divId;
+            $.post(contextPath + '/api/v1/files/' + acc , fileSearchParams, function(data) {
+                    var bar = $('#' + divId + '> .bs-name > .section-title-bar');
+                    var button = $('<a class="section-button" data-files-id="'+ divId + '">' +
+                        '<i class="fa fa-filter"></i> show '+ data.recordsFiltered + ' files in this section</a>');
+                    // handle clicks on file filters in section
+                    $(button).click(function () {
+                        var expansionSource = '' + $(this).data('files-id');
+                        Metadata.setExpansionSource(expansionSource);
+                        //clearFileFilter();
+                        $('#all-files-expander').click();
+                        filesTable.column(':contains(Section)').search(expansionSource);
+                        filesTable.draw();
+
+                    });
+                    bar.append(button);
+            });
 
         });
+
     }
 
     function handleFileDownloadSelection(acc,key) {
