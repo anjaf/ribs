@@ -5,6 +5,7 @@ var Metadata = (function (_self) {
     var expansionSource;
     var lastExpandedTable;
     var generatedID = 0;
+    var sectionLinkCount = {};
 
     _self.render = function() {
         this.registerHelpers();
@@ -68,6 +69,9 @@ var Metadata = (function (_self) {
         return generatedID++;
     };
 
+    _self.updateSectionLinkCount = function (section) {
+        sectionLinkCount[section] = (sectionLinkCount[section] + 1) || 1;
+    };
 
     function postRender(params, data) {
         FileTable.render(data.accno, params, true);
@@ -155,7 +159,6 @@ var Metadata = (function (_self) {
     }
 
      function createMainLinkTable() {
-
         //create external links for known link types
         var typeIndex = $('thead tr th',$("#link-list")).map(function(i,v) {if ( $(v).text().toLowerCase()=='type') return i;}).filter(isFinite)[0];
         $("tr",$("#link-list")).each( function (i,row) {
@@ -430,9 +433,10 @@ var Metadata = (function (_self) {
             if (divId != '') {
                 var bar = $('#' + divId + '> .bs-name > .section-title-bar');
                 if (!$('a[data-links-id="' + divId + '"]', bar).length) {
-                    bar.append('<a class="section-button" data-links-id="'
-                        + divId + '"><i class="fa fa-filter"></i> show links in this section</a>'
-                    );
+                    bar.append('<a class="section-button" data-links-id="' + divId + '"><i class="fa fa-filter"></i> ' +
+                        sectionLinkCount[divId] +
+                        ' link' + (sectionLinkCount[divId]>1 ? 's' : '') +
+                        '</a>');
                 }
             }
         });

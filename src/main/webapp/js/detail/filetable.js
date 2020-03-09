@@ -324,7 +324,9 @@ var FileTable = (function (_self) {
             $.post(contextPath + '/api/v1/files/' + acc , fileSearchParams, function(data) {
                     var bar = $('#' + divId + '> .bs-name > .section-title-bar');
                     var button = $('<a class="section-button" data-files-id="'+ divId + '">' +
-                        '<i class="fa fa-filter"></i> show '+ data.recordsFiltered + ' files in this section</a>');
+                        '<i class="fa fa-filter"></i> '+ data.recordsFiltered + ' file' +
+                        (data.recordsFiltered>1 ? 's' : '') +
+                        '</a>');
                     // handle clicks on file filters in section
                     $(button).click(function () {
                         var expansionSource = '' + $(this).data('files-id');

@@ -37,6 +37,9 @@ var Metadata = (function (_self) {
             if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
             e.value = e.value || '';
             var value = val.toLowerCase()=='type' && DetailPage.linkTypeMap[e.value.toLowerCase()] ? DetailPage.linkTypeMap[e.value.toLowerCase()] : e.value;
+            if (val=='Section') {
+                Metadata.updateSectionLinkCount(e.search);
+            }
             return new Handlebars.SafeString( e.url ?
                 '<td'+ ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'') + '><a href="'
                 + e.url
