@@ -114,7 +114,9 @@
             <ul id="bs-funding">
                 {{/if}}
                 <li><span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">{{name}}</span></span>{{#if grants}}:
-                    <span class="bs-grants">{{grants}}</span>
+                    {{#each grants}}
+                        <span class="bs-grants"><a target="_blank" href="{{link}}">{{this.gid}}</a></span>
+                    {{/each}}
                     {{/if}}
                 </li>
                 {{#if @last}}

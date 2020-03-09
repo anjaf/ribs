@@ -350,7 +350,9 @@ var Metadata = (function (_self) {
                     if (!orgs[org]) orgs[org] = {};
                     if (grant) {
                         if (!orgs[org].grants) orgs[org].grants= [];
-                        orgs[org].grants.push( grant );
+                        orgs[org].grants.push({'ga':org, 'gid':grant,
+                            'link': ('https://europepmc.org/grantfinder/grantdetails?query=gid:"'+grant+'" ga:"'+org+'"')
+                            } );
                     }
                     orgs[org].links = o.links;
                 }
