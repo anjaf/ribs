@@ -5,13 +5,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.biostudies.integration.utils.IntegProps;
+import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
 import uk.ac.ebi.biostudies.integration.utils.IntegrationConfig;
 
 import java.text.SimpleDateFormat;
@@ -27,7 +26,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 public class SearchTest {
 
     @Autowired
-    IntegProps integProps;
+    IntegrationTestProperties integrationTestProperties;
     protected static WebDriver driver;
 
     @BeforeClass
@@ -41,7 +40,7 @@ public class SearchTest {
 
     @Test
     public void testPageStats() {
-        driver.get(integProps.getBaseUrl() + "/studies");
+        driver.get(integrationTestProperties.getBaseUrl() + "/studies");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
         wait.until(visibilityOfElementLocated(By.cssSelector(".result-count")));
         String pages = driver.findElement(By.cssSelector(".result-count")).getAttribute("innerText");
@@ -51,7 +50,7 @@ public class SearchTest {
     // Does not work with <input type="search"...
     //@Test
     public void testAutoComplete() throws Exception{
-        driver.get(integProps.getBaseUrl() + "/studies/");
+        driver.get(integrationTestProperties.getBaseUrl() + "/studies/");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 120);
         wait.until(visibilityOfElementLocated(By.cssSelector(".result-count")));
         WebElement searchBox = driver.findElement (By.cssSelector("#query"));
@@ -135,7 +134,7 @@ public class SearchTest {
 
     @Test
     public void testFilesDescendingSort() throws Exception{
-        driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
+        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
@@ -152,7 +151,7 @@ public class SearchTest {
 
     @Test(expected = TimeoutException.class)
     public void testFilesAscendingSort() throws Exception{
-        driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
+        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
@@ -172,7 +171,7 @@ public class SearchTest {
 
     @Test
     public void testLinksDescendingSort() throws Exception{
-        driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
+        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
@@ -189,7 +188,7 @@ public class SearchTest {
 
     @Test(expected = TimeoutException.class)
     public void testLinksAscendingSort() throws Exception{
-        driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
+        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 4);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
@@ -208,7 +207,7 @@ public class SearchTest {
 
     @Test
     public void testReleasedDescendingSort() throws Exception{
-        driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
+        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 4);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
@@ -246,7 +245,7 @@ public class SearchTest {
 
     @Test
     public void testReleasedAscendingSort() throws Exception{
-        driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
+        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
@@ -288,7 +287,7 @@ public class SearchTest {
     @Test
     public void testPaging() throws Exception{
         driver.manage().window().setSize(new Dimension(1280, 1024));
-        driver.get(integProps.getBaseUrl() + "/studies");
+        driver.get(integrationTestProperties.getBaseUrl() + "/studies");
         WebDriverWait wait = new WebDriverWait(driver, 5);
         wait.until(visibilityOfElementLocated(By.linkText("2")));
         driver.findElement(By.linkText("2")).click();
@@ -305,10 +304,10 @@ public class SearchTest {
     @Test
     public void facetCountTest() throws Exception {
         WebDriverWait wait = new WebDriverWait(driver, 15);
-        driver.get(integProps.getBaseUrl() + "/EuropePMC/studies");
+        driver.get(integrationTestProperties.getBaseUrl() + "/EuropePMC/studies");
         wait.until(visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
         assertEquals("9,994", driver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
-        driver.get(integProps.getBaseUrl() + "/EuropePMC/studies?facet.funding_agency=medical+research+council");
+        driver.get(integrationTestProperties.getBaseUrl() + "/EuropePMC/studies?facet.europepmc.funding_agency=medical+research+council");
         wait.until(visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
         assertEquals("254", driver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
     }

@@ -12,7 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import uk.ac.ebi.biostudies.integration.utils.IntegProps;
+import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
 import uk.ac.ebi.biostudies.integration.utils.IntegrationConfig;
 import uk.ac.ebi.biostudies.integration.utils.TestUtils;
 
@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class IndexTest {
 
     @Autowired
-    IntegProps integProps;
+    IntegrationTestProperties integrationTestProperties;
 
     protected static WebDriver driver;
     protected static String baseUrl;
@@ -35,53 +35,50 @@ public class IndexTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception{
         driver = IntegrationTestSuite.driver;
-//        driver = new HtmlUnitDriver();
-//        ((HtmlUnitDriver)driver).setJavascriptEnabled(true);
-//        baseUrl = new BSInterfaceTestApplication().getPreferences().getString("bs.test.uk.ac.ebi.biostudies.integration.server.url");
     }
 
 
     @Test
     public void BTestIndexing() throws Exception {
-        TestUtils.login(integProps.getBaseUrl(), integProps.getUsername(), integProps.getPassword());
-        IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"api/v1/index/reload/testJson.json");
+        TestUtils.login(integrationTestProperties.getBaseUrl(), integrationTestProperties.getUsername(), integrationTestProperties.getPassword());
+        IntegrationTestSuite.driver.navigate().to(integrationTestProperties.getBaseUrl()+"api/v1/index/reload/testJson.json");
         Thread.sleep(30000);
-        assertTrue(IntegrationTestSuite.driver.getPageSource().contains("Indexing started"));
-        TestUtils.validIndexIsloaded(integProps.getBaseUrl());
-        TestUtils.logout(integProps.getBaseUrl());
+        assertTrue(IntegrationTestSuite.driver.getPageSource().contains("{\"message\":\"testJson.json queued for indexing\"}"));
+        TestUtils.validIndexIsloaded(integrationTestProperties.getBaseUrl());
+        TestUtils.logout(integrationTestProperties.getBaseUrl());
     }
     @Test
     public void DUpdateDocument() throws Exception{
-        TestUtils.login(integProps.getBaseUrl(), integProps.getUsername(), integProps.getPassword());
-        IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"api/v1/index/reload/smallJson.json");
+        TestUtils.login(integrationTestProperties.getBaseUrl(), integrationTestProperties.getUsername(), integrationTestProperties.getPassword());
+        IntegrationTestSuite.driver.navigate().to(integrationTestProperties.getBaseUrl()+"api/v1/index/reload/smallJson.json");
         Thread.sleep(10000);
-        IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"studies?query=S-EPMC3343805");
+        IntegrationTestSuite.driver.navigate().to(integrationTestProperties.getBaseUrl()+"studies?query=S-EPMC3343805");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".accession")));
         assertTrue(IntegrationTestSuite.driver.findElement(By.cssSelector(".accession")).getAttribute("innerText").contains("S-EPMC3343805"));
-        TestUtils.logout(integProps.getBaseUrl());
+        TestUtils.logout(integrationTestProperties.getBaseUrl());
     }
 
     @Test
     public void AClearIndex(){
-        TestUtils.login(integProps.getBaseUrl(), integProps.getUsername(), integProps.getPassword());
-        IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"api/v1/index/clear");
+        TestUtils.login(integrationTestProperties.getBaseUrl(), integrationTestProperties.getUsername(), integrationTestProperties.getPassword());
+        IntegrationTestSuite.driver.navigate().to(integrationTestProperties.getBaseUrl()+"api/v1/index/clear");
         assertTrue(IntegrationTestSuite.driver.getPageSource().contains("Index empty"));
-        TestUtils.logout(integProps.getBaseUrl());
+        TestUtils.logout(integrationTestProperties.getBaseUrl());
     }
 
 
 
     @Test
     public void ETestDeleteDocument() throws Exception{
-        TestUtils.login(integProps.getBaseUrl(), integProps.getUsername(), integProps.getPassword());
-        IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"api/v1/index/delete/S-EPMC3343805");
+        TestUtils.login(integrationTestProperties.getBaseUrl(), integrationTestProperties.getUsername(), integrationTestProperties.getPassword());
+        IntegrationTestSuite.driver.navigate().to(integrationTestProperties.getBaseUrl()+"api/v1/index/delete/S-EPMC3343805");
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
-        IntegrationTestSuite.driver.navigate().to(integProps.getBaseUrl()+"studies?query=S-EPMC3343805");
+        IntegrationTestSuite.driver.navigate().to(integrationTestProperties.getBaseUrl()+"studies?query=S-EPMC3343805");
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".alert")));
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#renderedContent")));
         assertTrue(IntegrationTestSuite.driver.findElement(By.cssSelector("#renderedContent")).getAttribute("innerText").contains("no results"));
-        TestUtils.logout(integProps.getBaseUrl());
+        TestUtils.logout(integrationTestProperties.getBaseUrl());
     }
 
 }
