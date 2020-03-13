@@ -37,9 +37,6 @@ public class IntegrationTestSuite {
         DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
         capabilities.setCapability("phantomjs.binary.path", System.getenv("phantomjs.binary.path") );
         driver = new PhantomJSDriver(capabilities);
-        int sleep = Integer.parseInt(System.getenv("test.integration.sleep"));
-        System.out.println("sleeping "+sleep+" seconds to make sure tomcat is ready for integration test");
-        Thread.sleep(sleep*1000);
     }
 
     @AfterClass
