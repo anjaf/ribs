@@ -43,10 +43,10 @@
               <div class="tabs-panel" id="via-ftp">
                  <p>
                   <ol>
-                    <li>Click the button below to download the script and save it to the folder where you want to download your files e.g. <code> C:\data </code> .</li>
+                    <li>Click the button below to download the script and save it to the folder where you want to download your files e.g. <code> C:\data </code></li>
                     <li>Press Windows key+R, type <code>cmd</code> and press <b>Enter</b> </li>
                     <li>Change your console directory to the place that you put downloaded script e.g. <code>cd C:\data </code> .</li>
-                    <li>Run downloaded script file in cmd with this command: <code> ftp -i -s:./S-TOXR1690-windows-ftp.bat </code></li>
+                    <li>Run downloaded script file in cmd with this command: <code> ftp -i -s:./{{fname.acc}}-{{fname.os}}-ftp{{fname.ps}} </code></li>
                   </ol>
                 </p>
                 <input class="button" type="button" value="Download"/>
@@ -55,10 +55,10 @@
                  <p>
                   <ol>
                     <li>Click the button below to download the script and save it to the folder where you want to download your files e.g. <code> C:\data </code> .</li>
-                    <li>Edit this script e.g. S-TOXR1690-windows-aspera.bat and change default directory address of <b>asperaweb_id_dsa.openssh</b> with the directory that you have installed your Aspera client</li>
+                    <li>Edit script <code>{{fname.acc}}-{{fname.os}}-aspera{{fname.ps}}</code> and change default directory address of <b>asperaweb_id_dsa.openssh</b> with the directory that you have installed your Aspera client</li>
                     <li>Press Windows key+R, type <code>cmd</code> and press <b>Enter</b> </li>
-                    <li>Change your console directory to the place that you put downloaded script e.g. <code>cd C:\data </code> .</li>
-                    <li>Run downloaded script from command line </li>
+                    <li>Change your console directory to the place that you put downloaded script e.g. <code>cd C:\data </code></li>
+                    <li>Run downloaded script from command line <code>./{{fname.acc}}-{{fname.os}}-aspera{{fname.ps}}</code></li>
                   </ol>
                 </p>
                 <input class="button" type="button" value="Download"/>

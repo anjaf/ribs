@@ -379,9 +379,14 @@ var FileTable = (function (_self) {
         });
         $('#batchdl-popup').foundation();
         $("#download-selected-files").on('click', function () {
+            var fileName = {os:"unix", ps:".sh", acc:$('#accession').text()};
+            if (navigator.appVersion.indexOf("Win")!=-1) {
+                fileName.os ="windows";
+                fileName.ps = ".bat";
+            }
             var templateSource = $('script#batchdl-template').html();
             var template = Handlebars.compile(templateSource);
-            $('#batchdl-popup').html(template);
+            $('#batchdl-popup').html(template({fname:fileName}));
             $('#batchdl-popup').foundation('open');
             var dltype = "/zip";
             $("#download-files-tabs li").on('click', function () {
