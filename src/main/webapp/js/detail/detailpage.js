@@ -31,7 +31,8 @@ var DetailPage = (function (_self) {
         'rnacentral': 'http://rnacentral.org/rna/{0}',
         'nct': 'https://clinicaltrials.gov/ct2/show/{0}',
         'expression atlas': 'https://www.ebi.ac.uk/gxa/experiments/{0}?ref=biostudies',
-        'single cell expression atlas': 'https://www.ebi.ac.uk/gxa/sc/experiments/{0}?ref=biostudies'
+        'single cell expression atlas': 'https://www.ebi.ac.uk/gxa/sc/experiments/{0}?ref=biostudies',
+        'idr': 'https://idr.openmicroscopy.org/search/?query=Name:{0}'
     };
 
     _self.reverseLinkMap = {
@@ -64,6 +65,7 @@ var DetailPage = (function (_self) {
         '^clinicaltrials.gov/ct2/show/(.*)': 'nct',
         '^www.ebi.ac.uk/gxa/experiments/(.*)': 'gxa',
         '^www.ebi.ac.uk/gxa/sc/experiments/(.*)': 'gxa-sc',
+        '^idr.openmicroscopy.org/search/?query=Name:(.*)': 'idr'
     };
 
     _self.linkTypeMap = { //sync with normalised-text
@@ -93,7 +95,8 @@ var DetailPage = (function (_self) {
         'rnacentral': 'RNAcentral',
         'nct': 'NCT',
         'gxa': 'Expression Atlas',
-        'gxa-sc': 'Single Cell Expression Atlas'
+        'gxa-sc': 'Single Cell Expression Atlas',
+        'idr': 'IDR'
     };
 
     _self.projectScripts = [
