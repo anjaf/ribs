@@ -1,28 +1,24 @@
+image: maven:latest
+cache:
+  paths:
+    - target/
+
 stages:
   - setup
-  - deploy
+  - build-and-deploy
 
 .build-template: &build-and-deploy
-  stage: setup
-  image: maven:latest
+  stage: build-and-deploy
   script:
     - sh ./tasks/setup.sh
     - sh ./tasks/build.sh
+    - sh ./tasks/deploy.sh
   artifacts:
     paths:
       - target/biostudies.war
 
 dev:
   <<: *build-and-deploy
-  environment: dev
-  only:
-    - develop
-
-deploy:
-  stage: deploy
-  image: docker:latest
-  script:
-    - sh ./tasks/deploy.sh
   environment: dev
   only:
     - develop
@@ -43,7 +39,6 @@ test:
   environment: test
   only:
     - develop
-  when: manual
 
 
 beta:
