@@ -232,7 +232,7 @@ var Metadata = (function (_self) {
     function handleSectionArtifacts() {
         $(".toggle-files, .toggle-links, .toggle-tables").on('click', function () {
             var type = $(this).hasClass("toggle-files") ? "file" : $(this).hasClass("toggle-links") ? "link" : "table";
-            var section = $(this).siblings('.bs-section-' + type + 's');
+            var section = $(this).parent().siblings('.bs-section-' + type + 's');
             if (section.css('display') == 'none') {
                 section.show();
                 //redrawTables(true);

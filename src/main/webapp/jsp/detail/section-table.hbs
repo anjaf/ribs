@@ -1,7 +1,9 @@
 <script id='section-table' type='text/x-handlebars-template'>
     {{setHeaders}}
     <section>
-        <a class="show-more toggle-tables" data-total="1"><i class="fa fa-caret-right"></i> show table</a>
+        <div class="bs-name">{{this.type}}
+           <a class="show-more toggle-tables" data-total="1"><i class="fa fa-caret-right"></i> show table</a>
+        </div>
         <div class="bs-section-tables">
             <div class="table-caption">
                 Table: {{this.type}}
