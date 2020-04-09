@@ -1,10 +1,9 @@
-image: maven:latest
+image: maven:3-jdk-11
 cache:
   paths:
     - target/
 
 stages:
-  - setup
   - build-and-deploy
 
 .build-template: &build-and-deploy
@@ -39,7 +38,6 @@ test:
   environment: test
   only:
     - develop
-
 
 beta:
   <<: *build-and-deploy
