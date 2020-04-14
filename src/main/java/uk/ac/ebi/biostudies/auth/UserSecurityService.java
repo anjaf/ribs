@@ -122,8 +122,7 @@ public class UserSecurityService {
 
     private User createUserFromJSONResponse(JsonNode responseJSON) throws IOException {
         User user;
-        if (responseJSON == null || !responseJSON.has("status") ||
-                (responseJSON.has("status") && !responseJSON.get("status").asText().equalsIgnoreCase("ok"))) {
+        if (responseJSON == null || !responseJSON.has("sessid") ) {
             return null;
         }
         user = new User();
