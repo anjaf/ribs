@@ -52,6 +52,7 @@ import static uk.ac.ebi.biostudies.controller.Stats.STATS_ENDPOINT;
 @Service
 public class SearchServiceImpl implements SearchService {
 
+    private static final int MAX_PAGE_SIZE = 100;
     private Logger logger = LogManager.getLogger(SearchServiceImpl.class.getName());
 
     @Autowired
