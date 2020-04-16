@@ -16,8 +16,6 @@ import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.SearchService;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import java.net.URLDecoder;
 import java.util.Set;
 
@@ -50,8 +48,8 @@ public class Search {
     @PublicRESTMethod
     @ApiModelProperty(hidden = true)
     @RequestMapping(value = "/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String search(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) @Max(Integer.MAX_VALUE) Integer page,
-                         @RequestParam(value = "pageSize", required = false, defaultValue = "20") @Min(1) @Max(100) Integer pageSize,
+    public String search(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                         @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
                          @RequestParam(value = "sortBy", required = false, defaultValue = "") String sortBy,
                          @RequestParam(value = "sortOrder", required = false, defaultValue = "descending") String sortOrder,
                          @RequestParam MultiValueMap<String, String> params
@@ -69,8 +67,8 @@ public class Search {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Returns a JSON object with search results.")})
     @PublicRESTMethod
     @RequestMapping(value = "/{project}/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String searchProject(@RequestParam(value = "page", required = false, defaultValue = "1") @Min(1) @Max(Integer.MAX_VALUE) Integer page,
-                                @RequestParam(value = "pageSize", required = false, defaultValue = "20") @Min(1) @Max(100) Integer pageSize,
+    public String searchProject(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                                @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
                                 @RequestParam(value = "sortBy", required = false, defaultValue = "") String sortBy,
                                 @RequestParam(value = "sortOrder", required = false, defaultValue = "descending") String sortOrder,
                                 @RequestParam MultiValueMap<String, String> params,
