@@ -87,8 +87,8 @@ var Searcher = (function (_self) {
                 return '';
             }
             var spn = '<span class="result-count">'
-                 + formatNumber((o.data.root.page-1)*20+1) + ' ‒ '
-                 + formatNumber(o.data.root.page*20 < o.data.root.totalHits ? o.data.root.page*20 : o.data.root.totalHits)
+                 + formatNumber((o.data.root.page-1)*o.data.root.pageSize+1) + ' ‒ '
+                 + formatNumber(o.data.root.page*o.data.root.pageSize < o.data.root.totalHits ? o.data.root.page*o.data.root.pageSize : o.data.root.totalHits)
                  +' of ' + formatNumber(o.data.root.totalHits) + ' results</span>';
             return new Handlebars.SafeString(spn);
         });
