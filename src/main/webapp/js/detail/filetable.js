@@ -318,7 +318,7 @@ var FileTable = (function (_self) {
         $(sections).each(function (i,divId) {
             var column = 'columns['+filesTable.column(':contains(Section)').index()+']';
             var section = this;
-            var fileSearchParams = {};
+            var fileSearchParams = {key:params.key};
             fileSearchParams[column+'[name]']='Section';
             fileSearchParams[column+'[search][value]']=divId;
             $.post(contextPath + '/api/v1/files/' + acc , fileSearchParams, function(data) {

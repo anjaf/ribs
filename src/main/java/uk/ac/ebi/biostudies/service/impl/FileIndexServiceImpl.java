@@ -93,9 +93,9 @@ public class FileIndexServiceImpl implements FileIndexService {
             columns.add(0,"Section");
         }
         attributeColumns.addAll(columns);
-
-        valueMap.put(Constants.Fields.SECTIONS_WITH_FILES,
-                sectionsWithFiles.size()==0 ? null : String.join(" ", sectionsWithFiles) );
+        if (sectionsWithFiles.size()!=0) {
+            valueMap.put(Constants.Fields.SECTIONS_WITH_FILES, String.join(" ", sectionsWithFiles));
+        }
         valueMap.put(Constants.Fields.FILES, counter.longValue());
 
         return valueMap;
