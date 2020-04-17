@@ -305,11 +305,14 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode result = mapper.createObjectNode();
+        if(secretKey!=null)
+            return result;
         int maxHits = 4;
         MoreLikeThis mlt = new MoreLikeThis(indexManager.getIndexReader());
         mlt.setFieldNames(new String[]{Fields.CONTENT, Fields.TITLE, Facets.PROJECT});
         mlt.setAnalyzer(analyzerManager.getPerFieldAnalyzerWrapper());
-        ObjectMapper mapper = new ObjectMapper();
         Integer docNumber = getDocumentNumberByAccession(accession, secretKey);
         Query likeQuery = mlt.like(docNumber);
         TopDocs mltDocs = indexManager.getIndexSearcher().search(likeQuery, maxHits);
@@ -320,7 +323,7 @@ public class SearchServiceImpl implements SearchService {
             study.set(Fields.TITLE, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Fields.TITLE)));
             similarStudies.add(study);
         }
-        ObjectNode result = mapper.createObjectNode();
+
         if (mltDocs.totalHits.value > 1) {
             result.set("similarStudies", similarStudies);
         }
