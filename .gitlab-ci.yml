@@ -5,6 +5,8 @@ cache:
 
 stages:
   - build-and-deploy
+  - integration-test
+
 
 .build-template: &build-and-deploy
   stage: build-and-deploy
@@ -30,14 +32,21 @@ test:
     - apt-get install -y build-essential chrpath libssl-dev libxft-dev libfreetype6 libfreetype6-dev libfontconfig1 libfontconfig1-dev
     - wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
     - tar xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2
-    - export OPENSSL_CONF=/etc/ssl/
-    - phantomjs-2.1.1-linux-x86_64/bin/phantomjs --version
-  script:
-    - sleep 120
-    - mvn test -Dtest=IntegrationTestSuite -Dphantomjs.binary.path=phantomjs-2.1.1-linux-x86_64/bin/phantomjs
   environment: test
   only:
     - develop
+
+integration-test:
+  stage: integration-test
+  script:
+    - echo 'integration test'
+    - sleep 120
+    - export OPENSSL_CONF=/etc/ssl/
+    - mvn test -Dtest=IntegrationTestSuite -Dphantomjs.binary.path=phantomjs-2.1.1-linux-x86_64/bin/phantomjs
+  rules:
+    - if: '$CI_ENVIRONMENT_SLUG == "test"'
+      when: always
+    - when: never
 
 beta:
   <<: *build-and-deploy
