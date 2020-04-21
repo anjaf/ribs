@@ -279,8 +279,9 @@ var FileTable = (function (_self) {
         $('#clear-file-filter').on('click', function () {
             FileTable.clearFileFilter();
         });
-
-
+        
+        $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px');
+        $('.fullscreen').css("top", ( $(window).height() - $('#file-list-container').height()) / 3  + "px");
         // TODO: enable select on tr click
         updateSelectedFiles();
         handleThumbnails(params.key);
@@ -469,8 +470,8 @@ var FileTable = (function (_self) {
             }
         });
 
-        $(filesTable.column(1).nodes()).hover( function() {
-            var $tn = $(this).find('.thumbnail-icon');
+        $(".thumbnail-icon").hover( function() {
+            var $tn = $(this);
             if (!$tn.length) return;
             $('#thumbnail').html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>')
             $('#thumbnail').css('top',$tn.offset().top - 10);
