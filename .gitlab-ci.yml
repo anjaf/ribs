@@ -26,7 +26,7 @@ dev:
 test:
   <<: *build-and-deploy
   before_script:
-    - cp "$test_properties" src/test/resources/test.properties
+    - cp "$test_properties" src/main/resources/test.properties
     - apt-get update
     - apt-get install -y build-essential chrpath libssl-dev libxft-dev libfreetype6 libfreetype6-dev libfontconfig1 libfontconfig1-dev
   environment: test
