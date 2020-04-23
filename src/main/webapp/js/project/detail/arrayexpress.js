@@ -49,11 +49,11 @@ var newIcon = $('<span class="fa-icon" title="Click to expand"><i class="fa fa-e
 $('#all-files-expander').before(newIcon);
 
 // add icon for sdrf
-var sdrfIcon = $('<a href="#" title="Click to open SDRF Viewer">' +
-    '<i class="fas fa-external-link-square-alt"></i> Click for detailed sample information and links to data</a>')
-    .css({'color': '#A66A27', 'margin-left': '4pt'})
-    .click(function() {
+var sdrfIcon = $('<div class="bs-name">Detailed sample information and links to data ' +
+    '<a class="show-more" href="#" title="Click to open SDRF Viewer">' +
+    '<i class="fas fa-external-link-square-alt"></i> view table</a>' +
+    '</div>').click(function() {
         var acc = $('#accession').text();
         window.open( contextPath + (project? '/'+project:'')+'/studies/'+ acc + '/sdrf');
     });
-$('.bs-name:contains("Sample count")').next().append(sdrfIcon);
+sdrfIcon.insertAfter($('.bs-name:contains("Description")').first().next());

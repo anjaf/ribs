@@ -463,33 +463,29 @@ var FileTable = (function (_self) {
             var path = encodeURI($('input',$(this).prev()).data('name')).replaceAll('#','%23');
             $('a',this).addClass('overflow-name-column');
             $('a',this).attr('title',$(this).text());
-            if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
-                imgFormats) >=0 ) {
-                $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'
-                    +window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'"><i class="far fa-file-image"></i></a>')
+            if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
+                var tnButton = $('<a href="#" class="thumbnail-icon" ' +
+                    'data-thumbnail="'+window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'">' +
+                    '<i class="far fa-file-image"></i></a>');
+                $(this).append(tnButton);
+                tnButton.foundation();
             }
         });
+        $('#thumbnail').foundation();
 
-        $(".thumbnail-icon").hover( function() {
+        $(".thumbnail-icon").click( function() {
             var $tn = $(this);
             if (!$tn.length) return;
-            $('#thumbnail').html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>')
-            $('#thumbnail').css('top',$tn.offset().top - 10);
-            $('#thumbnail').css('left',$tn.parent().offset().left - $('#thumbnail').width() - 10);
-            $('#thumbnail').show();
+            $('#thumbnail-image').html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>')
+            $('#thumbnail').foundation('open');
             var img = $("<img />").attr('src', $tn.data('thumbnail')+(key ? '?key='+key :''))
                 .on('load', function() {
                     if (!this.complete || typeof this.naturalWidth == "undefined" || this.naturalWidth == 0) {
-                        $('#thumbnail').hide();
+                        $('#thumbnail').foundation('close');
                     } else {
-                        $('#thumbnail').html('').append(img)
-                        $('#thumbnail').css('top',$tn.offset().top - 10);
-                        $('#thumbnail').css('left',$tn.parent().offset().left - $('#thumbnail').width() - 10);
-                        $('#thumbnail').show();
+                        $('#thumbnail-image').html('').append(img)
                     }
                 });
-        }, function () {
-            $('#thumbnail').hide();
         });
 
     }

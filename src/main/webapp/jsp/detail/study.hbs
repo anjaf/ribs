@@ -48,7 +48,12 @@
             </div>
         </div>
         <div id="bs-content">
-            <div id="thumbnail"></div>
+            <div class="reveal max-content-width" id="thumbnail" data-reveal>
+              <div id="thumbnail-image"></div>
+              <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
             <!-- Authors -->
             <ul id="bs-authors">
                 {{#eachAuthor this}}

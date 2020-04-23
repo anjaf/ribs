@@ -337,15 +337,8 @@ a.section-button:hover {
     color: #aaaaaa;
 }
 
-#thumbnail {
-    border: 1px solid #aaa;
-    max-width: 303px;
-    position: absolute;
-    box-shadow: 2px 2px 10px #888888;
-    display: none;
-    padding: 3px;
-    background-color: white;
-    z-index:99999;
+.max-content-width{
+    width: max-content !important;
 }
 
 a.thumbnail-icon {
