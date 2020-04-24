@@ -51,7 +51,7 @@ $('#all-files-expander').before(newIcon);
 // add icon for sdrf
 var sdrfIcon = $('<div class="bs-name">Detailed sample information and links to data ' +
     '<a class="show-more" href="#" title="Click to open SDRF Viewer">' +
-    '<i class="fas fa-external-link-square-alt"></i> view table</a>' +
+    ' view table <i class="fas fa-external-link-square-alt"></i></a>' +
     '</div>').click(function() {
         var acc = $('#accession').text();
         window.open( contextPath + (project? '/'+project:'')+'/studies/'+ acc + '/sdrf');
