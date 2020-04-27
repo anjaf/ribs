@@ -23,6 +23,7 @@ public class User {
     protected String token;
     protected String[] allow;
     protected String[] deny;
+    protected String email;
     protected boolean superUser;
 
     public String getLogin() {
@@ -64,4 +65,13 @@ public class User {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
 }

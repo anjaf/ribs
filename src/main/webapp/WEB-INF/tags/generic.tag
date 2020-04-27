@@ -132,7 +132,8 @@
                             <c:choose>
                                 <c:when test="${currentUser!=null}">
                                     <a id="logout-button" href="#" title="Logout"><i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-                                        Logout ${currentUser.getFullName()!=null? currentUser.getFullName() : currentUser.getLogin()}</a>
+                                        Logout ${currentUser.getLogin()!=null ? currentUser.getLogin()
+                                         : currentUser.getFullName()!=null? currentUser.getFullName() : currentUser.getEmail()}</a>
                                 </c:when>
                                 <c:otherwise>
                                     <a id="login-button" href="#" title="Login"><span class="icon icon-functional" data-icon="l"></span>
