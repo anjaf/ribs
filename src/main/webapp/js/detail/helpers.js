@@ -411,6 +411,8 @@ var Metadata = (function (_self) {
         });
 
 
+        Handlebars.registerHelper('makeAnchor', function makeAnchor(v) { return '#'+v} );
+
         Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 
             switch (operator) {
@@ -504,5 +506,6 @@ var Metadata = (function (_self) {
         });
         return ret;
     }
+
     return _self;
 })(Metadata || {});

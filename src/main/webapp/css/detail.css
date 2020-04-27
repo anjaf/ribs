@@ -56,7 +56,7 @@ body.is-reveal-open { /*avoid jumping of body to the left*/
     margin-top: 10px;
 }
 
-a.show-more, a.show-less {
+a.show-more, a.show-less, a.reference {
     color: #A66A27;
     padding: 0;
     cursor: pointer;
@@ -65,7 +65,8 @@ a.show-more, a.show-less {
 }
 
 a.show-more:hover,
-a.show-less:hover {
+a.show-less:hover,
+a.reference:hover {
     padding: 0 4px;
     margin-left: -4px;
     color: #fff;

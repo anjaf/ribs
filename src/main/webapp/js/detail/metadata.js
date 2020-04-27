@@ -463,6 +463,10 @@ var Metadata = (function (_self) {
             }
         });
 
+        $('.reference').click(function() {
+            openHREF($(this).attr('href'));
+            return false;
+        });
 
         //handle author list expansion
         $('#bs-authors li span.more').click(function () {
