@@ -17,6 +17,8 @@
 
 package uk.ac.ebi.biostudies.auth;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class User {
     protected String login;
     protected String fullName;
@@ -72,6 +74,12 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getDisplayName() {
+        return StringUtils.isNotBlank(login) ? login :
+                StringUtils.isNotBlank(fullName) ? fullName :
+                        email;
     }
 
 }

@@ -5,7 +5,7 @@ var Searcher = (function (_self) {
         Handlebars.registerHelper('result', function(o,q) {
             var template = Handlebars.compile($('script#result-template').html());
             o.project = project;
-            o.query = q;
+            o.query = encodeURIComponent(q);
             return template(o);
         });
 
