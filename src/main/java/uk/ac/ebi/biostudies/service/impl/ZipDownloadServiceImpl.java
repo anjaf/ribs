@@ -36,7 +36,7 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
 
 
     @Override
-    public void sendZip(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void sendZip(HttpServletRequest request, HttpServletResponse response, String[] files) throws Exception {
 
 
         String[] args = request.getRequestURI().replaceAll(request.getContextPath()+"(/[a-zA-Z])?/files/"       ,"").split("/");
@@ -63,7 +63,6 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
             throw new Exception("File does not exist or user does not have the rights to download it.");
         }
 
-        String[] files = request.getParameterMap().get("files");
         response.setContentType("application/zip");
         response.addHeader("Content-Disposition", "attachment; filename="+ accession+".zip");
         String rootFolder = indexConfig.getFileRootDir();

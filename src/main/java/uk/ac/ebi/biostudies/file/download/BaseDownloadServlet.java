@@ -24,20 +24,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
+import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class BaseDownloadServlet {
     private transient final Logger logger = LoggerFactory.getLogger(getClass());
+
     @Autowired
     SearchService searchService;
+
+    @Autowired
+    ZipDownloadService zipDownloadService;
 
     // buffer size (in bytes)
     private static final int TRANSFER_BUFFER_SIZE = 4* 1024;
@@ -73,6 +80,10 @@ public abstract class BaseDownloadServlet {
 
             downloadFile = getDownloadFileFromRequest(request, response, relativePath);
             if (null != downloadFile) {
+                if (downloadFile.isDirectory()) {
+                    zipDownloadService.sendZip(request, response, new String[] { downloadFile.getName()});
+                    return;
+                }
                 verifyFile(downloadFile, response);
                 sendRandomAccessFile(downloadFile, request, response);
                 logger.debug("Download of [{}] completed", downloadFile.getName());

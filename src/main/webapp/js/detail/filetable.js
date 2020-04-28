@@ -202,7 +202,7 @@ var FileTable = (function (_self) {
                 {
                     targets: 2,
                     render: function (data, type, row) {
-                        return getByteString(data);
+                        return  row.type==='directory' ? '<i class="fa fa-folder"></i>':getByteString(data) ;
                     }
                 },
                 {
@@ -211,10 +211,10 @@ var FileTable = (function (_self) {
                         return '<a class="overflow-name-column' + (data.indexOf('.sdrf.txt')>0 ? ' sdrf-file'  : '')+ ' target="_blank" style="max-width: 500px;" title="'
                             + data
                             + '" href="'
-                            + window.contextPath+'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
+                            + window.contextPath +'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
                             + (params.key ? '?key='+params.key : '')
                             + '">'
-                            + data + '</a>';
+                            + data+'</a>';
                     }
                 }
             ],

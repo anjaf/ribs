@@ -45,7 +45,7 @@ public class FileDownload {
 
     @RequestMapping(value = "/files/**", method = RequestMethod.POST)
     public void getFilesInZippedFormat(HttpServletRequest request, HttpServletResponse response) throws Exception{
-        String  browserDetails  =   request.getHeader("User-Agent");
+        String browserDetails  =   request.getHeader("User-Agent");
         String operatingSystem = Constants.OS.UNKNOWN;
         String dlType = request.getParameter("type");
         String fileExtension = "sh";
@@ -59,8 +59,9 @@ public class FileDownload {
         String relativeBaseDir = luceneDoc.get(Constants.Fields.RELATIVE_PATH);
         String accession = luceneDoc.get(Constants.Fields.ACCESSION);
         dlType = dlType.replaceFirst("/", "");
+        String[] files = request.getParameterMap().get("files");
         if(dlType.equalsIgnoreCase("zip"))
-            zipDownloadService.sendZip(request, response);
+            zipDownloadService.sendZip(request, response, files);
         else if(dlType.equalsIgnoreCase("ftp") || dlType.equalsIgnoreCase("aspera")){
             response.setContentType("application/txt");
             response.addHeader("Content-Disposition", "attachment; filename="+accession+"-" + operatingSystem+"-"+dlType+"."+fileExtension);

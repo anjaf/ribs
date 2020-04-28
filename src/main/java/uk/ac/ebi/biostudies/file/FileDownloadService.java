@@ -99,14 +99,7 @@ public class FileDownloadService extends BaseDownloadServlet {
                 }
                 //Hack end
                 if (Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                    if (Files.isDirectory(downloadFile)) {
-                        String forwardedParams = String.format("?files=%s", URLEncoder.encode(name, "UTF-8"));
-                        //TODO update the forward url
-                        request.getRequestDispatcher("/servlets/download/zip/" + accession + forwardedParams).forward(request, response);
-                        return null;
-                    }
                     file = new RegularDownloadFile(downloadFile);
-
                 } else {
                     this.logger.error( "Could not find {}", downloadFile.toFile().getAbsolutePath());
 

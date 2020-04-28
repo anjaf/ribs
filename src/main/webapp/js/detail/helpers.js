@@ -48,27 +48,6 @@ var Metadata = (function (_self) {
                 +'>'+ value+'</a></td>' : '<td>'+value+'</td>');
         });
 
-        Handlebars.registerHelper('renderFileTableRow', function(val, obj, type) {
-            if (obj==null) return new Handlebars.SafeString('<td></td>');
-            var e = obj.filter( function(o) { return o['name']==val})[0];
-            if (e==undefined) {
-                return new Handlebars.SafeString( val=='Section' ? '<td data-search=""></td>'  :'<td></td>') ;
-            }
-            return new Handlebars.SafeString('<td'
-                + (e.sort ? ' data-sort="'+e.sort+'"' : '')
-                + ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'')
-                +'>'
-                + (e.url && type!='directory' ?'<a onclick="closeFullScreen();" '
-                        + 'href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')
-                        + '">'
-                        + new Handlebars.SafeString(e.value)
-                        +'</a>'
-                        :e.value
-                )
-                +'</td>'
-            );
-        });
-
         Handlebars.registerHelper('ifHasAttribute', function(val, obj, options) {
             var ret = false;
             if (obj!=null) {
@@ -140,31 +119,6 @@ var Metadata = (function (_self) {
             })
             this.headers = Array.from(new Set(names));
             this.type = this[0].type
-        });
-
-        Handlebars.registerHelper('setFileTableHeaders', function(o) {
-            if (this && this.length) {
-                var names = ['Name', 'Size'];
-                var hsh = {'Name': 1, 'Size': 1};
-                $.each(this, function (i, file) {
-                    file.attributes = file.attributes || [];
-                    file.attributes.push({"name": "Name", "value": file.path.substring(file.path.lastIndexOf("/") +1) });
-                    file.attributes.push({"name": "Size", "value": file.type=='directory' ? '<i class="far fa-folder"></i>' : getByteString(file.size), "sort":file.size});
-                    $.each(file.attributes, function (i, attribute) {
-                        if (!(attribute.name in hsh)) {
-                            names.push(attribute.name);
-                            hsh[attribute.name] = 1;
-                        }
-                        // make file link
-                        if(attribute.name=='Name') {
-                            attribute.url= window.contextPath+'/files/'+$('#accession').text()+'/'+ file.path
-                        }
-                    })
-                });
-                if (names.indexOf("Section")>=0) names.splice(2,0,names.splice(names.indexOf("Section"),1)[0]);
-                this.headers = names.filter(function (name) { return name.toLowerCase()!='type' });
-                this.type = this[0].type
-            }
         });
 
         Handlebars.registerHelper('setLinkTableHeaders', function(o) {
