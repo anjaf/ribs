@@ -20,8 +20,8 @@ stages:
     - eval $(ssh-agent -s)
     - ssh-add ~/.ssh/id_rsa
     - scp -oStrictHostKeyChecking=no ./target/biostudies.war "$user"@"$host":"$deployDirectory"
-    - scp "$application_properties" "$user"@"$host":"$deployDirectory"/external.properties"
-    - ssh -oStrictHostKeyChecking=no "$user"@"$host" "$deployDirectory"./restart.sh
+    - scp "$application_properties" "$user"@"$host":"$deployDirectory"/external.properties
+    - ssh -oStrictHostKeyChecking=no "$user"@"$host" "$deployDirectory"/restart.sh
 dev:
   <<: *build-and-deploy
   environment: dev
