@@ -19,9 +19,13 @@ stages:
     - chmod 700 ~/.ssh/id_rsa
     - eval $(ssh-agent -s)
     - ssh-add ~/.ssh/id_rsa
-    - scp -oStrictHostKeyChecking=no ./target/biostudies.war "$user"@"$host":"$deployDirectory"
-    - scp "$application_properties" "$user"@"$host":"$deployDirectory"/external.properties
-    - ssh -oStrictHostKeyChecking=no "$user"@"$host" "$deployDirectory"/restart.sh
+    - >
+      for host in $host; do
+        scp -oStrictHostKeyChecking=no ./target/biostudies.war "$user"@"$host":"$deployDirectory"
+        scp "$application_properties" "$user"@"$host":"$deployDirectory"/external.properties
+        ssh -oStrictHostKeyChecking=no "$user"@"$host" "$deployDirectory"/restart.sh
+      done
+
 dev:
   <<: *build-and-deploy
   environment: dev
@@ -34,4 +38,11 @@ beta:
   environment: beta
   only:
     - develop
+  when: manual
+
+prod:
+  <<: *build-and-deploy
+  environment: prod
+  only:
+    - master
   when: manual
