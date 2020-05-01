@@ -27,6 +27,7 @@ import uk.ac.ebi.biostudies.config.SecurityConfig;
 import uk.ac.ebi.biostudies.file.Thumbnails;
 import uk.ac.ebi.biostudies.service.FilePaginationService;
 import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,7 +48,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     @Autowired
     Thumbnails thumbnails;
 
-    public ObjectNode getStudyInfo(String accession, String secretKey) {
+    public ObjectNode getStudyInfo(String accession, String secretKey) throws SubmissionNotAccessibleException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode studyInfo = mapper.createObjectNode();
 
@@ -60,8 +61,8 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         String attFiles = doc.get(Constants.File.FILE_ATTS);
         if (attFiles==null) return studyInfo;
         String allAtts[] = attFiles.split("\\|");
-        Set<String> headerSet = new HashSet(Arrays.asList(orderedArray));
-        List<String> orderedList = new ArrayList(Arrays.asList(orderedArray));
+        Set<String> headerSet = new HashSet<>(Arrays.asList(orderedArray));
+        List<String> orderedList = new ArrayList<>(Arrays.asList(orderedArray));
         for(String att:allAtts) {
             if (att.isEmpty() || headerSet.contains(att))
                 continue;
@@ -115,18 +116,19 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     @Override
-    public String getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey){
+    public ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey) throws SubmissionNotAccessibleException {
         IndexSearcher searcher = indexManager.getIndexSearcher();
         QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
         ObjectMapper mapper = new ObjectMapper();
         IndexReader reader = indexManager.getIndexReader();
         ObjectNode studyInfo = getStudyInfo(accession, secretKey);
-        if (studyInfo==null) return "";
+        long totalFiles = studyInfo.get(Constants.Fields.FILES).asLong();
+        if (studyInfo==null) return mapper.createObjectNode();
         ArrayNode columns = (ArrayNode) studyInfo.get("columns");
         search = modifySearchText(search);
         try {
-            List<SortField> allSortedFields = new ArrayList();
-            List<DataTableColumnInfo> searchedColumns = new ArrayList();
+            List<SortField> allSortedFields = new ArrayList<>();
+            List<DataTableColumnInfo> searchedColumns = new ArrayList<>();
             for(DataTableColumnInfo ftInfo:dataTableUiResult.values()){
                 if (ftInfo.getDir() != null && !ftInfo.getName().equalsIgnoreCase("x")) {
                     allSortedFields.add(ftInfo.getName().equalsIgnoreCase("size") ? new SortedNumericSortField(ftInfo.getName(), SortField.Type.LONG, ftInfo.getDir().equalsIgnoreCase("desc") ? true : false)
@@ -147,7 +149,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
             ObjectNode response = mapper.createObjectNode();
             response.put(Constants.File.DRAW, draw);
-            response.put(Constants.File.RECORDTOTAL, hits.totalHits.value);
+            response.put(Constants.File.RECORDTOTAL, totalFiles);
             response.put(Constants.File.RECORDFILTERED, hits.totalHits.value);
             if (hits.totalHits.value >= 0) {
                 if (pageSize==-1) pageSize= Integer.MAX_VALUE;
@@ -162,17 +164,18 @@ public class FilePaginationServiceImpl implements FilePaginationService {
                         }
                     }
                     docNode.put(Constants.File.PATH, doc.get(Constants.File.PATH)==null?"":doc.get(Constants.File.PATH));
+                    docNode.put(Constants.File.TYPE, doc.get(Constants.File.TYPE)==null?"":doc.get(Constants.File.TYPE));
                     docs.add(docNode);
                 }
                 response.set(Constants.File.DATA, docs);
-                return response.toString();
+                return response;
             }
 
 
-        }catch (Exception ex){
+        } catch (Exception ex){
             logger.debug("problem in file atts preparation", ex);
         }
-        return  mapper.createObjectNode().toString();
+        return  mapper.createObjectNode();
     }
 
     private Query applySearch(String search, Query firstQuery, ArrayNode columns){

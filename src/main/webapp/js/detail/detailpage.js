@@ -7,7 +7,8 @@ var DetailPage = (function (_self) {
         'ega': 'https://www.ebi.ac.uk/ega/studies/{0}',
         'uniprot': 'http://www.uniprot.org/uniprot/{0}',
         'ena': 'https://www.ebi.ac.uk/ena/data/view/{0}',
-        'arrayexpress files': 'https://www.ebi.ac.uk/arrayexpress/experiments/{0}/files/',
+        'array design': window.contextPath + '/arrayexpress/studies/{0}',
+        'arrayexpress files': window.contextPath + '/arrayexpress/studies/{0}/files/',
         'arrayexpress': 'https://www.ebi.ac.uk/arrayexpress/experiments/{0}',
         'dbsnp': 'http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs={0}',
         'pdbe': 'https://www.ebi.ac.uk/pdbe-srv/view/entry/{0}/summary',
@@ -29,8 +30,9 @@ var DetailPage = (function (_self) {
         'rfam': 'http://rfam.org/family/{0}',
         'rnacentral': 'http://rnacentral.org/rna/{0}',
         'nct': 'https://clinicaltrials.gov/ct2/show/{0}',
-        'gxa': 'https://www.ebi.ac.uk/gxa/experiments/{0}?ref=biostudies',
-        'gxa-sc': 'https://www.ebi.ac.uk/gxa/sc/experiments/{0}?ref=biostudies',
+        'expression atlas': 'https://www.ebi.ac.uk/gxa/experiments/{0}?ref=biostudies',
+        'single cell expression atlas': 'https://www.ebi.ac.uk/gxa/sc/experiments/{0}?ref=biostudies',
+        'idr': 'https://idr.openmicroscopy.org/search/?query=Name:{0}'
     };
 
     _self.reverseLinkMap = {
@@ -63,12 +65,16 @@ var DetailPage = (function (_self) {
         '^clinicaltrials.gov/ct2/show/(.*)': 'nct',
         '^www.ebi.ac.uk/gxa/experiments/(.*)': 'gxa',
         '^www.ebi.ac.uk/gxa/sc/experiments/(.*)': 'gxa-sc',
+        '^idr.openmicroscopy.org/search/?query=Name:(.*)': 'idr'
     };
 
     _self.linkTypeMap = { //sync with normalised-text
         'sprot': 'UniProt',
         'gen': 'ENA',
         'arrayexpress': 'ArrayExpress',
+        'array design': 'Array Design',
+        'geo': 'GEO',
+        'ena': 'ENA',
         'refsnp': 'dbSNP',
         'pdb': 'PDBe',
         'pfam': 'Pfam',
@@ -89,7 +95,8 @@ var DetailPage = (function (_self) {
         'rnacentral': 'RNAcentral',
         'nct': 'NCT',
         'gxa': 'Expression Atlas',
-        'gxa-sc': 'Single Cell Expression Atlas'
+        'gxa-sc': 'Single Cell Expression Atlas',
+        'idr': 'IDR'
     };
 
     _self.projectScripts = [

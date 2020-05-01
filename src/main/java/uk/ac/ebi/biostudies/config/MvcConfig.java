@@ -3,17 +3,23 @@ package uk.ac.ebi.biostudies.config;
 /**
  * Created by ehsan on 23/02/2017.
  */
-import org.springframework.context.annotation.*;
+
+import net.jawr.web.servlet.JawrSpringController;
+import org.apache.catalina.Context;
+import org.apache.catalina.core.StandardHost;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
-import org.springframework.web.servlet.view.JstlView;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
@@ -21,15 +27,15 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 
+
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 @EnableSwagger2
 @EnableAsync
 @EnableScheduling
 @ComponentScan(basePackages = "uk.ac.ebi.biostudies")
 @PropertySource("classpath:scheduler.properties")
-//@ImportResource("classpath:spring-config.xml")
-public class MvcConfig extends WebMvcConfigurerAdapter {
+public class MvcConfig implements WebMvcConfigurer {
 
 
     @Override
@@ -43,6 +49,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         matcher.setCaseSensitive(false);
         configurer.setPathMatcher(matcher);
     }
+
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -80,11 +87,19 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/{project:.+}/studies/{accession:.+}/files").setViewName("files");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/files/").setViewName("files");
 
+        registry.addViewController("/studies/{accession:.+}/sdrf").setViewName("sdrf");
+        registry.addViewController("/studies/{accession:.+}/sdrf/").setViewName("sdrf");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/sdrf").setViewName("sdrf");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/sdrf/").setViewName("sdrf");
 
+        registry.addViewController("/studies/{accession:.+}/csv").setViewName("csv");
+        registry.addViewController("/studies/{accession:.+}/csv").setViewName("csv");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/csv").setViewName("csv");
         registry.addViewController("/{project:.+}/studies/{accession:.+}/csv/").setViewName("csv");
+
+        registry.addViewController("{accession:.+}").setViewName("detail");
+        registry.addViewController("{accession:.+}/").setViewName("detail");
+
     }
 
     @Override
@@ -103,20 +118,20 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
 
-        properties.setLocation(new ClassPathResource( "scheduler.properties" ));
+        properties.setLocation(new ClassPathResource("scheduler.properties"));
         properties.setIgnoreResourceNotFound(false);
 
         return properties;
     }
-
-    @Bean
-    public ViewResolver viewResolver() {
-        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-        viewResolver.setViewClass(JstlView.class);
-        viewResolver.setPrefix("/jsp/");
-        viewResolver.setSuffix(".jsp");
-        return viewResolver;
-    }
+//
+//    @Bean
+//    public ViewResolver viewResolver() {
+//        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+//        viewResolver.setViewClass(JstlView.class);
+//        viewResolver.setPrefix("/jsp/");
+//        viewResolver.setSuffix(".jsp");
+//        return viewResolver;
+//    }
 
     @Bean
     public Docket api() {
@@ -128,4 +143,32 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
                 .build();
     }
 
+    @Bean
+    public JawrSpringController jawrJsController() {
+        JawrSpringController jawrJsController = new JawrSpringController();
+        jawrJsController.setConfigLocation("/jawr.properties");
+        jawrJsController.setType("js");
+        return jawrJsController;
+    }
+
+    @Bean
+    public JawrSpringController jawrCssController() {
+        JawrSpringController jawrCssController = new JawrSpringController();
+        jawrCssController.setConfigLocation("/jawr.properties");
+        jawrCssController.setType("css");
+        return jawrCssController;
+    }
+
+    @Bean
+    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> containerCustomizer() {
+        return factory -> {
+            factory.addContextCustomizers(MvcConfig::customize);
+        };
+    }
+
+    private static void customize(Context context) {
+        ((StandardHost) context.getParent()).setErrorReportValveClass(CustomErrorReportValve.class.getCanonicalName());
+        context.getParent().getPipeline().addValve(new CustomErrorReportValve());
+
+    }
 }

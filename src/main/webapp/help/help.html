@@ -164,17 +164,19 @@ For instance, here's the command line to download the file <span
         </pre>
 </p>
 
-<h3>REST API</h3>
+<h3 id="rest-api-docs">REST API</h3>
 <details>
-    <summary id="api-search"><code class="endpoint">/api/v1/search</code> Returns a list of studies according to the search criteria</summary>
+    <summary id="api-search"><code class="endpoint">/api/v1/search</code> Returns a list of studies according to the
+        search criteria
+    </summary>
     <p>
         This end-point takes the following parameters and returns a list of studies according to the search criteria.
         Minimal meta data is returned for each study &ndash; You need to download the study detail file separately for
-        a complete representation of each result.
+        a complete representation of each result.</p>
     <table class="apidoc">
         <thead>
         <tr>
-            <th>Name</th>
+            <th>Parameter</th>
             <th>Description</th>
         </tr>
         </thead>
@@ -225,7 +227,8 @@ For instance, here's the command line to download the file <span
             <td>link_type</td>
             <td>Searches for a specific type of link to external databases in the study. (cf. <a href="#link_value_doc">link_value</a>).
                 <details>
-                    <summary>Click here to view the types of supported link types and their corresponding websites.</summary>
+                    <summary>Click here to view the types of supported link types and their corresponding websites.
+                    </summary>
                     <table>
                         <thead>
                         <tr>
@@ -234,37 +237,145 @@ For instance, here's the command line to download the file <span
                         </tr>
                         </thead>
                         <tbody>
-                            <tr><td>pmc</td><td>https://europepmc.org/articles/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>pmid</td><td>https://europepmc.org/abstract/MED/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>doi</td><td>https://dx.doi.org/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>chembl</td><td>https://www.ebi.ac.uk/chembldb/compound/inspect/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>ega</td><td>https://www.ebi.ac.uk/ega/studies/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>uniprot</td><td>http://www.uniprot.org/uniprot/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>ena</td><td>https://www.ebi.ac.uk/ena/data/view/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>arrayexpress files</td><td>https://www.ebi.ac.uk/arrayexpress/experiments/<span class="api">&lt;link_value&gt;</span>/files/</td></tr>
-                            <tr><td>arrayexpress</td><td>https://www.ebi.ac.uk/arrayexpress/experiments/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>dbsnp</td><td>http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>pdbe</td><td>https://www.ebi.ac.uk/pdbe-srv/view/entry/<span class="api">&lt;link_value&gt;</span>/summary</td></tr>
-                            <tr><td>pfam</td><td>http://pfam.xfam.org/family/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>omim</td><td>http://omim.org/entry/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>interpro</td><td>https://www.ebi.ac.uk/interpro/entry/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>nucleotide</td><td>http://www.ncbi.nlm.nih.gov/nuccore/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>geo</td><td>http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>intact</td><td>https://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>biostudies</td><td>/studies/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>biostudies title</td><td>/studies?first&query=title%3A%22<span class="api">&lt;link_value&gt;</span>%22</td></tr>
-                            <tr><td>biostudies search</td><td>/studies?query=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>go</td><td>http://amigo.geneontology.org/amigo/term/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>chebi</td><td>https://www.ebi.ac.uk/chebi/searchId.do?chebiId=<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>bioproject</td><td>https://www.ncbi.nlm.nih.gov/bioproject/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>biosamples</td><td>https://www.ebi.ac.uk/biosamples/samples/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>chemagora</td><td>http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>compound</td><td>https://www.ebi.ac.uk/biostudies/studies/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>rfam</td><td>http://rfam.org/family/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>rnacentral</td><td>http://rnacentral.org/rna/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>nct</td><td>https://clinicaltrials.gov/ct2/show/<span class="api">&lt;link_value&gt;</span></td></tr>
-                            <tr><td>gxa</td><td>https://www.ebi.ac.uk/gxa/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies</td></tr>
-                            <tr><td>gxa-sc</td><td>https://www.ebi.ac.uk/gxa/sc/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies</td></tr>
+                        <tr>
+                            <td>pmc</td>
+                            <td>https://europepmc.org/articles/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>pmid</td>
+                            <td>https://europepmc.org/abstract/MED/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>doi</td>
+                            <td>https://dx.doi.org/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>chembl</td>
+                            <td>https://www.ebi.ac.uk/chembldb/compound/inspect/<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>ega</td>
+                            <td>https://www.ebi.ac.uk/ega/studies/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>uniprot</td>
+                            <td>http://www.uniprot.org/uniprot/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>ena</td>
+                            <td>https://www.ebi.ac.uk/ena/data/view/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>arrayexpress files</td>
+                            <td>https://www.ebi.ac.uk/arrayexpress/experiments/<span
+                                    class="api">&lt;link_value&gt;</span>/files/
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>arrayexpress</td>
+                            <td>https://www.ebi.ac.uk/arrayexpress/experiments/<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>dbsnp</td>
+                            <td>http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?rs=<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>pdbe</td>
+                            <td>https://www.ebi.ac.uk/pdbe-srv/view/entry/<span class="api">&lt;link_value&gt;</span>/summary
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>pfam</td>
+                            <td>http://pfam.xfam.org/family/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>omim</td>
+                            <td>http://omim.org/entry/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>interpro</td>
+                            <td>https://www.ebi.ac.uk/interpro/entry/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>nucleotide</td>
+                            <td>http://www.ncbi.nlm.nih.gov/nuccore/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>geo</td>
+                            <td>http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>intact</td>
+                            <td>https://www.ebi.ac.uk/intact/pages/details/details.xhtml?experimentAc=<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>biostudies</td>
+                            <td>/studies/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>biostudies title</td>
+                            <td>/studies?first&query=title%3A%22<span class="api">&lt;link_value&gt;</span>%22</td>
+                        </tr>
+                        <tr>
+                            <td>biostudies search</td>
+                            <td>/studies?query=<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>go</td>
+                            <td>http://amigo.geneontology.org/amigo/term/<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>chebi</td>
+                            <td>https://www.ebi.ac.uk/chebi/searchId.do?chebiId=<span
+                                    class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>bioproject</td>
+                            <td>https://www.ncbi.nlm.nih.gov/bioproject/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>biosamples</td>
+                            <td>https://www.ebi.ac.uk/biosamples/samples/<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>chemagora</td>
+                            <td>http://chemagora.jrc.ec.europa.eu/chemagora/inchikey/<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>compound</td>
+                            <td>https://www.ebi.ac.uk/biostudies/studies/<span class="api">&lt;link_value&gt;</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>rfam</td>
+                            <td>http://rfam.org/family/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>rnacentral</td>
+                            <td>http://rnacentral.org/rna/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>nct</td>
+                            <td>https://clinicaltrials.gov/ct2/show/<span class="api">&lt;link_value&gt;</span></td>
+                        </tr>
+                        <tr>
+                            <td>gxa</td>
+                            <td>https://www.ebi.ac.uk/gxa/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>gxa-sc</td>
+                            <td>https://www.ebi.ac.uk/gxa/sc/experiments/<span class="api">&lt;link_value&gt;</span>?ref=biostudies
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </details>
@@ -273,23 +384,50 @@ For instance, here's the command line to download the file <span
         <tr id="link_value_doc">
             <td>link_value</td>
             <td>Searches in the value of the <a href="#link_type_doc">link type</a> field. Most link values are
-                accessions of the corresponding databases, e.g., you can combine link_value with link_type and use <code>/search?link_type=pmid&link_value=16553887</code>
-                to search search for a study with PMID 16553887.</td>
+                accessions of the corresponding databases, e.g., you can combine link_value with link_type and use
+                <code>/search?link_type=pmid&link_value=15307895</code>
+                to search search for a study with PMID 15307895.
+            </td>
+        </tr>
+        <tr id="page_doc">
+            <td>page</td>
+            <td>Returns the specified result page, where each page contains <a href="#page_size_doc"><code>pageSize</code></a>
+                results. Default = 1
+            </td>
+        </tr>
+        <tr id="page_size_doc">
+            <td>pageSize</td>
+            <td>Determines the number of results returned in each <a href="#page_doc"><code>page</code></a> in the results. Default = 20,
+                Max = 100
+            </td>
+        </tr>
+        <tr>
+            <td>sortBy</td>
+            <td>Determines the sorting key in the results. Works only for numeric fields.</td>
+        </tr>
+        <tr>
+            <td>sortOrder</td>
+            <td>Determines the sorting order i.e. <code>ascending</code> or <code>descending</code>. Default = <code>descending</code>
+            </td>
         </tr>
         </tbody>
     </table>
-    </p>
-
 </details>
 <details>
-    <summary><code class="endpoint">/api/v1/{project}/search</code> Returns a list of studies in the specified project according to the search criteria</summary>
+    <summary><code class="endpoint">/api/v1/{project}/search</code> Returns a list of studies in the specified project
+        according to the search criteria
+    </summary>
     <p>
-        This end-point is similar to <a href="#api-search"><code>/api/v1/search</code></a> but limits the study list to the specified project.
-        You can use the API to get a list of <a href="api/v1/search?type=project" target="_blank">all available projects</a> to search in.
+        This end-point is similar to <a href="#api-search"><code>/api/v1/search</code></a> but limits the study list to
+        the specified project.
+        You can use the API to get a list of <a href="api/v1/search?type=project" target="_blank">all available
+        projects</a> to search in.
     </p>
 </details>
 <details>
-    <summary><code class="endpoint">/api/v1/studies/{accession}</code> Returns the detailed JSON for a particular accession</summary>
+    <summary><code class="endpoint">/api/v1/studies/{accession}</code> Returns the detailed JSON for a particular
+        accession
+    </summary>
     <p>
         This end-point returns the details of the study in the PageTab JSON format if accessible.
     </p>

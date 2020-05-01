@@ -17,8 +17,6 @@
 
 package uk.ac.ebi.biostudies.schedule.jobs;
 
-import com.google.common.io.CharStreams;
-import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +29,10 @@ import uk.ac.ebi.biostudies.config.MailConfig;
 import uk.ac.ebi.biostudies.efo.StringTools;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
-
 import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class UpdateOntologyJob{
@@ -72,10 +68,10 @@ public class UpdateOntologyJob{
                 ) {
             // we have newer version, let's fetch it and copy it over to our working location
             logger.info("Updating EFO with version [{}]", version);
+
             try (InputStream is = efoURI.toURL().openStream()) {
                 File efoFile = new File(efoConfig.getOwlFilename());
-                Files.write(CharStreams.toString(new InputStreamReader(is, "UTF-8")),
-                        efoFile, Charset.forName("UTF-8"));
+                java.nio.file.Files.copy( is, efoFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 emailSender.send(mailConfig.getReportsRecipients(),
                         mailConfig.getHiddenRecipients()
                         , "EFO update"

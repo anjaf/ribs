@@ -69,7 +69,9 @@ public class DataTableColumnInfo {
                 orderIndex = getArrayIndex(key);
                 colIndex = (Integer) orderMap.get(orderIndex);
                 colInfo = resultMap.get(colIndex);
-                colInfo.setDir(dir);
+                if (colInfo!=null) {
+                    colInfo.setDir(dir);
+                }
             } else if (key.contains("search]") && key.contains("value")) {
                 String searchVal = dtRequest.getFirst(key);
                 if (searchVal == null || searchVal.isEmpty()) {
@@ -77,7 +79,9 @@ public class DataTableColumnInfo {
                 }
                 colIndex = getArrayIndex(key);
                 colInfo = resultMap.get(colIndex);
-                colInfo.setSearchValue(searchVal);
+                if (colInfo!=null) {
+                    colInfo.setSearchValue(searchVal);
+                }
             }
         }
         return resultMap;

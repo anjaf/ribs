@@ -75,7 +75,7 @@ public class FacetServiceImpl implements FacetService {
             boolean ignoreHapaxLegomena = dimension.equalsIgnoreCase(Constants.Facets.FILE_TYPE) || dimension.equalsIgnoreCase(Constants.Facets.LINK_TYPE);
             if (childrenFacets!=null) {
                 for (LabelAndValue labelVal : childrenFacets.labelValues) {
-                    if (ignoreHapaxLegomena && labelVal.value.intValue()==1) continue;
+                    //if (ignoreHapaxLegomena && labelVal.value.intValue()==1) continue;
                     ObjectNode child = mapper.createObjectNode();
                     child.put("name", textService.getNormalisedString(labelVal.label));
                     child.put("value", labelVal.label);
@@ -100,7 +100,7 @@ public class FacetServiceImpl implements FacetService {
     @Override
     public List<FacetResult> getFacetsForQuery(Query query, int limit, Map<String, Map<String, Integer>> selectedFacetFreq, JsonNode selectedFacets) {
         FacetsCollector facetsCollector = new FacetsCollector();
-        List<FacetResult> allResults = new ArrayList();
+        List<FacetResult> allResults = new ArrayList<>();
         Facets facets = null;
         try {
             int tempLimit= limit;
@@ -139,7 +139,7 @@ public class FacetServiceImpl implements FacetService {
             if (field == null)
                 continue;
             Iterator<JsonNode> iterator = field.elements();
-            Map<String, Integer>freqForDim = selectedFacetFreq.get(dim)==null? new HashMap(): selectedFacetFreq.get(dim);
+            Map<String, Integer>freqForDim = selectedFacetFreq.get(dim)==null? new HashMap<>(): selectedFacetFreq.get(dim);
             selectedFacetFreq.put(dim, freqForDim);
             while (iterator.hasNext()) {
                 path = iterator.next().asText();

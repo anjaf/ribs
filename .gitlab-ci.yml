@@ -1,0 +1,48 @@
+image: maven:3-jdk-11
+cache:
+  paths:
+    - target/
+
+stages:
+  - build-and-deploy
+
+.build-template: &build-and-deploy
+  stage: build-and-deploy
+  artifacts:
+    paths:
+      - target/biostudies.war
+  script:
+    - mv "$default_jsp" ./src/main/webapp/jsp/default-projects.jsp
+    - mvn clean install spring-boot:repackage
+    - mkdir -p ~/.ssh
+    - cp "$ssh_key" ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh/id_rsa
+    - eval $(ssh-agent -s)
+    - ssh-add ~/.ssh/id_rsa
+    - >
+      for host in $host; do
+        scp -oStrictHostKeyChecking=no ./target/biostudies.war "$user"@"$host":"$deployDirectory"
+        scp "$application_properties" "$user"@"$host":"$deployDirectory"/external.properties
+        ssh -oStrictHostKeyChecking=no "$user"@"$host" "$deployDirectory"/restart.sh
+      done
+
+dev:
+  <<: *build-and-deploy
+  environment: dev
+  only:
+    - develop
+
+
+beta:
+  <<: *build-and-deploy
+  environment: beta
+  only:
+    - develop
+  when: manual
+
+prod:
+  <<: *build-and-deploy
+  environment: prod
+  only:
+    - master
+  when: manual

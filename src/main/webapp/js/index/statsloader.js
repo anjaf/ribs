@@ -15,7 +15,7 @@ Home.StatsLoader = (function () {
                 $('#fileCount').text(formatNumber(data.files)+' files').removeClass('fader');
                 $('#linkCount').text(formatNumber(data.links)+' links').removeClass('fader');
                 if (data.time) {
-                    $('#lastUpdateTime').hide().text('(Updated: ' + new Date(data.time).toLocaleTimeString("en-gb", {
+                    $('#lastUpdateTime').text('(Updated: ' + new Date(data.time).toLocaleTimeString("en-gb", {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'

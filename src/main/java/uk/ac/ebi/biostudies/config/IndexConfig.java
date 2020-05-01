@@ -1,13 +1,13 @@
 package uk.ac.ebi.biostudies.config;
 
 import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.store.Directory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import uk.ac.ebi.biostudies.api.util.Constants;
 
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 
 /**
@@ -16,51 +16,45 @@ import java.util.Arrays;
 
 @Configuration
 @PropertySource("classpath:index.properties")
-public class IndexConfig {
+public class IndexConfig implements InitializingBean, DisposableBean {
 
     @Value("${index.directory}")
     private String indexDirectory;
 
-    @ Value("${index.facetDirectory}")
+    @Value("${index.facetDirectory}")
     private String facetDirectory;
 
-    @ Value("${studiesFileDirectory}")
-    private String studiesFileDirectory;
+    @Value("${files.baseDirectory}")
+    private String baseDirectory;
 
-    @ Value("${indexer.threadCount}")
+    @Value("${indexer.threadCount}")
     private int threadCount;
 
     @Value("${indexer.queueSize}")
     private int queueSize;
 
-    @ Value("${index.fields}")
+    @Value("${index.fields}")
     private String indexFields;
 
-     @ Value("${defaultField}")
+    @Value("${index.defaultField}")
     private String defaultField;
 
-    @ Value("${searchSnippetFragmentSize}")
+    @Value("${index.searchSnippetFragmentSize}")
     private int searchSnippetFragmentSize;
 
-    @Value("${bs.studies.thumbnails-location}")
+    @Value("${files.thumbnailsDirectory}")
     private String thumbnailDir;
 
-    @Value("${bs.files.temp-zip.location}")
-    private String zipTempDir;
-
-    @Value("${bs.studies.files-root-location}")
-    private String fileRootDir;
-
-    @Value("${bs.files.ftp.url}")
+    @Value("${files.ftpUrl}")
     private String ftpDir;
 
     @Value("${indexer.stopwords}")
     private String stopwords;
 
-    @Value("${indexer.spellchecker-location}")
+    @Value("${index.spellcheckerDirectory}")
     private String spellcheckerLocation;
 
-    @Value("${query.type.filter}")
+    @Value("${indexer.queryTypeFilter}")
     private String typeFilterQuery;
 
 
@@ -68,8 +62,8 @@ public class IndexConfig {
     public static CharArraySet STOP_WORDS;
 
 
-    @PostConstruct
-    private void init(){
+    @Override
+    public void afterPropertiesSet() {
         STOP_WORDS =  new CharArraySet(Arrays.asList(stopwords.split(",")), false);
     }
 
@@ -87,11 +81,7 @@ public class IndexConfig {
     }
 
     public String getStudiesInputFile() {
-        return studiesFileDirectory + Constants.STUDIES_JSON_FILE;
-    }
-
-    public String getStudiesFileDirectory() {
-        return studiesFileDirectory;
+        return baseDirectory + "updates/" + Constants.STUDIES_JSON_FILE;
     }
 
     public String getDefaultField() {
@@ -109,16 +99,12 @@ public class IndexConfig {
         return fields;
     }
 
-     public String getThumbnailDir() {
+    public String getThumbnailDir() {
         return thumbnailDir;
     }
 
-    public String getZipTempDir() {
-        return zipTempDir;
-    }
-
     public String getFileRootDir() {
-        return fileRootDir;
+        return baseDirectory + "submission";
     }
 
     public String getFtpDir() {
@@ -136,4 +122,10 @@ public class IndexConfig {
     public String getTypeFilterQuery() {
         return typeFilterQuery;
     }
+
+    @Override
+    public void destroy() {
+
+    }
+
 }

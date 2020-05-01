@@ -27,7 +27,7 @@ public class SimpleAttributeParser extends AbstractParser {
             List resultData = jsonPathContext.read(newJPath);
             switch (indexEntry.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText()) {
                 case Constants.IndexEntryAttributes.FieldTypeValues.FACET:
-                    result =  String.join (Constants.Facets.DELIMITER, resultData);
+                    result =  String.join(Constants.Facets.DELIMITER, resultData);
                     break;
                 case Constants.IndexEntryAttributes.FieldTypeValues.LONG:
                     result =  resultData.size()==1 ? Long.parseLong(resultData.get(0).toString()) :  resultData.stream().collect(Collectors.counting());

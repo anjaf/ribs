@@ -2,9 +2,10 @@ var Searcher = (function (_self) {
 
     _self.registerHelpers = function(params) {
 
-        Handlebars.registerHelper('result', function(o) {
+        Handlebars.registerHelper('result', function(o,q) {
             var template = Handlebars.compile($('script#result-template').html());
             o.project = project;
+            o.query = encodeURIComponent(q);
             return template(o);
         });
 

@@ -1,10 +1,11 @@
 package uk.ac.ebi.biostudies.config;
 
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,38 +17,32 @@ import java.util.Set;
 
 @Configuration
 @PropertySource("classpath:efo.properties")
-public class EFOConfig {
+public class EFOConfig implements InitializingBean, DisposableBean {
 
     @Value("${efo.stopWords}")
     private String stopWords;
 
-    @Value("${efo.index.location}")
+    @Value("${efo.indexDirectory}")
     private String indexLocation;
 
-    @Value("${bs.efo.synonyms}")
+    @Value("${efo.synonyms}")
     private String synonymFilename;
 
-    @Value("${bs.efo.ignoreList}")
+    @Value("${efo.ignoreList}")
     private String ignoreListFilename;
 
-    @Value("${bs.efo.owl}")
+    @Value("${efo.owlFilename}")
     private String owlFilename;
 
-    @Value("${bs.efo.update.source}")
+    @Value("${efo.updateUrl}")
     private String url;
 
-    @Value("${bs.efo.source}")
-    private String localOwlFilename;
-
-//    @Value("${bs.efo.location}")
-//    private String efoLocation;
-
-
+    private String localOwlFilename = "efo.owl";
 
     private Set<String> stopWordsSet = new HashSet<>();
 
-    @PostConstruct
-    private void init(){
+    @Override
+    public void afterPropertiesSet() {
         String[] words = stopWords.split("\\s*,\\s*");
         stopWordsSet.addAll(Arrays.asList(words));
     }
@@ -81,5 +76,9 @@ public class EFOConfig {
     }
 
 
+    @Override
+    public void destroy() {
+
+    }
 
 }

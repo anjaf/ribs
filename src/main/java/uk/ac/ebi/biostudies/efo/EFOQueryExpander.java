@@ -43,7 +43,8 @@ public class EFOQueryExpander {
 
 
     public Pair<Query, EFOExpansionTerms> expand(Map<String, String> queryInfo, Query query) throws IOException {
-
+        if(query.equals(new MatchAllDocsQuery()))
+            return new MutablePair<>(query, null);
         if (query instanceof BooleanQuery) {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
             EFOExpansionTerms expansionTerms = new EFOExpansionTerms();

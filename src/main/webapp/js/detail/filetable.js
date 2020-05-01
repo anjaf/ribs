@@ -1,14 +1,13 @@
 var FileTable = (function (_self) {
-
-    var totalRows=-1;
     var selectedFiles=[];
     var selectedFilesCount=0;
     var filesTable;
     var firstRender = true;
     var columnDefinitions=[];
+    var sorting=false;
 
     _self.render = function (acc, params, isDetailPage){
-        $.ajax({url: window.contextPath+"/api/v1/info/"+acc,
+        $.ajax({url: contextPath + '/api/v1/studies/' + acc + '/info',
             data:params,
             success: function(response){
                 if (isDetailPage) {
@@ -36,6 +35,37 @@ var FileTable = (function (_self) {
         filesTable.state.clear();
         filesTable.search('').columns().search('').draw();
     };
+
+    _self.getFilesTable = function() {
+        return filesTable;
+    }
+
+    _self.hideEmptyColumns= function() {
+        var columnNames = filesTable.settings().init().columns
+        //if($('#advsearchbtn').is(':visible')) return;
+        // hide empty columns
+        var hiddenColumnCount = 0;
+        var thumbnailColumnIndex = -1;
+        filesTable.columns().every(function(index){
+            if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') {
+                thumbnailColumnIndex = index;
+                return;
+            }
+            var srchd = filesTable.cells({search:'applied'},this)
+                .data()
+                .join('')
+                .trim();
+            if (this.visible() && (srchd==null || srchd=='')) {
+                this.visible(false);
+                hiddenColumnCount++;
+            }
+        });
+        if (hiddenColumnCount+2===columnDefinitions.length) { // count checkbox and thumbnail column
+            filesTable.column(0).visible(false);
+            filesTable.column(thumbnailColumnIndex).visible(false);
+        }
+    };
+
 
     function handleFileListButtons(acc, key){
         var templateSource = $('script#file-list-buttons-template').html();
@@ -172,7 +202,7 @@ var FileTable = (function (_self) {
                 {
                     targets: 2,
                     render: function (data, type, row) {
-                        return getByteString(data);
+                        return  row.type==='directory' ? '<i class="fa fa-folder"></i>':getByteString(data) ;
                     }
                 },
                 {
@@ -181,10 +211,10 @@ var FileTable = (function (_self) {
                         return '<a class="overflow-name-column' + (data.indexOf('.sdrf.txt')>0 ? ' sdrf-file'  : '')+ ' target="_blank" style="max-width: 500px;" title="'
                             + data
                             + '" href="'
-                            + window.contextPath+'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
+                            + window.contextPath +'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
                             + (params.key ? '?key='+params.key : '')
                             + '">'
-                            + data + '</a>';
+                            + data+'</a>';
                     }
                 }
             ],
@@ -219,18 +249,12 @@ var FileTable = (function (_self) {
                     +'</span> show all files');
                 return (total== max) ? out : out + btn.html();
             }
-        }).on('xhr.dt', function (e, settings, json, xhr) {
-            if (totalRows == -1) { //override totalFiles
-                totalRows = json.recordsTotal
-            } else {
-                json.recordsTotal = totalRows
-            }
         }).on('preDraw', function (e) {
             filesTable.columns().visible(true);
         }).on('draw.dt', function (e) {
             handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable);
         }).on( 'search.dt', function (e) {
-        });
+        }).on( 'order.dt', function () {sorting=true;});
         columnDefinitions = columns;
 
     }
@@ -255,8 +279,9 @@ var FileTable = (function (_self) {
         $('#clear-file-filter').on('click', function () {
             FileTable.clearFileFilter();
         });
-
-
+        
+        $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px');
+        $('.fullscreen').css("top", ( $(window).height() - $('#file-list-container').height()) / 3  + "px");
         // TODO: enable select on tr click
         updateSelectedFiles();
         handleThumbnails(params.key);
@@ -281,53 +306,43 @@ var FileTable = (function (_self) {
                 });
             }
         });
-        hideEmptyColumns();
+        if(!sorting) {
+            FileTable.hideEmptyColumns();
+        }else {
+            sorting=false;
+        }
     }
 
 
     function handleFileFilters(acc,params, sections) {
         // add file filter button for section
         $(sections).each(function (i,divId) {
-            var bar = $('#' + divId + '> .bs-name > .section-title-bar');
-            bar.append('<a class="section-button" data-files-id="'+ divId + '"><i class="fa fa-filter"></i> show files in this section</a>');
-            var listFile = $('section#'+this).data('filelist');
-        });
-        // handle clicks on file filters in section
-        $("a.section-button[data-files-id]").click(function () {
-            var expansionSource = '' + $(this).data('files-id');
-            Metadata.setExpansionSource(expansionSource);
-            //clearFileFilter();
-            $('#all-files-expander').click();
-            filesTable.column(':contains(Section)').search(expansionSource);
-            filesTable.draw();
+            var column = 'columns['+filesTable.column(':contains(Section)').index()+']';
+            var section = this;
+            var fileSearchParams = {key:params.key};
+            fileSearchParams[column+'[name]']='Section';
+            fileSearchParams[column+'[search][value]']=divId;
+            $.post(contextPath + '/api/v1/files/' + acc , fileSearchParams, function(data) {
+                    var bar = $('#' + divId + '> .bs-name > .section-title-bar');
+                    var button = $('<a class="section-button" data-files-id="'+ divId + '">' +
+                        '<i class="fa fa-filter"></i> '+ data.recordsFiltered + ' file' +
+                        (data.recordsFiltered>1 ? 's' : '') +
+                        '</a>');
+                    // handle clicks on file filters in section
+                    $(button).click(function () {
+                        var expansionSource = '' + $(this).data('files-id');
+                        Metadata.setExpansionSource(expansionSource);
+                        //clearFileFilter();
+                        $('#all-files-expander').click();
+                        filesTable.column(':contains(Section)').search(expansionSource);
+                        filesTable.draw();
+
+                    });
+                    bar.append(button);
+            });
 
         });
-    }
 
-    function hideEmptyColumns() {
-        var columnNames = filesTable.settings().init().columns
-        //if($('#advsearchbtn').is(':visible')) return;
-        // hide empty columns
-        var hiddenColumnCount = 0;
-        var thumbnailColumnIndex = -1;
-        filesTable.columns().every(function(index){
-            if (this[0][0]==[0] || columnNames[index].name=='Thumbnail') {
-                thumbnailColumnIndex = index;
-                return;
-            }
-            var srchd = filesTable.cells({search:'applied'},this)
-                .data()
-                .join('')
-                .trim();
-            if (this.visible() && (srchd==null || srchd=='')) {
-                this.visible(false);
-                hiddenColumnCount++;
-            }
-        });
-        if (hiddenColumnCount+2===columnDefinitions.length) { // count checkbox and thumbnail column
-            filesTable.column(0).visible(false);
-            filesTable.column(thumbnailColumnIndex).visible(false);
-        }
     }
 
     function handleFileDownloadSelection(acc,key) {
@@ -363,24 +378,63 @@ var FileTable = (function (_self) {
                 updateSelectedFiles();
             }
         });
-
+        $('#batchdl-popup').foundation();
         $("#download-selected-files").on('click', function () {
-            // select all checked input boxes and get the href in the links contained in their siblings
-            var html = '<form method="POST" target="_blank" action="'
-                + window.contextPath + "/files/"
-                + $('#accession').text() + '/zip">';
-            $(selectedFiles).each( function(i,v) {
-                html += '<input type="hidden" name="files" value="'+v+'"/>'
-            });
-            if (key) {
-                html += '<input type="hidden" name="key" value="'+key+'"/>' ;
+            var fileName = {os:"unix", ps:".sh", acc:$('#accession').text()};
+            if (navigator.appVersion.indexOf("Win")!=-1) {
+                fileName.os ="windows";
+                fileName.ps = ".bat";
             }
-            html += '</form>';
-            var submissionForm = $(html);
-            $('body').append(submissionForm);
-            $(submissionForm).submit();
-        });
+            var templateSource = $('script#batchdl-template').html();
+            var template = Handlebars.compile(templateSource);
+            $('#batchdl-popup').html(template({fname:fileName}));
+            $('#batchdl-popup').foundation('open');
+            var dltype = "/zip";
+            $("#download-files-tabs li").on('click', function () {
+                // remove classes from all
+                $("#download-files-tabs li").removeClass("is-active");
+                $("#download-files-tabs a").removeAttr('aria-selected');
+                $(this).addClass("is-active");
+                $(this).children(":first").attr('aria-selected',true);
+                $(".tabs-panel.is-active").removeClass("is-active");
+                if($(this).text().trim() == "HTTP") {
+                    $("#via-http").addClass("is-active");
+                    dltype = "/zip";
+                }
+                else if($(this).text().trim() == "FTP") {
+                    $("#via-ftp").addClass("is-active");
+                    dltype = "/ftp";
+                }
+                else if($(this).text().trim() == "Aspera") {
+                    $("#via-aspera").addClass("is-active");
+                    dltype="/aspera";
+                }
 
+            });
+            $("input.button").on('click', function () {
+                getSelectedFilesForm(key, dltype);
+            });
+
+        });
+    }
+
+    function getSelectedFilesForm(key, type){
+        var selectedHtml = '<form method="POST" target="_blank" action="'
+            + window.contextPath + "/files/"
+            + $('#accession').text() +  type + '">';
+        $(selectedFiles).each( function(i,v) {
+            selectedHtml += '<input type="hidden" name="files" value="'+v+'"/>'
+        });
+        if (key) {
+            selectedHtml += '<input type="hidden" name="key" value="'+key+'"/>' ;
+        }
+        if(type){
+            selectedHtml += '<input type="hidden" name="type" value="'+type+'"/>' ;
+        }
+        selectedHtml+='</form>';
+        var submissionForm = $(selectedHtml);
+        $('body').append(submissionForm);
+        $(submissionForm).submit();
     }
 
     function updateSelectedFiles() {
@@ -409,33 +463,29 @@ var FileTable = (function (_self) {
             var path = encodeURI($('input',$(this).prev()).data('name')).replaceAll('#','%23');
             $('a',this).addClass('overflow-name-column');
             $('a',this).attr('title',$(this).text());
-            if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1),
-                imgFormats) >=0 ) {
-                $(this).append('<a href="'+$(this).find('a').attr('href')+'" class="thumbnail-icon" data-thumbnail="'
-                    +window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'"><i class="far fa-file-image"></i></a>')
+            if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
+                var tnButton = $('<a href="#" class="thumbnail-icon" ' +
+                    'data-thumbnail="'+window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'">' +
+                    '<i class="far fa-file-image"></i></a>');
+                $(this).append(tnButton);
+                tnButton.foundation();
             }
         });
+        $('#thumbnail').foundation();
 
-        $(filesTable.column(1).nodes()).hover( function() {
-            var $tn = $(this).find('.thumbnail-icon');
+        $(".thumbnail-icon").click( function() {
+            var $tn = $(this);
             if (!$tn.length) return;
-            $('#thumbnail').html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>')
-            $('#thumbnail').css('top',$tn.offset().top - 10);
-            $('#thumbnail').css('left',$tn.parent().offset().left - $('#thumbnail').width() - 10);
-            $('#thumbnail').show();
+            $('#thumbnail-image').html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>')
+            $('#thumbnail').foundation('open');
             var img = $("<img />").attr('src', $tn.data('thumbnail')+(key ? '?key='+key :''))
                 .on('load', function() {
                     if (!this.complete || typeof this.naturalWidth == "undefined" || this.naturalWidth == 0) {
-                        $('#thumbnail').hide();
+                        $('#thumbnail').foundation('close');
                     } else {
-                        $('#thumbnail').html('').append(img)
-                        $('#thumbnail').css('top',$tn.offset().top - 10);
-                        $('#thumbnail').css('left',$tn.parent().offset().left - $('#thumbnail').width() - 10);
-                        $('#thumbnail').show();
+                        $('#thumbnail-image').html('').append(img)
                     }
                 });
-        }, function () {
-            $('#thumbnail').hide();
         });
 
     }

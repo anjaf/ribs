@@ -4,6 +4,8 @@ var Metadata = (function (_self) {
     var linksTable;
     var expansionSource;
     var lastExpandedTable;
+    var generatedID = 0;
+    var sectionLinkCount = {};
 
     _self.render = function() {
         this.registerHelpers();
@@ -11,12 +13,18 @@ var Metadata = (function (_self) {
         // Prepare template
         var templateSource = $('script#study-template').html();
         var template = Handlebars.compile(templateSource);
-        var parts = window.location.pathname.split('/');
-        var accession = parts[parts.length-1];
+        var slashOffset = window.location.pathname[window.location.pathname.length-1]==='/';
+        var parts =  window.location.pathname.split('/');
+        var accession = parts[parts.length - 1 - slashOffset];
         var url = contextPath + '/api/v1/studies/' + accession;
         var params = getParams();
 
         $.getJSON(url, params, function (data) {
+            // redirect to project page if accession is a project
+            if (data.section.type.toLowerCase()==='project') {
+                location.href= contextPath + '/'+ accession + '/studies';
+                return;
+            }
             if (!data.accno && data.submissions) data = data.submissions[0];
             if (params.key) {
                 data.section.keyString = '?key='+params.key;
@@ -57,6 +65,14 @@ var Metadata = (function (_self) {
         expansionSource = s;
     };
 
+    _self.getNextGeneratedId = function () {
+        return generatedID++;
+    };
+
+    _self.updateSectionLinkCount = function (section) {
+        sectionLinkCount[section] = (sectionLinkCount[section] + 1) || 1;
+    };
+
     function postRender(params, data) {
         FileTable.render(data.accno, params, true);
         $('body').append('<div id="blocker"/><div id="tooltip"/>');
@@ -77,6 +93,14 @@ var Metadata = (function (_self) {
         handleProjectBasedScriptInjection();
         handleTableCentering();
         handleAnchors(params);
+        handleHighlights(params);
+    }
+
+    function handleHighlights(params) {
+        var url = contextPath + '/api/v1/search';
+        $.getJSON(url, {query:params.query, pageSize:1}, function (data) {
+            addHighlights('#renderedContent', data);
+        });
     }
 
     function handleProjectBasedScriptInjection() {
@@ -135,15 +159,22 @@ var Metadata = (function (_self) {
     }
 
      function createMainLinkTable() {
-
         //create external links for known link types
         var typeIndex = $('thead tr th',$("#link-list")).map(function(i,v) {if ( $(v).text().toLowerCase()=='type') return i;}).filter(isFinite)[0];
         $("tr",$("#link-list")).each( function (i,row) {
             if (i==0) return;
             var type =  $($('td',row)[typeIndex]).text().toLowerCase();
-            var url = getURL($($('td',row)[0]).text(), type);
+            var name = $($('td',row)[0]).text();
+            var url = getURL(name, type);
             if (url) {
                 $($('td',row)[0]).wrapInner('<a href="'+ url.url +'" target="_blank">');
+            } else {
+                $.getJSON( 'https://resolver.api.identifiers.org/'+type+':'+name , function (data) {
+                    if (data && data.payload && data.payload.resolvedResources) {
+                        var url = data.payload.resolvedResources[0].compactIdentifierResolvedUrl
+                        $($('td',row)[0]).wrapInner('<a href="'+ url +'" target="_blank">');
+                    }
+                })
             }
             $($('td',row)[0]).addClass("overflow-name-column");
         });
@@ -201,7 +232,7 @@ var Metadata = (function (_self) {
     function handleSectionArtifacts() {
         $(".toggle-files, .toggle-links, .toggle-tables").on('click', function () {
             var type = $(this).hasClass("toggle-files") ? "file" : $(this).hasClass("toggle-links") ? "link" : "table";
-            var section = $(this).siblings('.bs-section-' + type + 's');
+            var section = $(this).parent().siblings('.bs-section-' + type + 's');
             if (section.css('display') == 'none') {
                 section.show();
                 //redrawTables(true);
@@ -402,9 +433,10 @@ var Metadata = (function (_self) {
             if (divId != '') {
                 var bar = $('#' + divId + '> .bs-name > .section-title-bar');
                 if (!$('a[data-links-id="' + divId + '"]', bar).length) {
-                    bar.append('<a class="section-button" data-links-id="'
-                        + divId + '"><i class="fa fa-filter"></i> show links in this section</a>'
-                    );
+                    bar.append('<a class="section-button" data-links-id="' + divId + '"><i class="fa fa-filter"></i> ' +
+                        sectionLinkCount[divId] +
+                        ' link' + (sectionLinkCount[divId]>1 ? 's' : '') +
+                        '</a>');
                 }
             }
         });
@@ -431,6 +463,10 @@ var Metadata = (function (_self) {
             }
         });
 
+        $('.reference').click(function() {
+            openHREF($(this).attr('href'));
+            return false;
+        });
 
         //handle author list expansion
         $('#bs-authors li span.more').click(function () {

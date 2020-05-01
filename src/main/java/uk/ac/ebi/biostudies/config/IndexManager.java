@@ -14,6 +14,8 @@ import org.apache.lucene.search.spell.LuceneDictionary;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
@@ -26,8 +28,6 @@ import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
@@ -38,7 +38,7 @@ import java.util.*;
  */
 @Component
 @Scope("singleton")
-public class IndexManager {
+public class IndexManager implements InitializingBean, DisposableBean {
 
     private Logger logger = LogManager.getLogger(IndexManager.class.getName());
     private IndexReader indexReader;
@@ -73,9 +73,13 @@ public class IndexManager {
     @Autowired
     ParserManager parserManager;
 
-    @PostConstruct
-    public void init(){
-        logger.debug("Initializing IndexManager");
+    @Override
+    public void afterPropertiesSet() { logger.debug("Initializing IndexManager");
+        refreshIndexWriterAndWholeOtherIndices();
+        indexService.processFileForIndexing();
+    }
+
+    public void refreshIndexWriterAndWholeOtherIndices(){
         InputStream indexJsonFile = this.getClass().getClassLoader().getResourceAsStream("project-fields.json");
         indexDetails = readJson(indexJsonFile);
         fillAllFields();
@@ -105,8 +109,6 @@ public class IndexManager {
             autocompletion.rebuild();
             spellChecker = new SpellChecker(FSDirectory.open(Paths.get(indexConfig.getSpellcheckerLocation())));
             spellChecker.indexDictionary(new LuceneDictionary(getIndexReader(), Constants.Fields.CONTENT), new IndexWriterConfig(), false);
-            indexService.processFileForIndexing();
-
         }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);
         }
@@ -125,7 +127,6 @@ public class IndexManager {
         }
     }
 
-    @PreDestroy
     public void destroy(){
 
     }

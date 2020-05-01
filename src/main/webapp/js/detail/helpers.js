@@ -1,7 +1,6 @@
 var Metadata = (function (_self) {
 
     var orgOrder = [];
-    var generatedID=0;
 
 
     _self.registerHelpers = function() {
@@ -26,8 +25,8 @@ var Metadata = (function (_self) {
                 return ( urls[i] ? '<a href="'
                     + urls[i]
                     + (urls[i][0]!='#' ? '" target="_blank':'')
-                    +'">'+v+'</a>'
-                    : v)  })
+                    +'">'+v+renderValQuals(e.valquals)+'</a>'
+                    : v+renderValQuals(e.valqual))  })
                 .join(', ')
             return new Handlebars.SafeString(html);
         });
@@ -38,33 +37,15 @@ var Metadata = (function (_self) {
             if (e==undefined) return new Handlebars.SafeString('<td></td>') ;
             e.value = e.value || '';
             var value = val.toLowerCase()=='type' && DetailPage.linkTypeMap[e.value.toLowerCase()] ? DetailPage.linkTypeMap[e.value.toLowerCase()] : e.value;
+            if (val=='Section') {
+                Metadata.updateSectionLinkCount(e.search);
+            }
             return new Handlebars.SafeString( e.url ?
                 '<td'+ ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'') + '><a href="'
                 + e.url
                 + (e.url[0]!='#' ? '" target="_blank"':'"')
                 + (e.title ? ' title="'+e.title+'"' : '')
                 +'>'+ value+'</a></td>' : '<td>'+value+'</td>');
-        });
-
-        Handlebars.registerHelper('renderFileTableRow', function(val, obj, type) {
-            if (obj==null) return new Handlebars.SafeString('<td></td>');
-            var e = obj.filter( function(o) { return o['name']==val})[0];
-            if (e==undefined) {
-                return new Handlebars.SafeString( val=='Section' ? '<td data-search=""></td>'  :'<td></td>') ;
-            }
-            return new Handlebars.SafeString('<td'
-                + (e.sort ? ' data-sort="'+e.sort+'"' : '')
-                + ( val=='Section' && e.search ? ' data-search="'+e.search +'" ' :'')
-                +'>'
-                + (e.url && type!='directory' ?'<a onclick="closeFullScreen();" '
-                        + 'href="'+e.url+ (e.url[0]!='#' ? '" target="_blank':'')
-                        + '">'
-                        + new Handlebars.SafeString(e.value)
-                        +'</a>'
-                        :e.value
-                )
-                +'</td>'
-            );
         });
 
         Handlebars.registerHelper('ifHasAttribute', function(val, obj, options) {
@@ -140,31 +121,6 @@ var Metadata = (function (_self) {
             this.type = this[0].type
         });
 
-        Handlebars.registerHelper('setFileTableHeaders', function(o) {
-            if (this && this.length) {
-                var names = ['Name', 'Size'];
-                var hsh = {'Name': 1, 'Size': 1};
-                $.each(this, function (i, file) {
-                    file.attributes = file.attributes || [];
-                    file.attributes.push({"name": "Name", "value": file.path.substring(file.path.lastIndexOf("/") +1) });
-                    file.attributes.push({"name": "Size", "value": file.type=='directory' ? '<i class="far fa-folder"></i>' : getByteString(file.size), "sort":file.size});
-                    $.each(file.attributes, function (i, attribute) {
-                        if (!(attribute.name in hsh)) {
-                            names.push(attribute.name);
-                            hsh[attribute.name] = 1;
-                        }
-                        // make file link
-                        if(attribute.name=='Name') {
-                            attribute.url= window.contextPath+'/files/'+$('#accession').text()+'/'+ file.path
-                        }
-                    })
-                });
-                if (names.indexOf("Section")>=0) names.splice(2,0,names.splice(names.indexOf("Section"),1)[0]);
-                this.headers = names.filter(function (name) { return name.toLowerCase()!='type' });
-                this.type = this[0].type
-            }
-        });
-
         Handlebars.registerHelper('setLinkTableHeaders', function(o) {
             if (this && this.length) {
                 var names = ['Name'];
@@ -206,22 +162,7 @@ var Metadata = (function (_self) {
 
 
         Handlebars.registerHelper('renderOntologySubAttribute', function(arr) {
-            if (!arr) return;
-            arr = arr.filter( function (o) {
-                return $.inArray(o.name.toLowerCase(), ['ontology', 'termname', 'termid'])>=0
-            })
-            var ret = '';
-            $.each(arr, function (i,o) {
-                if (o.name.toLowerCase()=='ontology') {
-                    var termname = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termname' })[0];
-                    var termid = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termid' })[0];
-                    ret += '<span data-ontology="'+ o.value+'" ' +
-                        (termid ? 'data-term-id="'+ termid.value+'" ' : '') +
-                        (termname ? 'data-term-name="'+ termname.value : '') +
-                        '"></span>';
-                }
-            });
-            return ret;
+            return renderValQuals(arr);
         });
 
         Handlebars.registerHelper('eachSubAttribute', function(arr, options) {
@@ -363,7 +304,9 @@ var Metadata = (function (_self) {
                     if (!orgs[org]) orgs[org] = {};
                     if (grant) {
                         if (!orgs[org].grants) orgs[org].grants= [];
-                        orgs[org].grants.push( grant );
+                        orgs[org].grants.push({'ga':org, 'gid':grant,
+                            'link': ('https://europepmc.org/grantfinder/grantdetails?query=gid:"'+grant+'" ga:"'+org+'"')
+                            } );
                     }
                     orgs[org].links = o.links;
                 }
@@ -422,6 +365,8 @@ var Metadata = (function (_self) {
         });
 
 
+        Handlebars.registerHelper('makeAnchor', function makeAnchor(v) { return '#'+v} );
+
         Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 
             switch (operator) {
@@ -464,7 +409,7 @@ var Metadata = (function (_self) {
                 if (!obj.root) {
                     var accno = obj.accno, type = obj['type'];
                     if (!accno) {
-                        accno= obj.accno = 'genid'+ generatedID++;
+                        accno= obj.accno = 'genid'+ Metadata.getNextGeneratedId();
                     }
                     if (type=='Publication' || type=='Funding') continue;
                     $.each(obj[k], function () {
@@ -495,6 +440,25 @@ var Metadata = (function (_self) {
             });
         }
         return  ret;
+    }
+
+    function renderValQuals(arr) {
+        var ret = '';
+        if (!arr || !arr.length) return ret;
+        arr = arr.filter( function (o) {
+            return $.inArray(o.name.toLowerCase(), ['ontology', 'termname', 'termid'])>=0
+        });
+        $.each(arr, function (i,o) {
+            if (o.name.toLowerCase()=='ontology') {
+                var termname = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termname' })[0];
+                var termid = $.grep(arr, function (o,j) { return j>i && o.name.toLowerCase()=='termid' })[0];
+                ret += '<span data-ontology="'+ o.value+'" ' +
+                    (termid ? 'data-term-id="'+ termid.value+'" ' : '') +
+                    (termname ? 'data-term-name="'+ termname.value : '') +
+                    '"></span>';
+            }
+        });
+        return ret;
     }
 
     return _self;

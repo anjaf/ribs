@@ -12,20 +12,17 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:security.properties")
 public class SecurityConfig {
 
-    @Value("${bs.users.authentication-url}")
-    private String oldAuthCheckUrl;
+    @Value("${auth.profileUrl}")
+    private String profileUrl;
 
-    @Value("${bs.users.auth-check-url}")
-    private String authCheckUrl;
-
-    @Value("${bs.users.login-url}")
+    @Value("${auth.loginUrl}")
     private String loginUrl;
 
     @Value("${index.admin.ip.whitelist}")
     private String adminIPWhitelist;
 
-    public String getAuthCheckUrl() {
-        return authCheckUrl;
+    public String getProfileUrl() {
+        return profileUrl;
     }
 
     public String getLoginUrl() {
@@ -34,10 +31,6 @@ public class SecurityConfig {
 
     public String getAdminIPWhitelist() {
         return adminIPWhitelist;
-    }
-
-    public String getOldAuthCheckUrl() {
-        return oldAuthCheckUrl;
     }
 
 }

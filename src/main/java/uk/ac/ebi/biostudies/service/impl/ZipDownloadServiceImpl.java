@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
-import uk.ac.ebi.biostudies.file.download.BaseDownloadServlet;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +36,7 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
 
 
     @Override
-    public void sendZip(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void sendZip(HttpServletRequest request, HttpServletResponse response, String[] files) throws Exception {
 
 
         String[] args = request.getRequestURI().replaceAll(request.getContextPath()+"(/[a-zA-Z])?/files/"       ,"").split("/");
@@ -45,7 +45,12 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
             key=null;
         }
 
-        Document doc = searchService.getDocumentByAccession(args[0], key);
+        Document doc = null;
+        try {
+            doc = searchService.getDocumentByAccession(args[0], key);
+        } catch (SubmissionNotAccessibleException e) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        }
         if(doc==null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -58,7 +63,6 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
             throw new Exception("File does not exist or user does not have the rights to download it.");
         }
 
-        String[] files = request.getParameterMap().get("files");
         response.setContentType("application/zip");
         response.addHeader("Content-Disposition", "attachment; filename="+ accession+".zip");
         String rootFolder = indexConfig.getFileRootDir();

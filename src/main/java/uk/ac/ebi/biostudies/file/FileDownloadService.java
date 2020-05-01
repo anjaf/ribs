@@ -30,6 +30,7 @@ import uk.ac.ebi.biostudies.file.download.RegularDownloadFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -55,7 +56,7 @@ public class FileDownloadService extends BaseDownloadServlet {
             HttpServletRequest request
             , HttpServletResponse response
             , String relativePath
-    ) throws DownloadServletException {
+    ) throws FileNotFoundException {
         String accession = "";
         String name = "";
         IDownloadFile file = null;
@@ -97,14 +98,7 @@ public class FileDownloadService extends BaseDownloadServlet {
                 }
                 //Hack end
                 if (Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                    if (Files.isDirectory(downloadFile)) {
-                        String forwardedParams = String.format("?files=%s", URLEncoder.encode(name, "UTF-8"));
-                        //TODO update the forward url
-                        request.getRequestDispatcher("/servlets/download/zip/" + accession + forwardedParams).forward(request, response);
-                        return null;
-                    }
                     file = new RegularDownloadFile(downloadFile);
-
                 } else {
                     this.logger.error( "Could not find {}", downloadFile.toFile().getAbsolutePath());
 

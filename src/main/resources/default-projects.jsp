@@ -25,5 +25,5 @@
                href="${contextPath}/SourceData/studies"><img
                     src="${contextPath}/images/projects/sourcedata/SD.png"></a>
         </li>
-        <span class="more"><a href="projects">more...</a></span></ul>
+        <span class="more"><a href="../webapp/jsp/projects">more...</a></span></ul>
 </div>

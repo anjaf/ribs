@@ -6,6 +6,8 @@ var Help = (function (_self) {
                 function ( responseText, textStatus, jqXHR) {
                     if (textStatus=='error') {
                         loadCommonHelp()
+                    } else {
+                        $('#renderedContent').foundation()
                     }
                 }
             );

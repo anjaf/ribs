@@ -1,0 +1,9 @@
+; Run this file in bash with this command:  ftp -i -s:./ftp-windows.sh
+open ftp.biostudies.ebi.ac.uk
+anonymous
+youremail@domain.com
+cd pub/%s/Files
+binary
+%s
+disconnect
+quit

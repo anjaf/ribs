@@ -31,6 +31,7 @@ import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.QueryService;
 import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import javax.annotation.PostConstruct;
 import java.io.FileInputStream;
@@ -88,7 +89,9 @@ public class SearchServiceImpl implements SearchService {
                 .build();
         try {
             excludeCompound = parser.parse("type:compound");
-        } catch (ParseException e) {
+            getFieldStats();
+            getLatestStudies();
+        } catch (Exception e) {
             logger.error(e);
         }
     }
@@ -302,11 +305,14 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode result = mapper.createObjectNode();
+        if(secretKey!=null)
+            return result;
         int maxHits = 4;
         MoreLikeThis mlt = new MoreLikeThis(indexManager.getIndexReader());
         mlt.setFieldNames(new String[]{Fields.CONTENT, Fields.TITLE, Facets.PROJECT});
         mlt.setAnalyzer(analyzerManager.getPerFieldAnalyzerWrapper());
-        ObjectMapper mapper = new ObjectMapper();
         Integer docNumber = getDocumentNumberByAccession(accession, secretKey);
         Query likeQuery = mlt.like(docNumber);
         TopDocs mltDocs = indexManager.getIndexSearcher().search(likeQuery, maxHits);
@@ -317,7 +323,7 @@ public class SearchServiceImpl implements SearchService {
             study.set(Fields.TITLE, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Fields.TITLE)));
             similarStudies.add(study);
         }
-        ObjectNode result = mapper.createObjectNode();
+
         if (mltDocs.totalHits.value > 1) {
             result.set("similarStudies", similarStudies);
         }
@@ -325,9 +331,14 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public Document getDocumentByAccession(String accession, String secretKey) {
+    public Document getDocumentByAccession(String accession, String secretKey) throws SubmissionNotAccessibleException {
         Integer docNumber = getDocumentNumberByAccession(accession, secretKey);
-        if (docNumber == null) return null;
+        if (docNumber == null) {
+            if (isDocumentPresent(accession)) {
+                throw new SubmissionNotAccessibleException();
+            }
+            return null;
+        }
         try {
             return indexManager.getIndexReader().document(docNumber);
         } catch (IOException ex) {
@@ -353,6 +364,20 @@ public class SearchServiceImpl implements SearchService {
         return null;
     }
 
+    @Override
+    public boolean isDocumentPresent(String accession) {
+        QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
+        parser.setSplitOnWhitespace(true);
+        Query query;
+        try {
+            query = parser.parse(Fields.ACCESSION + ":" + accession);
+            TopDocs topDocs = indexManager.getIndexSearcher().search(query, 1);
+            return topDocs.totalHits.value==1;
+        } catch (Throwable ex) {
+            logger.error("Problem in checking security", ex);
+        }
+        return false;
+    }
     public String getLatestStudies() throws Exception {
         boolean isLoggedIn = Session.getCurrentUser() != null;
         String responseString = null;

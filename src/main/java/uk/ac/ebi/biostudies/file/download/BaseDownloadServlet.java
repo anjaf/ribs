@@ -22,24 +22,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostudies.api.util.Constants;
-import uk.ac.ebi.biostudies.api.util.StudyUtils;
-import uk.ac.ebi.biostudies.efo.StringTools;
 import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
+import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 public abstract class BaseDownloadServlet {
     private transient final Logger logger = LoggerFactory.getLogger(getClass());
+
     @Autowired
     SearchService searchService;
+
+    @Autowired
+    ZipDownloadService zipDownloadService;
 
     // buffer size (in bytes)
     private static final int TRANSFER_BUFFER_SIZE = 4* 1024;
@@ -47,22 +52,10 @@ public abstract class BaseDownloadServlet {
     // multipart boundary constant
     private static final String MULTIPART_BOUNDARY = "MULTIPART_BYTERANGES";
 
-    protected final static class DownloadServletException extends Exception {
-        private static final long serialVersionUID = 8774998591374274629L;
-
-        public DownloadServletException(String message) {
-            super(message);
-        }
-
-        public DownloadServletException(Throwable x) {
-            super(x);
-        }
-    }
-
     public void doRequest(
             HttpServletRequest request
             , HttpServletResponse response
-    ) throws ServletException, IOException {
+    ) throws ServletException, IOException, SubmissionNotAccessibleException, IOException {
 
         request.setCharacterEncoding("UTF-8");
         IDownloadFile downloadFile = null;
@@ -77,32 +70,31 @@ public abstract class BaseDownloadServlet {
 
             Document document = searchService.getDocumentByAccession(accession, key);
             if(document==null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
-            accession = document.get(Constants.Fields.ACCESSION);
+                throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
+               }
             String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
             if (relativePath==null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                throw new DownloadServletException("File does not exist or user does not have the rights to download it.");
+//                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
             }
 
-            doBeforeDownloadFileFromRequest(request, response, relativePath);
             downloadFile = getDownloadFileFromRequest(request, response, relativePath);
             if (null != downloadFile) {
-                verifyFile(downloadFile, response);
-
-                if (downloadFile.isRandomAccessSupported()) {
-                    sendRandomAccessFile(downloadFile, request, response);
-                } else {
-                    sendSequentialFile(downloadFile, request, response);
+                if (downloadFile.isDirectory()) {
+                    zipDownloadService.sendZip(request, response, new String[] { downloadFile.getName()});
+                    return;
                 }
+                verifyFile(downloadFile, response);
+                sendRandomAccessFile(downloadFile, request, response);
                 logger.debug("Download of [{}] completed", downloadFile.getName());
             } else {
-                throw new DownloadServletException("File does not exist or user does not have the rights to download it.");
+                throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
             }
+
+        } catch (FileNotFoundException | SubmissionNotAccessibleException e) {
+            throw e;
         } catch (Exception x) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            //response.sendError(HttpServletResponse.SC_NOT_FOUND);
             if (x.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException")) {
                 // generate log entry for client abortion
                 logger.warn("Download aborted");
@@ -113,37 +105,23 @@ public abstract class BaseDownloadServlet {
             if (null != downloadFile) {
                 downloadFile.close();
             }
-            try {
-                doAfterDownloadFileFromRequest(request, response);
-            } catch (DownloadServletException e) {
-                throw new ServletException(e);
-            }
         }
     }
-
-    // This method will be called before sending the file. Added to set up and clean the zipped archive.
-    protected void doBeforeDownloadFileFromRequest(HttpServletRequest request, HttpServletResponse response, String relativePath) throws DownloadServletException {
-    }
-
-    // This method will be called after sending the file. Added to set up and clean the zipped archive.
-    protected void doAfterDownloadFileFromRequest(HttpServletRequest request, HttpServletResponse response) throws DownloadServletException {
-    }
-
 
     protected abstract IDownloadFile getDownloadFileFromRequest(
             HttpServletRequest request
             , HttpServletResponse response
             , String relativePath
-    ) throws DownloadServletException;
+    ) throws FileNotFoundException;
 
     private void verifyFile(IDownloadFile file, HttpServletResponse response)
-            throws DownloadServletException, IOException {
+            throws FileNotFoundException, IOException {
         // Check if file is actually supplied to the request URL.
         if (null == file) {
             // Do your thing if the file is not supplied to the request URL.
             // Throw an exception, or send 404, or show default/warning page, or just ignore it.
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            throw new DownloadServletException("Null file requested to download");
+            throw new FileNotFoundException("Null file requested to download");
         }
 
         // Check if file actually exists in filesystem
@@ -151,98 +129,12 @@ public abstract class BaseDownloadServlet {
             // Do your thing if the file appears to be non-existing.
             // Throw an exception, or send 404, or show default/warning page, or just ignore it
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            throw new DownloadServletException("Specified file [" + file.getPath() + "] does not exist in file system or is not a file");
+            throw new FileNotFoundException("Specified file [" + file.getPath() + "] does not exist in file system or is not a file");
         }
-    }
-
-    private void sendSequentialFile(
-            IDownloadFile downloadFile
-            , HttpServletRequest request
-            , HttpServletResponse response
-    ) throws IOException {
-        // Prepare some variables. The ETag is an unique identifier of the file
-        String fileName = downloadFile.getName();
-        long length = downloadFile.getLength();
-        long lastModified = downloadFile.getLastModified();
-        String eTag = fileName + "_" + length + "_" + lastModified;
-
-
-        // Validate request headers for caching ---------------------------------------------------
-
-        // If-None-Match header should contain "*" or ETag. If so, then return 304
-        String ifNoneMatch = request.getHeader("If-None-Match");
-        if (ifNoneMatch != null && (ifNoneMatch.contains("*") || matches(ifNoneMatch, eTag))) {
-            response.setHeader("ETag", eTag); // Required in 304.
-            response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
-            return;
-        }
-
-        // If-Modified-Since header should be greater than LastModified. If so, then return 304
-        // This header is ignored if any If-None-Match header is specified
-        Date ifModifiedSince = StringTools.rfc822StringToDate(request.getHeader("If-Modified-Since"));
-        if (null == ifNoneMatch && null != ifModifiedSince && ifModifiedSince.getTime() + 1000 > lastModified) {
-            response.setHeader("ETag", eTag); // Required in 304.
-            response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
-            return;
-        }
-
-        // Prepare and initialize response --------------------------------------------------------
-
-        // Get content type by file name.
-        String contentType = request.getServletContext().getMimeType(fileName);
-
-        // If content type is unknown, then set the default value.
-        // For all content types, see: http://www.w3schools.com/media/media_mimeref.asp
-        // To add new content types, add new mime-mapping entry in web.xml.
-        if (contentType == null) {
-            contentType = "application/octet-stream";
-        }
-
-        // Determine content disposition. If content type is supported by the browser or an image
-        // then it is set to inline, else attachment which will pop up a 'save as' dialogue.
-        String accept = request.getHeader("Accept");
-        boolean inline = !contentType.contains("octet-stream") && (accept != null && accepts(accept, contentType));
-        String disposition = (inline ||contentType.startsWith("image")) ? "inline" : "attachment";
-
-        // Initialize response.
-        response.reset();
-        response.setBufferSize(TRANSFER_BUFFER_SIZE);
-        response.setHeader("Content-Disposition", disposition + ";filename=\"" + fileName + "\"");
-        response.setHeader("ETag", eTag);
-        response.setDateHeader("Last-Modified", lastModified);
-        response.setContentType(contentType);
-        response.setHeader("Content-Length", String.valueOf(length));
-
-
-
-        // Prepare streams
-        DataInputStream input = null;
-        ServletOutputStream output = null;
-
-        try {
-            // Open stream
-            input = new DataInputStream(downloadFile.getInputStream());
-            output = response.getOutputStream();
-
-            int readCount;
-            byte[] buffer = new byte[TRANSFER_BUFFER_SIZE];
-
-            while ((readCount = input.read(buffer)) != -1) {
-                output.write(buffer, 0, readCount);
-            }
-
-            // Finalize task
-            output.flush();
-        } finally {
-            // Gently close streams
-            close(output);
-            close(input);
-        }
-
     }
 
     private void sendRandomAccessFile(IDownloadFile downloadFile, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, DownloadServletException {
+            throws IOException, FileNotFoundException {
         // Prepare some variables. The ETag is an unique identifier of the file
         String fileName = downloadFile.getName();
         long length = downloadFile.getLength();

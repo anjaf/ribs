@@ -11,7 +11,7 @@ import org.springframework.context.annotation.*;
 
 @Configuration
 @PropertySource("classpath:test.properties")
-public class IntegProps {
+public class IntegrationTestProperties {
 
     @Value("${test.integration.username}")
     private String username;
@@ -19,10 +19,6 @@ public class IntegProps {
     private String password;
     @Value("${test.integration.baseurl}")
     private String baseUrl;
-    @Value("${test.integration.hosturl}")
-    private String hostUrl;
-    @Value("${test.file.dir}")
-    private String testFileDir;
 
     public String getUsername(){
         return username;
@@ -33,9 +29,5 @@ public class IntegProps {
     }
 
     public String getBaseUrl(){return baseUrl;}
-
-    public String getHostUrl(){return  hostUrl;}
-
-    public String getTestFileDir(){return testFileDir;}
 
 }

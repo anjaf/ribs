@@ -115,7 +115,7 @@ public class QueryServiceImpl implements QueryService {
 
     public Query applyProjectFilter(Query query, String prjName){
         Map<JsonNode, List<String>> hm = new HashMap<JsonNode, List<String>>();
-        List projects = Lists.newArrayList(prjName);
+        List<String> projects = Lists.newArrayList(prjName);
         if (indexManager.getSubProjectMap().containsKey(prjName)) {
             projects.addAll(indexManager.getSubProjectMap().get(prjName));
         }

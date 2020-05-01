@@ -11,6 +11,7 @@
 <c:set var="currentUser" value="${Session.getCurrentUser()}"/>
 <c:set var="pathname" value="${requestScope['javax.servlet.forward.request_uri']}"/>
 <c:set var="pagename" value="${fn:replace(pageContext.request.requestURI,pageContext.request.contextPath,'')}"/>
+<c:set var="announce"><spring:eval expression="@announcementConfig.isEnabled()"/></c:set>
 
 <!doctype html>
 <html lang="en">
@@ -131,7 +132,7 @@
                             <c:choose>
                                 <c:when test="${currentUser!=null}">
                                     <a id="logout-button" href="#" title="Logout"><i class="fa fa-sign-out-alt" aria-hidden="true"></i>
-                                        Logout ${currentUser.getFullName()!=null? currentUser.getFullName() : currentUser.getLogin()}</a>
+                                        Logout ${currentUser.getDisplayName()}</a>
                                 </c:when>
                                 <c:otherwise>
                                     <a id="login-button" href="#" title="Login"><span class="icon icon-functional" data-icon="l"></span>
@@ -184,7 +185,8 @@
                         <div id="login-status" class="alert" style="display:none"></div>
                         <a style="font-size:9pt;float:right;margin-bottom:5pt;" href="/biostudies/submissions#/password_reset_request">Forgot your password?</a>
                     </form>
-                    <form id="logout-form" method="post" action="${contextPath}/logout" >
+                    <form id="logout-form" method="post" action="${contextPath}/logout">
+                        <input type="hidden" name="logout" value="true" />
                     </form>
                 </div>
             </div>
@@ -239,12 +241,28 @@
 <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.3/js/foundationExtendEBI.js"></script>
 <script>$(document).foundation();</script>
 <script>$(document).foundationExtendEBI();</script>
-
+<c:if test="${announce}">
+<script>
+$(function() {
+    ebiInjectAnnouncements({
+        headline: '<spring:eval expression="@announcementConfig.getHeadline()"/>'
+        , message: '<spring:eval expression="@announcementConfig.getMessage()"/>'
+        , priority: '<spring:eval expression="@announcementConfig.getPriority()"/>'
+    });
+});
+</script>
+</c:if>
 <jsp:invoke fragment="postBody"/>
 
 <script id='error-template' type='text/x-handlebars-template'>
     <section id="error-message">
-        <div class="bigicon"><i class="icon icon-conceptual padding-right-medium" data-icon="c"></i></div>
+        <div class="bigicon">
+            {{#if forbidden}}
+                <i class="icon icon-functional padding-right-medium" data-icon="L"></i>
+            {{else}}
+                <i class="icon icon-conceptual padding-right-medium" data-icon="c"></i>
+            {{/if}}
+        </div>
         <h3>{{title}}</h3>
         <p>{{&message}}</p>
         <p>If you require further assistance locating missing page or file, please <a

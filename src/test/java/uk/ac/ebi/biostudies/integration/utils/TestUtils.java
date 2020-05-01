@@ -7,8 +7,8 @@ import uk.ac.ebi.biostudies.integration.IntegrationTestSuite;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by awais on 18/08/2015.
@@ -26,7 +26,8 @@ public class TestUtils {
         IntegrationTestSuite.driver.findElement(By.cssSelector("#pass-field")).sendKeys(password);
         IntegrationTestSuite.driver.findElement(By.cssSelector("input[type='submit'].submit")).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#logout-button")));
-        assertEquals("Logout "+ username, IntegrationTestSuite.driver.findElement(By.cssSelector("#logout-button")).getAttribute("innerText").trim());
+        String logoutText = IntegrationTestSuite.driver.findElement(By.cssSelector("#logout-button")).getAttribute("innerText").trim();
+        assertThat(logoutText, startsWith("Logout "));
     }
 
     public static void logout(String url){
@@ -41,9 +42,9 @@ public class TestUtils {
     public static void validIndexIsloaded(String baseUrl){
         IntegrationTestSuite.driver.navigate().to(baseUrl);
         WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#projectCount")));
-        String prjCount = IntegrationTestSuite.driver.findElement(By.id("projectCount")).getText();
-        int count = Integer.valueOf(prjCount);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#studyCount")));
+        String studyCount = IntegrationTestSuite.driver.findElement(By.id("studyCount")).getText();
+        int count = Integer.valueOf(studyCount.replaceAll("[^0-9]*",""));
         assertThat(count, greaterThan(0));
     }
 

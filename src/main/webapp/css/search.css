@@ -354,6 +354,14 @@ select {
     padding: 0px;
     margin-bottom: 3pt;
 }
+
+.facet-filter-label {
+    display: inline-table;
+    vertical-align: middle;
+    padding: 0px;
+    margin-bottom: 3pt
+}
+
 .facet-filter-value {
     margin-left: 3pt;
     padding: 0pt 2pt 2pt 2pt;

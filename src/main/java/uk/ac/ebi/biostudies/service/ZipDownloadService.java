@@ -5,5 +5,5 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface ZipDownloadService {
 
-    void sendZip(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    void sendZip(HttpServletRequest request, HttpServletResponse response, String[] files) throws Exception;
 }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,15 +28,14 @@ import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.api.util.parser.AbstractParser;
 import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
 import uk.ac.ebi.biostudies.config.IndexConfig;
+import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.schedule.jobs.ReloadOntologyJob;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.FileIndexService;
 import uk.ac.ebi.biostudies.service.IndexService;
-import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.service.SearchService;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,7 +46,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.ac.ebi.biostudies.api.util.Constants.*;
 
 /**
@@ -96,8 +95,8 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     ParserManager parserManager;
 
-    @PostConstruct
-    public void init(){
+    @Override
+    public void afterPropertiesSet() {
         indexFileQueue = new LinkedBlockingQueue<>();
         reloadOntologyJob.doExecute();
     }
@@ -157,6 +156,7 @@ public class IndexServiceImpl implements IndexService {
             taxonomyManager.refreshTaxonomyReader();
             logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
             ActiveExecutorService.decrementAndGet();
+            searchService.clearStatsCache();
         }
         catch (Throwable error){
             logger.error("problem in parsing "+ fileName , error);
@@ -177,6 +177,7 @@ public class IndexServiceImpl implements IndexService {
         indexManager.getIndexWriter().deleteDocuments(query);
         indexManager.getIndexWriter().commit();
         indexManager.refreshIndexSearcherAndReader();
+        searchService.clearStatsCache();
     }
 
     @Override
@@ -203,6 +204,11 @@ public class IndexServiceImpl implements IndexService {
             com.google.common.io.Files.copy(srcFile, destFile);
         }
         return destFile.getAbsolutePath();
+    }
+
+    @Override
+    public void destroy() {
+
     }
 
     public static class JsonDocumentIndexer implements Runnable {
@@ -258,7 +264,7 @@ public class IndexServiceImpl implements IndexService {
 
                 Set<String> columnSet = new LinkedHashSet<>();
 
-                Map fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
+                Map<String, Object> fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
                 if (fileValueMap!=null) {
                     valueMap.putAll(fileValueMap);
                 }
@@ -380,6 +386,13 @@ public class IndexServiceImpl implements IndexService {
                 filename = indexFileQueue.take();
                 logger.log(Level.INFO, "Started indexing {}. {} files left in the queue.", filename, indexFileQueue.size());
                 boolean removeFileDocuments = true;
+                if(indexManager.getIndexWriter()==null || !indexManager.getIndexWriter().isOpen()){
+                    logger.log(Level.INFO,"IndexWriter was closed trying to construct a new IndexWriter");
+                    indexManager.refreshIndexWriterAndWholeOtherIndices();
+                    Thread.sleep(30000);
+                    indexFileQueue.put(filename);
+                    continue;
+                }
                 if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))  {
                     clearIndex(false);
                     filename = Constants.STUDIES_JSON_FILE;

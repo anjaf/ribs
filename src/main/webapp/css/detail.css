@@ -56,7 +56,7 @@ body.is-reveal-open { /*avoid jumping of body to the left*/
     margin-top: 10px;
 }
 
-a.show-more, a.show-less {
+a.show-more, a.show-less, a.reference {
     color: #A66A27;
     padding: 0;
     cursor: pointer;
@@ -65,7 +65,8 @@ a.show-more, a.show-less {
 }
 
 a.show-more:hover,
-a.show-less:hover {
+a.show-less:hover,
+a.reference:hover {
     padding: 0 4px;
     margin-left: -4px;
     color: #fff;
@@ -337,15 +338,8 @@ a.section-button:hover {
     color: #aaaaaa;
 }
 
-#thumbnail {
-    border: 1px solid #aaa;
-    max-width: 303px;
-    position: absolute;
-    box-shadow: 2px 2px 10px #888888;
-    display: none;
-    padding: 3px;
-    background-color: white;
-    z-index:99999;
+.max-content-width{
+    width: max-content !important;
 }
 
 a.thumbnail-icon {
@@ -496,13 +490,10 @@ a.thumbnail-icon {
 
 .orcid {
     border: 0;
-    height: 20px;
-    display: inline-block;
 }
 .orcid img {
-    margin: 4px;
+    margin: -4px 0px 0px 0px;
     width: 16px;
-    height: 16px;
 }
 
 #biostudies-citation{
@@ -525,7 +516,6 @@ a.thumbnail-icon {
     white-space: pre-wrap;
     white-space: -o-pre-wrap;
     white-space: -moz-pre-wrap;
-    white-space: -pre-wrap;
     word-wrap: break-word;
 }
 
@@ -559,11 +549,15 @@ ul.recommendations li {
 }
 
 .sdrf-sample-attribute-column {
-    background: #96F8BD33;
+    background: #75c8ec30;
 }
 
 .sdrf-variable-column {
-    background: #8190EF33;
+    background: #B0B0B030;
+}
+
+.sdrf-assay-column {
+    background: #60ECDF30;
 }
 
 #advanced-search {

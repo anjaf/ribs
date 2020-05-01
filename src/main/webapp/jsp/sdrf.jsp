@@ -23,8 +23,9 @@
 
     <jsp:body>
         <div style="text-align: center">
-            <span class="sdrf-sample-attribute-column" style="border:1px solid #7cd17c; display: inline-block; width:12px; height: 12px"></span> Sample Attributes
-            <span class="sdrf-variable-column" style="margin-left:20pt; border:1px solid #757EB3; display: inline-block; width:12px; height: 12px"></span> Variables
+            <span class="sdrf-sample-attribute-column" style="border:1px solid #75c8ec; display: inline-block; width:12px; height: 12px"></span> Sample Attributes
+            <span class="sdrf-variable-column" style="margin-left:20pt; border:1px solid #B0B0B0; display: inline-block; width:12px; height: 12px"></span> Variables
+            <span id="assay-column-legend" style="display: none"><span class="sdrf-assay-column" style="margin-left:20pt; border:1px solid #60ECDF; display: inline-block; width:12px; height: 12px;"></span> Assay</span>
         </div>
         <table id="file-list" class="display stripe compact hover font-60" width="100%">
         </table>
