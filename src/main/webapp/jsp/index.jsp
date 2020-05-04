@@ -92,7 +92,7 @@
                                     </a>
                                 </li>
                                 </c:forEach>
-                                <span class="more"><a href="$${contextPath}/projects">more...</a></span>
+                                <span class="more"><a href="${contextPath}/projects">more...</a></span>
                             </ul>
                         </div>
                     </c:otherwise>
