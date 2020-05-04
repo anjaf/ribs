@@ -87,9 +87,9 @@
                             <ul id="projectList">
                                 <c:forEach items="${defaultProjects}" var="project">
                                 <li>
-                                    <a data-type="project" data-accession="${project}"
-                                       href="${contextPath}/${project}/studies"><img
-                                            src="${contextPath}/images/projects/${fn:toLowerCase(project)}/defaultlogo.png"/></a>
+                                    <a href="${contextPath}/${project}/studies">
+                                        <img src="${contextPath}/images/projects/${fn:toLowerCase(project)}/defaultlogo.png"/>
+                                    </a>
                                 </li>
                                 </c:forEach>
                                 <span class="more"><a href="$${contextPath}/projects">more...</a></span>
