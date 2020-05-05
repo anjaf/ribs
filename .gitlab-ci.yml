@@ -4,15 +4,20 @@ cache:
     - target/
 
 stages:
-  - build-and-deploy
+  - build
+  - deploy
 
-.build-template: &build-and-deploy
-  stage: build-and-deploy
+.build-template: &build-template
+  stage: build
   artifacts:
     paths:
       - target/biostudies.war
   script:
     - mvn clean install spring-boot:repackage
+
+.deploy-template: &deploy-template
+  stage: deploy
+  script:
     - mkdir -p ~/.ssh
     - cp "$ssh_key" ~/.ssh/id_rsa
     - chmod 700 ~/.ssh/id_rsa
@@ -25,23 +30,41 @@ stages:
         ssh -oStrictHostKeyChecking=no "$user"@"$host" "$deployDirectory"/restart.sh
       done
 
-dev:
-  <<: *build-and-deploy
+dev-build:
+  <<: *build-template
   environment: dev
   only:
     - develop
 
+dev:
+  <<: *deploy-template
+  environment: dev
+  only:
+    - develop
 
 beta:
-  <<: *build-and-deploy
+  <<: *deploy-template
   environment: beta
   only:
     - develop
   when: manual
 
+master-build:
+  <<: *build-template
+  only:
+    - master
+
+prod-backup:
+  <<: *deploy-template
+  environment: prod-backup
+  only:
+    - master
+  when: manual
+
 prod:
-  <<: *build-and-deploy
+  <<: *deploy-template
   environment: prod
   only:
     - master
   when: manual
+
