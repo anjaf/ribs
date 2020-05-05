@@ -29,8 +29,8 @@ stages:
     - >
       for host in $host; do
         ssh -oStrictHostKeyChecking=no "$user"@"$host" "$deployDirectory"/restart.sh
-        echo "Waiting 120 seconds"
-        sleep 120
+        echo "Waiting 220 seconds"
+        sleep 220
       done
 
 dev-build:
@@ -70,4 +70,12 @@ prod:
   only:
     - master
   when: manual
+
+preview:
+  <<: *deploy-template
+  environment: preview
+  only:
+    - master
+  when: manual
+
 
