@@ -3,7 +3,11 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/functions" prefix = "fn" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
+<c:set var="defaultProjects"><spring:eval expression="@indexConfig.getDefaultProjectList()"/></c:set>
+
 <t:generic>
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/index.css" type="text/css">
@@ -78,7 +82,19 @@
                         <div id="projects"></div>
                     </c:when>
                     <c:otherwise>
-                        <%@include file="default-projects.jsp" %>
+
+                        <div id="preloaded-projects">
+                            <ul id="projectList">
+                                <c:forEach items="${defaultProjects}" var="project">
+                                <li>
+                                    <a href="${contextPath}/${project}/studies">
+                                        <img src="${contextPath}/images/projects/${fn:toLowerCase(project)}/defaultlogo.png"/>
+                                    </a>
+                                </li>
+                                </c:forEach>
+                                <span class="more"><a href="${contextPath}/projects">more...</a></span>
+                            </ul>
+                        </div>
                     </c:otherwise>
                 </c:choose>
 

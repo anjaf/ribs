@@ -9,6 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -57,7 +58,8 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     @Value("${indexer.queryTypeFilter}")
     private String typeFilterQuery;
 
-
+    @Value("${default.project.list}")
+    private List<String> defaultProjectList;
 
     public static CharArraySet STOP_WORDS;
 
@@ -121,6 +123,10 @@ public class IndexConfig implements InitializingBean, DisposableBean {
 
     public String getTypeFilterQuery() {
         return typeFilterQuery;
+    }
+
+    public List<String> getDefaultProjectList() {
+        return defaultProjectList;
     }
 
     @Override
