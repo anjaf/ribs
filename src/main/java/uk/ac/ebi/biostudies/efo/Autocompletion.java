@@ -48,17 +48,13 @@ public class Autocompletion implements InitializingBean, DisposableBean {
     @Autowired
     IndexManager indexManager;
 
-
-    private AutocompleteStore autocompleteStore;
+    private AutocompleteStore autocompleteStore = new AutocompleteStore();
 
     private IEFO efo;
 
-
     @Override
     public void afterPropertiesSet() {
-        this.autocompleteStore = new AutocompleteStore();
     }
-
 
     private IEFO getEfo() {
         return this.efo;
@@ -120,8 +116,8 @@ public class Autocompletion implements InitializingBean, DisposableBean {
         getStore().clear();
         List<JsonNode> numericalFieldNameTitle = new ArrayList<JsonNode>();
         //Add the fields that you want autoComplete be Applied
-        for(JsonNode bsField:indexManager.getIndexEntryMap().values()) {
-            if(bsField.has(Constants.IndexEntryAttributes.EXPANDED) && bsField.get(Constants.IndexEntryAttributes.EXPANDED).asBoolean(false)==true)
+        for (JsonNode bsField : indexManager.getIndexEntryMap().values()) {
+            if (bsField.has(Constants.IndexEntryAttributes.EXPANDED) && bsField.get(Constants.IndexEntryAttributes.EXPANDED).asBoolean(false) == true)
                 numericalFieldNameTitle.add(bsField);
         }
 
@@ -141,7 +137,7 @@ public class Autocompletion implements InitializingBean, DisposableBean {
             String fieldType = field.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText();
             if (fieldType.equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.TOKENIZED_STRING)) {
                 List<String> terms = getTerms(fieldName, Constants.Fields.CONTENT.equals(fieldName) ? 10 : 1);
-                for (String term : terms ) {
+                for (String term : terms) {
                     getStore().addData(
                             new AutocompleteData(
                                     term
@@ -167,15 +163,14 @@ public class Autocompletion implements InitializingBean, DisposableBean {
             if (null != terms) {
                 TermsEnum iterator = terms.iterator();
                 BytesRef byteRef;
-                while((byteRef = iterator.next()) != null) {
+                while ((byteRef = iterator.next()) != null) {
                     if (iterator.docFreq() >= minFreq) {
                         termsList.add(byteRef.utf8ToString());
                     }
                 }
             }
-        }
-        catch (Exception ex){
-            logger.error("getTerms problem",ex);
+        } catch (Exception ex) {
+            logger.error("getTerms problem", ex);
         }
         return termsList;
     }
