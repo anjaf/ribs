@@ -17,27 +17,27 @@
 
 package uk.ac.ebi.biostudies.file.download;
 
-import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 
 public interface IDownloadFile {
-    public static final int KB = 1024;
-    public static final int MB = KB * KB;
+    int KB = 1024;
 
-    public String getName();
+    String getName();
 
-    public String getPath();
+    default String getPath() {
+        return null;
+    }
 
-    public long getLength();
+    long getLength();
 
-    public long getLastModified();
+    long getLastModified();
 
-    public boolean canDownload();
+    boolean canDownload();
 
-    public boolean isDirectory();
+    boolean isDirectory();
 
-    public InputStream getInputStream() throws IOException;
+    InputStream getInputStream() throws IOException;
 
-    public void close() throws IOException;
+    void close() throws IOException;
 }

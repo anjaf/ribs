@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostudies.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -44,27 +46,30 @@ public class Study {
             document = searchService.getDocumentByAccession(accession, seckey);
         } catch (SubmissionNotAccessibleException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("{\"errorMessage\":\"Study not accessible!\"}");
+                    .body("{\"errorMessage\":\"Study not accessible\"}");
         }
         if(document==null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
+                    .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found\"}");
         }
         accession = document.get(Constants.Fields.ACCESSION);
         String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
         InputStreamResource result;
         try {
-            result = searchService.getStudyAsStream(accession.replace("..",""), relativePath);
+            result = searchService.getStudyAsStream(accession.replace("..",""), relativePath, seckey!=null);
         } catch (IOException e) {
             logger.error(e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found!\"}");
+                    .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found\"}");
         }
+
         return new ResponseEntity(result, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/studies/{accession:.+}/similar", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
-    public ResponseEntity<String> getSimilarStudies(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
+    public ResponseEntity<String> getSimilarStudies(@PathVariable("accession") String accession,
+                                                    @RequestParam(value="key", required=false) String seckey)
+            throws  Exception {
         if ("null".equalsIgnoreCase(seckey)) {
             seckey = null;
         }
@@ -75,11 +80,9 @@ public class Study {
                 ResponseEntity result =  new ResponseEntity(searchService.getSimilarStudies(accession.replace("..",""), seckey), HttpStatus.OK);
                 return result;
             }
-        } catch (Exception e) {
-            logger.error(e);
         } catch (SubmissionNotAccessibleException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("{\"errorMessage\":\"Study not accessible!\"}");
+                    .body("{\"errorMessage\":\"Study not accessible\"}");
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON).body("{\"similarStudies\":[]}");
@@ -96,7 +99,7 @@ public class Study {
             return ResponseEntity.status(HttpStatus.OK).body(paginationService.getStudyInfo(accession, seckey).toString());
         } catch (SubmissionNotAccessibleException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("{\"errorMessage\":\"Study not accessible!\"}");
+                    .body("{\"errorMessage\":\"Study not accessible\"}");
         }
 
     }

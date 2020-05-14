@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
+import uk.ac.ebi.biostudies.file.download.FilteredMageTabDownloadFile;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
@@ -37,7 +38,6 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
 
     @Override
     public void sendZip(HttpServletRequest request, HttpServletResponse response, String[] files) throws Exception {
-
 
         String[] args = request.getRequestURI().replaceAll(request.getContextPath()+"(/[a-zA-Z])?/files/"       ,"").split("/");
         String key = request.getParameter("key");
@@ -89,7 +89,14 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
                     } else if(file.exists()) {
                         ZipEntry entry = new ZipEntry(filename);
                         zos.putNextEntry(entry);
-                        FileInputStream fin = new FileInputStream(file);
+                        InputStream fin = new FileInputStream(file);
+                        if (key != null) {
+                            FilteredMageTabDownloadFile filteredMageTabDownloadFile =
+                                    new FilteredMageTabDownloadFile(file);
+                            if (filteredMageTabDownloadFile.isSupported()) {
+                                fin = filteredMageTabDownloadFile.getInputStream();
+                            }
+                        }
                         int length;
                         while ((length = fin.read(buffer)) > 0) {
                             zos.write(buffer, 0, length);

@@ -49,7 +49,7 @@ public class File {
                     .body(paginationService.getFileList(accession, start, pageSize, search, draw, metadata, parseResult, seckey).toString());
         } catch (SubmissionNotAccessibleException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("{\"errorMessage\":\"Study not accessible!\"}");
+                    .body("{\"errorMessage\":\"Study not accessible\"}");
         }
     }
 

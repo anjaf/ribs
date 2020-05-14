@@ -15,30 +15,46 @@
  *
  */
 
-package uk.ac.ebi.biostudies.file.download;
+package uk.ac.ebi.biostudies.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
+import uk.ac.ebi.biostudies.config.IndexConfig;
+import uk.ac.ebi.biostudies.file.download.FilteredMageTabDownloadFile;
+import uk.ac.ebi.biostudies.file.download.IDownloadFile;
+import uk.ac.ebi.biostudies.file.download.RegularDownloadFile;
+import uk.ac.ebi.biostudies.service.FileDownloadService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLEncoder;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class BaseDownloadServlet {
-    private transient final Logger logger = LoggerFactory.getLogger(getClass());
+@Service
+public class FileDownloadServiceImpl implements FileDownloadService {
+
+    private static final Logger logger = LogManager.getLogger(FileDownloadServiceImpl.class);
+
+    private static final int TRANSFER_BUFFER_SIZE = 4 * IDownloadFile.KB;
+
+    private static final String MULTIPART_BOUNDARY = "MULTIPART_BYTERANGES";
 
     @Autowired
     SearchService searchService;
@@ -46,42 +62,35 @@ public abstract class BaseDownloadServlet {
     @Autowired
     ZipDownloadService zipDownloadService;
 
-    // buffer size (in bytes)
-    private static final int TRANSFER_BUFFER_SIZE = 4* 1024;
+    @Autowired
+    IndexConfig indexConfig;
 
-    // multipart boundary constant
-    private static final String MULTIPART_BOUNDARY = "MULTIPART_BYTERANGES";
-
-    public void doRequest(
-            HttpServletRequest request
-            , HttpServletResponse response
-    ) throws ServletException, IOException, SubmissionNotAccessibleException, IOException {
+    public void sendFile(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         request.setCharacterEncoding("UTF-8");
         IDownloadFile downloadFile = null;
         try {
-            String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath()+"(/[a-zA-Z])?/files/"       ,"").split("/");
+            String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath() + "(/[a-zA-Z])?/files/", "").split("/");
             String accession = requestArgs[0];
             String key = request.getParameter("key");
 
             if ("null".equalsIgnoreCase(key)) {
-                key=null;
+                key = null;
             }
 
             Document document = searchService.getDocumentByAccession(accession, key);
-            if(document==null) {
+            if (document == null) {
                 throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
-               }
+            }
             String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
-            if (relativePath==null) {
-//                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            if (relativePath == null) {
                 throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
             }
 
-            downloadFile = getDownloadFileFromRequest(request, response, relativePath);
+            downloadFile = getDownloadFileFromRequest(request, response, relativePath, key);
             if (null != downloadFile) {
                 if (downloadFile.isDirectory()) {
-                    zipDownloadService.sendZip(request, response, new String[] { downloadFile.getName()});
+                    zipDownloadService.sendZip(request, response, new String[]{downloadFile.getName()});
                     return;
                 }
                 verifyFile(downloadFile, response);
@@ -90,29 +99,12 @@ public abstract class BaseDownloadServlet {
             } else {
                 throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
             }
-
-        } catch (FileNotFoundException | SubmissionNotAccessibleException e) {
-            throw e;
-        } catch (Exception x) {
-            //response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            if (x.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException")) {
-                // generate log entry for client abortion
-                logger.warn("Download aborted");
-            } else {
-                throw new ServletException(x);
-            }
         } finally {
             if (null != downloadFile) {
                 downloadFile.close();
             }
         }
     }
-
-    protected abstract IDownloadFile getDownloadFileFromRequest(
-            HttpServletRequest request
-            , HttpServletResponse response
-            , String relativePath
-    ) throws FileNotFoundException;
 
     private void verifyFile(IDownloadFile file, HttpServletResponse response)
             throws FileNotFoundException, IOException {
@@ -132,6 +124,75 @@ public abstract class BaseDownloadServlet {
             throw new FileNotFoundException("Specified file [" + file.getPath() + "] does not exist in file system or is not a file");
         }
     }
+
+
+    protected IDownloadFile getDownloadFileFromRequest(HttpServletRequest request, HttpServletResponse response,
+                                                       String relativePath, String key) throws Exception {
+        String accession = "";
+        String name = "";
+        IDownloadFile file = null;
+
+        List<String> requestArgs = new ArrayList<>(Arrays.asList(
+                request.getRequestURI().replaceAll(request.getContextPath() + "/files/", "").split("/")));
+        if (requestArgs.size() == 1) { // name only passed
+            name = requestArgs.get(0);
+        } else if (requestArgs.size() > 1) { // accession/name passed
+            accession = requestArgs.remove(0);
+            name = URLDecoder.decode(
+                    StringUtils.replace(StringUtils.join(requestArgs, '/'), "..", "")
+                    , StandardCharsets.UTF_8.toString());
+        }
+
+        if (key != null &&
+                (name.equalsIgnoreCase(accession + ".xml")
+                        || name.equalsIgnoreCase(accession + ".json")
+                        || name.equalsIgnoreCase(accession + ".pagetab.tsv"))) {
+            throw new SubmissionNotAccessibleException();
+        }
+
+        this.logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
+
+        if (name.equalsIgnoreCase(accession + ".json") || name.equalsIgnoreCase(accession + ".xml") || name.equalsIgnoreCase(accession + ".pagetab.tsv")) {
+            file = new RegularDownloadFile(Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + name));
+        } else {
+            Path downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/" + name);
+
+            //TODO: Remove this bad^∞ hack
+            //Hack start: override relative path if file is not found
+            if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
+                this.logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
+                downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
+                this.logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
+            }
+            if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
+                downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + relativePath + "/" + name);
+                this.logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
+            }
+            if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) { // for file list
+                this.logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
+                downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + name);
+                this.logger.debug("Trying file list file {}", downloadFile.toFile().getAbsolutePath());
+            }
+            //Hack end
+            if (Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
+                file = new RegularDownloadFile(downloadFile);
+                if (key != null) {
+                    FilteredMageTabDownloadFile filteredMageTabDownloadFile =
+                            new FilteredMageTabDownloadFile(downloadFile.toFile());
+                    if (filteredMageTabDownloadFile.isSupported()) {
+                        file = filteredMageTabDownloadFile;
+                    }
+                }
+            } else {
+                this.logger.error("Could not find {}", downloadFile.toFile().getAbsolutePath());
+                throw new FileNotFoundException();
+            }
+        }
+
+
+        return file;
+    }
+
 
     private void sendRandomAccessFile(IDownloadFile downloadFile, HttpServletRequest request, HttpServletResponse response)
             throws IOException, FileNotFoundException {
@@ -300,7 +361,6 @@ public abstract class BaseDownloadServlet {
                 logger.info("Single range download of [{}] completed, sent [{}] bytes", fileName, r.length);
 
 
-
             } else {
 
                 // Return multiple parts of file
@@ -445,4 +505,5 @@ public abstract class BaseDownloadServlet {
             this.total = total;
         }
     }
+
 }
