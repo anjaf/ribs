@@ -37,13 +37,19 @@ var Metadata = (function (_self) {
                 return v.name == 'ReleaseDate';
             });
             data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
-            var title = data.attributes.filter(function (v, i) {
-                return v.name == 'Title';
-            });
-            if (!data.section.attributes.filter(function (v, i) {
-                return v.name == 'Title';
-            }).length) {
-                data.section.attributes.push({name: 'Title', value: title[0].value});
+            var title = data.accno;
+            if (data.attributes) {
+                title = data.attributes.filter(function (v, i) {
+                    return v.name == 'Title';
+                });
+            }
+            if (data.section ) {
+                if (!data.section.attributes) data.section.attributes = [];
+                if (!data.section.attributes.filter(function (v, i) {
+                    return v.name == 'Title';
+                }).length) {
+                    data.section.attributes.push({name: 'Title', value: title[0].value});
+                }
             }
             $('#renderedContent').html(template(data.section));
             postRender(params, data.section);
