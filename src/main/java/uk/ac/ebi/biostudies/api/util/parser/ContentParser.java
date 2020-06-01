@@ -18,9 +18,17 @@ public class ContentParser extends AbstractParser {
         }
         content.append(String.join(" ", submission.get("section").findValuesAsText("value")));
         content.append(" ");
-        content.append(submission.findValues("files").stream().map(jsonNode -> jsonNode.findValuesAsText("path").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
+        content.append(submission.findValues("files").stream()
+                .map(jsonNode -> jsonNode.findValuesAsText("path").stream()
+                        .filter(text -> text != null && !text.equalsIgnoreCase("null"))
+                        .collect(Collectors.joining(" ")))
+                .collect(Collectors.joining(" ")));
         content.append(" ");
-        content.append(submission.findValues("links").stream().map(jsonNode -> jsonNode.findValuesAsText("url").stream().collect(Collectors.joining(" "))).collect(Collectors.joining(" ")));
+        content.append(submission.findValues("links").stream()
+                .map(jsonNode -> jsonNode.findValuesAsText("url").stream()
+                        .filter(text -> text != null && !text.equalsIgnoreCase("null"))
+                        .collect(Collectors.joining(" ")))
+                .collect(Collectors.joining(" ")));
         valueMap.put( Constants.Fields.CONTENT, content.toString());
         return "";
     }
