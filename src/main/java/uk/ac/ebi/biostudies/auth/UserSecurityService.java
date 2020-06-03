@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -50,23 +51,33 @@ public class UserSecurityService {
 
     @Autowired
     private SecurityConfig securityConfig;
+    private static int REQUEST_TIMEOUT = 30000;
 
-    private JsonNode sendAuthenticationCheckRequest(String token) throws IOException {
-        JsonNode responseJSON;
+    public JsonNode sendAuthenticationCheckRequest(String token) throws IOException {
+        JsonNode responseJSON = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(securityConfig.getProfileUrl());
+        httpGet.setConfig(RequestConfig.custom()
+                .setConnectionRequestTimeout(REQUEST_TIMEOUT)
+                .setConnectTimeout(REQUEST_TIMEOUT)
+                .setSocketTimeout(REQUEST_TIMEOUT).build());
         httpGet.setHeader(X_SESSION_TOKEN, token);
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
+        }catch (Exception exception){
+            logger.error("problem in sending http req to authentication server", exception);
         }
-
         return responseJSON;
     }
 
-    private JsonNode sendLoginRequest(String username, String password) throws IOException {
-        JsonNode responseJSON;
+    public JsonNode sendLoginRequest(String username, String password) throws IOException {
+        JsonNode responseJSON = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(securityConfig.getLoginUrl());
+        httpPost.setConfig(RequestConfig.custom()
+                .setConnectionRequestTimeout(REQUEST_TIMEOUT)
+                .setConnectTimeout(REQUEST_TIMEOUT)
+                .setSocketTimeout(REQUEST_TIMEOUT).build());
         httpPost.setHeader("Content-Type", "application/json; charset=UTF-8");
         ObjectNode creds = mapper.createObjectNode();
         creds.put("login", username);
@@ -74,6 +85,8 @@ public class UserSecurityService {
         httpPost.setEntity(new StringEntity( mapper.writeValueAsString(creds)));
         try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
+        }catch (Exception exception){
+            logger.error("problem in sending http req to authentication server", exception);
         }
         return responseJSON;
     }

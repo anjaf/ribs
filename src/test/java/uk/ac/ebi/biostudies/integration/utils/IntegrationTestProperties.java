@@ -15,8 +15,7 @@ public class IntegrationTestProperties {
 
     @Value("${test.integration.username}")
     private String username;
-    @Value("${test.integration.password}")
-    private String password;
+
     @Value("${test.integration.baseurl}")
     private String baseUrl;
 
@@ -24,10 +23,7 @@ public class IntegrationTestProperties {
         return username;
     }
 
-    public String getPassword(){
-        return password;
-    }
-
+    public String getBaseUrl(int randomPort){return String.format(baseUrl, randomPort);}
     public String getBaseUrl(){return baseUrl;}
 
 }

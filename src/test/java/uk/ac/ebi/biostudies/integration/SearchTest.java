@@ -1,82 +1,87 @@
 package uk.ac.ebi.biostudies.integration;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.BeforeClass;
+import org.apache.lucene.document.Document;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.junit4.SpringRunner;
+import uk.ac.ebi.biostudies.auth.UserSecurityService;
+import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
-import uk.ac.ebi.biostudies.integration.utils.IntegrationConfig;
-
+import uk.ac.ebi.biostudies.service.SearchService;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {IntegrationConfig.class})
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class SearchTest {
+
+    @LocalServerPort
+    int randomPort;
 
     @Autowired
     IntegrationTestProperties integrationTestProperties;
-    protected static WebDriver driver;
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        driver = IntegrationTestSuite.driver;
-//        driver = new HtmlUnitDriver( BrowserVersion.FIREFOX_38 , true);
-//        baseUrl = new BSInterfaceTestApplication().getPreferences().getString("bs.test.uk.ac.ebi.biostudies.integration.server.url");
-        //driver.get(baseUrl + "/admin/reload-xml");
-    }
+    @SpyBean
+    private  SearchService searchServiceMock;
+    @SpyBean
+    private IndexConfig indexConfigMock;
+    @SpyBean
+    UserSecurityService userSecurityServiceMock;
+
+    private static WebDriver webDriver = IntegrationTestSuite.webDriver;
 
 
     @Test
     public void testPageStats() {
-        driver.get(integrationTestProperties.getBaseUrl() + "/studies");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector(".result-count")));
-        String pages = driver.findElement(By.cssSelector(".result-count")).getAttribute("innerText");
+        String pages = webDriver.findElement(By.cssSelector(".result-count")).getAttribute("innerText");
         assertTrue(pages.contains("of"));
     }
 
     // Does not work with <input type="search"...
     //@Test
     public void testAutoComplete() throws Exception{
-        driver.get(integrationTestProperties.getBaseUrl() + "/studies/");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 120);
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies/");
+        WebDriverWait wait = new WebDriverWait(webDriver, 120);
         wait.until(visibilityOfElementLocated(By.cssSelector(".result-count")));
-        WebElement searchBox = driver.findElement (By.cssSelector("#query"));
+        WebElement searchBox = webDriver.findElement (By.cssSelector("#query"));
         searchBox.click();
         searchBox.sendKeys("dna");
         wait.until(visibilityOfElementLocated (By.cssSelector(".ac_inner")));
-        List<WebElement> we = driver.findElements(By.cssSelector(".ac_inner li"));
+        List<WebElement> we = webDriver.findElements(By.cssSelector(".ac_inner li"));
         if(!we.get(3).getText().startsWith("DNA")) {
             Thread.sleep(60000);
             searchBox.click();
             searchBox.sendKeys("dna");
-            we = driver.findElements(By.cssSelector(".ac_inner li"));
+            we = webDriver.findElements(By.cssSelector(".ac_inner li"));
         }
         assertTrue(we.get(3).getText().startsWith("DNA"));
     }
 
 //    @Test
 //    public void testAccessionAscendingSort() throws Exception{
-//        driver.get(integProps.getBaseUrl() + "/studies?query=cancer");
+//        driver.get(integProps.getBaseUrl(randomPort) + "/studies?query=cancer");
 //        new Select(driver.findElement(By.id("sort-by"))).selectByVisibleText("Relevance");
 //        testSort(".browse-study-accession");
 //    }
 
 //    @Test
 //    public void testAccessionDescendingSort() throws Exception{
-//        driver.get(integProps.getBaseUrl() + "/studies/search.html?query=cancer");
+//        driver.get(integProps.getBaseUrl(randomPort) + "/studies/search.html?query=cancer");
 //        new Select(driver.findElement(By.id("studies-browse-sorter"))).selectByVisibleText("Accession");
 //        driver.findElement(By.cssSelector(".studies-browse-sort-order-left")).click();
 //        testSort(".browse-study-accession", true);
@@ -87,7 +92,7 @@ public class SearchTest {
     }
 
     private void testSort(String cssSelector, boolean isDescending) {
-        List<WebElement> list = driver.findElements(By.cssSelector(cssSelector));
+        List<WebElement> list = webDriver.findElements(By.cssSelector(cssSelector));
         String [] values = new String[list.size()];
         for(int i=0; i < values.length; i++) {
             values[i] = list.get(i).getText().toLowerCase().trim();
@@ -103,14 +108,14 @@ public class SearchTest {
 
 //    @Test
 //    public void testTitleAscendingSort() throws Exception{
-//        driver.get(integProps.getBaseUrl() + "/studies/search.html?query=cancer");
+//        driver.get(integProps.getBaseUrl(randomPort) + "/studies/search.html?query=cancer");
 //        new Select(driver.findElement(By.id("studies-browse-sorter"))).selectByVisibleText("Title");
 //        testSort(".browse-study-title a");
 //    }
 
 //    @Test
 //    public void testTitleDescendingSort() throws Exception{
-//        driver.get(integProps.getBaseUrl() + "/studies/search.html?query=cancer");
+//        driver.get(integProps.getBaseUrl(randomPort) + "/studies/search.html?query=cancer");
 //        new Select(driver.findElement(By.id("studies-browse-sorter"))).selectByVisibleText("Title");
 //        driver.findElement(By.cssSelector(".studies-browse-sort-order-left")).click();
 //        testSort(".browse-study-title a", true);
@@ -118,14 +123,14 @@ public class SearchTest {
 
 //    @Test
 //    public void testAuthorsAscendingSort() throws Exception{
-//        driver.get(integProps.getBaseUrl() + "/studies/search.html?query=cancer");
+//        driver.get(integProps.getBaseUrl(randomPort) + "/studies/search.html?query=cancer");
 //        new Select(driver.findElement(By.id("studies-browse-sorter"))).selectByVisibleText("Authors");
 //        testSort(".browse-study-title + div.search-authors");
 //    }
 
 //    @Test
 //    public void testAuthorsDescendingSort() throws Exception{
-//        driver.get(integProps.getBaseUrl() + "/studies/search.html?query=cancer");
+//        driver.get(integProps.getBaseUrl(randomPort) + "/studies/search.html?query=cancer");
 //        new Select(driver.findElement(By.id("studies-browse-sorter"))).selectByVisibleText("Authors");
 //        driver.findElement(By.cssSelector(".studies-browse-sort-order-left")).click();
 //        testSort(".browse-study-title + div.search-authors", true);
@@ -134,12 +139,12 @@ public class SearchTest {
 
     @Test
     public void testFilesDescendingSort() throws Exception{
-        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
-        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
+        new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
         wait.until(visibilityOfElementLocated(By.cssSelector(".release-files")));
-        List<WebElement> list = driver.findElements(By.cssSelector(".release-files"));
+        List<WebElement> list = webDriver.findElements(By.cssSelector(".release-files"));
         Integer [] values = new Integer[list.size()];
         for(int i=0; i < values.length; i++) {
             values[i] = Integer.parseInt(list.get(i).getAttribute("innerText").trim().split(" ")[0]);
@@ -151,15 +156,15 @@ public class SearchTest {
 
     @Test(expected = TimeoutException.class)
     public void testFilesAscendingSort() throws Exception{
-        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
-        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
+        new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-asc")));
-        driver.findElement(By.cssSelector("#sort-asc")).click();
-        WebDriverWait wait2 = new WebDriverWait(IntegrationTestSuite.driver, 2);
+        webDriver.findElement(By.cssSelector("#sort-asc")).click();
+        WebDriverWait wait2 = new WebDriverWait(webDriver, 20);
         wait2.until(visibilityOfElementLocated(By.cssSelector(".release-files")));
-        List<WebElement> list = driver.findElements(By.cssSelector(".release-files"));
+        List<WebElement> list = webDriver.findElements(By.cssSelector(".release-files"));
         Integer [] values = new Integer[list.size()];
         for(int i=0; i < values.length; i++) {
             values[i] = Integer.parseInt(list.get(i).getText().trim().split(" ")[0]);
@@ -171,12 +176,12 @@ public class SearchTest {
 
     @Test
     public void testLinksDescendingSort() throws Exception{
-        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 10);
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
-        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
+        new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
         wait.until(visibilityOfElementLocated(By.cssSelector(".release-links")));
-        List<WebElement> list = driver.findElements(By.cssSelector(".release-links"));
+        List<WebElement> list = webDriver.findElements(By.cssSelector(".release-links"));
         Integer [] values = new Integer[list.size()];
         for(int i=0; i < values.length; i++) {
             values[i] = Integer.parseInt(list.get(i).getText().trim().split(" ")[0]);
@@ -188,14 +193,14 @@ public class SearchTest {
 
     @Test(expected = TimeoutException.class)
     public void testLinksAscendingSort() throws Exception{
-        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 4);
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
-        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
+        new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-asc")));
-        driver.findElement(By.cssSelector("#sort-asc")).click();
+        webDriver.findElement(By.cssSelector("#sort-asc")).click();
         wait.until(visibilityOfElementLocated(By.cssSelector(".release-links")));
-        List<WebElement> list = driver.findElements(By.cssSelector(".release-links"));
+        List<WebElement> list = webDriver.findElements(By.cssSelector(".release-links"));
         Integer [] values = new Integer[list.size()];
         for(int i=0; i < values.length; i++) {
             values[i] = Integer.parseInt(list.get(i).getText().trim().split(" ")[0]);
@@ -207,12 +212,12 @@ public class SearchTest {
 
     @Test
     public void testReleasedDescendingSort() throws Exception{
-        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 4);
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
-        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
+        new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
         wait.until(visibilityOfElementLocated(By.cssSelector(".release-date")));
-        List<WebElement> list = driver.findElements(By.cssSelector(".release-date"));
+        List<WebElement> list = webDriver.findElements(By.cssSelector(".release-date"));
         Date [] values = new Date[list.size()];
         SimpleDateFormat formatter1 = new SimpleDateFormat("d MMM yyyy");
         SimpleDateFormat formatter2 = new SimpleDateFormat("MMM d, yyyy");        for(int i=0; i < values.length; i++) {
@@ -245,14 +250,14 @@ public class SearchTest {
 
     @Test
     public void testReleasedAscendingSort() throws Exception{
-        driver.get(integrationTestProperties.getBaseUrl() + "/studies?query=cancer");
-        WebDriverWait wait = new WebDriverWait(IntegrationTestSuite.driver, 20);
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
-        new Select(driver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
+        new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-asc")));
-        driver.findElement(By.cssSelector("#sort-asc")).click();
+        webDriver.findElement(By.cssSelector("#sort-asc")).click();
         wait.until(visibilityOfElementLocated(By.cssSelector(".release-date")));
-        List<WebElement> list = driver.findElements(By.cssSelector(".release-date"));
+        List<WebElement> list = webDriver.findElements(By.cssSelector(".release-date"));
         Date [] values = new Date[list.size()];
         SimpleDateFormat formatter1 = new SimpleDateFormat("d MMM yyyy");
         SimpleDateFormat formatter2 = new SimpleDateFormat("MMM d, yyyy");
@@ -285,31 +290,26 @@ public class SearchTest {
 
 
     @Test
-    public void testPaging() throws Exception{
-        driver.manage().window().setSize(new Dimension(1280, 1024));
-        driver.get(integrationTestProperties.getBaseUrl() + "/studies");
-        WebDriverWait wait = new WebDriverWait(driver, 5);
-        wait.until(visibilityOfElementLocated(By.linkText("2")));
-        driver.findElement(By.linkText("2")).click();
-        driver.manage().window().setSize(new Dimension(1280, 1024));
+    public void testPaging() throws Throwable{
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?page=2");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector(".result-count")));
-        String pages = driver.findElement(By.cssSelector(".result-count")).getAttribute("innerText").trim();
+        String pages = webDriver.findElement(By.cssSelector(".result-count")).getAttribute("innerText").trim();
         assertTrue(pages.contains("of"));
-        String accession  = driver.findElement(By.cssSelector(".accession")).getAttribute("innerText").trim();
-        driver.findElement(By.cssSelector(".title a")).click();
-        wait.until(presenceOfElementLocated(By.cssSelector("#orcid-accession")));
-        assertEquals(driver.findElement(By.cssSelector("#orcid-accession")).getAttribute("innerText").trim(), accession);
+        String accession  = webDriver.findElement(By.cssSelector(".accession")).getAttribute("innerText").trim();
+        Document doc = searchServiceMock.getDocumentByAccession(accession, null);
+        assertNotNull(doc);
     }
 
     @Test
     public void facetCountTest() throws Exception {
-        WebDriverWait wait = new WebDriverWait(driver, 15);
-        driver.get(integrationTestProperties.getBaseUrl() + "/EuropePMC/studies");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/EuropePMC/studies");
         wait.until(visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
-        assertEquals("9,994", driver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
-        driver.get(integrationTestProperties.getBaseUrl() + "/EuropePMC/studies?facet.europepmc.funding_agency=medical+research+council");
+        assertEquals("9,994", webDriver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/EuropePMC/studies?facet.europepmc.funding_agency=medical+research+council");
         wait.until(visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
-        assertEquals("254", driver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
+        assertEquals("254", webDriver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
     }
 
 }

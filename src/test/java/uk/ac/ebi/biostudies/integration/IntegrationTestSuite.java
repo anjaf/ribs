@@ -5,10 +5,12 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
+import java.io.File;
+
 
 /**
  * Created by ehsan on 29/06/2017.
@@ -18,30 +20,34 @@ import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
 @Suite.SuiteClasses({
         IndexTest.class,
         DetailTest.class,
-        BrowseTest.class,
+        AuthTest.class,
         SearchTest.class
 })
-
 
 @RunWith(Suite.class)
 public class IntegrationTestSuite {
 
-    public static WebDriver driver;
+    public static WebDriver webDriver;
+
+
+
 
     @Autowired
     IntegrationTestProperties integrationTestProperties;
 
 
     @BeforeClass
-    public static void setup() throws InterruptedException {
-        DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
-        capabilities.setCapability("phantomjs.binary.path", System.getenv("phantomjs.binary.path") );
-        driver = new PhantomJSDriver(capabilities);
+    public static void setup() throws Throwable {
+        String path = "src\\test\\resources\\geckodriver.exe";
+        System.setProperty("webdriver.gecko.driver", new File(path).getAbsolutePath());
+        FirefoxOptions options = new FirefoxOptions();
+        options.addArguments("--headless");
+        webDriver = new FirefoxDriver(options);
     }
 
     @AfterClass
     public static void destroy(){
-        IntegrationTestSuite.driver.quit();
+        webDriver.close();
     }
 
 }
