@@ -38,7 +38,7 @@ public class IntegrationTestSuite {
 
     @BeforeClass
     public static void setup() throws Throwable {
-        String path = "src\\test\\resources\\geckodriver.exe";
+        String path = "geckodriver";
         System.setProperty("webdriver.gecko.driver", new File(path).getAbsolutePath());
         FirefoxOptions options = new FirefoxOptions();
         options.addArguments("--headless");

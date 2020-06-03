@@ -13,6 +13,10 @@ stages:
     paths:
       - target/biostudies.war
   script:
+    - apt-get update
+    - apt-get install firefox-esr -y
+    - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
+    - tar zxvf geckodriver-v0.26.0-linux64.tar.gz
     - mvn clean install spring-boot:repackage
 
 .deploy-template: &deploy-template
@@ -37,7 +41,7 @@ dev-build:
   <<: *build-template
   environment: dev
   only:
-    - develop
+    - integration-test
 
 dev:
   <<: *deploy-template
