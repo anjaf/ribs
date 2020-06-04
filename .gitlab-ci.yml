@@ -7,7 +7,7 @@ stages:
   - build
   - deploy
 
-.build-template: &build-template
+.build-test-template: &build-test-template
   stage: build
   artifacts:
     paths:
@@ -20,6 +20,16 @@ stages:
     - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     - apt install ./google-chrome*.deb -y
     - mvn clean install spring-boot:repackage
+
+
+
+.build-template: &build-template
+  stage: build
+  artifacts:
+    paths:
+      - target/biostudies.war
+  script:
+    - mvn -Dmaven.test.skip=true clean install spring-boot:repackage
 
 .deploy-template: &deploy-template
   stage: deploy
@@ -39,11 +49,17 @@ stages:
         sleep 220
       done
 
+dev-test-build:
+  <<: *build-test-template
+  environment: dev
+  only:
+    - integration-test
+
 dev-build:
   <<: *build-template
   environment: dev
   only:
-    - integration-test
+    - develop
 
 dev:
   <<: *deploy-template

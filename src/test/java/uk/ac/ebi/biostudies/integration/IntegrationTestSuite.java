@@ -7,8 +7,6 @@ import org.junit.runners.Suite;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
 import java.io.File;
@@ -48,6 +46,8 @@ public class IntegrationTestSuite {
         options.addArguments("--disable-dev-shm-usage");
         options.setHeadless(true);
         webDriver = new ChromeDriver(options);
+
+        System.setProperty("log4j.configurationFile","log4j2-testConfig.properties");
     }
 
     @AfterClass
