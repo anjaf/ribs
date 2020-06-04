@@ -5,6 +5,8 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +40,11 @@ public class IntegrationTestSuite {
 
     @BeforeClass
     public static void setup() throws Throwable {
-        String path = "geckodriver";
-        System.setProperty("webdriver.gecko.driver", new File(path).getAbsolutePath());
-        FirefoxOptions options = new FirefoxOptions();
+//        String path = "src/test/resources/chromedriver.exe";
+        System.setProperty("webdriver.chrome.driver", new File("chromedriver").getAbsolutePath());
+        ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
-        webDriver = new FirefoxDriver(options);
+        webDriver = new ChromeDriver(options);
     }
 
     @AfterClass

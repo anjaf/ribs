@@ -14,9 +14,11 @@ stages:
       - target/biostudies.war
   script:
     - apt-get update
-    - apt install firefox-esr=68.7.0esr-1~deb10u1 -y
-    - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
-    - tar zxvf geckodriver-v0.26.0-linux64.tar.gz
+    - apt-get install libxss1 libappindicator1 libindicator7 -y
+    - wget https://chromedriver.storage.googleapis.com/83.0.4103.39/chromedriver_linux64.zip
+    - unzip chromedriver_linux64.zip
+    - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    - apt install ./google-chrome*.deb -y
     - mvn clean install spring-boot:repackage
 
 .deploy-template: &deploy-template
