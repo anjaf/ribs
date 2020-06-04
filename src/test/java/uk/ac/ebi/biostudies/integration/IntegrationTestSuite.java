@@ -46,8 +46,6 @@ public class IntegrationTestSuite {
         options.addArguments("--disable-dev-shm-usage");
         options.setHeadless(true);
         webDriver = new ChromeDriver(options);
-
-        System.setProperty("log4j.configurationFile","log4j2-testConfig.properties");
     }
 
     @AfterClass
