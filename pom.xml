@@ -305,7 +305,7 @@
                             <include>${runSuite}</include>
                         </includes>
                         <systemPropertyVariables>
-<!--                            <tomcat.hostname>test</tomcat.hostname>-->
+                            <tomcat.hostname>test</tomcat.hostname>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
