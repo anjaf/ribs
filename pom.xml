@@ -303,9 +303,10 @@
                         </environmentVariables>
                         <includes>
                             <include>${runSuite}</include>
-
-
                         </includes>
+                        <systemPropertyVariables>
+                            <tomcat.hostname>test</tomcat.hostname>
+                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
             </plugins>
