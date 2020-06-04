@@ -44,6 +44,9 @@ public class IntegrationTestSuite {
         System.setProperty("webdriver.chrome.driver", new File("chromedriver").getAbsolutePath());
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.setHeadless(true);
         webDriver = new ChromeDriver(options);
     }
 
