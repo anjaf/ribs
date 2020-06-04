@@ -14,7 +14,7 @@ stages:
       - target/biostudies.war
   script:
     - apt-get update
-    - apt-get install firefox-esr -y
+    - apt install firefox-esr=68.7.0esr-1~deb10u1 -y
     - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
     - tar zxvf geckodriver-v0.26.0-linux64.tar.gz
     - mvn clean install spring-boot:repackage
