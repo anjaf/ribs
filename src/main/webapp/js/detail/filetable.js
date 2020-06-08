@@ -11,7 +11,7 @@ var FileTable = (function (_self) {
             data:params,
             success: function(response){
                 if (isDetailPage) {
-                    handleSecretKey(response.seckey);
+                    handleSecretKey(response.seckey, params.key);
                     handleModificationDate(response.modified);
                     if (response.isPublic) handleFTPLink(response.ftpLink);
                 }
@@ -91,7 +91,7 @@ var FileTable = (function (_self) {
         $('.release-date').append('&nbsp; ' + String.fromCharCode(0x25AA)+' &nbsp; Modified: '+ getDateFromEpochTime(t));
     }
 
-    function handleSecretKey(key) {
+    function handleSecretKey(key, paramKey) {
         if (!key) return;
         var $secret = $('<a id="secret" href="#" class="source-icon source-icon-secret"><i class="fas fa-share-alt" aria-hidden="true"></i> Share</a>');
 
@@ -113,7 +113,11 @@ var FileTable = (function (_self) {
 
             });
         });
-        $('#download-source').prepend($secret);
+        if (paramKey) {
+            $('#download-source').html($secret);
+        } else {
+            $('#download-source').prepend($secret);
+        }
 
     }
 

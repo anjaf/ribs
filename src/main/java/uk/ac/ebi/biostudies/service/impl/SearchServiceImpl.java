@@ -34,10 +34,17 @@ import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import javax.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -78,6 +85,7 @@ public class SearchServiceImpl implements SearchService {
     private static Cache<String, String> statsCache;
     private static Query excludeCompound;
     private static QueryParser parser;
+    private static Set<String> sectionsToFilter;
 
     @PostConstruct
     void init() {
@@ -87,6 +95,11 @@ public class SearchServiceImpl implements SearchService {
         statsCache = CacheBuilder.newBuilder()
                 .expireAfterAccess(720, TimeUnit.MINUTES)
                 .build();
+        sectionsToFilter = new HashSet<>();
+        sectionsToFilter.add("author");
+        sectionsToFilter.add("organisation");
+        sectionsToFilter.add("organization");
+
         try {
             excludeCompound = parser.parse("type:compound");
         } catch (Exception e) {
@@ -239,7 +252,7 @@ public class SearchServiceImpl implements SearchService {
 
             // add expansion
             EFOExpansionTerms expansionTerms = resultPair.getValue();
-            if (expansionTerms != null && expansionTerms.efo.size() + expansionTerms.synonyms.size() > EFOQueryExpander.MAX_EXPANSION_TERMS ) {
+            if (expansionTerms != null && expansionTerms.efo.size() + expansionTerms.synonyms.size() > EFOQueryExpander.MAX_EXPANSION_TERMS) {
                 response.put("tooManyExpansionTerms", true);
             } else if (expansionTerms != null) {
                 ArrayNode expandedEfoTerms = mapper.createArrayNode();
@@ -264,9 +277,28 @@ public class SearchServiceImpl implements SearchService {
 
 
     @Override
-    public InputStreamResource getStudyAsStream(String accession, String relativePath) throws IOException {
-        FileInputStream fileInputStream = new FileInputStream(indexConfig.getFileRootDir() + "/" + relativePath + "/" + accession + ".json");
-        return new InputStreamResource(fileInputStream);
+    public InputStreamResource getStudyAsStream(String accession, String relativePath, boolean anonymise)
+            throws IOException {
+        File file = Paths.get(indexConfig.getFileRootDir(), relativePath, accession + ".json").toFile();
+        if (anonymise) {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode json = mapper.readTree(file);
+            JsonNode subSections = json.get("section").get("subsections");
+            if (subSections.isArray()) {
+                ArrayNode array = ((ArrayNode) subSections);
+
+                for (int i = 0; i <array.size() ; i++) {
+                    JsonNode node = array.get(i);
+                    if (node.has("type") && sectionsToFilter.contains(node.get("type").textValue().toLowerCase())) {
+                        array.remove(i);
+                    }
+                }
+                System.out.println("after " + array.size());
+            }
+            return new InputStreamResource(new ByteArrayInputStream(mapper.writeValueAsBytes(json)));
+        } else {
+            return new InputStreamResource(new FileInputStream(file));
+        }
     }
 
     @Override
@@ -305,7 +337,7 @@ public class SearchServiceImpl implements SearchService {
     public ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode result = mapper.createObjectNode();
-        if(secretKey!=null)
+        if (secretKey != null)
             return result;
         int maxHits = 4;
         MoreLikeThis mlt = new MoreLikeThis(indexManager.getIndexReader());
@@ -370,12 +402,13 @@ public class SearchServiceImpl implements SearchService {
         try {
             query = parser.parse(Fields.ACCESSION + ":" + accession);
             TopDocs topDocs = indexManager.getIndexSearcher().search(query, 1);
-            return topDocs.totalHits.value==1;
+            return topDocs.totalHits.value == 1;
         } catch (Throwable ex) {
             logger.error("Problem in checking security", ex);
         }
         return false;
     }
+
     public String getLatestStudies() throws Exception {
         boolean isLoggedIn = Session.getCurrentUser() != null;
         String responseString = null;

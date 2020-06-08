@@ -20,7 +20,7 @@
         <section id="error-message">
             <div class="bigicon"><i class="icon icon-functional" data-icon="j"></i></div>
             <br/>
-            <h3>Page not found!</h3>
+            <h3>Page not found</h3>
             <p>The resource you were looking for was not found on the server.</p>
             <p>If you require further assistance locating missing page or file, please <a
                     href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it

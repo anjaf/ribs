@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
-import uk.ac.ebi.biostudies.file.FileDownloadService;
+import uk.ac.ebi.biostudies.service.FileDownloadService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 import uk.ac.ebi.biostudies.service.ZipDownloadService;
@@ -26,7 +26,6 @@ import java.util.*;
 public class FileDownload {
 
     private static final Logger LOGGER = LogManager.getLogger(FileDownload.class.getName());
-
 
     @Autowired
     ZipDownloadService zipDownloadService;
@@ -74,7 +73,7 @@ public class FileDownload {
 
     @RequestMapping(value = "/files/**", method = RequestMethod.GET)
     public void getSingleFile(HttpServletRequest request, HttpServletResponse response) throws Exception, SubmissionNotAccessibleException {
-        fileDownloadService.doRequest(request, response);
+        fileDownloadService.sendFile(request, response);
     }
 
     private static String getOperatingSystem(String userAgent){
