@@ -291,7 +291,7 @@ public class SearchTest {
 
     @Test
     public void testPaging() throws Throwable{
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?page=2");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?page=2&pageSize=3");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector(".result-count")));
         String pages = webDriver.findElement(By.cssSelector(".result-count")).getAttribute("innerText").trim();
@@ -306,10 +306,10 @@ public class SearchTest {
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/EuropePMC/studies");
         wait.until(visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
-        assertEquals("9,994", webDriver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/EuropePMC/studies?facet.europepmc.funding_agency=medical+research+council");
+        assertEquals("3", webDriver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/EuropePMC/studies?facet.europepmc.funding_agency=national+institutes+of+health");
         wait.until(visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
-        assertEquals("254", webDriver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
+        assertEquals("1", webDriver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
     }
 
 }

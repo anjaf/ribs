@@ -55,7 +55,7 @@ public class IndexTest {
     public void BTestIndexing() throws Exception {
         doReturn("src/test/resources/updates/"+ Constants.STUDIES_JSON_FILE).when(indexConfigMock).getStudiesInputFile();
         webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/reload/testJson.json");
-        Thread.sleep(60000);
+        Thread.sleep(5000);
         assertTrue(webDriver.getPageSource().contains("testJson.json queued for indexing"));
     }
     @Test

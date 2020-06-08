@@ -248,7 +248,11 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             if (key!=null) {
                 studyInfo.put(Constants.Fields.SECRET_KEY, key.stringValue());
             }
-            studyInfo.put("modified", Long.parseLong(doc.get(Constants.Fields.MODIFICATION_TIME)) );
+            try {
+                studyInfo.put("modified", Long.parseLong(doc.get(Constants.Fields.MODIFICATION_TIME)));
+            }catch(Throwable error){
+              //do nothing
+            }
         }
 
     }
