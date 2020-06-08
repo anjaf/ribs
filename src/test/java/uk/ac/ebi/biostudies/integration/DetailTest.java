@@ -56,7 +56,7 @@ public class DetailTest {
 
     @Test
     public void testFileCount() throws Exception{
-        doReturn( new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString());
+        doReturn( new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "studies/S-EPMC3372839");
         int expectedFileCount = 1;
@@ -84,7 +84,7 @@ public class DetailTest {
 
     @Test
     public void testLinkCount() throws Throwable{
-        doReturn( new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString());
+        doReturn( new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "studies/S-EPMC3372839");
         int expectedLinkCount = 1;
@@ -112,7 +112,7 @@ public class DetailTest {
 
     @Test
     public void testTitle() throws Throwable{
-        doReturn( new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString());
+        doReturn( new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "/studies?query=S-EPMC3372839");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
