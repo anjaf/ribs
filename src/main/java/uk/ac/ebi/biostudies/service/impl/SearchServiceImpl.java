@@ -117,16 +117,6 @@ public class SearchServiceImpl implements SearchService {
         return autocompletion.getEfoChildren(query);
     }
 
-//    public Pair<Query, EFOExpansionTerms> expandQuery(Query query){
-//        Map<String, String> queryInfo = analyzerManager.getExpandableFields();
-//        try {
-//            return efoQueryExpander.expand(queryInfo, query);
-//        }catch (Exception ex){
-//            logger.error("Problem in expanding query {}", query, ex);
-//        }
-//        return new MutablePair<>(query, null);
-//    }
-
     private ObjectNode applySearchOnQuery(Query query, int page, int pageSize, String sortBy, String sortOrder, boolean doHighlight, String queryString) {
         IndexReader reader = indexManager.getIndexReader();
         IndexSearcher searcher = indexManager.getIndexSearcher();
