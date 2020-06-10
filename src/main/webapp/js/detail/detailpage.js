@@ -32,7 +32,8 @@ var DetailPage = (function (_self) {
         'nct': 'https://clinicaltrials.gov/ct2/show/{0}',
         'expression atlas': 'https://www.ebi.ac.uk/gxa/experiments/{0}?ref=biostudies',
         'single cell expression atlas': 'https://www.ebi.ac.uk/gxa/sc/experiments/{0}?ref=biostudies',
-        'idr': 'https://idr.openmicroscopy.org/search/?query=Name:{0}'
+        'idr': 'https://idr.openmicroscopy.org/search/?query=Name:{0}',
+        'empiar': 'https://www.ebi.ac.uk/pdbe/emdb/empiar/entry/{0}/'
     };
 
     _self.reverseLinkMap = {
@@ -65,7 +66,8 @@ var DetailPage = (function (_self) {
         '^clinicaltrials.gov/ct2/show/(.*)': 'nct',
         '^www.ebi.ac.uk/gxa/experiments/(.*)': 'gxa',
         '^www.ebi.ac.uk/gxa/sc/experiments/(.*)': 'gxa-sc',
-        '^idr.openmicroscopy.org/search/?query=Name:(.*)': 'idr'
+        '^idr.openmicroscopy.org/search/?query=Name:(.*)': 'idr',
+        '^www.ebi.ac.uk/pdbe/emdb/empiar/entry/(.*)': 'empiar'
     };
 
     _self.linkTypeMap = { //sync with normalised-text
@@ -96,7 +98,8 @@ var DetailPage = (function (_self) {
         'nct': 'NCT',
         'gxa': 'Expression Atlas',
         'gxa-sc': 'Single Cell Expression Atlas',
-        'idr': 'IDR'
+        'idr': 'IDR',
+        'empiar': 'EMPIAR'
     };
 
     _self.projectScripts = [
