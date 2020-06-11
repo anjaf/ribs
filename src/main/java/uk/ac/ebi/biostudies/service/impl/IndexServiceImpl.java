@@ -253,15 +253,20 @@ public class IndexServiceImpl implements IndexService {
                     return;
                 }
 
-                String projectName = valueMap.get(Facets.PROJECT).toString().toLowerCase();
-                JsonNode projectSpecificFields = indexManager.getIndexDetails().findValue(projectName);
-                if(projectSpecificFields != null) {
-                    for (JsonNode fieldMetadataNode : projectSpecificFields) {//parsing project's facet and fields
-                        AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
-                        abstractParser.parse(valueMap, json, jsonPathContext);
+                // remove repeating projects
+                Set<String> projectFacets = new HashSet<>();
+                projectFacets.addAll( Arrays.asList(valueMap.get(Facets.PROJECT).toString().toLowerCase().split("\\"+Facets.DELIMITER)));
+                valueMap.put(Facets.PROJECT, String.join(Facets.DELIMITER, projectFacets));
+
+                for (String projectName:  projectFacets ) {
+                    JsonNode projectSpecificFields = indexManager.getIndexDetails().findValue(projectName);
+                    if(projectSpecificFields != null) {
+                        for (JsonNode fieldMetadataNode : projectSpecificFields) {//parsing project's facet and fields
+                            AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
+                            abstractParser.parse(valueMap, json, jsonPathContext);
+                        }
                     }
                 }
-
                 Set<String> columnSet = new LinkedHashSet<>();
 
                 Map<String, Object> fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
