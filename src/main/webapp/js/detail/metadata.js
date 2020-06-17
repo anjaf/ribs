@@ -408,6 +408,7 @@ var Metadata = (function (_self) {
 
     function openHREF(href) {
         var section = $(href.replace(':','\\:'));
+        if (!section.length) return;
         var o = section;
         while (o.prop("tagName")!=='BODY') {
             var p =  o.parent().parent();
