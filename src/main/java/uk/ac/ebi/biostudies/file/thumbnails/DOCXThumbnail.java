@@ -18,8 +18,8 @@
 package uk.ac.ebi.biostudies.file.thumbnails;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.util.ImageIOUtil;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.apache.poi.xwpf.converter.pdf.PdfConverter;
 import org.apache.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -41,8 +41,6 @@ public class DOCXThumbnail implements IThumbnail{
 
     @Override
     public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException{
-        //TODO: Confirm licence
-        //convert word to pdf
         String tempPDFFilePath = thumbnailFile.getAbsolutePath() + ".pdf";
         FileInputStream in = new FileInputStream(sourceFilePath);
         FileOutputStream out = new FileOutputStream(tempPDFFilePath);
@@ -50,9 +48,8 @@ public class DOCXThumbnail implements IThumbnail{
         PdfConverter.getInstance().convert(wordDoc, out, PdfOptions.create());
         in.close();
         out.close();
-        //convert pdf to image
-        PDPage page = (PDPage) PDDocument.load(tempPDFFilePath).getDocumentCatalog().getAllPages().get(0);
-        BufferedImage image = page.convertToImage(BufferedImage.TYPE_INT_RGB, 96);
+        PDFRenderer pdfRenderer = new PDFRenderer(PDDocument.load(  new File(tempPDFFilePath)));
+        BufferedImage image = pdfRenderer.renderImageWithDPI (BufferedImage.TYPE_INT_RGB, 96);
         ImageIOUtil.writeImage(image, thumbnailFile.getAbsolutePath(), 96);
         new File(tempPDFFilePath).delete();
     }

@@ -19,8 +19,7 @@ package uk.ac.ebi.biostudies.file.thumbnails;
 
 import com.twelvemonkeys.image.ResampleOp;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.util.ImageIOUtil;
+import org.apache.pdfbox.rendering.PDFRenderer;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -41,9 +40,9 @@ public class PDFThumbnail implements IThumbnail {
     public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException {
         PDDocument pdf = null;
         try {
-            pdf = PDDocument.load(sourceFilePath);
-            PDPage page = (PDPage) pdf.getDocumentCatalog().getAllPages().get(0);
-            BufferedImage image = page.convertToImage(BufferedImage.TYPE_INT_RGB, 96);
+            pdf = PDDocument.load(new File(sourceFilePath));
+            PDFRenderer pdfRenderer = new PDFRenderer(pdf);
+            BufferedImage image = pdfRenderer.renderImageWithDPI (BufferedImage.TYPE_INT_RGB, 96);
             float inverseAspectRatio = ((float) image.getHeight()) / image.getWidth();
             BufferedImageOp resampler = new ResampleOp(THUMBNAIL_WIDTH, Math.round(inverseAspectRatio * THUMBNAIL_WIDTH), ResampleOp.FILTER_LANCZOS);
             BufferedImage output = resampler.filter(image, null);

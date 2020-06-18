@@ -19,9 +19,8 @@ package uk.ac.ebi.biostudies.file.thumbnails;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.pdfbox.util.ImageIOUtil;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;

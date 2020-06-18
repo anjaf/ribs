@@ -19,7 +19,7 @@ package uk.ac.ebi.biostudies.file.thumbnails;
 
 import com.twelvemonkeys.image.ResampleOp;
 import org.apache.commons.io.FileUtils;
-import org.apache.pdfbox.util.ImageIOUtil;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
 import javax.swing.*;
 import java.awt.*;

@@ -44,6 +44,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -275,15 +276,13 @@ public class SearchServiceImpl implements SearchService {
             JsonNode json = mapper.readTree(file);
             JsonNode subSections = json.get("section").get("subsections");
             if (subSections.isArray()) {
-                ArrayNode array = ((ArrayNode) subSections);
-
-                for (int i = 0; i <array.size() ; i++) {
-                    JsonNode node = array.get(i);
+                Iterator<JsonNode> iterator = ((ArrayNode) subSections).iterator();
+                while (iterator.hasNext()) {
+                    JsonNode node = iterator.next();
                     if (node.has("type") && sectionsToFilter.contains(node.get("type").textValue().toLowerCase())) {
-                        array.remove(i);
+                        iterator.remove();
                     }
                 }
-                System.out.println("after " + array.size());
             }
             return new InputStreamResource(new ByteArrayInputStream(mapper.writeValueAsBytes(json)));
         } else {
