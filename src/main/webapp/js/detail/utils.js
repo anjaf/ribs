@@ -40,7 +40,7 @@ function getURL(accession, type) {
             return null;
         }
     }
-    var url =  DetailPage.linkMap[type.toLowerCase()] ? String.format(DetailPage.linkMap[type.toLowerCase()], encodeURIComponent(accession)) : null;
+    var url =  DetailPage.linkMap[type.toLowerCase()] ? String.format(DetailPage.linkMap[type.toLowerCase()], encodeURIComponent(accession).replace('EMPIAR-','')) : null;
     if (type.toLowerCase()=='ega' && accession.toUpperCase().indexOf('EGAD')==0) {
         url = url.replace('/studies/','/datasets/');
     }

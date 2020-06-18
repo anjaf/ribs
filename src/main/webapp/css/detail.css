@@ -167,6 +167,7 @@ div#right-column-header {
     height: auto;
     margin: auto;
     width: auto;
+    max-width: 48px;
     padding: inherit;
 }
 
@@ -584,6 +585,6 @@ span.file-list-buttons .fa-file-download {
 #file-list_filter input {
     width: 140px;
 }
-#file-list_length select {
+/*#file-list_length select {
     width: 48px;
-}
+}*/

@@ -1,13 +1,18 @@
 <script id='publication-template' type='text/x-handlebars-template'>
     {{#if this}}
-    <div class="publication-div">{{#if authors}}{{authors}}, {{/if}}
-        {{#if title}}{{title}} {{/if}}
-        {{#if journal}}<i>{{journal}}</i>.{{/if}}
-        {{#if publication_date}}{{publication_date}};{{/if}}
-        {{#if volume}}Volume {{volume}}.{{/if}}
-        {{#if issue}}Issue {{issue}}.{{/if}}
-        {{#if pages}}Page: {{pages}}.{{/if}}
-        {{#if year}}{{year}}.{{/if}}
+    <div class="publication-div">{{#if authors}}{{authors}}{{#if year}} ({{year}}){{/if}}.{{/if}}
+        {{#if title}}
+            {{#if URLs}}
+                <a href="{{URLs.0.url}}" target="_blank">{{title}}</a>
+            {{else}}
+                {{title}}
+            {{/if}}
+        {{/if}}
+        {{#if journal}} <i>{{journal}}</i>.{{/if}}
+        {{#if publication_date}} {{publication_date}};{{/if}}
+        {{#if volume}} Volume {{volume}}.{{/if}}
+        {{#if issue}} Issue {{issue}}.{{/if}}
+        {{#if pages}} Page: {{pages}}.{{/if}}
         {{#if URLs}}
         {{#each URLs}}
         <span class="publication-link">

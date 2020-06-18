@@ -169,19 +169,24 @@ var FileTable = (function (_self) {
             }
         });
         // add section rendering
-        var sectionColumn = columns.filter(function(c) {return c.name=='Section';});
-        if (sectionColumn.length) {
-            sectionColumn[0].render = function (data, type, row) {
-                return data && data!='' ?
-                    '<a href="#'+data+'">'+$('#'+data+' .section-name').first().text().trim()+'</a>'
-                    : '';
+        if (isDetailPage) {
+            var sectionColumn = columns.filter(function(c) {return c.name=='Section';});
+            if (sectionColumn.length) {
+                    sectionColumn[0].render = function (data, type, row) {
+                        return data && data != '' ?
+                            '<a href="#' + data + '">' + $('#' + data + ' .section-name').first().text().trim() + '</a>'
+                            : '';
+                    }
             }
+        } else {
+            columns = columns.filter(function(c) {return c.name!='Section';});
         }
-        sectionColumn = columns.filter(function(c) {
+        // add thumbnail rendering
+        var thumbnailColumn = columns.filter(function(c) {
             return c.title=='Thumbnail';
         });
-        if (sectionColumn.length) {
-            sectionColumn[0].render = function (data, type, row) {
+        if (thumbnailColumn.length) {
+            thumbnailColumn[0].render = function (data, type, row) {
             return '<img  height="100" width="100" src="'
                 + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + row.path + (params.key? '?key='+params.key :'')+'" </img> ';
             }
@@ -218,8 +223,12 @@ var FileTable = (function (_self) {
                             + window.contextPath +'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
                             + (params.key ? '?key='+params.key : '')
                             + '">'
-                            + data+'</a>';
+                            + data +'</a>';
                     }
+                },
+                {
+                    targets: '_all',
+                    render: $.fn.dataTable.render.text()
                 }
             ],
             ajax: {
@@ -312,7 +321,7 @@ var FileTable = (function (_self) {
         });
         if(!sorting) {
             FileTable.hideEmptyColumns();
-        }else {
+        } else {
             sorting=false;
         }
     }
@@ -470,7 +479,7 @@ var FileTable = (function (_self) {
             if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
                 var tnButton = $('<a href="#" class="thumbnail-icon" ' +
                     'data-thumbnail="'+window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'">' +
-                    '<i class="far fa-file-image"></i></a>');
+                    '<i class="far fa-image"></i></a>');
                 $(this).append(tnButton);
                 tnButton.foundation();
             }
