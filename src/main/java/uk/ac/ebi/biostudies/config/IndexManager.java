@@ -106,7 +106,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
             efoIndexReader = DirectoryReader.open(efoIndexWriter);
             efoIndexSearcher = new IndexSearcher(getEfoIndexReader());
             taxonomyManager.init(indexEntryMap.values());
-            autocompletion.rebuild();
+            //autocompletion.rebuild();
             spellChecker = new SpellChecker(FSDirectory.open(Paths.get(indexConfig.getSpellcheckerLocation())));
             spellChecker.indexDictionary(new LuceneDictionary(getIndexReader(), Constants.Fields.CONTENT), new IndexWriterConfig(), false);
         }catch (Throwable error){
@@ -121,7 +121,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
                 efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
                 ontology.update(resourceInputStream);
                 logger.info("EFO loading completed");
-            }catch (Exception ex){
+            } catch (Exception ex){
                 logger.error("EFO file not found", ex);
             }
         }
