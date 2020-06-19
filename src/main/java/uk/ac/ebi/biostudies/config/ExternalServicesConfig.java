@@ -12,6 +12,9 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:external-services.properties")
 public class ExternalServicesConfig {
 
+    @Value("${git.commit.id.abbrev}")
+    private String gitCommitIdAbbrev;
+
     @Value("${dataclaiming.url}")
     private String dataClaimingUrl;
 
@@ -22,6 +25,13 @@ public class ExternalServicesConfig {
         return dataClaimingUrl;
     }
 
-    public String getAnalyticsCode() { return analyticsCode; }
+    public String getAnalyticsCode() {
+        return analyticsCode;
+    }
+
+    public String getGitCommitIdAbbrev() {
+        return gitCommitIdAbbrev;
+    }
+
 
 }

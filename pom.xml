@@ -316,52 +316,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>get-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>validate-the-git-infos</id>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-
-                <configuration>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                    <excludeProperties>
-                        <excludeProperty>git.build.*</excludeProperty>
-                        <excludeProperty>git.commit.user.email</excludeProperty>
-                        <excludeProperty>git.commit.message.*</excludeProperty>
-                        <excludeProperty>git.commit.id.describe</excludeProperty>
-                        <excludeProperty>git.commit.user.name</excludeProperty>
-                        <excludeProperty>git.remote.origin.url</excludeProperty>
-                        <excludeProperty>git.dirty</excludeProperty>
-                        <excludeProperty>git.closest.tag.name</excludeProperty>
-                        <excludeProperty>git.closest.tag.commit.count</excludeProperty>
-                        <excludeProperty>git.remote.origin.url</excludeProperty>
-                    </excludeProperties>
-                </configuration>
-            </plugin>
-        </plugins>
-
-
         <finalName>biostudies</finalName>
     </build>
 </project>

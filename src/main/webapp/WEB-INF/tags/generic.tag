@@ -120,7 +120,7 @@
                 <!-- local-nav -->
                 <nav>
                     <ul class="menu float-left" data-description="navigational">
-                        <li class="${pagename.equals('/jsp/index.jsp')? 'active':''}" title="BioStudies v1.2.<spring:eval expression="@gitConfig.gitCommitIdAbbrev"/>"><a href="${contextPath}/">Home</a></li>
+                        <li class="${pagename.equals('/jsp/index.jsp')? 'active':''}" title="BioStudies v1.2.<spring:eval expression="@externalServicesConfig.gitCommitIdAbbrev"/>"><a href="${contextPath}/">Home</a></li>
                         <li class="${pagename.equals('/jsp/search.jsp')? 'active':''}"><a href="${contextPath}/studies/" title="Browse BioStudies">Browse</a></li>
                         <li class="${pagename.equals('/jsp/submit.jsp')? 'active':''}"><a href="${contextPath}/submit" title="Submit a study">Submit</a></li>
                         <li class="${pagename.equals('/jsp/help.jsp')? 'active':''}"><a href="help" title="Help">Help</a></li>
