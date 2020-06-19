@@ -98,7 +98,7 @@ a.reference:hover {
 
 
 .fullscreen{
-    z-index: 99999;
+    z-index: 200;
     padding:5px;
     width: 90% !important;
     height: auto;
@@ -112,7 +112,7 @@ a.reference:hover {
 }
 
 .blocker {
-    z-index: 99998;
+    z-index: 199;
     width: 100%;
     height: 100%;
     position: fixed;
@@ -476,7 +476,7 @@ a.thumbnail-icon {
     border:1px solid var(--P3);
     position:relative;
     transform-style: flat;
-    z-index:1000;
+    z-index:88;
     background-color: white;
 }
 

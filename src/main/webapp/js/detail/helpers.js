@@ -22,11 +22,16 @@ var Metadata = (function (_self) {
             var urls = [];
             if (e.url) urls = e.url.indexOf(' | ')>=0 ? e.url.split(' | ') : [e.url];
             var html = e.value.split(' | ').map( function(v, i) {
-                return ( urls[i] ? '<a href="'
-                    + urls[i]
-                    + (urls[i][0]!='#' ? '" target="_blank':'')
-                    +'">'+v+renderValQuals(e.valquals)+'</a>'
-                    : v+renderValQuals(e.valqual))  })
+                    return ( urls[i] ? '<a '
+                            + addValQualAttributes(e.valqual)
+                            + ' href="'
+                            + urls[i]
+                            + (urls[i][0]!='#' ? '" target="_blank':'')
+                            +'">'+v+renderOntologyLinks(e.valqual)+'</a>'
+                        :
+                            '<span ' + addValQualAttributes(e.valqual) +'>' + v+renderOntologyLinks(e.valqual) + '</span>'
+                        );
+                    })
                 .join(', ')
             return new Handlebars.SafeString(html);
         });
@@ -162,7 +167,7 @@ var Metadata = (function (_self) {
 
 
         Handlebars.registerHelper('renderOntologySubAttribute', function(arr) {
-            return renderValQuals(arr);
+            return renderOntologyLinks(arr);
         });
 
         Handlebars.registerHelper('eachSubAttribute', function(arr, options) {
@@ -442,7 +447,7 @@ var Metadata = (function (_self) {
         return  ret;
     }
 
-    function renderValQuals(arr) {
+    function renderOntologyLinks(arr) {
         var ret = '';
         if (!arr || !arr.length) return ret;
         arr = arr.filter( function (o) {
@@ -457,6 +462,15 @@ var Metadata = (function (_self) {
                     (termname ? 'data-term-name="'+ termname.value : '') +
                     '"></span>';
             }
+        });
+        return ret;
+    }
+
+    function addValQualAttributes(attrs) {
+        var ret = '';
+        if (!attrs || !attrs.length) return ret;
+        $.each(attrs, function (i,o) {
+            ret += 'data-'+ o.name.toLowerCase() +'="' + o.value + '"';
         });
         return ret;
     }

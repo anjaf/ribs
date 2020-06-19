@@ -561,6 +561,7 @@ var Metadata = (function (_self) {
         $.getJSON(url, function (data) {
             var templateSource = $('script#main-similar-studies').html();
             var template = Handlebars.compile(templateSource);
+            if (!data.similarStudies) return;
             $('#right-column-content').append(template(data.similarStudies));
             if (type!='Study' && data.similarStudies && data.similarStudies.length>0) {
                 $('#similar-study-container .widge-title').html($('#similar-study-container .widge-title').html().replace(" Studies", ""));

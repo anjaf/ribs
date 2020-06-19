@@ -1,14 +1,8 @@
 // create links for sample number
-$(Metadata.getSectionTables()).each(function () {
-    var sampleColumn =  this.columns(function(i,d,n){ return $(n).text()=='No. of Samples' });
-    if (!sampleColumn || !sampleColumn.length ||!sampleColumn.nodes()[0] ||  !sampleColumn.nodes()[0].length) return;
-    $(sampleColumn.nodes()[0]).each( function(i,v) {
-        if($('a',this).length==1) return;
-        var id = Metadata.getNextGeneratedId();
-        $(v).wrapInner('<a id="genid' +  id  + '" name="genid'+ id +'" href="#"></a>');
-        $('a',v).attr('data-file-data-search',$(v).siblings().map(function(){ return $(this).text(); }).toArray().join(' '));
-    })
-
+$('span[data-search]').each(function() {
+    const id = Metadata.getNextGeneratedId();
+    $(this).wrapInner('<a id="genid' +  id  + '" name="genid'+ id +'" href="#"></a>');
+    $('a',this).attr('data-file-data-search',$(this).data('search'));
 });
 $('a[data-file-data-search]').click( function () {
     expansionSource = ''+$(this).attr('id');
