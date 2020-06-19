@@ -25,7 +25,9 @@ stages:
     - ssh-add ~/.ssh/id_rsa
     - host0=`awk '{print $1}' <<< $host`
     - scp -oStrictHostKeyChecking=no ./target/biostudies.war "$user"@"$host0":"$deployDirectory"
-    - scp "$application_properties" "$user"@"$host0":"$deployDirectory"/external.properties
+    - cp "$application_properties" external.properties
+    - echo -e "\ngit.commit.id.abbrev=$CI_COMMIT_SHORT_SHA" >> external.properties
+    - scp external.properties "$user"@"$host0":"$deployDirectory"/external.properties
     - >
       for host in $host; do
         ssh -oStrictHostKeyChecking=no "$user"@"$host" "$deployDirectory"/restart.sh
