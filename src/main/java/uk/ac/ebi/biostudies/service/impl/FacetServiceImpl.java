@@ -188,7 +188,8 @@ public class FacetServiceImpl implements FacetService {
             JsonNode facetNode = indexManager.getIndexEntryMap().get(fcResult.dim);
             // show project facet only when the current project has sub-projects
             if (!prjName.equalsIgnoreCase(Constants.PUBLIC)
-                    && facetNode == taxonomyManager.PROJECT_FACET
+                    && facetNode.get("name")!=null
+                    && facetNode.get("name").asText().equalsIgnoreCase(Constants.Facets.PROJECT)
                     &&  !indexManager.getSubProjectMap().containsKey(prjName.toLowerCase())) {
                 continue;
             }
