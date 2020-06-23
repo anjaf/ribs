@@ -30,7 +30,6 @@ import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
-import uk.ac.ebi.biostudies.schedule.jobs.ReloadOntologyJob;
 import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.FileIndexService;
 import uk.ac.ebi.biostudies.service.IndexService;
@@ -90,15 +89,11 @@ public class IndexServiceImpl implements IndexService {
     FacetService facetService;
 
     @Autowired
-    ReloadOntologyJob reloadOntologyJob;
-
-    @Autowired
     ParserManager parserManager;
 
     @Override
     public void afterPropertiesSet() {
         indexFileQueue = new LinkedBlockingQueue<>();
-        reloadOntologyJob.doExecute();
     }
 
     @Override
