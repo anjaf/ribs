@@ -12,9 +12,9 @@
                 {{#ifCond files '!=' 0}}
                     <span class="release-files">{{files}} file{{#ifCond files '>' 1}}s{{/ifCond}}</span>
                 {{/ifCond}}
-                {{#ifCond views '!=' 0}}
+                {{#if views}}{{#ifCond views '!=' 0}}
                     <span class="release-views">{{views}} view{{#ifCond views '>' 1}}s{{/ifCond}}</span>
-                {{/ifCond}}
+                {{/ifCond}}{{/if}}
             {{/ifCond}}
             {{#ifCond isPublic '==' false}}
             <span><i class="fas fa-lock"></i> Private</span>
