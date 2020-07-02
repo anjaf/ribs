@@ -147,7 +147,7 @@ public class SearchServiceImpl implements SearchService {
             response.put("pageSize", pageSize);
             response.put("totalHits", totalHits);
             response.put("sortBy", sortBy.equalsIgnoreCase(Fields.RELEASE_TIME) ? RELEASE_DATE : sortBy);
-            response.put("sortOrder", sortOrder);
+            response.put("sortOrder", shouldReverse ? SortOrder.DESCENDING : SortOrder.ASCENDING);
             if (totalHits > 0) {
                 ArrayNode docs = mapper.createArrayNode();
                 for (int i = (page - 1) * pageSize; i < to; i++) {

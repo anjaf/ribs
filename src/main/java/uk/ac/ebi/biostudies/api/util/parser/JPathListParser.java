@@ -41,7 +41,7 @@ public class JPathListParser extends AbstractParser{
                     result =  String.join (Constants.Facets.DELIMITER, resultData);
                     break;
                 case Constants.IndexEntryAttributes.FieldTypeValues.LONG:
-                    result = resultData.stream().collect(Collectors.counting());
+                    result = resultData.stream().mapToLong( v -> Long.parseLong(v.toString()) ).sum();
                     break;
                 default:
                     result =  String.join (" ", resultData);

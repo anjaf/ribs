@@ -3,27 +3,18 @@
         <div class="meta-data">
             <span class="accession">{{accession}}</span>
             {{#ifCond isPublic '==' true}}
-            <span class="release-date">{{formatDateString release_date}}</span>
+                <span class="release-date">{{formatDateString release_date}}</span>
             {{/ifCond}}
             {{#ifCond type '!=' 'project'}}
-            {{#ifCond links '!=' 0}}
-            <span class="release-links">
-                        {{#ifCond links '>' 1}}
-                            {{links}} links
-                        {{else}}
-                            {{links}} link
-                        {{/ifCond}}
-                    </span>
-            {{/ifCond}}
-            {{#ifCond files '!=' 0}}
-            <span class="release-files">
-                        {{#ifCond files '>' 1}}
-                            {{files}} files
-                        {{else}}
-                            {{files}} file
-                        {{/ifCond}}
-                    </span>
-            {{/ifCond}}
+                {{#ifCond links '!=' 0}}
+                    <span class="release-links">{{links}} link{{#ifCond links '>' 1}}s{{/ifCond}}</span>
+                {{/ifCond}}
+                {{#ifCond files '!=' 0}}
+                    <span class="release-files">{{files}} file{{#ifCond files '>' 1}}s{{/ifCond}}</span>
+                {{/ifCond}}
+                {{#ifCond views '!=' 0}}
+                    <span class="release-views">{{views}} view{{#ifCond views '>' 1}}s{{/ifCond}}</span>
+                {{/ifCond}}
             {{/ifCond}}
             {{#ifCond isPublic '==' false}}
             <span><i class="fas fa-lock"></i> Private</span>

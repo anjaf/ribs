@@ -63,6 +63,7 @@
     { "name": "ctime", "title": "", "fieldType": "long", "sortable": true, "parser": "NullParser"},
     { "name": "mtime", "title": "", "fieldType": "long", "sortable": true, "parser": "NullParser"},
     { "name": "rtime", "title": "", "fieldType": "long", "sortable": true, "parser": "NullParser"},
+    { "name": "views", "title": "", "fieldType": "long", "sortable": true, "jsonPath": "$.views" ,"retrieved":  true},
     { "name": "id", "title": "", "fieldType": "untokenized_string", "jsonPath": "$.accno"},
     { "name": "seckey", "title": "", "fieldType": "untokenized_string", "jsonPath": "$.seckey"},
     { "name": "orcid", "title": "", "fieldType": "tokenized_string", "jsonPath": "$.section.subsections[?(@.type==\"Author\")].attributes[?(@.name==\"ORCID\")].value", "analyzer": "AccessFieldAnalyzer", "parser": "JPathListParser"},

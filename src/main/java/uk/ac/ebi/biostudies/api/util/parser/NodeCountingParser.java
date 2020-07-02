@@ -12,8 +12,7 @@ public class NodeCountingParser extends AbstractParser {
     public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         String indexKey = indexEntry.get(Constants.IndexEntryAttributes.NAME).asText();
         List result = jsonPathContext.read(indexEntry.get(Constants.IndexEntryAttributes.JSON_PATH).asText());
-        long length = 0;
-        length = result!=null?result.size():length;
+        long length = result!=null ? result.size() : 0;
         valueMap.put(indexKey, length);
         return String.valueOf(length);
     }
