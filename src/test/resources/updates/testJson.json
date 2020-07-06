@@ -1,675 +1,1946 @@
-{"submissions":[{"rtime":"1460389126","accessTags":["Public"],"seckey":"e","accno":"S-EPMC3343805","relPath":"S-EPMC/S-EPMCxxx805/S-EPMC3343805","ctime":"1460389126","attributes":[{"name":"RootPath","value":"S-EPMC/S-EPMCxxx805/S-EPMC3343805"},{"name":"Title","value":"{4,4',6,6'-Tetra-bromo-2,2'-[(2,2-dimethyl-propane-1,3-di-yl)bis-(nitrilo-methanylyl-idene)]diphenolato}copper(II)."},{"name":"ReleaseDate","value":"2016-04-11"},{"name":"DataSource","value":"Europe PMC"},{"name":"AttachTo","value":"EuropePMC"}],"section":{"subsections":[{"accno":"PMC3343805","attributes":[{"name":"Journal","value":"Acta crystallographica. Section E, Structure reports online"},{"name":"Volume","value":"68(Pt 4)"},{"name":"Pages","value":"m392"},{"name":"Publication date","value":"2012 Apr"}],"type":"Publication"},{"accno":"a1","attributes":[{"name":"Name","value":"Kargar H"},{"name":"affiliation","isReference":true,"value":"o1"}],"type":"Author"},{"accno":"a2","attributes":[{"name":"Name","value":"Kia R"},{"name":"affiliation","isReference":true,"value":"o2"}],"type":"Author"},{"accno":"a3","attributes":[{"name":"Name","value":"Haghshenas M"},{"name":"affiliation","isReference":true,"value":"o1"}],"type":"Author"},{"accno":"a4","attributes":[{"name":"Name","value":"Tahir MN"},{"name":"affiliation","isReference":true,"value":"o3"}],"type":"Author"},{"accno":"o1","attributes":[{"name":"Name","value":"a Department of Chemistry, Payame Noor University, PO Box 19395-Tehran, I. R. of"}],"type":"Organization"},{"accno":"o2","attributes":[{"name":"Name","value":"b X-ray Crystallography Laboratory, Plasma Physics Research Center, Science and Research Branch, Islamic Azad University, Tehran, Iran, and, Department of Chemistry, Science and Research Branch, Islamic Azad University, Tehran,"}],"type":"Organization"},{"accno":"o3","attributes":[{"name":"Name","value":"c Department of Physics, University of Sargodha, Punjab,"}],"type":"Organization"}],"files":[{"path":"e-68-0m392-sup1.cif","size":16553,"attributes":[{"name":"Type","value":"chemical(x-cif)"}],"type":"file"},{"path":"e-68-0m392-Isup2.hkl","size":127712,"attributes":[{"name":"Type","value":"text(plain)"}],"type":"file"}],"attributes":[{"name":"Title","value":"{4,4',6,6'-Tetra-bromo-2,2'-[(2,2-dimethyl-propane-1,3-di-yl)bis-(nitrilo-methanylyl-idene)]diphenolato}copper(II)."},{"name":"Abstract","value":"In the title compound, [Cu(C(19)H(16)Br(4)N(2)O(2))], the Cu(II) ion and the substituted C atom of the diamine fragment lie on a crystallographic twofold rotation axis. The geometry around the Cu(II) ion is distorted square-planar, which is defined by the N(2)O(2) donor atoms of the coordinated Schiff base ligand. The dihedral angle between the symmetry-related substituted benzene rings is 25.33 (14)°. The crystal structure is stabilized by an inter-molecular π-π inter-action [centroid-centroid distance = 3.8891 (18) Å]."}],"type":"Study"},"id":89,"type":"submission","mtime":"1460389126"},{"rtime":"1460389126","accessTags":["Public"],"seckey":"b","accno":"S-EPMC3343803","relPath":"S-EPMC/S-EPMCxxx803/S-EPMC3343803","ctime":"1460389126","attributes":[{"name":"RootPath","value":"S-EPMC/S-EPMCxxx803/S-EPMC3343803"},{"name":"Title","value":"Ammonium imidazolium dichromate."},{"name":"ReleaseDate","value":"2016-04-11"},{"name":"DataSource","value":"Europe PMC"},{"name":"AttachTo","value":"EuropePMC"}],"section":{"subsections":[{"accno":"PMC3343803","attributes":[{"name":"Journal","value":"Acta crystallographica. Section E, Structure reports online"},{"name":"Volume","value":"68(Pt 4)"},{"name":"Pages","value":"m389"},{"name":"Publication date","value":"2012 Apr"}],"type":"Publication"},{"accno":"a1","attributes":[{"name":"Name","value":"Zhu RQ"},{"name":"affiliation","isReference":true,"value":"o1"}],"type":"Author"},{"accno":"o1","attributes":[{"name":"Name","value":"a Ordered Matter Science Research Center, College of Chemistry and Chemical Engineering, Southeast University, Nanjing 211189,"}],"type":"Organization"}],"files":[{"path":"e-68-0m389-sup1.cif","size":17903,"attributes":[{"name":"Type","value":"chemical(x-cif)"}],"type":"file"},{"path":"e-68-0m389-Isup2.hkl","size":115623,"attributes":[{"name":"Type","value":"text(plain)"}],"type":"file"}],"attributes":[{"name":"Title","value":"Ammonium imidazolium dichromate."},{"name":"Abstract","value":"In the crystal structure of the title compound, (C(3)H(5)N(2))(NH(4))[Cr(2)O(7)], the anions and cations are linked through N-H⋯O hydrogen bonds, resulting in a three-dimensional structure which contains three kinds of layers parallel to (001). One layer contains imidazole cations, the other two layers the ammonium cations and dichromate anions. The dichromate anion has an eclipsed conformation with a dihedral angle of 14.65 (18)° between the mean planes of the O-P-O-P-O backbone."}],"type":"Study"},"id":90,"type":"submission","mtime":"1460389126"},{"accessTags":["Hecatos"],"seckey":"1","accno":"HeCaToS","relPath":"HeCaToS","ctime":"1460387622","attributes":[{"name":"RootPath","value":"HeCaToS"},{"name":"Title","value":"HeCaToS 11-Apr-2016 16:13:42"}],"section":{"files":[[{"path":"logo.png","size":16248,"attributes":[{"name":"Type","value":"logo"}],"type":"file"}]],"attributes":[{"name":"Title","value":"HeCaToS"},{"name":"Description","value":"The HeCaToS project (Hepatic and Cardiac Toxicity Systems modelling) aims at developing integrative in silico tools for predicting human liver and heart toxicity"},{"name":"URL","value":"http://www.hecatos.eu/"}],"type":"Project"},"id":1,"type":"submission","mtime":"1460387622"},{"rtime":"1460389124","accessTags":["Public"],"seckey":"3","accno":"S-EPMC3343791","relPath":"S-EPMC/S-EPMCxxx791/S-EPMC3343791","ctime":"1460389124","attributes":[{"name":"RootPath","value":"S-EPMC/S-EPMCxxx791/S-EPMC3343791"},{"name":"Title","value":"Poly[[μ(10)-4,4'-(ethane-1,2-diyldi-oxy)dibenzoato]dipotassium]."},{"name":"ReleaseDate","value":"2016-04-11"},{"name":"DataSource","value":"Europe PMC"},{"name":"AttachTo","value":"EuropePMC"}],"section":{"subsections":[{"accno":"PMC3343791","attributes":[{"name":"Journal","value":"Acta crystallographica. Section E, Structure reports online"},{"name":"Volume","value":"68(Pt 4)"},{"name":"Pages","value":"m370"},{"name":"Publication date","value":"2012 Apr"}],"type":"Publication"},{"accno":"a1","attributes":[{"name":"Name","value":"Ma Z"},{"name":"ORCID","value":"0000-0002-1629-7764"},{"name":"affiliation","isReference":true,"value":"o1"}],"type":"Author"},{"accno":"a2","attributes":[{"name":"Name","value":"Liang B"},{"name":"affiliation","isReference":true,"value":"o1"}],"type":"Author"},{"accno":"a3","attributes":[{"name":"Name","value":"Lu W"},{"name":"affiliation","isReference":true,"value":"o1"}],"type":"Author"},{"accno":"o1","attributes":[{"name":"Name","value":"a Guangxi Key Laboratory of Petrochemical Resources, Processing and Process Intensification Technology, School of Chemistry and Chemical Engineering, Guangxi University, Nanning, Guangxi 530004,"}],"type":"Organization"}],"files":[{"path":"e-68-0m370-sup1.cif","size":19769,"attributes":[{"name":"Type","value":"chemical(x-cif)"}],"type":"file"},{"path":"e-68-0m370-Isup2.hkl","size":108073,"attributes":[{"name":"Type","value":"text(plain)"}],"type":"file"}],"attributes":[{"name":"Title","value":"Poly[[μ(10)-4,4'-(ethane-1,2-diyldi-oxy)dibenzoato]dipotassium]."},{"name":"Abstract","value":"The title salt, [K(2)(C(16)H(12)O(6))](n), was obtained by the reaction of 1,2-bis-[4-(ethyl-carbox-yl)-phenox-yl]ethane with KOH in water. The anion lies on a crystallographic inversion center, which is located at the mid-point of the central C-C bond. The K(+) cation is coordinated by six O atoms, two from the chelating carboxyl-ate group of the anion and four from four neighboring and monodentately binding anions, giving rise to an irregular [KO(6)] coordination polyhedron. The coordination mode of the cation leads to the formation of K/O layers parallel to (100). These layers are linked by the nearly coplanar anions (r.m.s. deviation of 0.064 Å of the carboxyl, aryl and O-CH(2) groups from the least-squares plane) into a three-dimentional network."}],"type":"Study"},"id":79,"type":"submission","mtime":"1460389124"},{"rtime":"1460387624","accessTags":["Public"],"seckey":"d","accno":"blueprint","relPath":"blueprint","ctime":"1460387624","attributes":[{"name":"RootPath","value":"blueprint"},{"name":"Title","value":"blueprint 11-Apr-2016 16:13:44"},{"name":"ReleaseDate","value":"2016-04-11"}],"section":{"files":[[{"path":"logo.png","size":9234,"attributes":[{"name":"Type","value":"logo"}],"type":"file"}]],"attributes":[{"name":"Title","value":"BLUEPRINT"},{"name":"Description","value":"A BLUEPRINT of Haematopoietic Epigenomes"},{"name":"URL","value":"http://www.blueprint-epigenome.eu/"}],"type":"Project"},"id":2,"type":"submission","mtime":"1460387624"},{"rtime":"1460387625","accessTags":["Public"],"seckey":"b","accno":"diXa","relPath":"diXa","ctime":"1460387625","attributes":[{"name":"RootPath","value":"diXa"},{"name":"Title","value":"diXa 11-Apr-2016 16:13:45"},{"name":"ReleaseDate","value":"2016-04-11"}],"section":{"files":[[{"path":"logo.png","size":7891,"attributes":[{"name":"Type","value":"logo"}],"type":"file"}]],"attributes":[{"name":"Title","value":"diXa Data Warehouse"},{"name":"Description","value":"A collection of European Toxicogenomics experiments with cross-links to chemical and molecular medicine databases"},{"name":"URL","value":"http://wwwdev.ebi.ac.uk/fg/dixa/index.html"}],"type":"Project"},"id":3,"type":"submission","mtime":"1460387625"},{"rtime":"1460389126","accessTags":["Public"],"seckey":"e","accno":"S-EPMC3343801","relPath":"S-EPMC/S-EPMCxxx801/S-EPMC3343801","ctime":"1460389126","attributes":[{"name":"RootPath","value":"S-EPMC/S-EPMCxxx801/S-EPMC3343801"},{"name":"Title","value":"Dichloridobis[(ferrocenyl-methyl-idene)(furan-2-ylmeth-yl)amine-κN]palladium(II)."},{"name":"ReleaseDate","value":"2016-04-11"},{"name":"DataSource","value":"Europe PMC"},{"name":"AttachTo","value":"EuropePMC"}],"section":{"subsections":[{"accno":"PMC3343801","attributes":[{"name":"Journal","value":"Acta crystallographica. Section E, Structure reports online"},{"name":"Volume","value":"68(Pt 4)"},{"name":"Pages","value":"m387"},{"name":"Publication date","value":"2012 Apr"}],"type":"Publication"},{"accno":"a1","attributes":[{"name":"Name","value":"Motswainyana WM"},{"name":"affiliation","isReference":true,"value":"o1"}],"type":"Author"},{"accno":"a2","attributes":[{"name":"Name","value":"Onani MO"},{"name":"ORCID","value":"0000-0002-4735-3669"},{"name":"affiliation","isReference":true,"value":"o1"}],"type":"Author"},{"accno":"a3","attributes":[{"name":"Name","value":"Lalancette RA"},{"name":"affiliation","isReference":true,"value":"o2"}],"type":"Author"},{"accno":"o1","attributes":[{"name":"Name","value":"a Chemistry Department, University of the Western Cape, Modderdam Road, Private bag X17, Bellville, 7535,"}],"type":"Organization"},{"accno":"o2","attributes":[{"name":"Name","value":"b Carl A. Olson Memorial Laboratories, Department of Chemistry, Rutgers University, Newark, NJ 07102"}],"type":"Organization"}],"files":[{"path":"e-68-0m387-sup1.cif","size":27547,"attributes":[{"name":"Type","value":"chemical(x-cif)"}],"type":"file"},{"path":"e-68-0m387-Isup2.hkl","size":130695,"attributes":[{"name":"Type","value":"text(plain)"}],"type":"file"}],"attributes":[{"name":"Title","value":"Dichloridobis[(ferrocenyl-methyl-idene)(furan-2-ylmeth-yl)amine-κN]palladium(II)."},{"name":"Abstract","value":"The title compound, [Fe(2)Pd(C(5)H(5))(2)(C(11)H(10)NO)(2)Cl(2)], exhibits a square-planar geometry at the Pd(II) atom, which is determined by inversion-related chlorine and ferrocenyl-imine mol-ecules across a center of symmetry. The ferrocenyl-imine moieties are trans to each other."}],"type":"Study"},"id":91,"type":"submission","mtime":"1460389126"},{
-  "accno" : "S-EPMC3372839",
-  "accessTags":["Public"],
-  "attributes" : [ {
-    "name" : "Title",
-    "value" : "Polymorphisms of ADORA2A modulate psychomotor vigilance and the effects of caffeine on neurobehavioural performance and sleep EEG after sleep deprivation."
-  }, {
-    "name" : "DataSource",
-    "value" : "Europe PMC"
-  }, {
-    "name" : "AttachTo",
-    "value" : "EuropePMC"
-  }, {
-    "name" : "ReleaseDate",
-    "value" : "2012-01-01"
-  } ],
-  "section" : {
-    "type" : "Study",
-    "attributes" : [ {
-      "name" : "Title",
-      "value" : "Polymorphisms of ADORA2A modulate psychomotor vigilance and the effects of caffeine on neurobehavioural performance and sleep EEG after sleep deprivation."
-    }, {
-      "name" : "Abstract",
-      "value" : "Prolonged wakefulness impairs sustained vigilant attention, measured with the psychomotor vigilance task (PVT), and induces a compensatory increase in sleep intensity in recovery sleep, quantified by slow-wave activity (SWA) in the sleep electroencephalogram (EEG). These effects of sleep deprivation are counteracted by the adenosine receptor antagonist caffeine, implying involvement of the adenosine neuromodulator/receptor system. To examine a role for adenosine A(2A) receptors, we investigated whether variation of the A(2A) receptor gene (ADORA2A) modified effects of caffeine on PVT and SWA after sleep deprivation.A haplotype analysis of eight single-nucleotide polymorphisms of ADORA2A was performed in 82 volunteers. In 45 young men carrying five different allele combinations, we investigated the effects of prolonged waking and 2 × 200 mg caffeine or 2 × 100 mg modafinil on psychomotor vigilance, sleepiness, and the waking and sleep EEG.Throughout extended wakefulness, the carriers of haplotype HT4 performed faster on the PVT than carriers of non-HT4 haplotype alleles. In haplotype HT4, caffeine failed to counteract the waking-induced impairment of PVT performance and the rebound of SWA in recovery sleep. However, caffeine was effective in non-HT4 allele carriers, and modafinil reduced the consequences of prolonged waking, independently of ADORA2A haplotype.Common genetic variation of ADORA2A is an important determinant of psychomotor vigilance in rested and sleep-deprived state. It also modulates individual responses to caffeine after sleep deprivation. These findings demonstrate a role for adenosine A(2A) receptors in the effects of prolonged wakefulness on vigilant attention and the sleep EEG."
-    } ],
-    "files" : [ {
-      "path" : "bph0165-1904-SD1.doc",
-      "size" : 379904,
-      "type" : "file"
-    } ],
-    "links" : [ {
-      "url" : "rs2236624",
-      "attributes" : [ {
-        "name" : "Type",
-        "value" : "refsnp"
-      } ]
-    } ],
-    "subsections" : [ {
-      "type" : "Funding",
-      "attributes" : [ {
-        "name" : "Agency",
-        "value" : "Swiss National Science Foundation"
-      }, {
-        "name" : "grant_id",
-        "value" : "107874"
-      } ]
-    }, {
-      "type" : "Publication",
-      "attributes" : [ {
-        "name" : "Journal",
-        "value" : "British journal of pharmacology"
-      }, {
-        "name" : "Volume",
-        "value" : "165(6)"
-      }, {
-        "name" : "Pages",
-        "value" : "1904-1913"
-      }, {
-        "name" : "Publication date",
-        "value" : "2012 Mar"
-      } ],
-      "links" : [ [ {
-        "url" : "10.1111/j.1476-5381.2011.01689.x ",
-        "attributes" : [ {
-          "name" : "Type",
-          "value" : "DOI"
-        } ]
-      }, {
-        "url" : "PMC3372839",
-        "attributes" : [ {
-          "name" : "Type",
-          "value" : "PMC"
-        } ]
-      }, {
-        "url" : "21950736",
-        "attributes" : [ {
-          "name" : "Type",
-          "value" : "PMID"
-        } ]
-      } ] ]
-    }, {
-      "accno" : "a1",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Bodenmann S"
-      }, {
-        "name" : "affiliation",
-        "value" : "o1",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a2",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Hohoff C"
-      }, {
-        "name" : "affiliation",
-        "value" : "o1",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a3",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Freitag C"
-      }, {
-        "name" : "affiliation",
-        "value" : "o1",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a4",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Deckert J"
-      }, {
-        "name" : "affiliation",
-        "value" : "o1",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a5",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Retey JV"
-      }, {
-        "name" : "affiliation",
-        "value" : "o1",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a6",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Bachmann V"
-      }, {
-        "name" : "affiliation",
-        "value" : "o1",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a7",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Landolt HP"
-      }, {
-        "name" : "ORCID",
-        "value" : "0000-0003-0887-9403"
-      }, {
-        "name" : "affiliation",
-        "value" : "o1",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "o1",
-      "type" : "Organization",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Institute of Pharmacology and Toxicology, University of Zürich, Zürich, SwitzerlandDepartment of Psychiatry, University of Münster, Münster, GermanyDepartment of Child and Adolescent Psychiatry, Psychosomatics and Psychotherapy, Johann-Wolfgang Goethe University, Frankfurt am Main, GermanyDepartment of Psychiatry, University of Würzburg, Würzburg, GermanyZürich Center for Integrative Human Physiology, University of Zürich, Zürich, Switzerland."
-      } ]
-    } ]
-  }
-},
-  {
-  "accno" : "S-EPMC6020441",
-  "accessTags":["Public"],
-  "attributes" : [ {
-    "name" : "Title",
-    "value" : "Pancreatic cancer as a sentinel for hereditary cancer predisposition."
-  }, {
-    "name" : "DataSource",
-    "value" : "Europe PMC"
-  }, {
-    "name" : "AttachTo",
-    "value" : "EuropePMC"
-  }, {
-    "name" : "ReleaseDate",
-    "value" : "2018-01-01T00:00:00Z"
-  } ],
-  "section" : {
-    "type" : "Study",
-    "attributes" : [ {
-      "name" : "Title",
-      "value" : "Pancreatic cancer as a sentinel for hereditary cancer predisposition."
-    }, {
-      "name" : "Abstract",
-      "value" : "Genes associated with hereditary breast and ovarian cancer (HBOC) and colorectal cancer (CRC) predisposition have been shown to play a role in pancreatic cancer susceptibility. Growing evidence suggests that pancreatic cancer may be useful as a sentinel cancer to identify families that could benefit from HBOC or CRC surveillance, but to date pancreatic cancer is only considered an indication for genetic testing in the context of additional family history.Preliminary data generated at the Huntsman Cancer Hospital (HCH) included variants identified on a custom 34-gene panel or 59-gene panel including both known HBOC and CRC genes for respective sets of 66 and 147 pancreatic cancer cases, unselected for family history. Given the strength of preliminary data and corresponding literature, 61 sequential pancreatic cancer cases underwent a custom 14-gene clinical panel. Sequencing data from HCH pancreatic cancer cases, pancreatic cancer cases of the Cancer Genome Atlas (TCGA), and an unselected pancreatic cancer screen from the Mayo Clinic were combined in a meta-analysis to estimate the proportion of carriers with pathogenic and high probability of pathogenic variants of uncertain significance (HiP-VUS).Approximately 8.6% of unselected pancreatic cancer cases at the HCH carried a variant with potential HBOC or CRC screening recommendations. A meta-analysis of unselected pancreatic cancer cases revealed that approximately 11.5% carry a pathogenic variant or HiP-VUS.With the inclusion of both HBOC and CRC susceptibility genes in a panel test, unselected pancreatic cancer cases act as a useful sentinel cancer to identify asymptomatic at-risk relatives who could benefit from relevant HBOC and CRC surveillance measures."
-    } ],
-    "files" : [ {
-      "path" : "12885_2018_4573_MOESM1_ESM.xlsx",
-      "size" : 75269,
-      "type" : "file"
-    }, {
-      "path" : "12885_2018_4573_MOESM2_ESM.jpg",
-      "size" : 868160,
-      "type" : "file"
-    }, {
-      "path" : "12885_2018_4573_MOESM3_ESM.docx",
-      "size" : 34835,
-      "type" : "file"
-    } ],
-    "subsections" : [ {
-      "type" : "Funding",
-      "attributes" : [ {
-        "name" : "Agency",
-        "value" : "National Institutes of Health"
-      }, {
-        "name" : "grant_id",
-        "value" : "1T32HG008962-01"
-      } ]
-    }, {
-      "type" : "Funding",
-      "attributes" : [ {
-        "name" : "Agency",
-        "value" : "National Cancer Institute"
-      }, {
-        "name" : "grant_id",
-        "value" : "P30CA042014"
-      } ]
-    }, {
-      "type" : "Funding",
-      "attributes" : [ {
-        "name" : "Agency",
-        "value" : "National Cancer Institute"
-      }, {
-        "name" : "grant_id",
-        "value" : "R01CA164138"
-      } ]
-    }, {
-      "type" : "Publication",
-      "attributes" : [ {
-        "name" : "Journal",
-        "value" : "BMC cancer"
-      }, {
-        "name" : "Volume",
-        "value" : "18(1)"
-      }, {
-        "name" : "Pages",
-        "value" : "697"
-      }, {
-        "name" : "Publication date",
-        "value" : "2018 Jun"
-      } ],
-      "links" : [ [ {
-        "url" : "10.1186/s12885-018-4573-5 ",
-        "attributes" : [ {
-          "name" : "Type",
-          "value" : "DOI"
-        } ]
-      }, {
-        "url" : "PMC6020441",
-        "attributes" : [ {
-          "name" : "Type",
-          "value" : "PMC"
-        } ]
-      }, {
-        "url" : "29945567",
-        "attributes" : [ {
-          "name" : "Type",
-          "value" : "PMID"
-        } ]
-      } ] ]
-    }, {
-      "accno" : "a1",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Young EL"
-      }, {
-        "name" : "affiliation",
-        "value" : "o1",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a2",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Thompson BA"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a3",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Neklason DW"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a4",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Firpo MA"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a5",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Werner T"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a6",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Bell R"
-      }, {
-        "name" : "affiliation",
-        "value" : "o1",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a7",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Berger J"
-      }, {
-        "name" : "affiliation",
-        "value" : "o3",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a8",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Fraser A"
-      }, {
-        "name" : "affiliation",
-        "value" : "o3",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a9",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Gammon A"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a10",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Koptiuch C"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a11",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Kohlmann WK"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a12",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Neumayer L"
-      }, {
-        "name" : "affiliation",
-        "value" : "o4",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a13",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Goldgar DE"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a14",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Mulvihill SJ"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a15",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Cannon-Albright LA"
-      }, {
-        "name" : "affiliation",
-        "value" : "o2",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "a16",
-      "type" : "Author",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Tavtigian SV"
-      }, {
-        "name" : "affiliation",
-        "value" : "o5",
-        "reference" : true
-      } ]
-    }, {
-      "accno" : "o1",
-      "type" : "Organization",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Department of Oncological Sciences, University of Utah School of Medicine, Salt Lake City, United States."
-      } ]
-    }, {
-      "accno" : "o5",
-      "type" : "Organization",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Department of Oncological Sciences, University of Utah School of Medicine, Salt Lake City, United States. sean.tavtigian@hci.utah.edu."
-      } ]
-    }, {
-      "accno" : "o4",
-      "type" : "Organization",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Department of Surgery and Arizona Cancer Center, University of Arizona, Tucson, United States."
-      } ]
-    }, {
-      "accno" : "o2",
-      "type" : "Organization",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Huntsman Cancer Institute, University of Utah School of Medicine, Salt Lake City, United States."
-      } ]
-    }, {
-      "accno" : "o3",
-      "type" : "Organization",
-      "attributes" : [ {
-        "name" : "Name",
-        "value" : "Population Sciences, Huntsman Cancer Institute, University of Utah, Salt Lake City, United States."
-      } ]
-    } ]
-  }
-},
-  {
-    "accno" : "S-EPMC4330785","accessTags":["Public"],
-    "attributes" : [ {
-      "name" : "Title",
-      "value" : "Suppression of cancer relapse and metastasis by inhibiting cancer stemness."
-    }, {
-      "name" : "DataSource",
-      "value" : "Europe PMC"
-    }, {
-      "name" : "AttachTo",
-      "value" : "EuropePMC"
-    }, {
-      "name" : "ReleaseDate",
-      "value" : "2015-01-01T00:00:00Z"
-    } ],
-    "section" : {
-      "type" : "Study",
-      "attributes" : [ {
-        "name" : "Title",
-        "value" : "Suppression of cancer relapse and metastasis by inhibiting cancer stemness."
-      }, {
-        "name" : "Abstract",
-        "value" : "Partial or even complete cancer regression can be achieved in some patients with current cancer treatments. However, such initial responses are almost always followed by relapse, with the recurrent cancer being resistant to further treatments. The discovery of therapeutic approaches that counteract relapse is, therefore, essential for advancing cancer medicine. Cancer cells are extremely heterogeneous, even in each individual patient, in terms of their malignant potential, drug sensitivity, and their potential to metastasize and cause relapse. Indeed, hypermalignant cancer cells, termed cancer stem cells or stemness-high cancer cells, that are highly tumorigenic and metastatic have been isolated from cancer patients with a variety of tumor types. Moreover, such stemness-high cancer cells are resistant to conventional chemotherapy and radiation. Here we show that BBI608, a small molecule identified by its ability to inhibit gene transcription driven by Stat3 and cancer stemness properties, can inhibit stemness gene expression and block spherogenesis of or kill stemness-high cancer cells isolated from a variety of cancer types. Moreover, cancer relapse and metastasis were effectively blocked by BBI608 in mice. These data demonstrate targeting cancer stemness as a novel approach to develop the next generation of cancer therapeutics to suppress cancer relapse and metastasis."
-      } ],
-      "files" : [ {
-        "path" : "pnas.201424171SI.pdf",
-        "size" : 84524,
-        "type" : "file"
-      } ],
-      "subsections" : [ {
-        "type" : "Publication",
-        "attributes" : [ {
-          "name" : "Journal",
-          "value" : "Proceedings of the National Academy of Sciences of the United States of America"
-        }, {
-          "name" : "Volume",
-          "value" : "112(6)"
-        }, {
-          "name" : "Pages",
-          "value" : "1839-44"
-        }, {
-          "name" : "Publication date",
-          "value" : "2015 Feb"
-        } ],
-        "links" : [ [ {
-          "url" : "10.1073/pnas.1424171112 ",
-          "attributes" : [ {
-            "name" : "Type",
-            "value" : "DOI"
-          } ]
-        }, {
-          "url" : "PMC4330785",
-          "attributes" : [ {
-            "name" : "Type",
-            "value" : "PMC"
-          } ]
-        }, {
-          "url" : "25605917",
-          "attributes" : [ {
-            "name" : "Type",
-            "value" : "PMID"
-          } ]
-        } ] ]
-      }, {
-        "accno" : "a1",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Li Y"
-        }, {
-          "name" : "affiliation",
-          "value" : "o1",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "a2",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Rogoff HA"
-        }, {
-          "name" : "affiliation",
-          "value" : "o1",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "a3",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Keates S"
-        }, {
-          "name" : "affiliation",
-          "value" : "o1",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "a4",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Gao Y"
-        }, {
-          "name" : "affiliation",
-          "value" : "o1",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "a5",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Murikipudi S"
-        }, {
-          "name" : "affiliation",
-          "value" : "o1",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "a6",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Mikule K"
-        }, {
-          "name" : "affiliation",
-          "value" : "o1",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "a7",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Leggett D"
-        }, {
-          "name" : "affiliation",
-          "value" : "o1",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "a8",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Li W"
-        }, {
-          "name" : "affiliation",
-          "value" : "o1",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "a9",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Pardee AB"
-        }, {
-          "name" : "affiliation",
-          "value" : "o2",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "a10",
-        "type" : "Author",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Li CJ"
-        }, {
-          "name" : "affiliation",
-          "value" : "o2",
-          "reference" : true
-        } ]
-      }, {
-        "accno" : "o2",
-        "type" : "Organization",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Boston Biomedical, Inc., Cambridge, MA 02139 cli@bostonbiomedical.com arthur_pardee@dfci.harvard.edu."
-        } ]
-      }, {
-        "accno" : "o1",
-        "type" : "Organization",
-        "attributes" : [ {
-          "name" : "Name",
-          "value" : "Boston Biomedical, Inc., Cambridge, MA 02139."
-        } ]
-      } ]
+{
+  "submissions": [
+    {
+      "rtime": "1460389126",
+      "accessTags": [
+        "Public"
+      ],
+      "seckey": "e",
+      "accno": "S-EPMC3343805",
+      "relPath": "S-EPMC/S-EPMCxxx805/S-EPMC3343805",
+      "ctime": "1460389126",
+      "attributes": [
+        {
+          "name": "RootPath",
+          "value": "S-EPMC/S-EPMCxxx805/S-EPMC3343805"
+        },
+        {
+          "name": "Title",
+          "value": "{4,4',6,6'-Tetra-bromo-2,2'-[(2,2-dimethyl-propane-1,3-di-yl)bis-(nitrilo-methanylyl-idene)]diphenolato}copper(II)."
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2016-04-11"
+        },
+        {
+          "name": "DataSource",
+          "value": "Europe PMC"
+        },
+        {
+          "name": "AttachTo",
+          "value": "EuropePMC"
+        }
+      ],
+      "section": {
+        "subsections": [
+          {
+            "accno": "PMC3343805",
+            "attributes": [
+              {
+                "name": "Journal",
+                "value": "Acta crystallographica. Section E, Structure reports online"
+              },
+              {
+                "name": "Volume",
+                "value": "68(Pt 4)"
+              },
+              {
+                "name": "Pages",
+                "value": "m392"
+              },
+              {
+                "name": "Publication date",
+                "value": "2012 Apr"
+              }
+            ],
+            "type": "Publication"
+          },
+          {
+            "accno": "a1",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Kargar H"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o1"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "a2",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Kia R"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o2"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "a3",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Haghshenas M"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o1"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "a4",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Tahir MN"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o3"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "o1",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "a Department of Chemistry, Payame Noor University, PO Box 19395-Tehran, I. R. of"
+              }
+            ],
+            "type": "Organization"
+          },
+          {
+            "accno": "o2",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "b X-ray Crystallography Laboratory, Plasma Physics Research Center, Science and Research Branch, Islamic Azad University, Tehran, Iran, and, Department of Chemistry, Science and Research Branch, Islamic Azad University, Tehran,"
+              }
+            ],
+            "type": "Organization"
+          },
+          {
+            "accno": "o3",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "c Department of Physics, University of Sargodha, Punjab,"
+              }
+            ],
+            "type": "Organization"
+          }
+        ],
+        "files": [
+          {
+            "path": "e-68-0m392-sup1.cif",
+            "size": 16553,
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "chemical(x-cif)"
+              }
+            ],
+            "type": "file"
+          },
+          {
+            "path": "e-68-0m392-Isup2.hkl",
+            "size": 127712,
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "text(plain)"
+              }
+            ],
+            "type": "file"
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "{4,4',6,6'-Tetra-bromo-2,2'-[(2,2-dimethyl-propane-1,3-di-yl)bis-(nitrilo-methanylyl-idene)]diphenolato}copper(II)."
+          },
+          {
+            "name": "Abstract",
+            "value": "In the title compound, [Cu(C(19)H(16)Br(4)N(2)O(2))], the Cu(II) ion and the substituted C atom of the diamine fragment lie on a crystallographic twofold rotation axis. The geometry around the Cu(II) ion is distorted square-planar, which is defined by the N(2)O(2) donor atoms of the coordinated Schiff base ligand. The dihedral angle between the symmetry-related substituted benzene rings is 25.33 (14)°. The crystal structure is stabilized by an inter-molecular π-π inter-action [centroid-centroid distance = 3.8891 (18) Å]."
+          }
+        ],
+        "type": "Study"
+      },
+      "id": 89,
+      "type": "submission",
+      "mtime": "1460389126"
+    },
+    {
+      "rtime": "1460389126",
+      "accessTags": [
+        "Public"
+      ],
+      "seckey": "b",
+      "accno": "S-EPMC3343803",
+      "relPath": "S-EPMC/S-EPMCxxx803/S-EPMC3343803",
+      "ctime": "1460389126",
+      "attributes": [
+        {
+          "name": "RootPath",
+          "value": "S-EPMC/S-EPMCxxx803/S-EPMC3343803"
+        },
+        {
+          "name": "Title",
+          "value": "Ammonium imidazolium dichromate."
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2016-04-11"
+        },
+        {
+          "name": "DataSource",
+          "value": "Europe PMC"
+        },
+        {
+          "name": "AttachTo",
+          "value": "EuropePMC"
+        }
+      ],
+      "section": {
+        "subsections": [
+          {
+            "accno": "PMC3343803",
+            "attributes": [
+              {
+                "name": "Journal",
+                "value": "Acta crystallographica. Section E, Structure reports online"
+              },
+              {
+                "name": "Volume",
+                "value": "68(Pt 4)"
+              },
+              {
+                "name": "Pages",
+                "value": "m389"
+              },
+              {
+                "name": "Publication date",
+                "value": "2012 Apr"
+              }
+            ],
+            "type": "Publication"
+          },
+          {
+            "accno": "a1",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Zhu RQ"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o1"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "o1",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "a Ordered Matter Science Research Center, College of Chemistry and Chemical Engineering, Southeast University, Nanjing 211189,"
+              }
+            ],
+            "type": "Organization"
+          }
+        ],
+        "files": [
+          {
+            "path": "e-68-0m389-sup1.cif",
+            "size": 17903,
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "chemical(x-cif)"
+              }
+            ],
+            "type": "file"
+          },
+          {
+            "path": "e-68-0m389-Isup2.hkl",
+            "size": 115623,
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "text(plain)"
+              }
+            ],
+            "type": "file"
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "Ammonium imidazolium dichromate."
+          },
+          {
+            "name": "Abstract",
+            "value": "In the crystal structure of the title compound, (C(3)H(5)N(2))(NH(4))[Cr(2)O(7)], the anions and cations are linked through N-H⋯O hydrogen bonds, resulting in a three-dimensional structure which contains three kinds of layers parallel to (001). One layer contains imidazole cations, the other two layers the ammonium cations and dichromate anions. The dichromate anion has an eclipsed conformation with a dihedral angle of 14.65 (18)° between the mean planes of the O-P-O-P-O backbone."
+          }
+        ],
+        "type": "Study"
+      },
+      "id": 90,
+      "type": "submission",
+      "mtime": "1460389126"
+    },
+    {
+      "accessTags": [
+        "Hecatos"
+      ],
+      "seckey": "1",
+      "accno": "HeCaToS",
+      "relPath": "HeCaToS",
+      "ctime": "1460387622",
+      "attributes": [
+        {
+          "name": "RootPath",
+          "value": "HeCaToS"
+        },
+        {
+          "name": "Title",
+          "value": "HeCaToS 11-Apr-2016 16:13:42"
+        }
+      ],
+      "section": {
+        "files": [
+          [
+            {
+              "path": "logo.png",
+              "size": 16248,
+              "attributes": [
+                {
+                  "name": "Type",
+                  "value": "logo"
+                }
+              ],
+              "type": "file"
+            }
+          ]
+        ],
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "HeCaToS"
+          },
+          {
+            "name": "Description",
+            "value": "The HeCaToS project (Hepatic and Cardiac Toxicity Systems modelling) aims at developing integrative in silico tools for predicting human liver and heart toxicity"
+          },
+          {
+            "name": "URL",
+            "value": "http://www.hecatos.eu/"
+          }
+        ],
+        "type": "Project"
+      },
+      "id": 1,
+      "type": "submission",
+      "mtime": "1460387622"
+    },
+    {
+      "rtime": "1460389124",
+      "accessTags": [
+        "Public"
+      ],
+      "seckey": "3",
+      "accno": "S-EPMC3343791",
+      "relPath": "S-EPMC/S-EPMCxxx791/S-EPMC3343791",
+      "ctime": "1460389124",
+      "attributes": [
+        {
+          "name": "RootPath",
+          "value": "S-EPMC/S-EPMCxxx791/S-EPMC3343791"
+        },
+        {
+          "name": "Title",
+          "value": "Poly[[μ(10)-4,4'-(ethane-1,2-diyldi-oxy)dibenzoato]dipotassium]."
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2016-04-11"
+        },
+        {
+          "name": "DataSource",
+          "value": "Europe PMC"
+        },
+        {
+          "name": "AttachTo",
+          "value": "EuropePMC"
+        }
+      ],
+      "section": {
+        "subsections": [
+          {
+            "accno": "PMC3343791",
+            "attributes": [
+              {
+                "name": "Journal",
+                "value": "Acta crystallographica. Section E, Structure reports online"
+              },
+              {
+                "name": "Volume",
+                "value": "68(Pt 4)"
+              },
+              {
+                "name": "Pages",
+                "value": "m370"
+              },
+              {
+                "name": "Publication date",
+                "value": "2012 Apr"
+              }
+            ],
+            "type": "Publication"
+          },
+          {
+            "accno": "a1",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Ma Z"
+              },
+              {
+                "name": "ORCID",
+                "value": "0000-0002-1629-7764"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o1"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "a2",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Liang B"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o1"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "a3",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Lu W"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o1"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "o1",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "a Guangxi Key Laboratory of Petrochemical Resources, Processing and Process Intensification Technology, School of Chemistry and Chemical Engineering, Guangxi University, Nanning, Guangxi 530004,"
+              }
+            ],
+            "type": "Organization"
+          }
+        ],
+        "files": [
+          {
+            "path": "e-68-0m370-sup1.cif",
+            "size": 19769,
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "chemical(x-cif)"
+              }
+            ],
+            "type": "file"
+          },
+          {
+            "path": "e-68-0m370-Isup2.hkl",
+            "size": 108073,
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "text(plain)"
+              }
+            ],
+            "type": "file"
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "Poly[[μ(10)-4,4'-(ethane-1,2-diyldi-oxy)dibenzoato]dipotassium]."
+          },
+          {
+            "name": "Abstract",
+            "value": "The title salt, [K(2)(C(16)H(12)O(6))](n), was obtained by the reaction of 1,2-bis-[4-(ethyl-carbox-yl)-phenox-yl]ethane with KOH in water. The anion lies on a crystallographic inversion center, which is located at the mid-point of the central C-C bond. The K(+) cation is coordinated by six O atoms, two from the chelating carboxyl-ate group of the anion and four from four neighboring and monodentately binding anions, giving rise to an irregular [KO(6)] coordination polyhedron. The coordination mode of the cation leads to the formation of K/O layers parallel to (100). These layers are linked by the nearly coplanar anions (r.m.s. deviation of 0.064 Å of the carboxyl, aryl and O-CH(2) groups from the least-squares plane) into a three-dimentional network."
+          }
+        ],
+        "type": "Study"
+      },
+      "id": 79,
+      "type": "submission",
+      "mtime": "1460389124"
+    },
+    {
+      "rtime": "1460387624",
+      "accessTags": [
+        "Public"
+      ],
+      "seckey": "d",
+      "accno": "blueprint",
+      "relPath": "blueprint",
+      "ctime": "1460387624",
+      "attributes": [
+        {
+          "name": "RootPath",
+          "value": "blueprint"
+        },
+        {
+          "name": "Title",
+          "value": "blueprint 11-Apr-2016 16:13:44"
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2016-04-11"
+        }
+      ],
+      "section": {
+        "files": [
+          [
+            {
+              "path": "logo.png",
+              "size": 9234,
+              "attributes": [
+                {
+                  "name": "Type",
+                  "value": "logo"
+                }
+              ],
+              "type": "file"
+            }
+          ]
+        ],
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "BLUEPRINT"
+          },
+          {
+            "name": "Description",
+            "value": "A BLUEPRINT of Haematopoietic Epigenomes"
+          },
+          {
+            "name": "URL",
+            "value": "http://www.blueprint-epigenome.eu/"
+          }
+        ],
+        "type": "Project"
+      },
+      "id": 2,
+      "type": "submission",
+      "mtime": "1460387624"
+    },
+    {
+      "rtime": "1460387625",
+      "accessTags": [
+        "Public"
+      ],
+      "seckey": "b",
+      "accno": "diXa",
+      "relPath": "diXa",
+      "ctime": "1460387625",
+      "attributes": [
+        {
+          "name": "RootPath",
+          "value": "diXa"
+        },
+        {
+          "name": "Title",
+          "value": "diXa 11-Apr-2016 16:13:45"
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2016-04-11"
+        }
+      ],
+      "section": {
+        "files": [
+          [
+            {
+              "path": "logo.png",
+              "size": 7891,
+              "attributes": [
+                {
+                  "name": "Type",
+                  "value": "logo"
+                }
+              ],
+              "type": "file"
+            }
+          ]
+        ],
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "diXa Data Warehouse"
+          },
+          {
+            "name": "Description",
+            "value": "A collection of European Toxicogenomics experiments with cross-links to chemical and molecular medicine databases"
+          },
+          {
+            "name": "URL",
+            "value": "http://wwwdev.ebi.ac.uk/fg/dixa/index.html"
+          }
+        ],
+        "type": "Project"
+      },
+      "id": 3,
+      "type": "submission",
+      "mtime": "1460387625"
+    },
+    {
+      "rtime": "1460389126",
+      "accessTags": [
+        "Public"
+      ],
+      "seckey": "e",
+      "accno": "S-EPMC3343801",
+      "relPath": "S-EPMC/S-EPMCxxx801/S-EPMC3343801",
+      "ctime": "1460389126",
+      "attributes": [
+        {
+          "name": "RootPath",
+          "value": "S-EPMC/S-EPMCxxx801/S-EPMC3343801"
+        },
+        {
+          "name": "Title",
+          "value": "Dichloridobis[(ferrocenyl-methyl-idene)(furan-2-ylmeth-yl)amine-κN]palladium(II)."
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2016-04-11"
+        },
+        {
+          "name": "DataSource",
+          "value": "Europe PMC"
+        },
+        {
+          "name": "AttachTo",
+          "value": "EuropePMC"
+        }
+      ],
+      "section": {
+        "subsections": [
+          {
+            "accno": "PMC3343801",
+            "attributes": [
+              {
+                "name": "Journal",
+                "value": "Acta crystallographica. Section E, Structure reports online"
+              },
+              {
+                "name": "Volume",
+                "value": "68(Pt 4)"
+              },
+              {
+                "name": "Pages",
+                "value": "m387"
+              },
+              {
+                "name": "Publication date",
+                "value": "2012 Apr"
+              }
+            ],
+            "type": "Publication"
+          },
+          {
+            "accno": "a1",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Motswainyana WM"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o1"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "a2",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Onani MO"
+              },
+              {
+                "name": "ORCID",
+                "value": "0000-0002-4735-3669"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o1"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "a3",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Lalancette RA"
+              },
+              {
+                "name": "affiliation",
+                "isReference": true,
+                "value": "o2"
+              }
+            ],
+            "type": "Author"
+          },
+          {
+            "accno": "o1",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "a Chemistry Department, University of the Western Cape, Modderdam Road, Private bag X17, Bellville, 7535,"
+              }
+            ],
+            "type": "Organization"
+          },
+          {
+            "accno": "o2",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "b Carl A. Olson Memorial Laboratories, Department of Chemistry, Rutgers University, Newark, NJ 07102"
+              }
+            ],
+            "type": "Organization"
+          }
+        ],
+        "files": [
+          {
+            "path": "e-68-0m387-sup1.cif",
+            "size": 27547,
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "chemical(x-cif)"
+              }
+            ],
+            "type": "file"
+          },
+          {
+            "path": "e-68-0m387-Isup2.hkl",
+            "size": 130695,
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "text(plain)"
+              }
+            ],
+            "type": "file"
+          }
+        ],
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "Dichloridobis[(ferrocenyl-methyl-idene)(furan-2-ylmeth-yl)amine-κN]palladium(II)."
+          },
+          {
+            "name": "Abstract",
+            "value": "The title compound, [Fe(2)Pd(C(5)H(5))(2)(C(11)H(10)NO)(2)Cl(2)], exhibits a square-planar geometry at the Pd(II) atom, which is determined by inversion-related chlorine and ferrocenyl-imine mol-ecules across a center of symmetry. The ferrocenyl-imine moieties are trans to each other."
+          }
+        ],
+        "type": "Study"
+      },
+      "id": 91,
+      "type": "submission",
+      "mtime": "1460389126"
+    },
+    {
+      "accno": "S-EPMC3372839",
+      "accessTags": [
+        "Public"
+      ],
+      "attributes": [
+        {
+          "name": "Title",
+          "value": "Polymorphisms of ADORA2A modulate psychomotor vigilance and the effects of caffeine on neurobehavioural performance and sleep EEG after sleep deprivation."
+        },
+        {
+          "name": "DataSource",
+          "value": "Europe PMC"
+        },
+        {
+          "name": "AttachTo",
+          "value": "EuropePMC"
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2012-01-01"
+        }
+      ],
+      "section": {
+        "type": "Study",
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "Polymorphisms of ADORA2A modulate psychomotor vigilance and the effects of caffeine on neurobehavioural performance and sleep EEG after sleep deprivation."
+          },
+          {
+            "name": "Abstract",
+            "value": "Prolonged wakefulness impairs sustained vigilant attention, measured with the psychomotor vigilance task (PVT), and induces a compensatory increase in sleep intensity in recovery sleep, quantified by slow-wave activity (SWA) in the sleep electroencephalogram (EEG). These effects of sleep deprivation are counteracted by the adenosine receptor antagonist caffeine, implying involvement of the adenosine neuromodulator/receptor system. To examine a role for adenosine A(2A) receptors, we investigated whether variation of the A(2A) receptor gene (ADORA2A) modified effects of caffeine on PVT and SWA after sleep deprivation.A haplotype analysis of eight single-nucleotide polymorphisms of ADORA2A was performed in 82 volunteers. In 45 young men carrying five different allele combinations, we investigated the effects of prolonged waking and 2 × 200 mg caffeine or 2 × 100 mg modafinil on psychomotor vigilance, sleepiness, and the waking and sleep EEG.Throughout extended wakefulness, the carriers of haplotype HT4 performed faster on the PVT than carriers of non-HT4 haplotype alleles. In haplotype HT4, caffeine failed to counteract the waking-induced impairment of PVT performance and the rebound of SWA in recovery sleep. However, caffeine was effective in non-HT4 allele carriers, and modafinil reduced the consequences of prolonged waking, independently of ADORA2A haplotype.Common genetic variation of ADORA2A is an important determinant of psychomotor vigilance in rested and sleep-deprived state. It also modulates individual responses to caffeine after sleep deprivation. These findings demonstrate a role for adenosine A(2A) receptors in the effects of prolonged wakefulness on vigilant attention and the sleep EEG."
+          }
+        ],
+        "files": [
+          {
+            "path": "bph0165-1904-SD1.doc",
+            "size": 379904,
+            "type": "file"
+          }
+        ],
+        "links": [
+          {
+            "url": "rs2236624",
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "refsnp"
+              }
+            ]
+          }
+        ],
+        "subsections": [
+          {
+            "type": "Funding",
+            "attributes": [
+              {
+                "name": "Agency",
+                "value": "Swiss National Science Foundation"
+              },
+              {
+                "name": "grant_id",
+                "value": "107874"
+              }
+            ]
+          },
+          {
+            "type": "Publication",
+            "attributes": [
+              {
+                "name": "Journal",
+                "value": "British journal of pharmacology"
+              },
+              {
+                "name": "Volume",
+                "value": "165(6)"
+              },
+              {
+                "name": "Pages",
+                "value": "1904-1913"
+              },
+              {
+                "name": "Publication date",
+                "value": "2012 Mar"
+              }
+            ],
+            "links": [
+              [
+                {
+                  "url": "10.1111/j.1476-5381.2011.01689.x ",
+                  "attributes": [
+                    {
+                      "name": "Type",
+                      "value": "DOI"
+                    }
+                  ]
+                },
+                {
+                  "url": "PMC3372839",
+                  "attributes": [
+                    {
+                      "name": "Type",
+                      "value": "PMC"
+                    }
+                  ]
+                },
+                {
+                  "url": "21950736",
+                  "attributes": [
+                    {
+                      "name": "Type",
+                      "value": "PMID"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "accno": "a1",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Bodenmann S"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a2",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Hohoff C"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a3",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Freitag C"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a4",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Deckert J"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a5",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Retey JV"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a6",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Bachmann V"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a7",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Landolt HP"
+              },
+              {
+                "name": "ORCID",
+                "value": "0000-0003-0887-9403"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "o1",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Institute of Pharmacology and Toxicology, University of Zürich, Zürich, SwitzerlandDepartment of Psychiatry, University of Münster, Münster, GermanyDepartment of Child and Adolescent Psychiatry, Psychosomatics and Psychotherapy, Johann-Wolfgang Goethe University, Frankfurt am Main, GermanyDepartment of Psychiatry, University of Würzburg, Würzburg, GermanyZürich Center for Integrative Human Physiology, University of Zürich, Zürich, Switzerland."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "accno": "S-EPMC6020441",
+      "accessTags": [
+        "Public"
+      ],
+      "attributes": [
+        {
+          "name": "Title",
+          "value": "Pancreatic cancer as a sentinel for hereditary cancer predisposition."
+        },
+        {
+          "name": "DataSource",
+          "value": "Europe PMC"
+        },
+        {
+          "name": "AttachTo",
+          "value": "EuropePMC"
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2018-01-01T00:00:00Z"
+        }
+      ],
+      "section": {
+        "type": "Study",
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "Pancreatic cancer as a sentinel for hereditary cancer predisposition."
+          },
+          {
+            "name": "Abstract",
+            "value": "Genes associated with hereditary breast and ovarian cancer (HBOC) and colorectal cancer (CRC) predisposition have been shown to play a role in pancreatic cancer susceptibility. Growing evidence suggests that pancreatic cancer may be useful as a sentinel cancer to identify families that could benefit from HBOC or CRC surveillance, but to date pancreatic cancer is only considered an indication for genetic testing in the context of additional family history.Preliminary data generated at the Huntsman Cancer Hospital (HCH) included variants identified on a custom 34-gene panel or 59-gene panel including both known HBOC and CRC genes for respective sets of 66 and 147 pancreatic cancer cases, unselected for family history. Given the strength of preliminary data and corresponding literature, 61 sequential pancreatic cancer cases underwent a custom 14-gene clinical panel. Sequencing data from HCH pancreatic cancer cases, pancreatic cancer cases of the Cancer Genome Atlas (TCGA), and an unselected pancreatic cancer screen from the Mayo Clinic were combined in a meta-analysis to estimate the proportion of carriers with pathogenic and high probability of pathogenic variants of uncertain significance (HiP-VUS).Approximately 8.6% of unselected pancreatic cancer cases at the HCH carried a variant with potential HBOC or CRC screening recommendations. A meta-analysis of unselected pancreatic cancer cases revealed that approximately 11.5% carry a pathogenic variant or HiP-VUS.With the inclusion of both HBOC and CRC susceptibility genes in a panel test, unselected pancreatic cancer cases act as a useful sentinel cancer to identify asymptomatic at-risk relatives who could benefit from relevant HBOC and CRC surveillance measures."
+          }
+        ],
+        "files": [
+          {
+            "path": "12885_2018_4573_MOESM1_ESM.xlsx",
+            "size": 75269,
+            "type": "file"
+          },
+          {
+            "path": "12885_2018_4573_MOESM2_ESM.jpg",
+            "size": 868160,
+            "type": "file"
+          },
+          {
+            "path": "12885_2018_4573_MOESM3_ESM.docx",
+            "size": 34835,
+            "type": "file"
+          }
+        ],
+        "subsections": [
+          {
+            "type": "Funding",
+            "attributes": [
+              {
+                "name": "Agency",
+                "value": "National Institutes of Health"
+              },
+              {
+                "name": "grant_id",
+                "value": "1T32HG008962-01"
+              }
+            ]
+          },
+          {
+            "type": "Funding",
+            "attributes": [
+              {
+                "name": "Agency",
+                "value": "National Cancer Institute"
+              },
+              {
+                "name": "grant_id",
+                "value": "P30CA042014"
+              }
+            ]
+          },
+          {
+            "type": "Funding",
+            "attributes": [
+              {
+                "name": "Agency",
+                "value": "National Cancer Institute"
+              },
+              {
+                "name": "grant_id",
+                "value": "R01CA164138"
+              }
+            ]
+          },
+          {
+            "type": "Publication",
+            "attributes": [
+              {
+                "name": "Journal",
+                "value": "BMC cancer"
+              },
+              {
+                "name": "Volume",
+                "value": "18(1)"
+              },
+              {
+                "name": "Pages",
+                "value": "697"
+              },
+              {
+                "name": "Publication date",
+                "value": "2018 Jun"
+              }
+            ],
+            "links": [
+              [
+                {
+                  "url": "10.1186/s12885-018-4573-5 ",
+                  "attributes": [
+                    {
+                      "name": "Type",
+                      "value": "DOI"
+                    }
+                  ]
+                },
+                {
+                  "url": "PMC6020441",
+                  "attributes": [
+                    {
+                      "name": "Type",
+                      "value": "PMC"
+                    }
+                  ]
+                },
+                {
+                  "url": "29945567",
+                  "attributes": [
+                    {
+                      "name": "Type",
+                      "value": "PMID"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "accno": "a1",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Young EL"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a2",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Thompson BA"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a3",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Neklason DW"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a4",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Firpo MA"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a5",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Werner T"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a6",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Bell R"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a7",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Berger J"
+              },
+              {
+                "name": "affiliation",
+                "value": "o3",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a8",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Fraser A"
+              },
+              {
+                "name": "affiliation",
+                "value": "o3",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a9",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Gammon A"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a10",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Koptiuch C"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a11",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Kohlmann WK"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a12",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Neumayer L"
+              },
+              {
+                "name": "affiliation",
+                "value": "o4",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a13",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Goldgar DE"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a14",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Mulvihill SJ"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a15",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Cannon-Albright LA"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a16",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Tavtigian SV"
+              },
+              {
+                "name": "affiliation",
+                "value": "o5",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "o1",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Department of Oncological Sciences, University of Utah School of Medicine, Salt Lake City, United States."
+              }
+            ]
+          },
+          {
+            "accno": "o5",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Department of Oncological Sciences, University of Utah School of Medicine, Salt Lake City, United States. sean.tavtigian@hci.utah.edu."
+              }
+            ]
+          },
+          {
+            "accno": "o4",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Department of Surgery and Arizona Cancer Center, University of Arizona, Tucson, United States."
+              }
+            ]
+          },
+          {
+            "accno": "o2",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Huntsman Cancer Institute, University of Utah School of Medicine, Salt Lake City, United States."
+              }
+            ]
+          },
+          {
+            "accno": "o3",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Population Sciences, Huntsman Cancer Institute, University of Utah, Salt Lake City, United States."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "accno": "S-EPMC4330785",
+      "accessTags": [
+        "Public"
+      ],
+      "attributes": [
+        {
+          "name": "Title",
+          "value": "Suppression of cancer relapse and metastasis by inhibiting cancer stemness."
+        },
+        {
+          "name": "DataSource",
+          "value": "Europe PMC"
+        },
+        {
+          "name": "AttachTo",
+          "value": "EuropePMC"
+        },
+        {
+          "name": "ReleaseDate",
+          "value": "2015-01-01T00:00:00Z"
+        }
+      ],
+      "section": {
+        "type": "Study",
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "Suppression of cancer relapse and metastasis by inhibiting cancer stemness."
+          },
+          {
+            "name": "Abstract",
+            "value": "Partial or even complete cancer regression can be achieved in some patients with current cancer treatments. However, such initial responses are almost always followed by relapse, with the recurrent cancer being resistant to further treatments. The discovery of therapeutic approaches that counteract relapse is, therefore, essential for advancing cancer medicine. Cancer cells are extremely heterogeneous, even in each individual patient, in terms of their malignant potential, drug sensitivity, and their potential to metastasize and cause relapse. Indeed, hypermalignant cancer cells, termed cancer stem cells or stemness-high cancer cells, that are highly tumorigenic and metastatic have been isolated from cancer patients with a variety of tumor types. Moreover, such stemness-high cancer cells are resistant to conventional chemotherapy and radiation. Here we show that BBI608, a small molecule identified by its ability to inhibit gene transcription driven by Stat3 and cancer stemness properties, can inhibit stemness gene expression and block spherogenesis of or kill stemness-high cancer cells isolated from a variety of cancer types. Moreover, cancer relapse and metastasis were effectively blocked by BBI608 in mice. These data demonstrate targeting cancer stemness as a novel approach to develop the next generation of cancer therapeutics to suppress cancer relapse and metastasis."
+          }
+        ],
+        "files": [
+          {
+            "path": "pnas.201424171SI.pdf",
+            "size": 84524,
+            "type": "file"
+          }
+        ],
+        "subsections": [
+          {
+            "type": "Publication",
+            "attributes": [
+              {
+                "name": "Journal",
+                "value": "Proceedings of the National Academy of Sciences of the United States of America"
+              },
+              {
+                "name": "Volume",
+                "value": "112(6)"
+              },
+              {
+                "name": "Pages",
+                "value": "1839-44"
+              },
+              {
+                "name": "Publication date",
+                "value": "2015 Feb"
+              }
+            ],
+            "links": [
+              [
+                {
+                  "url": "10.1073/pnas.1424171112 ",
+                  "attributes": [
+                    {
+                      "name": "Type",
+                      "value": "DOI"
+                    }
+                  ]
+                },
+                {
+                  "url": "PMC4330785",
+                  "attributes": [
+                    {
+                      "name": "Type",
+                      "value": "PMC"
+                    }
+                  ]
+                },
+                {
+                  "url": "25605917",
+                  "attributes": [
+                    {
+                      "name": "Type",
+                      "value": "PMID"
+                    }
+                  ]
+                }
+              ]
+            ]
+          },
+          {
+            "accno": "a1",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Li Y"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a2",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Rogoff HA"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a3",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Keates S"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a4",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Gao Y"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a5",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Murikipudi S"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a6",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Mikule K"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a7",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Leggett D"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a8",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Li W"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a9",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Pardee AB"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "a10",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Li CJ"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2",
+                "reference": true
+              }
+            ]
+          },
+          {
+            "accno": "o2",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Boston Biomedical, Inc., Cambridge, MA 02139 cli@bostonbiomedical.com arthur_pardee@dfci.harvard.edu."
+              }
+            ]
+          },
+          {
+            "accno": "o1",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Boston Biomedical, Inc., Cambridge, MA 02139."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 1934429,
+      "accno": "S-EPMC6160819",
+      "seckey": "xb",
+      "relPath": "S-EPMC/S-EPMCxxx819/S-EPMC6160819",
+      "rtime": "1514764800",
+      "ctime": "1593722863",
+      "mtime": "1593723846",
+      "views": 0,
+      "type": "submission",
+      "accessTags": [
+        "Public"
+      ],
+      "attributes": [
+        {
+          "name": "ReleaseDate",
+          "value": "2018-01-01"
+        },
+        {
+          "name": "Title",
+          "value": "Plurality in multi-disciplinary research: multiple institutional affiliations are associated with increased citations."
+        }
+      ],
+      "section": {
+        "type": "Study",
+        "attributes": [
+          {
+            "name": "Title",
+            "value": "Plurality in multi-disciplinary research: multiple institutional affiliations are associated with increased citations."
+          },
+          {
+            "name": "Abstract",
+            "value": "Background:The institutional affiliations and associated collaborative networks that scientists foster during their research careers are salient in the production of high-quality science. The phenomenon of multiple institutional affiliations and its relationship to research output remains relatively unexplored in the literature. Methods:We examined 27,612 scientific articles, modelling the normalized citation counts received against the number of authors and affiliations held. Results:In agreement with previous research, we found that teamwork is an important factor in high impact papers, with average citations received increasing concordant with the number of co-authors listed. For articles with more than five co-authors, we noted an increase in average citations received when authors with more than one institutional affiliation contributed to the research. Discussion:Multiple author affiliations may play a positive role in the production of high-impact science. This increased researcher mobility should be viewed by institutional boards as meritorious in the pursuit of scientific discovery."
+          }
+        ],
+        "subsections": [
+          {
+            "type": "Publication",
+            "attributes": [
+              {
+                "name": "Journal",
+                "value": "PeerJ"
+              },
+              {
+                "name": "Volume",
+                "value": "6"
+              },
+              {
+                "name": "Pages",
+                "value": "e5664"
+              },
+              {
+                "name": "Publication date",
+                "value": "2018"
+              }
+            ],
+            "links": [
+              {
+                "url": "10.7717/peerj.5664",
+                "attributes": [
+                  {
+                    "name": "Type",
+                    "value": "DOI"
+                  }
+                ]
+              },
+              {
+                "url": "PMC6160819",
+                "attributes": [
+                  {
+                    "name": "Type",
+                    "value": "PMC"
+                  }
+                ]
+              },
+              {
+                "url": "30280036",
+                "attributes": [
+                  {
+                    "name": "Type",
+                    "value": "PMID"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "accno": "a1",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Sanfilippo P"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2"
+              }
+            ]
+          },
+          {
+            "accno": "a2",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Hewitt AW"
+              },
+              {
+                "name": "ORCID",
+                "value": "0000-0002-5123-5999"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2"
+              },
+              {
+                "name": "affiliation",
+                "value": "o3"
+              }
+            ]
+          },
+          {
+            "accno": "a3",
+            "type": "Author",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "Mackey DA"
+              },
+              {
+                "name": "affiliation",
+                "value": "o1"
+              },
+              {
+                "name": "affiliation",
+                "value": "o2"
+              },
+              {
+                "name": "affiliation",
+                "value": "o3"
+              }
+            ]
+          },
+          {
+            "accno": "o1",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "University of Melbourne, Royal Victorian Eye and Ear Hospital, Centre for Eye Research Australia, Melbourne, Australia."
+              }
+            ]
+          },
+          {
+            "accno": "o2",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "University of Western Australia, Lions Eye Institute, Centre for Ophthalmology and Visual Science, Perth, Australia"
+              }
+            ]
+          },
+          {
+            "accno": "o3",
+            "type": "Organization",
+            "attributes": [
+              {
+                "name": "Name",
+                "value": "School of Medicine, University of Tasmania, Menzies Institute for Medical Research, Hobart, Tasmania, Australia"
+              }
+            ]
+          }
+        ],
+        "links": [
+          {
+            "url": "10.6084/m9.figshare.7033631.v1",
+            "attributes": [
+              {
+                "name": "Type",
+                "value": "doi"
+              }
+            ]
+          }
+        ]
+      },
+      "filesCount": 0
     }
-  }
-]}
-
+  ]
+}

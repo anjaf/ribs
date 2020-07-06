@@ -55,8 +55,8 @@ public class DetailTest {
 
 
     @Test
-    public void testFileCount() throws Exception{
-        doReturn( new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+    public void testFileCount() throws Exception {
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "studies/S-EPMC3372839");
         int expectedFileCount = 1;
@@ -64,18 +64,18 @@ public class DetailTest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".dataTables_info")));
         List<WebElement> elements = webDriver.findElements(By.cssSelector(".dataTables_info"));
         int actualFileCount = 0;
-        for(WebElement we: elements) {
-            if(we.getAttribute("id").contains("file")) {
+        for (WebElement we : elements) {
+            if (we.getAttribute("id").contains("file")) {
                 Scanner scanner = new Scanner(we.getText());
                 int files = 0;
                 while (scanner.hasNext()) {
-                    if(scanner.hasNextInt()) {
+                    if (scanner.hasNextInt()) {
                         files = scanner.nextInt();
                     } else {
                         scanner.next();
                     }
                 }
-                actualFileCount+= files;
+                actualFileCount += files;
             }
         }
         assertEquals(expectedFileCount, actualFileCount);
@@ -83,36 +83,36 @@ public class DetailTest {
 
 
     @Test
-    public void testLinkCount() throws Throwable{
-        doReturn( new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+    public void testLinkCount() throws Throwable {
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "studies/S-EPMC3372839");
         int expectedLinkCount = 1;
         WebDriverWait wait = new WebDriverWait(webDriver, 50);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".dataTables_info")));
         List<WebElement> elements = webDriver.findElements(By.cssSelector(".dataTables_info"));
-        int actualLinkCount =0;
+        int actualLinkCount = 0;
 
-        for(WebElement we: elements) {
-            if(!we.getAttribute("id").contains("file")) {
+        for (WebElement we : elements) {
+            if (!we.getAttribute("id").contains("file")) {
                 Scanner scanner = new Scanner(we.getText());
                 int links = 0;
                 while (scanner.hasNext()) {
-                    if(scanner.hasNextInt()) {
+                    if (scanner.hasNextInt()) {
                         links = scanner.nextInt();
                     } else {
                         scanner.next();
                     }
                 }
-                actualLinkCount+= links;
+                actualLinkCount += links;
             }
         }
         assertEquals(expectedLinkCount, actualLinkCount);
     }
 
     @Test
-    public void testTitle() throws Throwable{
-        doReturn( new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+    public void testTitle() throws Throwable {
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "/studies?query=S-EPMC3372839");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
@@ -154,10 +154,21 @@ public class DetailTest {
         webDriver.manage().window().setSize(new Dimension(1280, 1024));
         wait.until(ExpectedConditions.presenceOfElementLocated(By.id("select-all-files")));
         List<WebElement> elements = webDriver.findElements(By.cssSelector(".file-check-box input"));
-        for(WebElement elem:elements)
+        for (WebElement elem : elements)
             elem.click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("download-selected-files")));
-        assertEquals("Download all "+fileCount, webDriver.findElement(By.id("download-selected-files")).getAttribute("innerText").trim());
+        assertEquals("Download all " + fileCount, webDriver.findElement(By.id("download-selected-files")).getAttribute("innerText").trim());
     }
 
+    @Test
+    public void testMultipleAffiliations() {
+        String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
+        webDriver.get(baseUrl + "studies/S-EPMC6160819");
+        WebDriverWait wait = new WebDriverWait(webDriver, 50);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#bs-authors > li:nth-child(1) > span:nth-child(1)")));
+        WebElement element = webDriver.findElement(By.cssSelector("#bs-authors > li:nth-child(1) > span:nth-child(1)"));
+        String expected = "SanfilippoP12";
+        String actual = element.getText().replaceAll("\r|\n| ", "");
+        assertEquals(expected, actual);
+    }
 }
