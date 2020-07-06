@@ -1,11 +1,7 @@
 Home.ProjectLoader = (function () {
-
     var _self ={};
-
-
     _self.render = function () {
         if ($('#projects').length===0) {
-
             $('#ProjectLoader').slideDown();
             return;
         }
@@ -24,17 +20,15 @@ Home.ProjectLoader = (function () {
                     var $prj = $(this), accession = $(this).data('accession');
                     $(this).attr('href',contextPath+'/'+accession+'/studies');
                     $.getJSON(contextPath+ '/api/v1/studies/'+accession, function (data) {
-                        var path = data.section.files.path;
-                        if (!path && data.section.files[0]) path =data.section.files[0].path;
-                        if (!path && data.section.files[0][0]) path = data.section.files[0][0].path;
+                        var path = (data.section && data.section.files) ? data.section.files.path : null;
+                        if (!path && data.section && data.section.files && data.section.files[0]) path =data.section.files[0].path;
+                        if (!path && data.section.files && data.section.files[0] && data.section.files[0][0]) path = data.section.files[0][0].path;
                         if (path) {
                             $prj.prepend('<img src="' + contextPath + '/files/' + accession + '/' + path + '"/>');
                         }
                     })});
             }
         });
-
     };
-
     return _self;
 })();

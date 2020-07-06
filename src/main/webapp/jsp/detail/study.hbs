@@ -58,20 +58,43 @@
             <ul id="bs-authors">
                 {{#eachAuthor this}}
                 <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} ><span class="author">
-                        <span itemscope itemtype="http://schema.org/Person"><span itemprop="name">{{Name}}</span></span>
-                                    {{#if affiliation}}
-                                        {{#ifArray affiliation}}
-                                            {{#each affiliation}}
-                                                <sup><a class="org-link" data-affiliation="{{org}}">{{affiliationNumber}}</a></sup>
-                                            {{/each}}
+                        <span itemscope itemtype="http://schema.org/Person"><span class="author-name" itemprop="name" data-card-id="author-card-{{@index}}">{{Name}}
+                            <div class="author-card" id="author-card-{{@index}}">
+                                <h5>{{Name}}</h5>
+                                {{#each this}}
+                                    {{#ifCond @key 'notin' "['affiliationNumber','Name']"}}
+                                        {{#ifCond @key '==' 'affiliation'}}
+                                            {{#ifCond this 'haslength' 1}}
+                                                <b>Affiliation</b>: {{this.0.name}}
+                                            {{else}}
+                                                <b>Affiliations</b>
+                                                <ul>
+                                                {{#each this}}
+                                                    <li>{{name}}</li>
+                                                {{/each}}
+                                                </ul>
+                                            {{/ifCond}}
                                         {{else}}
-                                            <sup><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
-                                        {{/ifArray}}
-                                    {{/if}}
-                                </span>
-                {{#if ORCID}}
-                <a href="https://orcid.org/{{ORCID}}" target="_blank" title="Click to open ORCID profile: https://orcid.org/{{ORCID}}" class="orcid"><img alt="https://orcid.org/{{ORCID}}" src="${contextPath}/images/orcid.svg"/></a>
-                {{/if}}
+                                            <b>{{@key}}:</b> {{this}}<br/>
+                                        {{/ifCond}}
+                                    {{/ifCond}}
+                                {{/each}}
+                            </div>
+                        </span></span>
+                        {{#if affiliation}}
+                            {{#ifArray affiliation}}
+                                {{#each affiliation}}
+                                    <sup class="org-number"><a class="org-link" data-affiliation="{{org}}">{{affiliationNumber}}</a></sup>
+                                {{/each}}
+                            {{else}}
+                                <sup class="org-number"><a class="org-link" data-affiliation="{{affiliation}}">{{affiliationNumber}}</a></sup>
+                            {{/ifArray}}
+                        {{/if}}
+                    </span>
+                    {{#if ORCID}}
+                        <a href="https://orcid.org/{{ORCID}}" target="_blank" title="Click to open ORCID profile: https://orcid.org/{{ORCID}}" class="orcid"><img alt="https://orcid.org/{{ORCID}}" src="${contextPath}/images/orcid.svg"/></a>
+                    {{/if}}
+
                 </li>
                 {{#if @last}}
                 {{#ifCond @index '>=' 10}}

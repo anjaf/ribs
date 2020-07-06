@@ -43,7 +43,9 @@ a:hover,
 a:focus,
 a:active {
     color: #267799;
+    box-shadow: none;
 }
+
 
 h1 { color: #f7f7f7; }
 h2 { color: #267799; }

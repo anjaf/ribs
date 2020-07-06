@@ -333,26 +333,31 @@ var Metadata = (function (_self) {
         });
 
 
-        $('#bs-authors li .author').hover(
+        $('#bs-autdddhors li .author span[itemprop="name"]').hover(
             function () {
-                $(this).addClass('highlight-author')
+                $('#'+$(this).data('card-id')).show();
+                /*$(this).addClass('highlight-author');
                 var isVisible = false;
-                $('.org-link',this).each(function () {
+                $('.org-link',$(this).parent().parent()).each(function () {
                     $('#'+$(this).data('affiliation')).addClass('highlight-author');
                     isVisible |= $('#'+$(this).data('affiliation')+':visible').length>0;
-                })
+                });
                 if (!isVisible) {
                     $('#expand-orgs').addClass('highlight-author');
-                }
+                }*/
 
             }, function () {
-                $(this).removeClass('highlight-author')
-                $('.org-link',this).each(function () {
+                //if('#'+$(this).data('card-id').)  $('#'+$(this).data('card-id')).hide();
+                /*$(this).removeClass('highlight-author')
+                $('.org-link',$(this).parent().parent()).each(function () {
                     $('#'+$(this).data('affiliation')).removeClass('highlight-author');
                 })
                 $('#expand-orgs').removeClass('highlight-author');
+
+                 */
+
             }
-        )
+        );
 
 
         $('#bs-orgs li').hover(
@@ -410,7 +415,7 @@ var Metadata = (function (_self) {
         var section = $(href.replace(':','\\:'));
         if (!section.length) return;
         var o = section;
-        while (o.prop("tagName")!=='BODY') {
+        while (o.length && o.prop("tagName")!=='BODY') {
             var p =  o.parent().parent();
             if(p.children().first().next().css('display')!='block') {
                 p.children().first().click();

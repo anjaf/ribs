@@ -41,6 +41,10 @@ body.is-reveal-open { /*avoid jumping of body to the left*/
     content: '[';
 }
 
+ul#bs-authors > li+li:before {
+    content: ', ';
+}
+
 .browse-study-accession:after {
     content: ']';
 }
@@ -197,17 +201,13 @@ ul#bs-authors, ul#bs-orgs, ul#bs-funding {
     list-style-type: none;
     font-size: 10pt;
 }
-ul#bs-authors li {
+ul#bs-authors > li {
     display: inline-block;
 }
 
 ul#bs-orgs li{
     display: inline;
     font-size: 9pt;
-}
-
-ul#bs-authors li+li:before {
-    content: ', ';
 }
 
 ul#bs-orgs li{
@@ -585,6 +585,17 @@ span.file-list-buttons .fa-file-download {
 #file-list_filter input {
     width: 140px;
 }
-/*#file-list_length select {
-    width: 48px;
-}*/
+.author-card {
+    position: absolute;
+    background: #fafafa;
+    padding: 6pt;
+    border: 1px solid darkgray;
+    z-index: 2;
+    display: none;
+    max-width: 500px;
+    cursor: text;
+}
+
+.author-name:hover .author-card {
+    display:block;
+}

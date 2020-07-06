@@ -230,8 +230,6 @@ var Metadata = (function (_self) {
                 var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
                 orgs[o.accno] = orgName[0].value ;
             });
-
-
             var orgNumber = 1;
             var orgToNumberMap = {}
             var authors = study.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='author';});
@@ -249,24 +247,28 @@ var Metadata = (function (_self) {
                 if (!author.affiliation && author.Affiliation) {
                     author.affiliation = author.Affiliation;
                 }
+
                 if (author.affiliation) {
-                    if ($.isArray(author.affiliation)) {
+                     if (!$.isArray(author.affiliation)) {
+                         author.affiliation = [author.affiliation];
+                     }
                         var affiliations = [];
                         $(author.affiliation).each(function (i,aff) {
                             if (!orgToNumberMap[aff]) {
                                 orgToNumberMap[aff] = orgNumber++;
                                 orgOrder.push(aff);
                             }
-                            affiliations.push({org:aff, affiliationNumber:orgToNumberMap[aff]});
+                            affiliations.push({org:aff, affiliationNumber:orgToNumberMap[aff], name: orgs[aff]});
                         })
                         author.affiliation = affiliations;
-                    } else {
+                    /*else {
                         if (!orgToNumberMap[author.affiliation]) {
                             orgToNumberMap[author.affiliation] = orgNumber++;
                             orgOrder.push(author.affiliation);
                         }
                         author.affiliationNumber = orgToNumberMap[author.affiliation];
-                    }
+                        author.affiliationName = orgs[author.affiliation];
+                    }*/
                 }
                 var data = Handlebars.createFrame(options.data);
                 data.first = i==0, data.last = i==(authors.length-1), data.index = i, data.left = authors.length-10;
@@ -397,6 +399,10 @@ var Metadata = (function (_self) {
                     return (v1 || v2) ? options.fn(this) : options.inverse(this);
                 case 'contains':
                     return $.inArray(v2, v1)>=0 ? options.fn(this) : options.inverse(this);
+                case 'notin':
+                    return $.inArray(v1, eval(v2))<0 ? options.fn(this) : options.inverse(this);
+                case 'haslength':
+                    return v1.length == v2 ? options.fn(this) : options.inverse(this);
                 default:
                     return options.inverse(this);
             }
