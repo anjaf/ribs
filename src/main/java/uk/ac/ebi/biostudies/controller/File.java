@@ -1,13 +1,9 @@
 package uk.ac.ebi.biostudies.controller;
 
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.swagger.annotations.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +15,6 @@ import java.util.Map;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 
-@Api(value="api")
 @RestController
 @RequestMapping(value="/api/v1")
 public class File {

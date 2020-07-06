@@ -3,7 +3,6 @@ package uk.ac.ebi.biostudies.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +28,6 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
  * Rest endpoint for searching Biostudies
  */
 
-@Api(value = "api", description = "Rest endpoint for searching and retrieving Biostudies")
 @RestController
 @RequestMapping(value = "/api/v1")
 public class Search {
@@ -43,10 +41,7 @@ public class Search {
     @Autowired
     IndexManager indexManager;
 
-    @ApiOperation(value = "Returns search result", notes = "Search your query in Biostudies and return the results")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Returns a JSON object with search results")})
     @PublicRESTMethod
-    @ApiModelProperty(hidden = true)
     @RequestMapping(value = "/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String search(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                          @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
@@ -63,8 +58,6 @@ public class Search {
     }
 
 
-    @ApiOperation(value = "Returns search results for {project}", notes = "Returns search results for {project}")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Returns a JSON object with search results.")})
     @PublicRESTMethod
     @RequestMapping(value = "/{project}/search", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public String searchProject(@RequestParam(value = "page", required = false, defaultValue = "1") Integer page,

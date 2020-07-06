@@ -18,19 +18,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.servlet.config.annotation.*;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-import uk.ac.ebi.biostudies.api.util.PublicRESTMethod;
 
 
 @Configuration
-//@EnableWebMvc
-@EnableSwagger2
 @EnableAsync
 @EnableScheduling
 @ComponentScan(basePackages = "uk.ac.ebi.biostudies")
@@ -110,8 +101,6 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/images/**").addResourceLocations("/images/").setCachePeriod(6000);
         registry.addResourceHandler("/misc/**").addResourceLocations("/misc/").setCachePeriod(6000);
         registry.addResourceHandler("/fonts/**").addResourceLocations("/fonts/").setCachePeriod(6000);
-        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
     @Bean
@@ -122,25 +111,6 @@ public class MvcConfig implements WebMvcConfigurer {
         properties.setIgnoreResourceNotFound(false);
 
         return properties;
-    }
-//
-//    @Bean
-//    public ViewResolver viewResolver() {
-//        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-//        viewResolver.setViewClass(JstlView.class);
-//        viewResolver.setPrefix("/jsp/");
-//        viewResolver.setSuffix(".jsp");
-//        return viewResolver;
-//    }
-
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .ignoredParameterTypes(MultiValueMap.class)
-                .select()
-                .apis(RequestHandlerSelectors.withMethodAnnotation(PublicRESTMethod.class))
-                .paths(PathSelectors.any())
-                .build();
     }
 
     @Bean

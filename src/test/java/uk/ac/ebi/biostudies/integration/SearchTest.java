@@ -302,7 +302,7 @@ public class SearchTest {
     }
 
     @Test
-    public void facetCountTest() throws Exception {
+    public void testFacetCount() {
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/EuropePMC/studies");
         wait.until(visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));

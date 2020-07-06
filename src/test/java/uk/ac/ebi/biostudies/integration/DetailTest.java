@@ -23,6 +23,7 @@ import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
 import uk.ac.ebi.biostudies.service.SearchService;
 
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -54,7 +55,7 @@ public class DetailTest {
     UserSecurityService userSecurityServiceMock;
 
 
-    @Test
+    //@Test
     public void testFileCount() throws Exception {
         doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
@@ -82,7 +83,7 @@ public class DetailTest {
     }
 
 
-    @Test
+    //@Test
     public void testLinkCount() throws Throwable {
         doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
@@ -112,9 +113,10 @@ public class DetailTest {
 
     @Test
     public void testTitle() throws Throwable {
-        doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+        String accession = "S-EPMC3372839";
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(accession).openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
-        webDriver.get(baseUrl + "/studies?query=S-EPMC3372839");
+        webDriver.get(baseUrl + "/studies?query=" + accession);
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".title a")));
         WebElement secondLink = webDriver.findElements(By.cssSelector(".title a")).get(0);
@@ -161,9 +163,11 @@ public class DetailTest {
     }
 
     @Test
-    public void testMultipleAffiliations() {
+    public void testMultipleAffiliations() throws IOException {
+        String accession = "S-EPMC6160819";
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(accession).openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
-        webDriver.get(baseUrl + "studies/S-EPMC6160819");
+        webDriver.get(baseUrl + "studies/" + accession);
         WebDriverWait wait = new WebDriverWait(webDriver, 50);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("#bs-authors > li:nth-child(1) > span:nth-child(1)")));
         WebElement element = webDriver.findElement(By.cssSelector("#bs-authors > li:nth-child(1) > span:nth-child(1)"));

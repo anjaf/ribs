@@ -52,14 +52,21 @@ public class IndexTest {
 
 
     @Test
-    public void BTestIndexing() throws Exception {
-        doReturn("src/test/resources/updates/"+ Constants.STUDIES_JSON_FILE).when(indexConfigMock).getStudiesInputFile();
-        webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/reload/testJson.json");
-        Thread.sleep(5000);
-        assertTrue(webDriver.getPageSource().contains("testJson.json queued for indexing"));
+    public void test1_clearIndex() throws Throwable{
+        webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/clear");
+        assertTrue(webDriver.getPageSource().contains("Index empty"));
     }
+
     @Test
-    public void DUpdateDocument() throws Throwable{
+    public void test2_defaultIndex() throws Exception {
+        doReturn("src/test/resources/updates/"+ Constants.STUDIES_JSON_FILE).when(indexConfigMock).getStudiesInputFile();
+        webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/reload/default");
+        Thread.sleep(5000);
+        assertTrue(webDriver.getPageSource().contains("default queued for indexing"));
+    }
+
+    @Test
+    public void test3_updateDocument() throws Throwable{
         doReturn("src/test/resources/updates/"+ Constants.STUDIES_JSON_FILE).when(indexConfigMock).getStudiesInputFile();
         webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/reload/smallJson.json");
         Thread.sleep(2000);
@@ -67,16 +74,9 @@ public class IndexTest {
         assertNotNull(noDoc);
     }
 
-    @Test
-    public void AClearIndex() throws Throwable{
-        webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/clear");
-        assertTrue(webDriver.getPageSource().contains("Index empty"));
-    }
-
-
 
     @Test
-    public void ETestDeleteDocument() throws Throwable{
+    public void test4_deleteDocument() throws Throwable{
         Document deletDoc = searchService.getDocumentByAccession("S-EPMC3343805", null);
         assertNotNull(deletDoc);
         webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/delete/S-EPMC3343805");
