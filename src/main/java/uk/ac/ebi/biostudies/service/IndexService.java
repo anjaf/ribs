@@ -5,6 +5,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.annotation.Async;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Dictionary;
 import java.util.concurrent.BlockingQueue;
 
@@ -13,7 +14,10 @@ import java.util.concurrent.BlockingQueue;
  */
 public interface IndexService extends InitializingBean, DisposableBean {
     @Async
-    void indexAll(String fileName, boolean removeFileDocuments) throws IOException;
+    void indexAll(InputStream inputStream, boolean removeFileDocuments) throws IOException;
+
+    @Async
+    void indexOne(InputStream inputStream, boolean removeFileDocuments) throws IOException;
 
     void deleteDoc(String accession) throws Exception;
 

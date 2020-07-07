@@ -35,10 +35,8 @@ import uk.ac.ebi.biostudies.service.FileIndexService;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.service.SearchService;
 
+import java.io.*;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -97,15 +95,14 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public void indexAll(String fileName, boolean removeFileDocuments) throws IOException {
-        String inputStudiesFilePath = getCopiedSourceFile(fileName);
+    public void indexAll(InputStream inputStream, boolean removeFileDocuments) throws IOException {
 
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
         ActiveExecutorService.incrementAndGet();
         int counter = 0;
-        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFilePath), "UTF-8")) {
+        try (InputStreamReader inputStreamReader = new InputStreamReader( inputStream , "UTF-8")) {
             JsonFactory factory = new JsonFactory();
             JsonParser parser = factory.createParser(inputStreamReader);
 
@@ -154,10 +151,43 @@ public class IndexServiceImpl implements IndexService {
             searchService.clearStatsCache();
         }
         catch (Throwable error){
-            logger.error("problem in parsing "+ fileName , error);
+            logger.error("problem in parsing partial update", error);
         } finally {
-            logger.debug("Deleting temp file {}", inputStudiesFilePath);
-            Files.delete(Paths.get(inputStudiesFilePath));
+            //logger.debug("Deleting temp file {}", inputStudiesFilePath);
+            //Files.delete(Paths.get(inputStudiesFilePath));
+        }
+    }
+
+
+    @Override
+    public void indexOne(InputStream inputStream, boolean removeFileDocuments) throws IOException {
+
+        Long startTime = System.currentTimeMillis();
+        ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
+                60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
+        ActiveExecutorService.incrementAndGet();
+        ObjectMapper mapper = new ObjectMapper();
+        try (InputStreamReader inputStreamReader = new InputStreamReader( inputStream , "UTF-8")) {
+            JsonFactory factory = new JsonFactory();
+            JsonParser parser = factory.createParser(inputStreamReader);
+            JsonNode submission = mapper.readTree(parser);
+            executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments, parserManager));
+
+            executorService.shutdown();
+            executorService.awaitTermination(5, TimeUnit.HOURS);
+            taxonomyManager.commitTaxonomy();
+            indexManager.getIndexWriter().commit();
+            indexManager.refreshIndexSearcherAndReader();
+            taxonomyManager.refreshTaxonomyReader();
+            logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
+            ActiveExecutorService.decrementAndGet();
+            searchService.clearStatsCache();
+        }
+        catch (Throwable error){
+            logger.error("problem in parsing partial update", error);
+        } finally {
+            //logger.debug("Deleting temp file {}", inputStudiesFilePath);
+            //Files.delete(Paths.get(inputStudiesFilePath));
         }
     }
 
@@ -398,7 +428,8 @@ public class IndexServiceImpl implements IndexService {
                     filename = Constants.STUDIES_JSON_FILE;
                     removeFileDocuments = false;
                 }
-                indexAll(filename, removeFileDocuments);
+                String inputStudiesFilePath = getCopiedSourceFile(filename);
+                indexAll(new FileInputStream(inputStudiesFilePath), removeFileDocuments);
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.log(Level.ERROR, e);
