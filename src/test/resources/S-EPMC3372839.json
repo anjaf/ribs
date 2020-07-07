@@ -1,5 +1,7 @@
 {
   "accno" : "S-EPMC3372839",
+  "seckey":"test12345",
+  "accessTags":["Public"],
   "attributes" : [ {
     "name" : "Title",
     "value" : "Polymorphisms of ADORA2A modulate psychomotor vigilance and the effects of caffeine on neurobehavioural performance and sleep EEG after sleep deprivation."

@@ -8,6 +8,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.ac.ebi.biostudies.integration.rest.FileRestApiTest;
 import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
 import java.io.File;
 
@@ -21,7 +22,8 @@ import java.io.File;
         IndexTest.class,
         DetailTest.class,
         AuthTest.class,
-        SearchTest.class
+        SearchTest.class,
+        FileRestApiTest.class
 })
 
 @RunWith(Suite.class)

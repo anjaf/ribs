@@ -55,9 +55,9 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         String orderedArray[] = {"Name", "Size"};
         ArrayNode fileColumnAttributes = mapper.createArrayNode();
         Document doc = searchService.getDocumentByAccession(accession, secretKey);
+        if (doc==null) return studyInfo;
         accession = doc.get(Constants.Fields.ACCESSION);
         String relativePath = doc.get(Constants.Fields.RELATIVE_PATH);
-        if (doc==null) return studyInfo;
         String attFiles = doc.get(Constants.File.FILE_ATTS);
         if (attFiles==null) return studyInfo;
         String allAtts[] = attFiles.split("\\|");
