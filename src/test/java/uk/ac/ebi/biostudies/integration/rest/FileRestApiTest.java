@@ -256,7 +256,7 @@ public class FileRestApiTest {
     @Test
     public void zipFileDownloadPostRestApi() throws Exception {
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
-        String pathToFile = getClass().getClassLoader().getResource("updates/files/A.txt").getPath().replaceAll("/updates/files/A.txt", "");
+        String pathToFile = getClass().getClassLoader().getResource("updates/Files/A.txt").getPath().replaceAll("/updates/Files/A.txt", "");
         if ((pathToFile.charAt(0) == '\\' || pathToFile.charAt(0) == '/') && pathToFile.charAt(2) == ':')
             pathToFile = pathToFile.substring(1);
         doReturn(pathToFile).when(indexConfigMock).getFileRootDir();
