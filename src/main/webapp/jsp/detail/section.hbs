@@ -19,19 +19,7 @@
                 {{/each}}
             {{/if}}
 
-            <!-- section level attributes -->
-            {{#eachGroup attributes}}
-                {{#each this}}
-                    {{#if reference}}
-                       <a href="{{makeAnchor value}}" class="reference"><i class="far fa-bookmark"></i> {{name}}</a>
-                    {{else}}
-                        {{#ifCond name '!=' 'Title'}}
-                            {{#if @first}}<div class="bs-name">{{name}}</div><div>{{/if}}
-                            {{#ifHasAttribute 'url' valqual}}<a href="{{valueWithName 'url' valqual}}">{{/ifHasAttribute}}{{value}}{{#ifHasAttribute 'url' valqual}}</a>{{/ifHasAttribute}}{{&valquals valqual}}{{#if @last}}</div>{{else}}, {{/if}}
-                        {{/ifCond}}
-                    {{/if}}
-                {{/each}}
-            {{/eachGroup}}
+            {{&renderAttributes attributes}}
 
             {{#if subsections}}
                 {{#each subsections}}
@@ -43,7 +31,6 @@
                     {{/ifArray}}
                 {{/each}}
             {{/if}}
-
         </div>
     </section>
 </script>

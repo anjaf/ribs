@@ -31,16 +31,11 @@ public class IntegrationTestSuite {
 
     public static WebDriver webDriver;
 
-
-
-
     @Autowired
     IntegrationTestProperties integrationTestProperties;
 
-
     @BeforeClass
-    public static void setup() throws Throwable {
-//        String path = "src/test/resources/chromedriver.exe";
+    public static void setup() {
         System.setProperty("webdriver.chrome.driver", new File("chromedriver").getAbsolutePath());
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
