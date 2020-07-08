@@ -60,9 +60,12 @@ var Metadata = (function (_self) {
                 ret = !(e == undefined);
             }
             return ret ? options.fn(this) : options.inverse(this);
-
         });
 
+        Handlebars.registerHelper('renderAttributes', function(o) {
+            var template = Handlebars.compile($('script#attributes-template').html());
+            return template(o);
+        });
 
         Handlebars.registerHelper('section', function(o, shouldIndent) {
             var template = Handlebars.compile($('script#section-template').html());
@@ -173,7 +176,7 @@ var Metadata = (function (_self) {
         Handlebars.registerHelper('eachSubAttribute', function(arr, options) {
             if (!arr) return;
             return arr.filter( function (o) {
-                return $.inArray(o.name.toLowerCase(), ['ontology', 'termname', 'termid'])<0
+                return $.inArray(o.name.toLowerCase(), ['ontology', 'termname', 'termid', 'display'])<0
             }).map( function(o, i, filtered) {
                 return options.fn(o, {data: {first:i==0, last: i==(filtered.length-1), index : i}})
             }).join('')

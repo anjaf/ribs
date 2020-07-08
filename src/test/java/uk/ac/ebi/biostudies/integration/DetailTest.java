@@ -114,7 +114,8 @@ public class DetailTest {
     @Test
     public void testTitle() throws Throwable {
         String accession = "S-EPMC6160819";
-        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(accession).openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+        String file = accession + ".json";
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(file).openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "/studies?query=" + accession);
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
@@ -165,7 +166,8 @@ public class DetailTest {
     @Test
     public void testMultipleAffiliations() throws IOException {
         String accession = "S-EPMC6160819";
-        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(accession).openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+        String file = accession + ".json";
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(file).openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "studies/" + accession);
         WebDriverWait wait = new WebDriverWait(webDriver, 50);

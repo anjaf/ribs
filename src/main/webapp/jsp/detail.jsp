@@ -30,6 +30,7 @@
         <%@include file="detail/orcid-claimer.hbs" %>
         <%@include file="detail/publication.hbs" %>
         <%@include file="detail/section.hbs" %>
+        <%@include file="detail/attributes.hbs" %>
         <%@include file="detail/section-table.hbs" %>
         <%@include file="detail/similar-studies.hbs" %>
         <%@include file="detail/study.hbs" %>
