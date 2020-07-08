@@ -93,6 +93,10 @@ public class FileRestApiTest {
     }
 
     @Test
+    /**
+     * Since we can not send relativePath to searchService.getStudyAsStream method by rest
+     * we can not test secretKeys directly
+     */
     public void getStudyWithSecKeyFromBean() throws Exception {
         String pathToFile = getClass().getClassLoader().getResource(ACCESSION + ".json").getPath().replaceAll("/S-EPMC3372839.json", "");
         if ((pathToFile.charAt(0) == '\\' || pathToFile.charAt(0) == '/') && pathToFile.charAt(2) == ':')
@@ -139,6 +143,22 @@ public class FileRestApiTest {
         JsonNode responseJSON = mapper.readTree(result);
         assertNotNull(responseJSON);
         assertEquals("test12345", responseJSON.findValue("seckey").asText());
+    }
+
+    @Test
+    /**
+     * https://wwwdev.ebi.ac.uk/biostudies/api/v1/studies/ACCESSION/info?key=KEY
+     */
+    public void getStudyWithSecretKeyFromRestAPI() throws Exception {
+        String ACCESSION = "S-BSST658";
+        ObjectMapper mapper = new ObjectMapper();
+        String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
+        String result = testRestTemplate.getForObject(baseUrl + "api/v1/studies/" + ACCESSION + "/info?key=test12345", String.class);
+        JsonNode responseJSON = mapper.readTree(result);
+        assertNotNull(responseJSON);
+        assertEquals("test12345", responseJSON.findValue("seckey").asText());
+        result = testRestTemplate.getForObject(baseUrl + "api/v1/studies/" + ACCESSION + "/info?key=error", String.class);
+        assertTrue(result.contains("errorMessage"));
     }
 
 
