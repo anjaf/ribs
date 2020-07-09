@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostudies.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.scheduling.annotation.Async;
@@ -17,7 +18,7 @@ public interface IndexService extends InitializingBean, DisposableBean {
     void indexAll(InputStream inputStream, boolean removeFileDocuments) throws IOException;
 
     @Async
-    void indexOne(InputStream inputStream, boolean removeFileDocuments) throws IOException;
+    void indexOne(JsonNode submisison, boolean removeFileDocuments) throws IOException;
 
     void deleteDoc(String accession) throws Exception;
 

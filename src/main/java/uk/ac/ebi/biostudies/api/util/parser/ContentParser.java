@@ -6,6 +6,7 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ContentParser extends AbstractParser {
     @Override
@@ -19,7 +20,7 @@ public class ContentParser extends AbstractParser {
         content.append(String.join(" ", submission.get("section").findValuesAsText("value")));
         content.append(" ");
         content.append(submission.findValues("files").stream()
-                .map(jsonNode -> jsonNode.findValuesAsText("path").stream()
+                .map(jsonNode -> Stream.concat(jsonNode.findValuesAsText("fileName").stream(), jsonNode.findValuesAsText("path").stream())
                         .filter(text -> text != null && !text.equalsIgnoreCase("null"))
                         .collect(Collectors.joining(" ")))
                 .collect(Collectors.joining(" ")));

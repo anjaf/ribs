@@ -160,35 +160,20 @@ public class IndexServiceImpl implements IndexService {
 
 
     @Override
-    public void indexOne(InputStream inputStream, boolean removeFileDocuments) throws IOException {
+    public void indexOne(JsonNode submission, boolean removeFileDocuments) throws IOException {
 
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
         ActiveExecutorService.incrementAndGet();
-        ObjectMapper mapper = new ObjectMapper();
-        try (InputStreamReader inputStreamReader = new InputStreamReader( inputStream , "UTF-8")) {
-            JsonFactory factory = new JsonFactory();
-            JsonParser parser = factory.createParser(inputStreamReader);
-            JsonNode submission = mapper.readTree(parser);
-            executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments, parserManager));
-
-            executorService.shutdown();
-            executorService.awaitTermination(5, TimeUnit.HOURS);
-            taxonomyManager.commitTaxonomy();
-            indexManager.getIndexWriter().commit();
-            indexManager.refreshIndexSearcherAndReader();
-            taxonomyManager.refreshTaxonomyReader();
-            logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
-            ActiveExecutorService.decrementAndGet();
-            searchService.clearStatsCache();
-        }
-        catch (Throwable error){
-            logger.error("problem in parsing partial update", error);
-        } finally {
-            //logger.debug("Deleting temp file {}", inputStudiesFilePath);
-            //Files.delete(Paths.get(inputStudiesFilePath));
-        }
+        executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments, parserManager));
+        taxonomyManager.commitTaxonomy();
+        indexManager.getIndexWriter().commit();
+        indexManager.refreshIndexSearcherAndReader();
+        taxonomyManager.refreshTaxonomyReader();
+        logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
+        ActiveExecutorService.decrementAndGet();
+        searchService.clearStatsCache();
     }
 
     @Override

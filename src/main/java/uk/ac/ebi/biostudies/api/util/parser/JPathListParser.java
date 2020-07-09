@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostudies.api.util.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.ReadContext;
 import net.minidev.json.JSONArray;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 import static uk.ac.ebi.biostudies.api.util.Constants.NA;
 
 public class JPathListParser extends AbstractParser{
-    private static final Logger LOGGER = LogManager.getLogger(JPathListParser.class.getName());
+    private static final Logger logger = LogManager.getLogger(JPathListParser.class.getName());
 
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
@@ -27,11 +28,15 @@ public class JPathListParser extends AbstractParser{
             String jsonPath = indexEntry.get(Constants.IndexEntryAttributes.JSON_PATH).asText();
             List resultData = new ArrayList<>();
             for (String jp: jsonPath.split(" OR ")) {
-                Object obj = jsonPathContext.read(jp)  ;
-                if (obj instanceof JSONArray) {
-                    resultData.addAll((JSONArray)obj);
-                } else {
-                    resultData.add(obj);
+                try {
+                    Object obj = jsonPathContext.read(jp)  ;
+                    if (obj instanceof JSONArray) {
+                        resultData.addAll((JSONArray)obj);
+                    } else {
+                        resultData.add(obj);
+                    }
+                } catch (JsonPathException ex) {
+                    logger.debug("skipping {}", jp);
                 }
             }
 
@@ -59,7 +64,7 @@ public class JPathListParser extends AbstractParser{
                 return "";
             if(indexKey.equalsIgnoreCase("author") || indexKey.equalsIgnoreCase("orcid"))
                 return "";
-            LOGGER.error("problem in parsing field:{} in {}", valueMap, indexEntry);
+            logger.error("problem in parsing field:{} in {}", indexEntry, valueMap, e);
         }
         valueMap.put(indexKey, result);
         return result.toString();
