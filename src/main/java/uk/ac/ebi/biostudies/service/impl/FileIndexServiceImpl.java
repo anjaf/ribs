@@ -198,8 +198,8 @@ public class FileIndexServiceImpl implements FileIndexService {
         doc.add(new StringField(Constants.File.OWNER, accession, Field.Store.YES));
 
         // add section field if file is not global
-        if (parent.has("accno") && (!parent.has("type") || !parent.get("type").textValue().toLowerCase().equalsIgnoreCase("study") )  ) {
-            String section = parent.get("accno").textValue().replaceAll ("/","").replaceAll(" ", "");
+        if ( (parent.has("accno") || parent.has("accNo")) && (!parent.has("type") || !parent.get("type").textValue().toLowerCase().equalsIgnoreCase("study") )  ) {
+            String section =  parent.get( parent.has("accno") ? "accno" : "accNo").textValue().replaceAll("/","").replaceAll(" ", "");
             //to lower case for search should be case insensitive
             doc.add(new StringField(Constants.File.SECTION,  section.toLowerCase(), Field.Store.NO));
             doc.add(new StoredField(Constants.File.SECTION, section));

@@ -3,6 +3,8 @@ package uk.ac.ebi.biostudies.auth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import uk.ac.ebi.biostudies.api.util.CookieMap;
@@ -16,6 +18,7 @@ import java.io.IOException;
  * Created by ehsan on 15/03/2017.
  */
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class CookieFilter implements Filter {
 
     private Logger logger = LogManager.getLogger(CookieFilter.class.getName());

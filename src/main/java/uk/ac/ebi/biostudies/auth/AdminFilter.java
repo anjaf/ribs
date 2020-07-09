@@ -52,10 +52,14 @@ public class AdminFilter implements Filter {
                 ip = request.getRemoteAddr();
             }
 
+            User user = Session.getCurrentUser();
+            boolean isSuperUser = user!=null && user.superUser;
+
             String hn = InetAddress.getByName(ip).getCanonicalHostName();
-            Pattern allow = Pattern.compile(securityConfig.getAdminIPWhitelist());
+            Pattern allow = Pattern.compile(securityConfig.getAdminIPAllowList());
             Matcher matcher = allow.matcher(hn);
-            if (!matcher.matches()) {
+
+            if (!isSuperUser && !matcher.matches()) {
                 logger.warn("Rejecting admin URL request from {} {}", ip, hn);
                 ((HttpServletResponse)response).sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;

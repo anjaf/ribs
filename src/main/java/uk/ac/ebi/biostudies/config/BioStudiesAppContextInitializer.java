@@ -22,9 +22,4 @@ public class BioStudiesAppContextInitializer extends AbstractAnnotationConfigDis
         return new String[] { "/" };
     }
 
-    @Override
-    protected Filter[] getServletFilters() {
-        return new Filter[]{new CookieFilter()};
-    }
- 
 }
