@@ -18,8 +18,8 @@ public class SecurityConfig {
     @Value("${auth.loginUrl}")
     private String loginUrl;
 
-    @Value("${index.admin.ip.whitelist}")
-    private String adminIPWhitelist;
+    @Value("${index.admin.ip.allow.list}")
+    private String adminIPAllowList;
 
     public String getProfileUrl() {
         return profileUrl;
@@ -29,8 +29,8 @@ public class SecurityConfig {
         return loginUrl;
     }
 
-    public String getAdminIPWhitelist() {
-        return adminIPWhitelist;
+    public String getAdminIPAllowList() {
+        return adminIPAllowList;
     }
 
 }

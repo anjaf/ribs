@@ -19,6 +19,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
+import org.apache.xpath.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
@@ -35,15 +36,14 @@ import uk.ac.ebi.biostudies.service.FileIndexService;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.service.SearchService;
 
+import java.io.*;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.ac.ebi.biostudies.api.util.Constants.*;
@@ -97,15 +97,14 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public void indexAll(String fileName, boolean removeFileDocuments) throws IOException {
-        String inputStudiesFilePath = getCopiedSourceFile(fileName);
+    public void indexAll(InputStream inputStream, boolean removeFileDocuments) throws IOException {
 
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
         ActiveExecutorService.incrementAndGet();
         int counter = 0;
-        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(inputStudiesFilePath), "UTF-8")) {
+        try (InputStreamReader inputStreamReader = new InputStreamReader( inputStream , "UTF-8")) {
             JsonFactory factory = new JsonFactory();
             JsonParser parser = factory.createParser(inputStreamReader);
 
@@ -154,11 +153,29 @@ public class IndexServiceImpl implements IndexService {
             searchService.clearStatsCache();
         }
         catch (Throwable error){
-            logger.error("problem in parsing "+ fileName , error);
+            logger.error("problem in parsing partial update", error);
         } finally {
-            logger.debug("Deleting temp file {}", inputStudiesFilePath);
-            Files.delete(Paths.get(inputStudiesFilePath));
+            //logger.debug("Deleting temp file {}", inputStudiesFilePath);
+            //Files.delete(Paths.get(inputStudiesFilePath));
         }
+    }
+
+
+    @Override
+    public void indexOne(JsonNode submission, boolean removeFileDocuments) throws IOException {
+
+        Long startTime = System.currentTimeMillis();
+        ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
+                60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
+        ActiveExecutorService.incrementAndGet();
+        executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments, parserManager));
+        taxonomyManager.commitTaxonomy();
+        indexManager.getIndexWriter().commit();
+        indexManager.refreshIndexSearcherAndReader();
+        taxonomyManager.refreshTaxonomyReader();
+        logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
+        ActiveExecutorService.decrementAndGet();
+        searchService.clearStatsCache();
     }
 
     @Override
@@ -250,8 +267,13 @@ public class IndexServiceImpl implements IndexService {
 
                 // remove repeating projects
                 Set<String> projectFacets = new HashSet<>();
-                projectFacets.addAll( Arrays.asList(valueMap.get(Facets.PROJECT).toString().toLowerCase().split("\\"+Facets.DELIMITER)));
-                valueMap.put(Facets.PROJECT, String.join(Facets.DELIMITER, projectFacets));
+                if (valueMap.containsKey(Facets.PROJECT)) {
+                    projectFacets.addAll(Arrays.asList(valueMap.get(Facets.PROJECT).toString().toLowerCase().split("\\" + Facets.DELIMITER)));
+                    //TODO: Remvoe this when project field is okay
+                    projectFacets.addAll(Arrays.stream(valueMap.get(Fields.ACCESS).toString().toLowerCase().split(" ")).filter(f -> !f.contains("@") && !f.startsWith("#") && !f.equalsIgnoreCase(PUBLIC)).map( f-> f.replaceAll("\\d","")).collect(Collectors.toList()));
+                    projectFacets.remove("");
+                    valueMap.put(Facets.PROJECT, String.join(Facets.DELIMITER, projectFacets));
+                }
 
                 for (String projectName:  projectFacets ) {
                     JsonNode projectSpecificFields = indexManager.getIndexDetails().findValue(projectName);
@@ -363,7 +385,9 @@ public class IndexServiceImpl implements IndexService {
 
         private void addFacet(String value, String fieldName, Document doc, JsonNode facetConfig){
             if(value==null || value.isEmpty()){
-                if(fieldName.equalsIgnoreCase(Facets.FILE_TYPE) || fieldName.equalsIgnoreCase(Facets.LINK_TYPE))
+                if(fieldName.equalsIgnoreCase(Facets.FILE_TYPE) || fieldName.equalsIgnoreCase(Facets.LINK_TYPE)
+                        || (facetConfig.has(IndexEntryAttributes.FACET_TYPE) && facetConfig.get(IndexEntryAttributes.FACET_TYPE).asText().equalsIgnoreCase("boolean"))
+                )
                     return;
                 else
                     value = NA;
@@ -398,7 +422,8 @@ public class IndexServiceImpl implements IndexService {
                     filename = Constants.STUDIES_JSON_FILE;
                     removeFileDocuments = false;
                 }
-                indexAll(filename, removeFileDocuments);
+                String inputStudiesFilePath = getCopiedSourceFile(filename);
+                indexAll(new FileInputStream(inputStudiesFilePath), removeFileDocuments);
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.log(Level.ERROR, e);

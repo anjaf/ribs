@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Service
 public class FileIndexServiceImpl implements FileIndexService {
@@ -50,7 +51,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         }
 
         // find files
-        List<JsonNode> filesParents = json.findParents("files");
+        List<JsonNode> filesParents = json.findParents("files").stream().filter( p-> p.get("files").size()>0).collect(Collectors.toList());
         if(filesParents!=null) {
             for (JsonNode parent : filesParents) {
                 if (parent == null) continue;
@@ -84,8 +85,6 @@ public class FileIndexServiceImpl implements FileIndexService {
         });
 
 
-
-
         //put Section as the first column. Name and size would be prepended later
         if (columns.contains("Section")) {
             columns.remove("Section");
@@ -104,6 +103,10 @@ public class FileIndexServiceImpl implements FileIndexService {
         for(JsonNode fNode : nodeWithFiles.findValue("files")) {
             if (fNode.isArray()) {
                 for (JsonNode singleFile : fNode) {
+                    counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
+                }
+            } else if (fNode.has("extType") && fNode.get("extType").textValue().equalsIgnoreCase("filesTable") ) {
+                for (JsonNode singleFile : fNode.get("files")) {
                     counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
                 }
             } else {
@@ -174,6 +177,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         path = pathNode==null || pathNode.asText().equalsIgnoreCase("null")? null : pathNode.asText();
         pathNode = fNode.get(Constants.IndexEntryAttributes.NAME);
         name = pathNode==null || pathNode.asText().equalsIgnoreCase("null")? null:pathNode.asText();
+        if (name==null && fNode.has(Constants.File.FILENAME)) name = fNode.get(Constants.File.FILENAME).asText();
         if(path==null && name!=null)
             path = name;
         if(path!=null && name == null)
@@ -190,12 +194,12 @@ public class FileIndexServiceImpl implements FileIndexService {
         }
         attributes = fNode.findValues(Constants.File.ATTRIBUTES);
 
-        doc.add(new StringField(Constants.File.TYPE, fNode.get(Constants.File.TYPE).textValue() , Field.Store.YES));
+        doc.add(new StringField(Constants.File.TYPE, Constants.File.FILE , Field.Store.YES));
         doc.add(new StringField(Constants.File.OWNER, accession, Field.Store.YES));
 
         // add section field if file is not global
-        if (parent.has("accno") && (!parent.has("type") || !parent.get("type").textValue().toLowerCase().equalsIgnoreCase("study") )  ) {
-            String section = parent.get("accno").textValue().replaceAll ("/","").replaceAll(" ", "");
+        if ( (parent.has("accno") || parent.has("accNo")) && (!parent.has("type") || !parent.get("type").textValue().toLowerCase().equalsIgnoreCase("study") )  ) {
+            String section =  parent.get( parent.has("accno") ? "accno" : "accNo").textValue().replaceAll("/","").replaceAll(" ", "");
             //to lower case for search should be case insensitive
             doc.add(new StringField(Constants.File.SECTION,  section.toLowerCase(), Field.Store.NO));
             doc.add(new StoredField(Constants.File.SECTION, section));

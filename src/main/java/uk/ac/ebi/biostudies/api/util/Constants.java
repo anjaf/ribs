@@ -81,6 +81,9 @@ public interface Constants {
         String LINK_TYPE = "link_type";
         String LINK_VALUE = "link_value";
         String RELATIVE_PATH = "relPath";
+        String RELEASE_TIME_FULL = "releaseTime";
+        String MODIFICATION_TIME_FULL ="modificationTime";
+        String CREATION_TIME_FULL = "creationTime";
     }
 
     interface File{
@@ -89,6 +92,7 @@ public interface Constants {
 //        String JSONSIZE = "size";
         String FILE_ATTS = "FILEATTS_";
         String PATH = "path";
+        String FILENAME = "fileName";
         String SIZE = "Size";
         String SECTION = "Section";
         String NAME = "Name";
