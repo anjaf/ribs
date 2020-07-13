@@ -35,7 +35,7 @@ public class FileTypeParser extends AbstractParser{
                         resultData.add(obj);
                     }
                 } catch (JsonPathException ex) {
-                    logger.debug("skipping {}", jp);
+
                 }
             }
 

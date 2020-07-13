@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.ebi.biostudies.api.util.Constants;
+import uk.ac.ebi.biostudies.api.util.Constants.IndexEntryAttributes.FieldTypeValues;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,16 +37,15 @@ public class JPathListParser extends AbstractParser{
                         resultData.add(obj);
                     }
                 } catch (JsonPathException ex) {
-                    logger.debug("skipping {}", jp);
                 }
             }
 
             fieldType = indexEntry.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText();
             switch (fieldType) {
-                case Constants.IndexEntryAttributes.FieldTypeValues.FACET:
+                case FieldTypeValues.FACET:
                     result =  String.join (Constants.Facets.DELIMITER, resultData);
                     break;
-                case Constants.IndexEntryAttributes.FieldTypeValues.LONG:
+                case FieldTypeValues.LONG:
                     result = resultData.stream().mapToLong( v -> Long.parseLong(v.toString()) ).sum();
                     break;
                 default:
@@ -66,7 +66,13 @@ public class JPathListParser extends AbstractParser{
                 return "";
             logger.error("problem in parsing field:{} in {}", indexEntry, valueMap, e);
         }
-        valueMap.put(indexKey, result);
+        if (fieldType.equalsIgnoreCase(FieldTypeValues.FACET) // only facettype is boolean so skipping that check
+                && indexEntry.has(Constants.IndexEntryAttributes.FACET_TYPE)
+                && StringUtils.isEmpty(result.toString())
+        ) {
+            return null;
+        }
+        valueMap.put(indexKey, result );
         return result.toString();
     }
 }

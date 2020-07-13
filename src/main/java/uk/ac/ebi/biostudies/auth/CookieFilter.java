@@ -24,12 +24,10 @@ public class CookieFilter implements Filter {
     private Logger logger = LogManager.getLogger(CookieFilter.class.getName());
 
 
-    @Autowired
-    UserSecurityService users;
+    final UserSecurityService users;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-
+    public CookieFilter(UserSecurityService users) {
+        this.users = users;
     }
 
     @Override

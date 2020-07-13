@@ -30,7 +30,7 @@ public class NodeCountingParser extends AbstractParser {
                     resultData.add(obj);
                 }
             } catch (JsonPathException ex) {
-                logger.debug("skipping {}", jp);
+
             }
         }
         long length = resultData!=null ? resultData.size() : 0;

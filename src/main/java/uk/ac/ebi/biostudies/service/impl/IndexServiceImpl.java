@@ -19,6 +19,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
+import org.apache.xpath.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
@@ -42,6 +43,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.ac.ebi.biostudies.api.util.Constants.*;
@@ -265,8 +267,13 @@ public class IndexServiceImpl implements IndexService {
 
                 // remove repeating projects
                 Set<String> projectFacets = new HashSet<>();
-                projectFacets.addAll( Arrays.asList(valueMap.get(Facets.PROJECT).toString().toLowerCase().split("\\"+Facets.DELIMITER)));
-                valueMap.put(Facets.PROJECT, String.join(Facets.DELIMITER, projectFacets));
+                if (valueMap.containsKey(Facets.PROJECT)) {
+                    projectFacets.addAll(Arrays.asList(valueMap.get(Facets.PROJECT).toString().toLowerCase().split("\\" + Facets.DELIMITER)));
+                    //TODO: Remvoe this when project field is okay
+                    projectFacets.addAll(Arrays.stream(valueMap.get(Fields.ACCESS).toString().toLowerCase().split(" ")).filter(f -> !f.contains("@") && !f.startsWith("#") && !f.equalsIgnoreCase(PUBLIC)).map( f-> f.replaceAll("\\d","")).collect(Collectors.toList()));
+                    projectFacets.remove("");
+                    valueMap.put(Facets.PROJECT, String.join(Facets.DELIMITER, projectFacets));
+                }
 
                 for (String projectName:  projectFacets ) {
                     JsonNode projectSpecificFields = indexManager.getIndexDetails().findValue(projectName);
@@ -378,7 +385,9 @@ public class IndexServiceImpl implements IndexService {
 
         private void addFacet(String value, String fieldName, Document doc, JsonNode facetConfig){
             if(value==null || value.isEmpty()){
-                if(fieldName.equalsIgnoreCase(Facets.FILE_TYPE) || fieldName.equalsIgnoreCase(Facets.LINK_TYPE))
+                if(fieldName.equalsIgnoreCase(Facets.FILE_TYPE) || fieldName.equalsIgnoreCase(Facets.LINK_TYPE)
+                        || (facetConfig.has(IndexEntryAttributes.FACET_TYPE) && facetConfig.get(IndexEntryAttributes.FACET_TYPE).asText().equalsIgnoreCase("boolean"))
+                )
                     return;
                 else
                     value = NA;

@@ -26,8 +26,10 @@ public class PartialUpdateListener {
     public void receivedMessage(JsonNode msg) {
         try {
             String url = msg.get("extTabUrl").asText();
+            String acc = msg.get("accNo").asText();
             JsonNode submission = new ObjectMapper().readTree(new URL(url));
             indexService.indexOne(submission, true);
+            logger.debug("{} indexed", acc);
         } catch (Exception ex) {
             logger.error("Error parsing message", ex);
         }
