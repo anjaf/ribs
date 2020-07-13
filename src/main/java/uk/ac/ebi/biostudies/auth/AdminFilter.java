@@ -60,6 +60,10 @@ public class AdminFilter implements Filter {
             Matcher matcher = allow.matcher(hn);
 
             if (!isSuperUser && !matcher.matches()) {
+                matcher = allow.matcher(ip);
+            }
+
+            if (!isSuperUser && !matcher.matches()) {
                 logger.warn("Rejecting admin URL request from {} {}", ip, hn);
                 ((HttpServletResponse)response).sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
