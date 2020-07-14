@@ -21,6 +21,7 @@ var Metadata = (function (_self) {
             });
             var urls = [];
             if (e.url) urls = e.url.indexOf(' | ')>=0 ? e.url.split(' | ') : [e.url];
+            if (!e.value) return "";
             var html = e.value.split(' | ').map( function(v, i) {
                     return ( urls[i] ? '<a '
                             + addValQualAttributes(e.valqual)

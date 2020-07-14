@@ -4,17 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.auth.UserSecurityService;
-import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.service.IndexService;
+import uk.ac.ebi.biostudies.service.PartialUpdateListener;
 import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,25 +28,16 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
  */
 @SuppressWarnings("Duplicates")
 @RestController
-@RequestMapping(value="/api/v1")
+@RequestMapping(value = "/api/v1")
 public class Index {
 
     private Logger logger = LogManager.getLogger(Index.class.getName());
-    private static AtomicBoolean SHUTDOWN = new AtomicBoolean(false);
-
     @Autowired
     IndexService indexService;
 
     @Autowired
     UserSecurityService userSecurity;
 
-    public synchronized  static AtomicBoolean getSHUTDOWN() {
-        return SHUTDOWN;
-    }
-
-    public synchronized static void setSHUTDOWN(AtomicBoolean SHUTDOWN) {
-        Index.SHUTDOWN = SHUTDOWN;
-    }
 
     /**
      * Method handling HTTP GET requests. The returned object will be sent
@@ -55,15 +47,14 @@ public class Index {
      */
     @RequestMapping(value = "/index/reload/{filename:.*}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> indexAll(@PathVariable("filename") String filename) throws Exception {
-        if(getSHUTDOWN().get())
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("UI-Indexer is shutting down and does not accept new files for indexing");
+        if (indexService.isClosed()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode message = mapper.createObjectNode();
         try {
             indexService.getIndexFileQueue().put(filename);
-            message.put ("message",  filename+ " queued for indexing");
-            logger.debug("Adding {} to indexing queue at position {}", filename, indexService.getIndexFileQueue().size() );
-            return ResponseEntity.ok( mapper.writeValueAsString(message) );
+            message.put("message", filename + " queued for indexing");
+            logger.debug("Adding {} to indexing queue at position {}", filename, indexService.getIndexFileQueue().size());
+            return ResponseEntity.ok(mapper.writeValueAsString(message));
         } catch (Exception e) {
             logger.error(e);
             message.put("error", e.getMessage());
@@ -74,30 +65,39 @@ public class Index {
 
     @RequestMapping(value = "/index/clear", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> clearIndex() throws Exception {
-           indexService.clearIndex(true);
+        if (indexService.isClosed()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
+        indexService.clearIndex(true);
         return new ResponseEntity<String>("{\"message\":\"Index empty\"}", HttpStatus.OK);
     }
+
     @RequestMapping(value = "/index/delete/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public ResponseEntity<String> deleteDoc(@PathVariable(required=false) String accession) throws Exception {
-           indexService.deleteDoc(accession);
-        return new ResponseEntity<String>("{\"message\":\""+accession+" deleted\"}", HttpStatus.OK);
+    public ResponseEntity<String> deleteDoc(@PathVariable(required = false) String accession) throws Exception {
+        if (indexService.isClosed()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
+        indexService.deleteDoc(accession);
+        return new ResponseEntity<String>("{\"message\":\"" + accession + " deleted\"}", HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/index/shutdown", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    @RequestMapping(value = "/index/close", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> shutDown() throws Exception {
-        setSHUTDOWN(new AtomicBoolean(true));
-        return new ResponseEntity<String>("{\"message\":\"Shutting down indexer ...\"}", HttpStatus.OK);
+        indexService.close();
+        return new ResponseEntity<String>("{\"message\":\"Closing indexer\"}", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/index/open", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    public ResponseEntity<String> start() throws Exception {
+        indexService.open();
+        return new ResponseEntity<String>("{\"message\":\"Indexer open\"}", HttpStatus.OK);
     }
 
     @RequestMapping(value = "/index/status", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> getStatus() throws Exception {
-        if(!getSHUTDOWN().get())
+        if (!indexService.isClosed())
             return new ResponseEntity<String>("{\"message\":\"UP\"}", HttpStatus.OK);
-        else if(indexService.getIndexFileQueue().size()==0 && IndexServiceImpl.ActiveExecutorService.get()==0){
+        else if (indexService.getIndexFileQueue().size() == 0 && IndexServiceImpl.ActiveExecutorService.get() == 0) {
             return new ResponseEntity<String>("{\"message\":\"DOWN\"}", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<String>("{\"message\":\"CLOSING\"}", HttpStatus.OK);
         }
-        else
-            return new ResponseEntity<String>("{\"message\":\"SHUTTING_DOWN\"}", HttpStatus.OK);
     }
 
 }

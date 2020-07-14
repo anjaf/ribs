@@ -28,4 +28,9 @@ public interface IndexService extends InitializingBean, DisposableBean {
 
     void processFileForIndexing();
 
+    boolean isClosed();
+
+    void close();
+
+    boolean open();
 }

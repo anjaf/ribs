@@ -20,6 +20,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.apache.xpath.operations.Bool;
+import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
@@ -31,10 +32,7 @@ import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
-import uk.ac.ebi.biostudies.service.FacetService;
-import uk.ac.ebi.biostudies.service.FileIndexService;
-import uk.ac.ebi.biostudies.service.IndexService;
-import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.*;
 
 import java.io.*;
 import java.io.File;
@@ -42,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -68,7 +67,10 @@ public class IndexServiceImpl implements IndexService {
     public static AtomicInteger ActiveExecutorService = new AtomicInteger(0);
 
     private Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
+
     private static  BlockingQueue<String> indexFileQueue;
+
+    private static AtomicBoolean closed = new AtomicBoolean(false);
 
     @Autowired
     IndexConfig indexConfig;
@@ -91,9 +93,29 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     ParserManager parserManager;
 
+    @Autowired
+    private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
+
     @Override
     public void afterPropertiesSet() {
         indexFileQueue = new LinkedBlockingQueue<>();
+    }
+
+    @Override
+    public synchronized boolean isClosed() {
+        return closed.get();
+    }
+
+    @Override
+    public synchronized void close() {
+        rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER).stop();
+        closed.compareAndSet(false, true);
+    }
+
+    @Override
+    public synchronized boolean open() {
+        rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER).start();
+        return closed.compareAndSet(true, false);
     }
 
     @Override
