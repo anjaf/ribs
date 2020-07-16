@@ -91,6 +91,7 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addViewController("{accession:.+}").setViewName("detail");
         registry.addViewController("{accession:.+}/").setViewName("detail");
 
+        registry.addViewController("arrayexpress-in-biostudies").setViewName("arrayexpress-in-biostudies");
     }
 
     @Override

@@ -17,7 +17,6 @@
         </ul>
     </jsp:attribute>
     <jsp:body>
-        <c:if test="$project">asdas</c:if>
     </jsp:body>
 </t:generic>
 
