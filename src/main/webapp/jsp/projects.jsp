@@ -12,7 +12,7 @@
         <ul class="breadcrumbs">
             <li><a href="${contextPath}/">BioStudies</a></li>
             <li>
-                <span class="show-for-sr">Current: </span> Studies
+                <span class="show-for-sr">Current: </span> Projects
             </li>
         </ul>
     </jsp:attribute>

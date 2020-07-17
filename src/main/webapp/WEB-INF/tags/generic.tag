@@ -12,6 +12,7 @@
 <c:set var="pathname" value="${requestScope['javax.servlet.forward.request_uri']}"/>
 <c:set var="pagename" value="${fn:replace(pageContext.request.requestURI,pageContext.request.contextPath,'')}"/>
 <c:set var="announce"><spring:eval expression="@announcementConfig.isEnabled()"/></c:set>
+<c:set var="project" value="${requestScope['org.springframework.web.servlet.HandlerMapping.uriTemplateVariables']['project']}"/>
 
 <!doctype html>
 <html lang="en">
@@ -20,8 +21,8 @@
     <!-- shared variables -->
     <script>
         var contextPath = '${contextPath}';
-        var parts = '${pathname}'.replace(contextPath+'/','').split('/');
-        var project = parts.length>1 && parts[0].toLowerCase()!='studies' ? parts[0] : undefined;
+        var project = '${project}';
+        if (project==='undefined') project = undefined;
     </script>
     <meta charset="utf-8">
     <title>The European Bioinformatics Institute &lt; EMBL-EBI</title>
@@ -123,7 +124,7 @@
                         <li class="${pagename.equals('/jsp/index.jsp')? 'active':''}" title="BioStudies v1.2.<spring:eval expression="@externalServicesConfig.gitCommitIdAbbrev"/>"><a href="${contextPath}/">Home</a></li>
                         <li class="${pagename.equals('/jsp/search.jsp')? 'active':''}"><a href="${contextPath}/studies/" title="Browse BioStudies">Browse</a></li>
                         <li class="${pagename.equals('/jsp/submit.jsp')? 'active':''}"><a href="${contextPath}/submit" title="Submit a study">Submit</a></li>
-                        <li class="${pagename.equals('/jsp/help.jsp')? 'active':''}"><a href="help" title="Help">Help</a></li>
+                        <li class="${pagename.equals('/jsp/help.jsp')? 'active':''}"><a href="${contextPath}/${project !=null ? project.concat("/") : ''}help" title="Help">Help</a></li>
                         <li class="${pagename.equals('/jsp/about.jsp')? 'active':''}"><a id="about-link" href="${contextPath}/about" title="About BioStudies">About BioStudies</a></li>
                     </ul>
                     <ul class="dropdown menu float-right" data-description="tasks">
