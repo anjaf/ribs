@@ -32,7 +32,8 @@ public class File {
                                              @RequestParam(value="draw", required=false, defaultValue = "1") Integer draw,
                                              @RequestParam(value="metadata", required=false, defaultValue = "true") boolean metadata,
                                              @RequestParam MultiValueMap<String,String> order,
-                                             @RequestParam(value="key", required=false) String seckey
+                                             @RequestParam(value="key", required=false) String seckey,
+                                             @RequestParam(value="search[regex]", required=false, defaultValue = "false") boolean noAnalyze
     ) throws Exception
     {
         if ("null".equalsIgnoreCase(seckey)) {
@@ -41,7 +42,7 @@ public class File {
         Map<Integer, DataTableColumnInfo> parseResult = DataTableColumnInfo.ParseDataTableRequest(order);
         try {
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(paginationService.getFileList(accession, start, pageSize, search, draw, metadata, parseResult, seckey).toString());
+                    .body(paginationService.getFileList(accession, start, pageSize, search, draw, metadata, parseResult, seckey, noAnalyze).toString());
         } catch (SubmissionNotAccessibleException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("{\"errorMessage\":\"Study not accessible\"}");

@@ -116,16 +116,15 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     @Override
-    public ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey) throws SubmissionNotAccessibleException {
+    public ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey, boolean noAnalyze) throws SubmissionNotAccessibleException {
+        ObjectMapper mapper = new ObjectMapper();
         IndexSearcher searcher = indexManager.getIndexSearcher();
         QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
-        ObjectMapper mapper = new ObjectMapper();
         IndexReader reader = indexManager.getIndexReader();
         ObjectNode studyInfo = getStudyInfo(accession, secretKey);
         long totalFiles = studyInfo.get(Constants.Fields.FILES).asLong();
         if (studyInfo==null) return mapper.createObjectNode();
         ArrayNode columns = (ArrayNode) studyInfo.get("columns");
-        search = modifySearchText(search);
         try {
             List<SortField> allSortedFields = new ArrayList<>();
             List<DataTableColumnInfo> searchedColumns = new ArrayList<>();
@@ -142,8 +141,13 @@ public class FilePaginationServiceImpl implements FilePaginationService {
                 allSortedFields.add( new SortField(Constants.File.NAME, SortField.Type.STRING, false));
             Sort sort = new Sort(allSortedFields.toArray(new SortField[allSortedFields.size()]));
             Query query = parser.parse(Constants.File.OWNER+":"+accession);
-            if(search!=null && !search.isEmpty() &&!search.trim().equalsIgnoreCase("**"))
+            if(noAnalyze && search!=null && !search.isEmpty()) {
+                query = keepSpecialCharactersAndSpaceOnFileNames(search, query);
+            }
+            if(!noAnalyze && search!=null && !search.isEmpty() && !search.trim().equalsIgnoreCase("**")) {
+                search = modifySearchText(search);
                 query = applySearch(search, query, columns);
+            }
             if(searchedColumns.size()>0)
                 query = applyPerFieldSearch(searchedColumns, query);
             TopDocs hits = searcher.search(query, Integer.MAX_VALUE , sort);
@@ -176,6 +180,22 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             logger.debug("problem in file atts preparation", ex);
         }
         return  mapper.createObjectNode();
+    }
+
+    private Query keepSpecialCharactersAndSpaceOnFileNames(String search, Query query) throws Exception{
+        BooleanQuery.Builder simpleSearchBuilder = new BooleanQuery.Builder();
+        BooleanQuery.Builder finalQueryBuilder = new BooleanQuery.Builder();
+        QueryParser keywordParser = new QueryParser(Constants.File.NAME, new KeywordAnalyzer());
+        String []fileNames = search.toLowerCase().split(" or ");
+        if(fileNames!=null && fileNames.length>0){
+            for(String curFilename: fileNames){
+                Query curQuery = keywordParser.parse(StudyUtils.escape(curFilename));
+                simpleSearchBuilder.add(curQuery, BooleanClause.Occur.SHOULD);
+            }
+        }
+        finalQueryBuilder.add(simpleSearchBuilder.build(), BooleanClause.Occur.MUST);
+        finalQueryBuilder.add(query, BooleanClause.Occur.MUST);
+        return finalQueryBuilder.build();
     }
 
     private Query applySearch(String search, Query firstQuery, ArrayNode columns){
