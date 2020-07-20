@@ -114,9 +114,9 @@ public class UserSecurityService {
 
         User user = (User) userAuthCache.getIfPresent(token);
         if (user != null && token.equals(user.getToken())) {
-            logger.debug("Found authentication for user [{}] in local cache", user.getLogin());
+            logger.info("Found authentication for user [{}] in local cache", user.getLogin());
         } else {
-            logger.debug("Trying to authenticate user remotely");
+            logger.info("Trying to authenticate user remotely");
             user = createUserFromJSONResponse(sendAuthenticationCheckRequest(token));
         }
         if (user == null || user.getAllow()==null) return null;

@@ -1,7 +1,18 @@
 <script id='results-template' type='text/x-handlebars-template'>
     <div id="left-column" class="row small-up-3">
-        {{#each this.hits}}
-        <div class="column project-container">{{&result this}}</div>
-        {{/each}}
+        {{#if hits}}
+            {{#each hits}}
+                <div class="column project-container">{{&result this}}</div>
+            {{/each}}
+        {{else}}
+            <section id="error-message">
+            <div class="bigicon"><i class="icon icon-functional" data-icon="j"></i></div>
+            <br/>
+            <h3>No projects found!</h3>
+            <p>If you require further assistance locating missing page or file, please <a
+                    href="mailto://biostudies@ebi.ac.uk" class="feedback">contact us</a> and we will look into it
+                for you.</p>
+             </section>
+        {{/if}}
     </div>
 </script>

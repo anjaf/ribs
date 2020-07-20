@@ -4,6 +4,8 @@
 <%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
 
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
+<c:set var="project" value="${requestScope['org.springframework.web.servlet.HandlerMapping.uriTemplateVariables']['project']}"/>
+
 <t:generic>
     <jsp:attribute name="head">
         <jwr:script src="/js/help.min.js"/>
@@ -11,13 +13,15 @@
     <jsp:attribute name="breadcrumbs">
         <ul class="breadcrumbs">
             <li><a href="${contextPath}/">BioStudies</a></li>
+            <c:if test="${project != null}">
+                <li><a href="${contextPath}/${project}/studies">${project}</a></li>
+            </c:if>
             <li>
                 <span class="show-for-sr">Current: </span> Help
             </li>
         </ul>
     </jsp:attribute>
     <jsp:body>
-        <c:if test="$project">asdas</c:if>
     </jsp:body>
 </t:generic>
 
