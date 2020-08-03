@@ -191,10 +191,16 @@ public class IndexServiceImpl implements IndexService {
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
         ActiveExecutorService.incrementAndGet();
         executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments, parserManager));
-        taxonomyManager.commitTaxonomy();
-        indexManager.getIndexWriter().commit();
-        indexManager.refreshIndexSearcherAndReader();
-        taxonomyManager.refreshTaxonomyReader();
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(5, TimeUnit.HOURS);
+            taxonomyManager.commitTaxonomy();
+            indexManager.getIndexWriter().commit();
+            indexManager.refreshIndexSearcherAndReader();
+            taxonomyManager.refreshTaxonomyReader();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
         ActiveExecutorService.decrementAndGet();
         searchService.clearStatsCache();

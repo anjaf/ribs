@@ -12,6 +12,7 @@ var Metadata = (function (_self) {
 
         Handlebars.registerHelper('valueWithName', function(val, obj) {
             if (obj==null) return;
+            if (!Array.isArray(obj)) obj = [obj];
             var e = obj.filter( function(o) { return o['name']==val})[0];
             if (e==undefined) return '';
             $.each(e.valqual, function(i,v){
@@ -22,7 +23,9 @@ var Metadata = (function (_self) {
             var urls = [];
             if (e.url) urls = e.url.indexOf(' | ')>=0 ? e.url.split(' | ') : [e.url];
             if (!e.value) return "";
+            var isHtml = isHtmlAttribute(e.valqual);
             var html = e.value.split(' | ').map( function(v, i) {
+                    v = isHtml ? v : Handlebars.escapeExpression(v);
                     return ( urls[i] ? '<a '
                             + addValQualAttributes(e.valqual)
                             + ' href="'
@@ -30,7 +33,7 @@ var Metadata = (function (_self) {
                             + (urls[i][0]!='#' ? '" target="_blank':'')
                             +'">'+v+renderOntologyLinks(e.valqual)+'</a>'
                         :
-                            '<span ' + addEscapedValQualAttributes(e.valqual) +'>' + v+renderOntologyLinks(e.valqual) + '</span>'
+                            '<span ' + addValQualAttributes(e.valqual) +'>' + v+renderOntologyLinks(e.valqual) + '</span>'
                         );
                     })
                 .join(', ')
@@ -485,15 +488,15 @@ var Metadata = (function (_self) {
         return ret;
     }
 
-    function addEscapedValQualAttributes(attrs) {
-        var ret = '';
-        if (!attrs || !attrs.length) return ret;
-        $.each(attrs, function (i,o) {
-            ret += 'data-'+ o.name.toLowerCase() +'="' + escape(o.value) + '"';
-        });
-        return ret;
+    function isHtmlAttribute(valquals) {
+        if (!valquals ||  valquals.filter( function ( valqual) {
+            return valqual.name.toLowerCase()=='display' && valqual.value.toLowerCase()=='html'
+        }).length == 0 ) {
+            return false;
+        } else {
+            return true;
+        }
     }
-
 
     return _self;
 })(Metadata || {});

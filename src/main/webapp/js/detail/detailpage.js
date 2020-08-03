@@ -6,7 +6,7 @@ var DetailPage = (function (_self) {
         'chembl': 'https://www.ebi.ac.uk/chembldb/compound/inspect/{0}',
         'ega': 'https://www.ebi.ac.uk/ega/studies/{0}',
         'uniprot': 'http://www.uniprot.org/uniprot/{0}',
-        'ena': 'https://www.ebi.ac.uk/ena/data/view/{0}',
+        'ena': 'https://www.ebi.ac.uk/ena/browser/view/{0}',
         'array design': window.contextPath + '/arrayexpress/studies/{0}',
         'arrayexpress files': window.contextPath + '/arrayexpress/studies/{0}/files/',
         'arrayexpress': 'https://www.ebi.ac.uk/arrayexpress/experiments/{0}',
@@ -99,7 +99,8 @@ var DetailPage = (function (_self) {
         'gxa': 'Expression Atlas',
         'gxa-sc': 'Single Cell Expression Atlas',
         'idr': 'IDR',
-        'empiar': 'EMPIAR'
+        'empiar': 'EMPIAR',
+        'biostudies': 'BioStudies'
     };
 
     _self.projectScripts = [

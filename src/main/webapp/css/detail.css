@@ -91,6 +91,8 @@ a.reference:hover {
 .table-caption {
     color: #555555;
     margin-bottom: 10px;
+    height: 20px;
+    display: block;
 }
 
 #right-column-expander, .table-expander {

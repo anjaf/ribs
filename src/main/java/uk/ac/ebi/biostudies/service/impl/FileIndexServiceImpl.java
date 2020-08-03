@@ -100,7 +100,7 @@ public class FileIndexServiceImpl implements FileIndexService {
     }
 
     private long indexFileList(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode nodeWithFiles) throws IOException {
-        for(JsonNode fNode : nodeWithFiles.findValue("files")) {
+        for(JsonNode fNode : nodeWithFiles.get("files")) {
             if (fNode.isArray()) {
                 for (JsonNode singleFile : fNode) {
                     counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
