@@ -30,7 +30,7 @@ var Metadata = (function (_self) {
                             + (urls[i][0]!='#' ? '" target="_blank':'')
                             +'">'+v+renderOntologyLinks(e.valqual)+'</a>'
                         :
-                            '<span ' + addValQualAttributes(e.valqual) +'>' + v+renderOntologyLinks(e.valqual) + '</span>'
+                            '<span ' + addEscapedValQualAttributes(e.valqual) +'>' + v+renderOntologyLinks(e.valqual) + '</span>'
                         );
                     })
                 .join(', ')
@@ -484,6 +484,16 @@ var Metadata = (function (_self) {
         });
         return ret;
     }
+
+    function addEscapedValQualAttributes(attrs) {
+        var ret = '';
+        if (!attrs || !attrs.length) return ret;
+        $.each(attrs, function (i,o) {
+            ret += 'data-'+ o.name.toLowerCase() +'="' + escape(o.value) + '"';
+        });
+        return ret;
+    }
+
 
     return _self;
 })(Metadata || {});

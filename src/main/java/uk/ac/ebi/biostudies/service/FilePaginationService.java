@@ -6,7 +6,7 @@ import uk.ac.ebi.biostudies.api.util.DataTableColumnInfo;
 import java.util.Map;
 
 public interface FilePaginationService {
-    ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey, boolean noAnalyze) throws SubmissionNotAccessibleException;
+    ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey) throws SubmissionNotAccessibleException;
     ObjectNode getStudyInfo(String accession, String secretKey) throws SubmissionNotAccessibleException;
 
 }

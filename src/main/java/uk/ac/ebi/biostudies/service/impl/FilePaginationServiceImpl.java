@@ -116,7 +116,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     @Override
-    public ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey, boolean noAnalyze) throws SubmissionNotAccessibleException {
+    public ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey) throws SubmissionNotAccessibleException {
         ObjectMapper mapper = new ObjectMapper();
         IndexSearcher searcher = indexManager.getIndexSearcher();
         QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
@@ -141,10 +141,11 @@ public class FilePaginationServiceImpl implements FilePaginationService {
                 allSortedFields.add( new SortField(Constants.File.NAME, SortField.Type.STRING, false));
             Sort sort = new Sort(allSortedFields.toArray(new SortField[allSortedFields.size()]));
             Query query = parser.parse(Constants.File.OWNER+":"+accession);
-            if(noAnalyze && search!=null && !search.isEmpty()) {
-                query = keepSpecialCharactersAndSpaceOnFileNames(search, query);
+            if(search!=null && !search.isEmpty() && hasUnescapedDoubleQuote(search)) {
+                query = phraseSearch(search, query);
             }
-            if(!noAnalyze && search!=null && !search.isEmpty() && !search.trim().equalsIgnoreCase("**")) {
+            else
+            if(search!=null && !search.isEmpty() && !search.trim().equalsIgnoreCase("**")) {
                 search = modifySearchText(search);
                 query = applySearch(search, query, columns);
             }
@@ -182,18 +183,17 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         return  mapper.createObjectNode();
     }
 
-    private Query keepSpecialCharactersAndSpaceOnFileNames(String search, Query query) throws Exception{
-        BooleanQuery.Builder simpleSearchBuilder = new BooleanQuery.Builder();
+
+    private Query phraseSearch(String search, Query query) throws Exception{
+        //Todo these lines will be removed after Ahmad update val part of valqual with OR clauses
+        search = search.replaceAll(" or ", " OR ");
+        search = search.replaceAll(" and ", " AND ");
+        search = search.replaceAll(" not ", " NOT ");
+
         BooleanQuery.Builder finalQueryBuilder = new BooleanQuery.Builder();
         QueryParser keywordParser = new QueryParser(Constants.File.NAME, new KeywordAnalyzer());
-        String []fileNames = search.toLowerCase().split(" or ");
-        if(fileNames!=null && fileNames.length>0){
-            for(String curFilename: fileNames){
-                Query curQuery = keywordParser.parse(StudyUtils.escape(curFilename));
-                simpleSearchBuilder.add(curQuery, BooleanClause.Occur.SHOULD);
-            }
-        }
-        finalQueryBuilder.add(simpleSearchBuilder.build(), BooleanClause.Occur.MUST);
+        Query phrasedQuery = keywordParser.parse(search);
+        finalQueryBuilder.add(phrasedQuery, BooleanClause.Occur.MUST);
         finalQueryBuilder.add(query, BooleanClause.Occur.MUST);
         return finalQueryBuilder.build();
     }
@@ -286,5 +286,11 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             }
         }
 
+    }
+
+    private boolean hasUnescapedDoubleQuote(String search){
+        if(search.replaceAll("\\Q\\\"\\E","").contains("\""))
+            return true;
+        return false;
     }
 }

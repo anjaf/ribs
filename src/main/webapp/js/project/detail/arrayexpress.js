@@ -9,7 +9,7 @@ $('a[data-file-data-search]').click( function () {
     FileTable.clearFileFilter();
     $('#all-files-expander').click();
     var filesTable = FileTable.getFilesTable();
-    filesTable.search($(this).data('file-data-search'), true);
+    filesTable.search(unescape($(this).data('file-data-search')));
     FileTable.hideEmptyColumns();
     filesTable.draw();
     return false;

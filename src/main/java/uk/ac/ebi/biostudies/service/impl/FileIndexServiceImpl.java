@@ -189,6 +189,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         doc.add(new SortedDocValuesField(Constants.File.PATH, new BytesRef(path)));
         if(name!=null) {
             doc.add(new StringField(Constants.File.NAME, name.toLowerCase(), Field.Store.NO));
+            doc.add(new StringField(Constants.File.NAME, name, Field.Store.NO));
             doc.add(new StoredField(Constants.File.NAME, name));
             doc.add(new SortedDocValuesField(Constants.File.NAME, new BytesRef(name)));
         }
