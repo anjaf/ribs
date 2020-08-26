@@ -346,14 +346,14 @@ var Metadata = (function (_self) {
                 publication.URLs = [];
                 $.each(pub.attributes, function (i, v) {
                     var name = v.name.toLowerCase().replace(' ', '_');
-                    var url = getURL(v.value);
+                    var url = getURL(v.value, name);
                     if (url) {
                         publication.URLs.push(url);
                     } else {
                         publication[name] = v.value
                     }
                 });
-                publication.accno = pubs.accno;
+                publication.accno = pub.accno;
                 if (publication.accno) {
                     var url = getURL(publication.accno);
                     if (url != null) {
