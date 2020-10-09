@@ -2,7 +2,7 @@
 open ftp.biostudies.ebi.ac.uk
 anonymous
 youremail@domain.com
-cd pub/%s/Files
+cd biostudies-test/nfs/%s/Files
 binary
 %s
 disconnect
