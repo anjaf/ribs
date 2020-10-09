@@ -1,1 +1,1 @@
-ascp -P33001 -i "C:\aspera\cli\etc\asperaweb_id_dsa.openssh" --host=fasp-beta.ebi.ac.uk --user=bsaspera --mode=recv  %s ./
+ascp -P33001 -i "C:\aspera\cli\etc\asperaweb_id_dsa.openssh" --host=fasp.ebi.ac.uk --user=bsaspera --mode=recv  %s ./
