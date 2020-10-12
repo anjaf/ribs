@@ -8,8 +8,9 @@
             <div class="table-wrapper">
                 <table id="file-list" class="stripe compact hover" width="100%">
                 </table>
-                <div class="filetoolbar">
+                <div class="filetoolbar dlpopup_length">
                     <a class="section-button" id="download-selected-files">Download <span id="selected-file-count">0</span> selected files</a>
+
                     <div class="reveal large" id="batchdl-popup" data-reveal></div>
                 </div>
             </div>
@@ -17,56 +18,99 @@
     </section>
 </script>
 
-<script id='batchdl-template' type='text/x-handlebars-template'>
-    <div class='reveal-modal' id='first-modal' data-reveal>
-        <div class="row">
-          <div class="columns">
-            <h2>Download files</h2>
-            <p>You can choose to download the selected files either as a zipper archive over HTTP or via our FTP/Aspera server by clicking on the left menu below. </p>
-          </div>
+<script id='batchdl-accordion-template' type='text/x-handlebars-template'>
+    <div>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <div  style="background-color: lightblue;">
+            <p>Zip/Ftp/Aspera Download <p>
         </div>
+        <ul class="accordion" data-accordion>
+            <li class="accordion-item is-active" data-accordion-item>
+                <!-- Accordion tab title -->
 
-        <div class="row collapse">
-          <div class="medium-3 columns">
-            <ul class="vertical tabs" data-tabs id="download-files-tabs">
-              <li class="tabs-title is-active"><a href="#via-http" onclick="event.preventDefault();" aria-selected="true"> HTTP</a></li>
-              <li class="tabs-title"><a href="#via-ftp" onclick="event.preventDefault();">FTP</a></li>
-              <li class="tabs-title"><a href="#via-aspera" onclick="event.preventDefault();">Aspera</a></li>
-            </ul>
-          </div>
-          <div class="medium-9 columns">
-            <div class="tabs-content" data-tabs-content="download-files-tabs">
-              <div class="tabs-panel is-active" id="via-http">
-                <p>Click the button below to download the selected files as a zipped archive. </p>
-                <input class="button" type="button" value="Download"/>
-              </div>
-              <div class="tabs-panel" id="via-ftp">
-                 <p>
-                  <ol>
-                    <li>Click the button below to download the script and save it to the folder where you want to download your files e.g. <code>C:\data</code></li>
-                    <li>Press Windows key+R, type <code>cmd</code> and press <b>Enter</b> </li>
-                    <li>Change your console directory to the place that you put downloaded script e.g. <code>cd C:\data </code> .</li>
-                    <li>Run downloaded script file in cmd with this command: <code> ftp -i -s:./{{fname.acc}}-{{fname.os}}-ftp{{fname.ps}} </code></li>
-                  </ol>
-                </p>
-                <input class="button" type="button" value="Download"/>
-              </div>
-              <div class="tabs-panel" id="via-aspera">
-                 <p>
-                  <ol>
-                    <li>Download aspera cli from <a href="https://downloads.asperasoft.com/en/downloads/62">https://downloads.asperasoft.com/en/downloads/62</a></li>
-                    <li>Unzip downloaded file in e.g. <code>C:\aspera</code></li>
-                    <li>Click the button below to download the script and save it to the folder where you want to download your files e.g. <code>C:\data</code></li>
-                  <li>Edit script <code>{{fname.acc}}-{{fname.os}}-aspera{{fname.ps}}</code> and change default directory address of <b>asperaweb_id_dsa.openssh</b> with the directory that you have installed your Aspera client e.g. <code>C:\aspera\cli\etc\asperaweb_id_dsa.openssh</code></li>
-                    <li>Press Windows key+R, type <code>cmd</code> and press <b>Enter</b> </li>
-                    <li>Change your console directory to the place that you put downloaded script e.g. <code>cd C:\data </code></li>
-                    <li>Run downloaded script from command line <code>./{{fname.acc}}-{{fname.os}}-aspera{{fname.ps}}</code></li>
-                  </ol>
-                </p>
-                <input class="button" type="button" value="Download"/>
-              </div>
-            </div>
-          </div>
-        </div>
+                <a href="#" class="accordion-title" style="font-size:medium;">Download as a Zip file</a>
+
+                <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
+                <div class="accordion-content" data-tab-content>
+                  <p>Click the button below to download the selected files as a zipped archive. </p>
+                  <input id="zip-dl-button" class="button" type="button" value="Download"/>
+                </div>
+              </li>
+              <li class="accordion-item" data-accordion-item>
+                  <!-- Accordion tab title -->
+                  <a href="#" class="accordion-title" style="font-size:medium;">Download Using FTP</a>
+                  <div class="accordion-content" data-tab-content>
+                    <div class="row">
+                        <div class="columns small-6 large-4">
+                            Instruction for:
+
+                            <select id="ftp-script-os-select" style="max-width:120px;" class="select">
+                                <option value="win">Windows</option>
+                                <option value="unix">Unix</option>
+                                <option value="mac">Mac</option>
+                            </select>
+                        </div>
+                        <div class="columns small-6 large-8 "/>
+                    </div>
+                    <div id="ftp-instruct">
+
+                    </div>
+                    <input id="ftp-dl-button" class="button" type="button" value="Download"/>
+                  </div>
+              </li>
+              <li class="accordion-item" data-accordion-item>
+                  <!-- Accordion tab title -->
+                  <a href="#" class="accordion-title" style="font-size:medium;">Download Using Aspera</a>
+
+                  <div class="accordion-content" style="padding:5px;" data-tab-content>
+                      <div class="row">
+                          <div class="columns small-6 large-4">
+                              Instruction for:
+                              <select id="aspera-script-os-select" style="max-width:120px;">
+                                  <option value="win">Windows</option>
+                                  <option value="unix">Unix</option>
+                                  <option value="mac">Mac</option>
+                              </select>
+                          </div>
+                          <div class="columns small-6 large-8 "/>
+                      </div>
+
+                      <div id="aspera-instruct"/>
+
+
+
+                       <input id="aspera-dl-button" class="button" type="button" value="Download"/>
+
+                  </div>
+              </li>
+        </ul>
     </div>
+    <script>
+     $(document).ready(function() {
+        $(document).foundation();
+     })
+    </script>
 </script>
+
+<script id='ftp-dl-instruction' type='text/x-handlebars-template'>
+  <ol>
+    <li>Click the button below to download the script and save it to the folder where you want to download your files e.g. <code>{{fname.dldir}}</code></li>
+    <li>Press Windows key+R, type <code>cmd</code> and press <b>Enter</b> </li>
+    <li>Change your console directory to the place that you put downloaded script e.g. <code>cd {{fname.dldir}}</code> .</li>
+    <li>Run downloaded script file in cmd with this command: <code> ftp -i -s:./{{fname.acc}}-{{fname.os}}-ftp{{fname.ps}} </code></li>
+  </ol>
+</script>
+
+<script id='aspera-dl-instruction' type='text/x-handlebars-template'>
+  <ol>
+    <li>Download IBM aspera command line interface from <a href="https://www.ibm.com/products/aspera/downloads">https://www.ibm.com/products/aspera/downloads</a> and unzip downloaded file in e.g. <code>{{fname.asperaDir}}</code></li>
+    <li>Click the button below to download the script and save it to the folder where you want to download your files e.g. <code>{{fname.dldir}}</code></li>
+    <li>Edit script <code>{{fname.acc}}-{{fname.os}}-aspera{{fname.ps}}</code> and change default directory address of <b>asperaweb_id_dsa.openssh</b> with the directory that you have installed your Aspera client e.g. <code>{{fname.asperaDir}}/cli/etc/asperaweb_id_dsa.openssh</code></li>
+    <li>Press Windows key+R, type <code>cmd</code> and press <b>Enter</b> </li>
+    <li>Change your console directory to the place that you put downloaded script e.g. <code>cd {{fname.dldir}} </code></li>
+    <li>Run downloaded script from command line <code>./{{fname.acc}}-{{fname.os}}-aspera{{fname.ps}}</code></li>
+  </ol>
+</script>
+
