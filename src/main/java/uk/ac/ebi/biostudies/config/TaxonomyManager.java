@@ -15,7 +15,6 @@ import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.biostudies.api.util.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +51,7 @@ public class TaxonomyManager {
                         || jsonNode.get(IndexEntryAttributes.MULTIVALUED).asBoolean(true)) {
                     getFacetsConfig().setMultiValued(jsonNode.get(IndexEntryAttributes.NAME).asText(), true);
                 }
-                if (jsonNode.get(IndexEntryAttributes.NAME).textValue().equalsIgnoreCase(Facets.PROJECT)) {
+                if (jsonNode.get(IndexEntryAttributes.NAME).textValue().equalsIgnoreCase(Facets.COLLECTION)) {
                     PROJECT_FACET = jsonNode;
                 }
             }

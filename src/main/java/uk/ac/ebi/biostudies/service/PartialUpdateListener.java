@@ -27,7 +27,7 @@ public class PartialUpdateListener {
     IndexService indexService;
 
     @RabbitListener(queues = "${partial.submission.rabbitmq.queue}", id = PARTIAL_UPDATE_LISTENER)
-    public void receivedMessage(JsonNode msg) {
+    public void receivedMessage(JsonNode msg) throws IOException, InterruptedException {
         try {
             String url = msg.get("extTabUrl").asText();
             String acc = msg.get("accNo").asText();
@@ -35,7 +35,9 @@ public class PartialUpdateListener {
             indexService.indexOne(submission, true);
             logger.debug("{} indexed", acc);
         } catch (Exception ex) {
-            logger.error("Error parsing message", ex);
+            logger.error("Error parsing message {}", msg, ex);
+            Thread.sleep(30000);
+            throw ex;
         }
     }
 
