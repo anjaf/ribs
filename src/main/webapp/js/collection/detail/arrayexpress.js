@@ -50,4 +50,4 @@ var sdrfIcon = $('<div class="bs-name">Detailed sample information and links to 
         var acc = $('#accession').text();
         window.open( contextPath + (collection? '/'+collection:'')+'/studies/'+ acc + '/sdrf');
     });
-sdrfIcon.insertAfter($('.bs-name:contains("Description")').first().next());
+sdrfIcon.insertBefore($('.bs-name:contains("Samples and Experimental Factors")').first());
