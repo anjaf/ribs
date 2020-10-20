@@ -32,5 +32,5 @@ public interface IndexService extends InitializingBean, DisposableBean {
 
     void close();
 
-    boolean open();
+    void open();
 }

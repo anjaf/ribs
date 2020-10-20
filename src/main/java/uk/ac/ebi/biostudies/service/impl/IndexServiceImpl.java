@@ -19,6 +19,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
+import org.springframework.amqp.rabbit.listener.MessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -107,14 +108,20 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public synchronized void close() {
-        rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER).stop();
-        closed.compareAndSet(false, true);
+        MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
+        if(listenerContainer.isRunning()) {
+            listenerContainer.stop();
+            closed.set(true);
+        }
     }
 
     @Override
-    public synchronized boolean open() {
-        rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER).start();
-        return closed.compareAndSet(true, false);
+    public synchronized void open() {
+        MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
+        if(!listenerContainer.isRunning()) {
+            listenerContainer.start();
+            closed.set(false);
+        }
     }
 
     @Override
@@ -150,6 +157,7 @@ public class IndexServiceImpl implements IndexService {
                 if(++counter % 10000==0) {
                     logger.info("{} docs indexed", counter);
                 }
+//                Thread.sleep(10000);
             }
             Map<String,String> commitData = new HashMap<>();
             while(token!=JsonToken.END_OBJECT){
@@ -444,6 +452,7 @@ public class IndexServiceImpl implements IndexService {
                     continue;
                 }
                 if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))  {
+                    close();
                     clearIndex(false);
                     filename = Constants.STUDIES_JSON_FILE;
                     removeFileDocuments = false;
@@ -454,9 +463,11 @@ public class IndexServiceImpl implements IndexService {
                 e.printStackTrace();
                 logger.log(Level.ERROR, e);
             } finally {
+                if(closed.get())
+                    open();
                 try {
                     Files.delete(Paths.get(inputStudiesFilePath));
-                } catch (IOException e) {
+                } catch (Throwable e) {
                     logger.error("Cannot delete {}", inputStudiesFilePath);
                 }
             }
