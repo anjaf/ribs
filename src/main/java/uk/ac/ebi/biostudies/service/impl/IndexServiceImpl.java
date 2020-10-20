@@ -68,7 +68,7 @@ public class IndexServiceImpl implements IndexService {
 
     private Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
 
-    private static  BlockingQueue<String> indexFileQueue;
+    private static  BlockingQueue<String> indexFileQueue = new LinkedBlockingQueue<>();
 
     private static AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -95,11 +95,6 @@ public class IndexServiceImpl implements IndexService {
 
     @Autowired
     private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
-
-    @Override
-    public void afterPropertiesSet() {
-        indexFileQueue = new LinkedBlockingQueue<>();
-    }
 
     @Override
     public synchronized boolean isClosed() {
@@ -255,6 +250,11 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public void destroy() {
+
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
 
     }
 

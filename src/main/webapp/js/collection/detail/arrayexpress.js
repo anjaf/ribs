@@ -50,4 +50,14 @@ var sdrfIcon = $('<div class="bs-name">Detailed sample information and links to 
         var acc = $('#accession').text();
         window.open( contextPath + (collection? '/'+collection:'')+'/studies/'+ acc + '/sdrf');
     });
-sdrfIcon.insertAfter($('.bs-name:contains("Description")').first().next());
+sdrfIcon.insertBefore($('.bs-name:contains("Samples and Experimental Factors")').first());
+
+// add AE link
+var accession = $('#orcid-accession').text().trim();
+var notice = $("<div class=\"callout warning\">To streamline the data submission processes and data representation at " +
+    "EMBL-EBI, we have started hosting data currently served from <a href=\""+ contextPath +
+    "/arrayexpress-in-biostudies\">ArrayExpress in BioStudies</a>.<br/>" +
+    "The current ArrayExpress entry can be accessed at <a href=\"https://www.ebi.ac.uk/arrayexpress/"
+    + accession +"\">https://www.ebi.ac.uk/arrayexpress/"+ accession+ "</a></div>");
+$('#renderedContent').prepend(notice);
+
