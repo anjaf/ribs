@@ -23,6 +23,7 @@ import org.springframework.amqp.rabbit.listener.MessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
@@ -73,6 +74,9 @@ public class IndexServiceImpl implements IndexService {
     private static AtomicBoolean closed = new AtomicBoolean(false);
 
     @Autowired
+    private Environment env;
+
+    @Autowired
     IndexConfig indexConfig;
 
     @Autowired
@@ -103,6 +107,8 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public synchronized void close() {
+        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class))
+            return;
         MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
         if(listenerContainer.isRunning()) {
             listenerContainer.stop();
@@ -112,6 +118,8 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public synchronized void open() {
+        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class))
+            return;
         MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
         if(!listenerContainer.isRunning()) {
             listenerContainer.start();
@@ -152,7 +160,6 @@ public class IndexServiceImpl implements IndexService {
                 if(++counter % 10000==0) {
                     logger.info("{} docs indexed", counter);
                 }
-//                Thread.sleep(10000);
             }
             Map<String,String> commitData = new HashMap<>();
             while(token!=JsonToken.END_OBJECT){
