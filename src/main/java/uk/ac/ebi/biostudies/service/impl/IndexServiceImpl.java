@@ -107,7 +107,7 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public synchronized void close() {
-        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class))
+        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class, false))
             return;
         MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
         if(listenerContainer.isRunning()) {
@@ -118,7 +118,7 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public synchronized void open() {
-        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class))
+        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class, false))
             return;
         MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
         if(!listenerContainer.isRunning()) {
