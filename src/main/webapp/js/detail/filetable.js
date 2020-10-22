@@ -522,7 +522,7 @@ var FileTable = (function (_self) {
             if (!$tn.length) return;
             $('#thumbnail-image').html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>')
             $('#thumbnail').foundation('open');
-            var img = $("<img />").attr('src', encodeURIComponent($tn.data('thumbnail')+(key ? '?key='+key :'')).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24"))
+            var img = $("<img />").attr('src',$tn.data('thumbnail')+ encodeURI((key ? '?key='+key :'')).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24"))
                 .on('load', function() {
                     if (!this.complete || typeof this.naturalWidth == "undefined" || this.naturalWidth == 0) {
                         $('#thumbnail').foundation('close');
