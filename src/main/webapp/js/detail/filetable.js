@@ -185,7 +185,7 @@ var FileTable = (function (_self) {
         if (thumbnailColumn.length) {
             thumbnailColumn[0].render = function (data, type, row) {
             return '<img  height="100" width="100" src="'
-                + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + escape(row.path + (params.key? '?key='+params.key :''))+'" </img> ';
+                + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + encodeURI(row.path + (params.key? '?key='+params.key :'')).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")+'" </img> ';
             }
         }
         filesTable = $('#file-list').DataTable({
