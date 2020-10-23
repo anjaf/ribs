@@ -171,7 +171,7 @@ var FileTable = (function (_self) {
             if (sectionColumn.length) {
                     sectionColumn[0].render = function (data, type, row) {
                         return data && data != '' ?
-                            '<a href="#' + data + '">' + $('#' + data + ' .section-name').first().text().trim() + '</a>'
+                            '<a href="#' + data + '">' + $('#' + $.escapeSelector(data)  + ' .section-name').first().text().trim() + '</a>'
                             : '';
                     }
             }
@@ -333,7 +333,7 @@ var FileTable = (function (_self) {
             fileSearchParams[column+'[name]']='Section';
             fileSearchParams[column+'[search][value]']=divId;
             $.post(contextPath + '/api/v1/files/' + acc , fileSearchParams, function(data) {
-                    var bar = $('#' + divId + '> .bs-name > .section-title-bar');
+                    var bar = $('#' + $.escapeSelector(divId) + '> .bs-name > .section-title-bar');
                     var button = $('<a class="section-button" data-files-id="'+ divId + '">' +
                         '<i class="fa fa-filter"></i> '+ data.recordsFiltered + ' file' +
                         (data.recordsFiltered>1 ? 's' : '') +
