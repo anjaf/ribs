@@ -5,7 +5,7 @@ var FileTable = (function (_self) {
     var firstRender = true;
     var columnDefinitions=[];
     var sorting=false;
-    var aftertableinit=false;
+    var afterTableInit=false;
 
     _self.render = function (acc, params, isDetailPage){
         $.ajax({url: contextPath + '/api/v1/studies/' + acc + '/info',
@@ -266,11 +266,11 @@ var FileTable = (function (_self) {
             handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable);
         }).on( 'search.dt', function (e) {
         }).on( 'order.dt', function () {
-            if(aftertableinit) {
+            if(afterTableInit) {
                 sorting=true;
             }
         }).on('init.dt', function (){
-            aftertableinit=true
+            afterTableInit=true
         });
         columnDefinitions = columns;
 
