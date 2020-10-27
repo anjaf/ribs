@@ -4,23 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import uk.ac.ebi.biostudies.auth.UserSecurityService;
+import uk.ac.ebi.biostudies.schedule.jobs.UpdateOntologyJob;
 import uk.ac.ebi.biostudies.service.IndexService;
-import uk.ac.ebi.biostudies.service.PartialUpdateListener;
 import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
+import static uk.ac.ebi.biostudies.api.util.Constants.STRING_UNICODE_MEDIA_TYPE;
 
 
 /**
@@ -36,7 +31,7 @@ public class Index {
     IndexService indexService;
 
     @Autowired
-    UserSecurityService userSecurity;
+    UpdateOntologyJob updateOntologyJob;
 
 
     /**
@@ -98,6 +93,20 @@ public class Index {
         } else {
             return new ResponseEntity<String>("{\"message\":\"CLOSING\"}", HttpStatus.OK);
         }
+    }
+
+    /**
+     * updating and building EFO ontology index manually
+     * @return
+     */
+    @RequestMapping(value = "/index/efo/build", produces = STRING_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
+    public String buildEFOIndex(){
+        try {
+            updateOntologyJob.doExecute();
+        }catch (Exception ex){
+            return "Error: {}"+ex.getMessage();
+        }
+        return "Updating and building EFO Ontology";
     }
 
 }

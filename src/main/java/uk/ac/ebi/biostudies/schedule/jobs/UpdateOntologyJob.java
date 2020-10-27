@@ -72,20 +72,22 @@ public class UpdateOntologyJob{
             try (InputStream is = efoURI.toURL().openStream()) {
                 File efoFile = new File(efoConfig.getOwlFilename());
                 java.nio.file.Files.copy( is, efoFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                emailSender.send(mailConfig.getReportsRecipients(),
-                        mailConfig.getHiddenRecipients()
-                        , "EFO update"
-                        , "Experimental Factor Ontology has been updated to version [" + version + "]" + StringTools.EOL
-                                + StringTools.EOL
-                                + "Application [${variable.appname}]" + StringTools.EOL
-                                + "Host [${variable.hostname}]" + StringTools.EOL,
-                        mailConfig.getReportsOriginator()
-                );
+                try {
+                    emailSender.send(mailConfig.getReportsRecipients(),
+                            mailConfig.getHiddenRecipients()
+                            , "EFO update"
+                            , "Experimental Factor Ontology has been updated to version [" + version + "]" + StringTools.EOL
+                                    + StringTools.EOL
+                                    + "Application [${variable.appname}]" + StringTools.EOL
+                                    + "Host [${variable.hostname}]" + StringTools.EOL,
+                            mailConfig.getReportsOriginator()
+                    );
+                }catch(Throwable e){
+                    logger.debug("Problem in sending email for EFO update",e);
+                }
                 reloadOntologyJob.doExecute();
+                logger.info("EFO has updated");
             }
-
-        } else {
-//            logger.info("Current ontology version [{}] is up-to-date", loadedVersion);
         }
     }
 
