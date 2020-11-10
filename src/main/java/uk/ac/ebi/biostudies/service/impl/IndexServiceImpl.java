@@ -194,7 +194,7 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public void indexOne(JsonNode submission, boolean removeFileDocuments) throws IOException {
-
+        //TODO: Remove executor service if not needed
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -210,7 +210,6 @@ public class IndexServiceImpl implements IndexService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
         ActiveExecutorService.decrementAndGet();
         searchService.clearStatsCache();
     }
