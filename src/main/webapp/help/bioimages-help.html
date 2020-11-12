@@ -25,26 +25,48 @@
 <h3>Submitting image data to BioStudies</h3>
 
 <p>
-<ol id="creating">
-    <li>You will need a BioStudies account. You can sign up here: <a
-            href="https://www.ebi.ac.uk/biostudies/submissions/#/signup" target="_blank">https://www.ebi.ac.uk/biostudies/submissions/#/signup</a>.
-        Or, follow the link from Submit on the BioStudies homepage.
-    </li>
-    <li>Prepare your raw data. Ideally your raw image files will be contained in a single directory with a logical
-        hierarchical file structure.
-    </li>
-    <li>To upload image files into your BioStudies account, go to the Files area in the BioStudies submission tool. If you have a smaller number of files (e.g., processed data files), you can use web upload - click on "Upload Files". For uploading large data volumes please use FTP or Aspera file transfer - instructions and the path to use are available under "FTP/Aspera" button; instructions are also below.
-    </li>
-    <li>Visit <a target="_blank" href="ftp://ftp.biostudies.ebi.ac.uk/biostudies/pub/BioImaging">ftp://ftp.biostudies.ebi.ac.uk/biostudies/pub/BioImaging</a>
-        and download the metadata description template.
-    </li>
-    <li>You will find guidance for filling in this template in README and 'Example' tabs; fill in the other two tabs of the template with information about your study and the individual image files. Email it back to <a href="mailto:biostudies@ebi.ac.uk">biostudies@ebi.ac.uk</a>.
-    </li>
-    <li>We will check the submission and will load it into the BioStudies database; we will then e-mail you back your
-        unique BioStudies accession number (i.e., dataset identifier) and details on how to access and share your study with others.
-    </li>
-    <li>We are working on an online submission tool where, instead of filling in an Excel template, you will be able to use web forms.
-    </li>
+    <ol id="creating">
+        <li>You will need a BioStudies account. You can sign up here: <a
+                href="https://www.ebi.ac.uk/biostudies/submissions/#/signup" target="_blank">https://www.ebi.ac.uk/biostudies/submissions/#/signup</a>.
+            Or, follow the link from Submit on the BioStudies homepage.
+        </li>
+        <li>Prepare your raw data. Ideally your raw image files will be contained in a single directory with a logical
+            hierarchical file structure.
+        </li>
+        <li>To upload image files into your BioStudies account, go to the Files area in the BioStudies submission tool.
+            If
+            you have a smaller number of files (e.g., processed data files), you can use web upload - click on "Upload
+            Files". For uploading large data volumes please use FTP or Aspera file transfer - instructions and the path
+            to
+            use are available under "FTP/Aspera" button; instructions are also below.
+        </li>
+        <li><p>You will need a "table of contents" for your image files, called a "File List" in the submission tool.
+    The
+    purpose of this file is to provide information about the individual image files that will help the users of your
+    dataset understand what different files mean and under what conditions they have been acquired. It can be a tab
+    delimited file (in which case file extension should be ".tsv"), or an Excel file (".xls" or ".xlsx").
+</p>
+<p>The first line is a header line, and the first cell has to contain word "Files". Headers for the other columns
+    are not predefined; we recommend to use descriptive, self-explanatory names. In future we expect this to be
+    better standardized so that file lists could be parsed by a machine. Some examples of column headers: Compound,
+    Concentration, Time (for compound treatment experiments), Gene (for genetic variation studies), Plate, Well,
+    Field (for high content screening studies), Channel, Description, QC info. It is useful to include only
+    attributes that have at least two distinct values for the set of image files you are describing in a particular
+    file list; include constant values (e.g., "Organism") in the annotation of the study entered via the web form.</p>
+
+<p>Use as many lines as there are files in your dataset, and enter the exact filenames in the first column. Note
+    that filenames are case-sensitive. If you have organized files in your BioStudies home directory in a hierarchy,
+    do not forget to reflect that in the file list. E.g., if you have in your home directory folders "ExperimentA"
+    and "ExperimentB", refer to files inside those folders as "ExperimentA/imageFile1.tif" etc. Fill in attribute
+    values for each of the image files. Do not leave blank lines.</p>
+
+<li>When all image files and one or more file lists have been uploaded, go to the "Submissions" section in the
+    submission tool and click "Add new"; select "BioImages" from the list to create an image dataset. Fill in all
+    the necessary fields in the web forms that will be offered, and make sure that the validation panel on the left
+    indicates "all ok". When that is the case, click on "Submit". Your submission will be loaded into the BioStudies
+    database and assigned a unique BioStudies accession number (i.e., dataset identifier); details on how to access
+    and share your study with others will be available in a confirmation window, as well as in an e-mail.
+</li>
 </ol>
 </p>
 
@@ -72,8 +94,10 @@
 </p>
 <h4>Aspera uploads</h4>
 <p>Aspera <span class="mono">ascp</span> command line interface can be downloaded here: <a target="_blank"
-                                                                                        href="https://downloads.asperasoft.com/en/downloads/62">aspera cli</a>.
-    Please select the correct operating system. The <span class="mono">ascp</span> command line client is present in the <span class="mono">bin</span> folder
+                                                                                           href="https://downloads.asperasoft.com/en/downloads/62">aspera
+    cli</a>.
+    Please select the correct operating system. The <span class="mono">ascp</span> command line client is present in the
+    <span class="mono">bin</span> folder
     in the installation directory.
 </p>
 <p>Your command for upload should be like this:</p>
@@ -86,7 +110,8 @@ where
     </li>
     <li><span class="mono">-d</span> tells the server to create the directory if it does not yet exist</li>
     <li><span class="mono">&lt;key&gt;</span> is the public key for the Aspera connection which has the value
-        <span class="mono">&lt;aspera cli installation directory&gt;/etc/asperaweb_id_dsa.openssh</span> for Linux/MacOS and
+        <span class="mono">&lt;aspera cli installation directory&gt;/etc/asperaweb_id_dsa.openssh</span> for Linux/MacOS
+        and
         <span class="mono">&lt;aspera cli installation directory&gt;\etc\asperaweb_id_dsa.openssh</span> for Windows.
     </li>
     <li>
