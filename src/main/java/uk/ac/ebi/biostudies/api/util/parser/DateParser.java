@@ -5,6 +5,7 @@ import com.jayway.jsonpath.ReadContext;
 import org.apache.lucene.document.DateTools;
 import uk.ac.ebi.biostudies.api.util.Constants;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -14,6 +15,9 @@ import static uk.ac.ebi.biostudies.api.util.Constants.PUBLIC;
 import static uk.ac.ebi.biostudies.api.util.Constants.RELEASE_DATE;
 
 public class DateParser extends AbstractParser {
+
+    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         long releaseDateLong = 0L;
@@ -55,7 +59,7 @@ public class DateParser extends AbstractParser {
             releaseDateLong = Long.MAX_VALUE;
         }
         valueMap.put(Constants.Fields.RELEASE_TIME, releaseDateLong);
-        valueMap.put(RELEASE_DATE, DateTools.timeToString(releaseDateLong, DateTools.Resolution.DAY));
+        valueMap.put(RELEASE_DATE, simpleDateFormat.format(DateTools.round(releaseDateLong, DateTools.Resolution.DAY)));
         valueMap.put(Constants.Facets.RELEASED_YEAR_FACET, (releaseDateLong == Long.MAX_VALUE || releaseDateLong == 0) ? NA : DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
         return "";
     }

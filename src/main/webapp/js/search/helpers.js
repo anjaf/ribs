@@ -101,9 +101,10 @@ var Searcher = (function (_self) {
         });
 
         Handlebars.registerHelper('formatDateString', function(v) {
-            var date = (new Date(v.substr(0,4)+'-'+v.substr(4,2)+'-'+v.substr(6,2))).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
+            var date = (new Date(v)).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
             return date == 'Invalid Date' ? (new Date()).getFullYear() : date;
         });
+
 
         Handlebars.registerHelper('replace', function(v, src, dst) {
             return v.replaceAll(src, dst);
