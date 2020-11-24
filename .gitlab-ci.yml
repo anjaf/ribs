@@ -43,7 +43,8 @@ dev-build:
   script:
     - apt-get update
     - apt-get install libxss1 libappindicator1 libindicator7 -y
-    - wget https://chromedriver.storage.googleapis.com/85.0.4183.83/chromedriver_linux64.zip
+    - driver=$(https://chromedriver.storage.googleapis.com/LATEST_RELEASE -s)
+    - wget "https://chromedriver.storage.googleapis.com/$driver/chromedriver_linux64.zip"
     - unzip chromedriver_linux64.zip
     - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
     - apt install ./google-chrome*.deb -y
