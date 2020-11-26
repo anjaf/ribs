@@ -25,24 +25,31 @@ var Metadata = (function (_self) {
                 loadProjectPage();
                 return;
             }
-            if (!data.accno && data.submissions) data = data.submissions[0];
+            if (!data.accno && data.submissions) data = data.submissions[0]; // for v0, when everything was a submission
             if (params.key) {
                 data.section.keyString = '?key='+params.key;
             }
             // set accession
+            if (data.accNo && !data.accno) data.accno = data.accNo; // copy accession attribute
             $('#accession').text(data.accno);
             data.section.accno = data.accno;
             data.section.accessTags = data.accessTags;
-            var releaseDate = data.attributes.filter(function (v, i) {
-                return v.name == 'ReleaseDate';
-            });
-            data.section.releaseDate = releaseDate.length ? releaseDate[0].value : '';
-            var title = data.accno;
-            if (data.attributes) {
+            var title = data.accno, releaseDate = '';
+            if (data.attributes) { //v1
                 title = data.attributes.filter(function (v, i) {
                     return v.name == 'Title';
                 });
+                data.attributes.forEach(function (v, i) {
+                    if (v.name == 'ReleaseDate') {
+                        releaseDate = v.value;
+                    }
+                });
+            } else { //extended json
+                if (data.releaseTime) {
+                    releaseDate = data.releaseTime.substr(0,10);
+                }
             }
+            data.section.releaseDate = releaseDate;
             if (data.section ) {
                 if (!data.section.attributes) data.section.attributes = [];
                 if (!data.section.attributes.filter(function (v, i) {

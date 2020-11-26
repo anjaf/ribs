@@ -148,7 +148,7 @@
             {{/if}}
             {{/eachFunder}}
 
-            <!-- Subsections -->
+            <!-- Subsections v1-->
             {{#if subsections}}
                 {{#each subsections}}
                     {{#ifRenderable this}}
@@ -157,6 +157,19 @@
                         {{else}}
                             {{&section this}}
                         {{/ifArray}}
+                    {{/ifRenderable}}
+                {{/each}}
+            {{/if}}
+
+            <!-- Subsections v2-->
+            {{#if sections}}
+                {{#each sections}}
+                    {{#ifRenderable this}}
+                        {{#ifCond this.extType '===' 'sectionsTable'}}
+                            {{&table this.sections}}
+                        {{else}}
+                            {{&section this}}
+                        {{/ifCond}}
                     {{/ifRenderable}}
                 {{/each}}
             {{/if}}

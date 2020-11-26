@@ -18,6 +18,14 @@
                     {{/ifArray}}
                 {{/each}}
             {{/if}}
+            <!-- tables v2-->
+            {{#if sections}}
+                {{#each sections}}
+                    {{#ifCond this.extType '==' 'sectionsTable'}}
+                        {{&table this.sections}}
+                    {{/ifCond}}
+                {{/each}}
+            {{/if}}
 
             {{&renderAttributes attributes}}
 
@@ -29,6 +37,18 @@
                                 {{&section this 'true'}}
                             {{/ifRenderable}}
                     {{/ifArray}}
+                {{/each}}
+            {{/if}}
+
+            <!-- Subsections v2-->
+            {{#if sections}}
+                {{#each sections}}
+                    {{#ifCond this.extType '==' 'sectionsTable'}}
+                    {{else}}
+                        {{#ifRenderable this}}
+                            {{&section this 'true'}}
+                        {{/ifRenderable}}
+                    {{/ifCond}}
                 {{/each}}
             {{/if}}
         </div>

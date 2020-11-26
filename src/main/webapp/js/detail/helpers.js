@@ -102,8 +102,9 @@ var Metadata = (function (_self) {
 
         Handlebars.registerHelper('ifRenderable', function(arr,options) {
             var specialSections = ['author', 'organization','organisation', 'funding', 'publication'];
-
             if(Array.isArray(arr) || (arr.type &&  $.inArray(arr.type.toLowerCase(),specialSections) < 0)) {
+                return options.fn(this);
+            } else if (arr.extType && arr.extType.toLowerCase()=='sectionstable') {
                 return options.fn(this);
             } else {
                 return options.inverse(this);
@@ -229,17 +230,16 @@ var Metadata = (function (_self) {
         Handlebars.registerHelper('eachAuthor', function(study, options) {
             var ret = '';
             var orgs = {}
-
+            var subsections = study.subsections ? study.subsections : study.sections;
             // make an org map
-            if (!study.subsections) return '';
-
-            $.each(study.subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation') ;}), function (i,o) {
+            if (!subsections) return '';
+            $.each(subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation') ;}), function (i,o) {
                 var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
-                orgs[o.accno] = orgName[0].value ;
+                orgs[o.accno ? o.accno : o.accNo] = orgName[0].value ;
             });
             var orgNumber = 1;
             var orgToNumberMap = {}
-            var authors = study.subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='author';});
+            var authors = subsections.filter( function(o) { return o.type && o.type.toLowerCase()=='author';});
             $.each(authors, function (i,o) {
                 var author = {}
                 $.each(o.attributes, function (i, v) {
@@ -284,16 +284,16 @@ var Metadata = (function (_self) {
             });
             return ret;
         });
-        Handlebars.registerHelper('eachOrganization', function(obj, options) {
+        Handlebars.registerHelper('eachOrganization', function(study, options) {
             var ret = '';
             var orgs = {};
-
-            if (!obj.subsections) return '';
+            var subsections = study.subsections ? study.subsections : study.sections;
+            if (!subsections) return '';
 
             // make an org map
-            $.each(obj.subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation');}), function (i,o) {
+            $.each(subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation');}), function (i,o) {
                 var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
-                orgs[o.accno] = orgName[0].value ;
+                orgs[o.accno ? o.accno : o.accNo] = orgName[0].value ;
             });
 
             $.each(orgOrder, function(i,v) {
@@ -304,12 +304,13 @@ var Metadata = (function (_self) {
             return ret;
         });
 
-        Handlebars.registerHelper('eachFunder', function(obj, options) {
+        Handlebars.registerHelper('eachFunder', function(study, options) {
             var ret = '';
             var orgs = {};
-            if (!obj.subsections) return '';
+            var subsections = study.subsections ? study.subsections : study.sections;
+            if (!subsections) return '';
             // make an org map
-            $.each(obj.subsections.filter( function(subsection) { return subsection.type && subsection.type.toLowerCase()=='funding';}), function (i,o) {
+            $.each(subsections.filter( function(subsection) { return subsection.type && subsection.type.toLowerCase()=='funding';}), function (i,o) {
                 var org = null, grant;
                 $(o.attributes).each(function () {
                     if (this.name.toLowerCase()=='agency') org = this.value;
@@ -334,10 +335,11 @@ var Metadata = (function (_self) {
             return ret;
         });
 
-        Handlebars.registerHelper('renderPublication', function(obj, options) {
+        Handlebars.registerHelper('renderPublication', function(study, options) {
             var publication = {}
-            if (!obj.subsections) return '';
-            var pubs = obj.subsections.filter(function (o) {
+            var subsections = study.subsections ? study.subsections : study.sections;
+            if (!subsections) return '';
+            var pubs = subsections.filter(function (o) {
                 return o.type && o.type.toLowerCase() == 'publication';
             });
             if (!pubs || pubs.length < 1) return null;
@@ -428,7 +430,7 @@ var Metadata = (function (_self) {
                 if (!obj.root) {
                     var accno = obj.accno, type = obj['type'];
                     if (!accno) {
-                        accno= obj.accno = 'genid'+ Metadata.getNextGeneratedId();
+                        accno= obj.accno = obj.accNo ? obj.accNo : 'genid'+ Metadata.getNextGeneratedId();
                     }
                     if (type=='Publication' || type=='Funding') continue;
                     $.each(obj[k], function () {
