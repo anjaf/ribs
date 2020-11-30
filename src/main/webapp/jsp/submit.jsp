@@ -91,8 +91,8 @@
             <p class="justify">
                 Submissions are handled via the online tool, which involves filling in a small web-form, files related
                 to the submission can be directly uploaded and attached. If you feel that the tool does not fit your
-                requirements please contact us on <a href="mailto:biostudies@ebi.ac.uk">biostudies@ebi.ac.uk</a>
-                a simple tab-delimited format described <a href="${contextPath}/misc/SubmissionFormatV5a.pdf">here</a>
+                requirements please contact us on <a href="mailto:biostudies@ebi.ac.uk">biostudies@ebi.ac.uk</a>.
+                A simple tab-delimited format described <a href="${contextPath}/misc/SubmissionFormatV5a.pdf">here</a>
                 is an alternative submission method
 
             </p>
