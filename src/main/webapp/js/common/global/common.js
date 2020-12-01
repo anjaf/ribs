@@ -81,7 +81,7 @@ $(function() {
 
 function updateTitleFromBreadCrumbs() {
     //update title
-    var breadcrumbs = $('.breadcrumbs li').map(function  () { return $(this).text().trim(); }).filter(function () { return this!="" && this!='Current:';}).get().reverse();
+    var breadcrumbs = $('.breadcrumbs li').map(function  () { return $(this).text().replaceAll('Current:','').trim(); }).get().reverse();
     document.title = breadcrumbs.length ? breadcrumbs.join(' < ' )+' < EMBL-EBI' : 'BioStudies < EMBL-EBI';
 }
 
