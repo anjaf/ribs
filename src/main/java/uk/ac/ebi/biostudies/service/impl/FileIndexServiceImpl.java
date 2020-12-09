@@ -196,6 +196,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         attributes = fNode.findValues(Constants.File.ATTRIBUTES);
 
         doc.add(new StringField(Constants.File.TYPE, Constants.File.FILE , Field.Store.YES));
+        doc.add(new StringField(Constants.File.IS_DIRECTORY, String.valueOf(fNode.get(Constants.File.TYPE).textValue().equalsIgnoreCase("directory")), Field.Store.YES));
         doc.add(new StringField(Constants.File.OWNER, accession, Field.Store.YES));
 
         // add section field if file is not global

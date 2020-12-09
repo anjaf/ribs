@@ -169,7 +169,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
                         }
                     }
                     docNode.put(Constants.File.PATH, doc.get(Constants.File.PATH)==null?"":doc.get(Constants.File.PATH));
-                    docNode.put(Constants.File.TYPE, doc.get(Constants.File.TYPE)==null?"":doc.get(Constants.File.TYPE));
+                    docNode.put(Constants.File.TYPE, doc.get(Constants.File.IS_DIRECTORY)==null? "file": doc.get(Constants.File.IS_DIRECTORY).equalsIgnoreCase("true") ? "directory" : "file" );
                     docs.add(docNode);
                 }
                 response.set(Constants.File.DATA, docs);

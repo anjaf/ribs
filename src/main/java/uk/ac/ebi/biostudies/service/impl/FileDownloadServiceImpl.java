@@ -90,7 +90,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             downloadFile = getDownloadFileFromRequest(request, response, relativePath, key);
             if (null != downloadFile) {
                 if (downloadFile.isDirectory()) {
-                    zipDownloadService.sendZip(request, response, new String[]{downloadFile.getName()});
+                    zipDownloadService.sendZip(request, response, new String[]{ downloadFile.getPath().replace( indexConfig.getFileRootDir() + "/" + relativePath + "/Files/","")});
                     return;
                 }
                 verifyFile(downloadFile, response);
