@@ -18,11 +18,10 @@ var Metadata = (function (_self) {
         var accession = parts[parts.length - 1 - slashOffset];
         var url = contextPath + '/api/v1/studies/' + accession;
         var params = getParams();
-
         $.getJSON(url, params, function (data) {
             // redirect to collection page if accession is a collection
             if (data.section.type.toLowerCase()==='collection' || data.section.type.toLowerCase()==='project') {
-                loadProjectPage();
+                location.href= contextPath + '/'+ accession + '/studies';
                 return;
             }
             if (!data.accno && data.submissions) data = data.submissions[0]; // for v0, when everything was a submission
@@ -603,12 +602,6 @@ var Metadata = (function (_self) {
         $(".sub-attribute:contains('Image URL')").each(function () {
             var url = $(this).parent().clone().children().remove().end().text();
             $(this).parent().html('<img class="url-image" src="' + url + '"/>');
-        });
-    }
-
-    function loadProjectPage() {
-        $.getJSON(contextPath + '/'+ accession + '/studies', params, function (data) {
-            location.href= contextPath + '/'+ accession + '/studies';
         });
     }
 

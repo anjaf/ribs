@@ -17,6 +17,8 @@
 
 package uk.ac.ebi.biostudies.file.download;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.*;
 import java.nio.file.Path;
 
@@ -47,7 +49,7 @@ public final class RegularDownloadFile implements IDownloadFile {
     }
 
     public String getPath() {
-        return path.toString();
+        return StringUtils.replace(path.toString(),"\\","/");
     }
 
     public long getLength() {

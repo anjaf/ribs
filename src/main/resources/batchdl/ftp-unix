@@ -1,9 +1,9 @@
 #!/bin/bash
 # Run this file in bash with this command:  ftp -i -s:./ftp-unix.sh
-open ftp.biostudies.ebi.ac.uk
+open ftp.ebi.ac.uk
 anonymous
 youremail@domain.com
-cd biostudies-test/nfs/%s/Files
+cd biostudies/nfs/%s/Files
 binary
 %s
 disconnect
