@@ -8,6 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.facet.*;
 import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -251,16 +253,20 @@ public class FacetServiceImpl implements FacetService {
 
     @Override
     public Query addFacetDrillDownFilters(Query primaryQuery, Map<JsonNode, List<String>> userSelectedDimValues){
-        DrillDownQuery drillDownQuery = new DrillDownQuery(taxonomyManager.getFacetsConfig(), primaryQuery);
+        BooleanQuery.Builder bQueryBuilder = new BooleanQuery.Builder();
+        bQueryBuilder.add(primaryQuery, BooleanClause.Occur.MUST);
         for(JsonNode facet: userSelectedDimValues.keySet()) {
             if (facet==null || !facet.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.FACET))
                 continue;
             List<String> listSelectedValues = userSelectedDimValues.get(facet);
-            if(listSelectedValues!=null)
-                for(String value:listSelectedValues)
-                    drillDownQuery.add(facet.get(Constants.IndexEntryAttributes.NAME).asText(), value.toLowerCase());
+            if(listSelectedValues!=null) {
+                for (String value : listSelectedValues) {
+                    FacetQuery facetQuery = new FacetQuery(taxonomyManager.getFacetsConfig(), facet.get(Constants.IndexEntryAttributes.NAME).asText(),  value.toLowerCase());
+                    bQueryBuilder.add(facetQuery, BooleanClause.Occur.MUST);
+                }
+            }
         }
-        return drillDownQuery;
+        return bQueryBuilder.build();
     }
 
     public Query applyFacets(Query query, JsonNode facets){
