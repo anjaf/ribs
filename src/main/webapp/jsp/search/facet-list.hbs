@@ -9,7 +9,7 @@
                             <input class="facet-value" type="checkbox" name="{{name}}" value="true" id="facet-{{name}}"/>
                             {{title}}
                         </label>
-                        <span class="facet-hits"> {{formatNumber this.children.[0].hits}}</span>
+                        <!--span class="facet-hits"> {{formatNumber this.children.[0].hits}}</span-->
                     </div>
                 {{else}}
                     <div class="facet-name"><span class="toggle-facet"><i class="fa fa-angle-down"/></span> <span class="facet-title">{{title}}</span>
@@ -25,7 +25,7 @@
                                 <input class="facet-value" type="checkbox" name="{{../name}}" value="{{value}}" id="facet-{{../name}}-{{@index}}"/>
                                 <span>{{name}}</span>
                             </label>
-                            <span class="facet-hits"> {{formatNumber hits}}</span>
+                            <!--span class="facet-hits"> {{formatNumber hits}}</span-->
                         </li>
                         {{/each}}
                     </ul>
