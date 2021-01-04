@@ -21,6 +21,15 @@ public class SecurityConfig {
     @Value("${index.admin.ip.allow.list}")
     private String adminIPAllowList;
 
+    @Value("${aspera.user}")
+    private String asperaUser;
+
+    @Value("${aspera.pass}")
+    private String asperaPass;
+
+    @Value("${aspera.token.server}")
+    private String asperaTokenServer;
+
     public String getProfileUrl() {
         return profileUrl;
     }
@@ -33,4 +42,15 @@ public class SecurityConfig {
         return adminIPAllowList;
     }
 
+    public String getAsperaUser() {
+        return asperaUser;
+    }
+
+    public String getAsperaPass() {
+        return asperaPass;
+    }
+
+    public String getAsperaTokenServer() {
+        return asperaTokenServer;
+    }
 }

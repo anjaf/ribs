@@ -25,6 +25,8 @@
 
     <jsp:attribute name="postBody">
         <script src="<spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/>"></script>
+        <script type="text/javascript" src="https://d3gcli72yxqn2z.cloudfront.net/connect/v4/connectinstaller-4.min.js"></script>
+        <script type="text/javascript" src="https://d3gcli72yxqn2z.cloudfront.net/connect/v4/asperaweb-4.min.js"></script>
         <%@include file="detail/main-file-table.hbs" %>
         <%@include file="detail/main-link-table.hbs" %>
         <%@include file="detail/orcid-claimer.hbs" %>
