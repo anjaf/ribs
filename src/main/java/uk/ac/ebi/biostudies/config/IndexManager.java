@@ -137,7 +137,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
             JsonNode actualObj = mapper.readTree(inp);
             return actualObj;
         } catch (IOException e) {
-            logger.error("problem in reading projec-field.json", e);
+            logger.error("Problem in reading collection-fields.json", e);
         }
         return null;
     }
@@ -150,7 +150,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
             indexSearcher = new IndexSearcher(indexReader);
         }
         catch (Exception ex){
-            logger.error("problem in refreshing index", ex);
+            logger.error("Problem in refreshing index", ex);
         }
     }
 

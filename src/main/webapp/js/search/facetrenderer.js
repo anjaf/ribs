@@ -90,7 +90,8 @@ var FacetRenderer = (function (_self) {
             $('body').append('<div id="blocker" class="blocker"></div>');
             $('body').append('<div id="facet-loader"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i><div class="sr-only">Loading...</div></div>');
             var thisFacet = $(this).data('facet');
-            $.getJSON(contextPath+"/api/v1/"+(collection? collection : 'public')+'/facets/'+thisFacet+'/',params,
+            var paramsMinusThis = delete {...params}[thisFacet];
+            $.getJSON(contextPath+"/api/v1/"+(collection? collection : 'public')+'/facets/'+thisFacet+'/',paramsMinusThis,
                 function(data) { showAllFacets(thisFacet, params, data)});
         });
 
