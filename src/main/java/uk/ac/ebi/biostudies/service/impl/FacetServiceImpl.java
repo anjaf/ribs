@@ -64,7 +64,7 @@ public class FacetServiceImpl implements FacetService {
             queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
             queryAfterFacet = securityQueryBuilder.applySecurity(queryAfterFacet);
             FacetsCollector.search(indexManager.getIndexSearcher(), queryAfterFacet, Integer.MAX_VALUE, facetsCollector);
-            Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
+            Facets facets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             Map<String, JsonNode> allValidFields = indexManager.getIndexEntryMap();
             JsonNode facet = allValidFields.getOrDefault(dimension, null);
             if(facet==null || facet.has(Constants.IndexEntryAttributes.PRIVATE) && facet.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean() && Session.getCurrentUser()==null) {
@@ -108,7 +108,7 @@ public class FacetServiceImpl implements FacetService {
             int tempLimit= limit;
             query = securityQueryBuilder.applySecurity(query);
             FacetsCollector.search(indexManager.getIndexSearcher(), query, limit, facetsCollector);
-            facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
+            facets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             for (JsonNode field:indexManager.getIndexEntryMap().values()) {
                 if(field.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.FACET)){
                     // Private fields (e.g.modification_year) are available only to users of a collection with unreleased submissions e.g.

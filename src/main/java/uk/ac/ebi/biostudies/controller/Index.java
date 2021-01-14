@@ -7,12 +7,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.schedule.jobs.UpdateOntologyJob;
 import uk.ac.ebi.biostudies.service.IndexService;
+import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 import static uk.ac.ebi.biostudies.api.util.Constants.STRING_UNICODE_MEDIA_TYPE;
@@ -29,6 +28,12 @@ public class Index {
     private Logger logger = LogManager.getLogger(Index.class.getName());
     @Autowired
     IndexService indexService;
+
+    @Autowired
+    IndexManager indexManager;
+
+    @Autowired
+    SearchService searchService;
 
     @Autowired
     UpdateOntologyJob updateOntologyJob;
@@ -107,6 +112,39 @@ public class Index {
             return "Error: {}"+ex.getMessage();
         }
         return "Updating and building EFO Ontology";
+    }
+
+    @RequestMapping(value = "/index/backup", method = RequestMethod.GET, produces = STRING_UNICODE_MEDIA_TYPE)
+    String backUp(){
+        indexManager.takeIndexSnapShotForBackUp();
+        return "Back up copied successfully!";
+    }
+
+    @RequestMapping(value = "/index/closeindex", method = RequestMethod.GET, produces = STRING_UNICODE_MEDIA_TYPE)
+    String closeIndex(){
+        searchService.clearStatsCache();
+        indexManager.closeIndices();
+        return "index closed successfully";
+    }
+
+    @RequestMapping(value = "/index/openindex", method = RequestMethod.GET, produces = STRING_UNICODE_MEDIA_TYPE)
+    String openIndex(){
+        searchService.clearStatsCache();
+        indexManager.openIndicesWritersAndSearchers();
+        return "all indices opened successfully";
+    }
+
+    @RequestMapping(value = "/index/loadbackup", method = RequestMethod.GET, produces = STRING_UNICODE_MEDIA_TYPE)
+    String loadBackup(){
+        searchService.clearStatsCache();
+        indexManager.closeIndices();
+        if(indexManager.copyBackupToLocal()) {
+            indexManager.openIndicesWritersAndSearchers();
+            return "Backup loaded successfully!";
+        }
+        else{
+            return "problem in loading backup!!!";
+        }
     }
 
 }
