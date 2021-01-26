@@ -448,6 +448,7 @@ var FileTable = (function (_self) {
         $(selectedFiles).each( function(i,v) {
             var path ={};
             path.source = relativePath+'/Files/'+v;
+            path.destination = relativePath+"/Files"+v;
             allPaths[i] = path;
         });
         fileControls.selectFolder();
@@ -502,6 +503,7 @@ var FileTable = (function (_self) {
     fileControls.downloadFile = function (token, destinationPath) {
         transferSpec = {
             "paths": allPaths,
+            "create_dir": true,
             "remote_host": "fasp.ebi.ac.uk",
             "remote_user": "bsaspera",
             "token": token,
