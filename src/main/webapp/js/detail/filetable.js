@@ -448,6 +448,7 @@ var FileTable = (function (_self) {
         $(selectedFiles).each( function(i,v) {
             var path ={};
             path.source = relativePath+'/Files/'+v;
+            path.destination = relativePath+"/Files"+v;
             allPaths[i] = path;
         });
         fileControls.selectFolder();
@@ -502,6 +503,7 @@ var FileTable = (function (_self) {
     fileControls.downloadFile = function (token, destinationPath) {
         transferSpec = {
             "paths": allPaths,
+            "create_dir": true,
             "remote_host": "fasp.ebi.ac.uk",
             "remote_user": "bsaspera",
             "token": token,
@@ -546,7 +548,8 @@ var FileTable = (function (_self) {
             });
     };
 
-    var CONNECT_INSTALLER = "//d3gcli72yxqn2z.cloudfront.net/connect/v4";
+    // var CONNECT_INSTALLER = "//d3gcli72yxqn2z.cloudfront.net/connect/v4";
+    var CONNECT_INSTALLER = contextPath+"/js/common/connect/v4"
     var initAsperaConnect = function () {
         /* This SDK location should be an absolute path, it is a bit tricky since the usage examples
          * and the install examples are both two levels down the SDK, that's why everything works

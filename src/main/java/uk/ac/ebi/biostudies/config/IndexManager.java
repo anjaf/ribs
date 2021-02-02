@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.facet.DrillSideways;
 import org.apache.lucene.facet.taxonomy.TaxonomyReader;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyReader;
 import org.apache.lucene.facet.taxonomy.directory.DirectoryTaxonomyWriter;
@@ -60,6 +61,8 @@ public class IndexManager implements InitializingBean, DisposableBean {
     private SpellChecker spellChecker;
     private JsonNode indexDetails;
     private Map<String, List<String>> subCollectionMap = new LinkedHashMap<>();
+    private DrillSideways drillSideways;
+    private Set<String> privateFields = new HashSet<>();
     private SnapshotAwareDirectoryTaxonomyWriter facetWriter;
     private TaxonomyReader facetReader;
     private Directory taxoDirectory;
@@ -102,7 +105,8 @@ public class IndexManager implements InitializingBean, DisposableBean {
             //TODO: End - Remove this when backend supports subcollections
             taxonomyManager.init(indexEntryMap.values());
             openIndicesWritersAndSearchers();
-         }catch (Throwable error){
+            drillSideways = new DrillSideways(indexSearcher, taxonomyManager.getFacetsConfig(), facetReader);
+        }catch (Throwable error){
             logger.error("Problem in reading lucene indices",error);
         }
     }
@@ -286,6 +290,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
             indexReader.close();
             indexReader = DirectoryReader.open(indexWriter);
             indexSearcher = new IndexSearcher(indexReader);
+            drillSideways = new DrillSideways(indexSearcher, taxonomyManager.getFacetsConfig(), facetReader);
         }
         catch (Exception ex){
             logger.error("Problem in refreshing index", ex);
@@ -323,6 +328,8 @@ public class IndexManager implements InitializingBean, DisposableBean {
             for(JsonNode curField:curFieldsArray){
                 indexEntryMap.put(curField.get("name").asText(), curField);
                 curPrjRelatedFields.add(curField.get("name").asText());
+                if(curField.has(Constants.IndexEntryAttributes.PRIVATE) && curField.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean())
+                    privateFields.add(curField.get(Constants.IndexEntryAttributes.NAME).asText());
             }
             collectionRelatedFields.put(key, curPrjRelatedFields);
         }
@@ -415,5 +422,12 @@ public class IndexManager implements InitializingBean, DisposableBean {
 
     public TaxonomyReader getFacetReader() {
         return facetReader;
+    }
+    public DrillSideways getDrillSideways() {
+        return drillSideways;
+    }
+
+    public Set<String> getPrivateFields() {
+        return privateFields;
     }
 }

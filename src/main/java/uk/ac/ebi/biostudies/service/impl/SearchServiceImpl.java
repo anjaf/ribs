@@ -233,7 +233,7 @@ public class SearchServiceImpl implements SearchService {
         try {
             Query queryAfterSecurity = resultPair.getKey();
             if (selectedFacets != null) {
-                queryAfterSecurity = facetService.applyFacets(queryAfterSecurity, selectedFacets);
+                queryAfterSecurity = facetService.applyFacets(queryAfterSecurity, selectedFacets).getDrillDownQuery();
                 logger.debug("Lucene after facet query: {}", queryAfterSecurity.toString());
             }
             response = applySearchOnQuery(queryAfterSecurity, page, pageSize, sortBy, sortOrder, doHighlight, queryString);
