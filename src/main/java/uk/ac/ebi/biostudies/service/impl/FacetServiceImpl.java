@@ -63,7 +63,7 @@ public class FacetServiceImpl implements FacetService {
             queryWithoutFacet = securityQueryBuilder.applySecurity(queryWithoutFacet);
             queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
             FacetsCollector.search(indexManager.getIndexSearcher(), queryAfterFacet.getDrillDownQuery(), Integer.MAX_VALUE, facetsCollector);
-            Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
+            Facets facets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             Map<String, JsonNode> allValidFields = indexManager.getIndexEntryMap();
             JsonNode facet = allValidFields.getOrDefault(dimension, null);
             if(facet==null || facet.has(Constants.IndexEntryAttributes.PRIVATE) && facet.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean() && Session.getCurrentUser()==null) {
@@ -110,8 +110,8 @@ public class FacetServiceImpl implements FacetService {
             FacetsCollector.search(indexManager.getIndexSearcher(), queryWrapper.getDrillDownQuery(), limit, DrillDownFacetCollector);
             FacetsCollector.search(indexManager.getIndexSearcher(), queryWrapper.getBaseQuery(), limit, baseQueryFacetCollector);
 
-            drillDownFacets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), DrillDownFacetCollector);
-            baseFacets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), baseQueryFacetCollector);
+            drillDownFacets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), DrillDownFacetCollector);
+            baseFacets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), baseQueryFacetCollector);
 
             for (JsonNode field:indexManager.getIndexEntryMap().values()) {
                 if(field.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.FACET)){
