@@ -4,6 +4,10 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
+<c:set var="thorURL"><spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/></c:set>
+<script>
+    var thorURL = '${thorURL}';
+</script>
 <t:generic>
 
     <jsp:attribute name="head">
@@ -24,7 +28,6 @@
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
-        <script src="<spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/>"></script>
         <script type="text/javascript" src="${contextPath}/js/common/connect/v4/connectinstaller-4.min.js"></script>
         <script type="text/javascript" src="${contextPath}/js/common/connect/v4/asperaweb-4.min.js"></script>
         <%@include file="detail/main-file-table.hbs" %>

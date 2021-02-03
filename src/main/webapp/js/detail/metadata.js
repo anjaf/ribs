@@ -580,21 +580,23 @@ var Metadata = (function (_self) {
         })
     }
     function handleORCIDIntegration() {
-        if (typeof thorApplicationNamespace === "undefined") {
-            $('#orc-id-claimer-section').hide();
-            return;
-        };
-        var accession = $('#orcid-accession').text();
-        thorApplicationNamespace.createWorkOrcId(
-            $('#orcid-title').text(),
-            'other', // work type from https://github.com/ORCID/ORCID-Source/blob/master/orcid-model/src/main/resources/record_2.0/work-2.0.xsd
-            new Date( Date.parse($('#orcid-publication-year').text())).getFullYear(),
-            document.location.origin + window.contextPath+"/studies/"+accession,
-            null, // description
-            'BIOSTUDIES' // db name
-        );
-        thorApplicationNamespace.addWorkIdentifier('other-id', accession);
-        thorApplicationNamespace.loadClaimingInfo();
+        if (thorURL===undefined) return;
+        jQuery.getScript(thorURL)
+            .done(function(script, status) {
+                var template = Handlebars.compile($('script#main-orcid-claimer').html());
+                $('#right-column-content').append(template({accession: accession}));
+                var accession = $('#orcid-accession').text();
+                thorApplicationNamespace.createWorkOrcId(
+                    $('#orcid-title').text(),
+                    'other', // work type from https://github.com/ORCID/ORCID-Source/blob/master/orcid-model/src/main/resources/record_2.0/work-2.0.xsd
+                    new Date(Date.parse($('#orcid-publication-year').text())).getFullYear(),
+                    document.location.origin + window.contextPath + "/studies/" + accession,
+                    null, // description
+                    'BIOSTUDIES' // db name
+                );
+                thorApplicationNamespace.addWorkIdentifier('other-id', accession);
+                thorApplicationNamespace.loadClaimingInfo();
+            });
     }
 
     function handleImageURLs() {
