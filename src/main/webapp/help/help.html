@@ -121,26 +121,26 @@
 <p>The FTP server is <span class="mono">ftp.ebi.ac.uk</span>; anonymous downloads are enabled. You can
     explore access through
     FTP via your web browser, e.g., <a target="_blank"
-                                       href="ftp://ftp.ebi.ac.uk/biostudies/pub/S-BSST/S-BSST0-99/S-BSST12">
-        <span class="mono">ftp://ftp.ebi.ac.uk/biostudies/pub/S-BSST/S-BSST0-99/S-BSST12</span></a>. Use any FTP
+                                       href="ftp://ftp.ebi.ac.uk/biostudies/nfs/S-BSST/012/S-BSST12/">
+        <span class="mono">ftp://ftp.ebi.ac.uk/biostudies/nfs/S-BSST/012/S-BSST12/</span></a>. Use any FTP
     client such as FileZilla, or issue FTP commands via a command line, e.g.,
-    <span class="mono">wget ftp://ftp.ebi.ac.uk/biostudies/pub/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna</span>
+    <span class="mono">wget ftp://ftp.ebi.ac.uk/biostudies/nfs/S-BSST/012/S-BSST12/Files/aeipf_denoised_reads.fna</span>
     or, for interactive access:
 <pre class="pre">
         ftp ftp.ebi.ac.uk
         Name: anonymous
         Password: enter your e-mail address
-        ftp> cd biostudies/pub/S-BSST/S-BSST0-99/S-BSST12
+        ftp> cd biostudies/nfs/S-BSST/012/S-BSST12/Files
         ftp> get aeipf_denoised_reads.fna
         </pre>
 </p>
 
 <h4>Aspera downloads</h4>
-<p>Aspera <span class="mono">ascp</span> command line interface can be downloaded here: <a target="_blank"
-                                                                                           href="https://downloads.asperasoft.com/en/downloads/62">aspera cli</a>.
-    Please select the correct operating system. The <span class="mono">ascp</span> command line client is present in the <span class="mono">bin</span> folder
-    in the installation directory.
-    Your command for download should be like this:
+<p>You will need to <a target="_blank"
+                       href="https://www.ibm.com/support/fixcentral/swg/selectFixes?parent=ibm~Other%20software&product=ibm/Other%20software/IBM%20Aspera%20CLI&release=All&platform=All&function=all">
+    download the Aspera <span class="mono">ascp</span> command line interface</a>. Please select the correct operating
+    system. The <span class="mono">ascp</span> command line client is present in the <span class="mono">bin</span>
+    folder in the installation directory. Your command for download should be like this:
 <pre>ascp -P33001 -i &lt;key&gt; bsaspera@fasp-beta.ebi.ac.uk:&lt;files to download&gt; &lt;download location on your machine&gt;</pre>
 where
 <ul>
@@ -160,7 +160,7 @@ For instance, here's the command line to download the file <span
         class="mono">aeipf_denoised_reads.fna</span> from submission <span class="mono">S-BSST12</span> to the directory
 <span class="mono">C:\Temp</span> on Windows.
 <pre class="pre">
-            "C:\cli\bin\ascp.exe" -P33001  -i "C:\cli\etc\asperaweb_id_dsa.openssh" bsaspera@fasp-beta.ebi.ac.uk:/S-BSST/S-BSST0-99/S-BSST12/aeipf_denoised_reads.fna C:\Temp\
+            "C:\cli\bin\ascp.exe" -P33001  -i "C:\cli\etc\asperaweb_id_dsa.openssh" bsaspera@fasp-beta.ebi.ac.uk:/S-BSST/012/S-BSST12/Files/aeipf_denoised_reads.fna C:\Temp\
         </pre>
 </p>
 
