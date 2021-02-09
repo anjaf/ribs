@@ -52,6 +52,7 @@ public class MongoDBServiceImpl implements MongoDBService {
 
     @Override
     public void afterPropertiesSet() {
+        if (!mongoDBConfig.isPartialUpdatesEnabled()) return;
         MongoClient mongoClient = MongoClients.create(mongoDBConfig.getMongoConnectionString());
         MongoDatabase db = mongoClient.getDatabase(mongoDBConfig.getSchema());
         collection = db.getCollection(mongoDBConfig.getCollection());
