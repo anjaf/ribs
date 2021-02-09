@@ -7,19 +7,20 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.schedule.jobs.UpdateOntologyJob;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
+
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 import static uk.ac.ebi.biostudies.api.util.Constants.STRING_UNICODE_MEDIA_TYPE;
 
 
-/**
- * Root resource (exposed at "myresource" path)
- */
 @SuppressWarnings("Duplicates")
 @RestController
 @RequestMapping(value = "/api/v1")
@@ -47,7 +48,8 @@ public class Index {
      */
     @RequestMapping(value = "/index/reload/{filename:.*}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> indexAll(@PathVariable("filename") String filename) throws Exception {
-        if (indexService.isClosed()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
+        if (indexService.isClosed())
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode message = mapper.createObjectNode();
         try {
@@ -65,14 +67,16 @@ public class Index {
 
     @RequestMapping(value = "/index/clear", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> clearIndex() throws Exception {
-        if (indexService.isClosed()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
+        if (indexService.isClosed())
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
         indexService.clearIndex(true);
         return new ResponseEntity<String>("{\"message\":\"Index empty\"}", HttpStatus.OK);
     }
 
     @RequestMapping(value = "/index/delete/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> deleteDoc(@PathVariable(required = false) String accession) throws Exception {
-        if (indexService.isClosed()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
+        if (indexService.isClosed())
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
         indexService.deleteDoc(accession);
         return new ResponseEntity<String>("{\"message\":\"" + accession + " deleted\"}", HttpStatus.OK);
     }
@@ -102,47 +106,54 @@ public class Index {
 
     /**
      * updating and building EFO ontology index manually
+     *
      * @return
      */
     @RequestMapping(value = "/index/efo/build", produces = STRING_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public String buildEFOIndex(){
+    public String buildEFOIndex() {
         try {
             updateOntologyJob.doExecute();
-        }catch (Exception ex){
-            return "Error: {}"+ex.getMessage();
+        } catch (Exception ex) {
+            logger.error(ex);
+            return String.format("Error: %s", ex.getMessage());
         }
         return "Updating and building EFO Ontology";
     }
 
     @RequestMapping(value = "/index/backup", method = RequestMethod.GET, produces = STRING_UNICODE_MEDIA_TYPE)
-    String backUp(){
-        indexManager.takeIndexSnapShotForBackUp();
+    String backUp() {
+        try {
+            indexManager.takeIndexSnapShotForBackUp();
+            indexManager.copyBackupToRemote();
+        } catch (Exception ex) {
+            logger.error(ex);
+            return String.format("Error: %s", ex.getMessage());
+        }
         return "Back up copied successfully!";
     }
 
     @RequestMapping(value = "/index/closeindex", method = RequestMethod.GET, produces = STRING_UNICODE_MEDIA_TYPE)
-    String closeIndex(){
+    String closeIndex() {
         searchService.clearStatsCache();
         indexManager.closeIndices();
         return "index closed successfully";
     }
 
     @RequestMapping(value = "/index/openindex", method = RequestMethod.GET, produces = STRING_UNICODE_MEDIA_TYPE)
-    String openIndex(){
+    String openIndex() {
         searchService.clearStatsCache();
         indexManager.openIndicesWritersAndSearchers();
         return "all indices opened successfully";
     }
 
     @RequestMapping(value = "/index/loadbackup", method = RequestMethod.GET, produces = STRING_UNICODE_MEDIA_TYPE)
-    String loadBackup(){
+    String loadBackup() {
         searchService.clearStatsCache();
         indexManager.closeIndices();
-        if(indexManager.copyBackupToLocal()) {
+        if (indexManager.copyBackupToLocal()) {
             indexManager.openIndicesWritersAndSearchers();
             return "Backup loaded successfully!";
-        }
-        else{
+        } else {
             return "problem in loading backup!!!";
         }
     }

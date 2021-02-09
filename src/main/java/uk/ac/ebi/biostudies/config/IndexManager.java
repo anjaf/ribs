@@ -23,18 +23,21 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.SnapshotAwareDirectoryTaxonomyWriter;
-import uk.ac.ebi.biostudies.api.util.analyzer.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
+import uk.ac.ebi.biostudies.api.util.analyzer.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.service.impl.IndexTransferer;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.Executors;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -162,7 +165,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
         }
     }
 
-    public void takeIndexSnapShotForBackUp(){
+    public void takeIndexSnapShotForBackUp() throws IOException {
         IndexCommit mainSnapShot=null, facetSnapshot=null, efoSnapShot=null;
         try{
             mainSnapShot = mainIndexSnapShot.snapshot();
@@ -172,8 +175,9 @@ public class IndexManager implements InitializingBean, DisposableBean {
             efoSnapShot = efoIndexSnapShot.snapshot();
             indexTransferer.copyIndexFromSnapShot(efoSnapShot.getFileNames(), eFOConfig.getIndexLocation(), indexConfig.getIndexBackupDirectory()+"/efo");
 
-        }catch (Exception ex){
+        } catch (Exception ex){
             logger.error("problem in taking snapshot from main index", ex);
+            throw ex;
         }
         finally {
             try {
@@ -183,7 +187,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
                     facetWriter.getDeletionPolicy().release(facetSnapshot);
                 if(efoSnapShot!=null)
                     efoIndexSnapShot.release(efoSnapShot);
-            }catch (Exception ex){
+            } catch (Exception ex){
                 logger.error("problem in releasing snapshot lock", ex);
             }
         }
@@ -429,5 +433,19 @@ public class IndexManager implements InitializingBean, DisposableBean {
 
     public Set<String> getPrivateFields() {
         return privateFields;
+    }
+
+    public void copyBackupToRemote() throws Exception {
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command("sh", "-c",indexConfig.getIndexSyncCommand());
+        Process process = builder.start();
+        Executors.newSingleThreadExecutor().submit(() ->
+                new BufferedReader(new InputStreamReader(process.getInputStream()))
+                .lines()
+                .forEach(s -> logger.debug(s)));
+        int exitCode = process.waitFor();
+        if (exitCode!=0) {
+            throw new Exception("Error running remote copying script");
+        }
     }
 }
