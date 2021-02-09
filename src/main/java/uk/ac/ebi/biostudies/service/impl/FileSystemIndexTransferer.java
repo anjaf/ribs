@@ -58,7 +58,7 @@ public class FileSystemIndexTransferer implements IndexTransferer {
         }
         for (String curFile : indexFiles) {
             try {
-                Files.copy(Paths.get(srcDir + "\\" + curFile), Paths.get(destDir + "\\" + curFile), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(Paths.get(srcDir + "/" + curFile), Paths.get(destDir + "/" + curFile), StandardCopyOption.REPLACE_EXISTING);
             } catch (Exception ex) {
                 LOGGER.error("Problem in copying file", ex);
             }
