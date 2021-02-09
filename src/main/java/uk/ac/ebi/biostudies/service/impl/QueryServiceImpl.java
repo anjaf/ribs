@@ -120,7 +120,7 @@ public class QueryServiceImpl implements QueryService {
             collections.addAll(indexManager.getSubCollectionMap().get(prjName));
         }
         hm.put(taxonomyManager.PROJECT_FACET, collections);
-        return facetService.addFacetDrillDownFilters(query, hm).getDrillDownQuery();
+        return facetService.addFacetDrillDownFilters(query, hm);
     }
 
     public Pair<Query, EFOExpansionTerms> expandQuery(Query query) throws IOException {

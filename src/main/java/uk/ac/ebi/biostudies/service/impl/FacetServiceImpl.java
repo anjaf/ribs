@@ -12,7 +12,6 @@ import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
-import uk.ac.ebi.biostudies.api.util.DrillDownWrapper;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.config.IndexConfig;
@@ -52,7 +51,6 @@ public class FacetServiceImpl implements FacetService {
 
     public JsonNode getDimension(String collection, String dimension, String queryString, JsonNode facetAndFields) {
         Query queryWithoutFacet = null;
-        DrillDownWrapper queryAfterFacet = null;
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode facetJSON = mapper.createObjectNode();
         FacetsCollector facetsCollector = new FacetsCollector();
@@ -61,8 +59,8 @@ public class FacetServiceImpl implements FacetService {
             JsonNode selectedFields = facetAndFields.get("fields")==null?mapper.createObjectNode():facetAndFields.get("fields");
             queryWithoutFacet = queryService.makeQuery(queryString, collection, selectedFields).getKey();
             queryWithoutFacet = securityQueryBuilder.applySecurity(queryWithoutFacet);
-            queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
-            FacetsCollector.search(indexManager.getIndexSearcher(), queryAfterFacet.getDrillDownQuery(), Integer.MAX_VALUE, facetsCollector);
+//            queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
+            FacetsCollector.search(indexManager.getIndexSearcher(), queryWithoutFacet, Integer.MAX_VALUE, facetsCollector);
             Facets facets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             Map<String, JsonNode> allValidFields = indexManager.getIndexEntryMap();
             JsonNode facet = allValidFields.getOrDefault(dimension, null);
@@ -99,19 +97,13 @@ public class FacetServiceImpl implements FacetService {
     }
 
     @Override
-    public List<FacetResult> getFacetsForQuery(DrillDownWrapper queryWrapper, int limit, Map<String, Map<String, Integer>> selectedFacetFreq, JsonNode selectedFacets) {
-        FacetsCollector DrillDownFacetCollector = new FacetsCollector();
-        FacetsCollector baseQueryFacetCollector = new FacetsCollector();
+    public List<FacetResult> getFacetsForQuery(DrillDownQuery drillDownQuery, int limit, Map<String, Map<String, Integer>> selectedFacetFreq, JsonNode selectedFacets) {
+        Facets drillDownFacets=null;
         List<FacetResult> allResults = new ArrayList<>();
-        Facets drillDownFacets = null, applyFacets = null;
-        Facets baseFacets = null;
+        DrillSideways mySideWaysQuery = new DrillSideways(indexManager.getIndexSearcher(), taxonomyManager.getFacetsConfig(), indexManager.getFacetReader());
         try {
-            int tempLimit= limit;
-            FacetsCollector.search(indexManager.getIndexSearcher(), queryWrapper.getDrillDownQuery(), limit, DrillDownFacetCollector);
-            FacetsCollector.search(indexManager.getIndexSearcher(), queryWrapper.getBaseQuery(), limit, baseQueryFacetCollector);
-
-            drillDownFacets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), DrillDownFacetCollector);
-            baseFacets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), baseQueryFacetCollector);
+            DrillSideways.DrillSidewaysResult resultSideWays = mySideWaysQuery.search(drillDownQuery, limit);
+            int tempLimit;
 
             for (JsonNode field:indexManager.getIndexEntryMap().values()) {
                 if(field.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.FACET)){
@@ -119,31 +111,33 @@ public class FacetServiceImpl implements FacetService {
                     if(field.has(Constants.IndexEntryAttributes.PRIVATE) && field.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean() && Session.getCurrentUser()==null) {
                         continue;
                     }
-                    if(queryWrapper.getDrillDownDims().contains(field.get(Constants.IndexEntryAttributes.NAME).asText()))
-                        applyFacets = baseFacets;
-                    else
-                        applyFacets = drillDownFacets;
+                    drillDownFacets= resultSideWays.facets;
                     tempLimit = field.get(Constants.IndexEntryAttributes.NAME).asText().equalsIgnoreCase(Constants.Facets.RELEASED_YEAR_FACET)?Integer.MAX_VALUE:limit;
-                    allResults.add(applyFacets.getTopChildren(tempLimit, field.get(Constants.IndexEntryAttributes.NAME).asText()));
+                    allResults.add(drillDownFacets.getTopChildren(tempLimit, field.get(Constants.IndexEntryAttributes.NAME).asText()));
                 }
             }
         } catch (IOException e) {
-            logger.debug("problem in creating facetresults for this query {}", queryWrapper.getDrillDownQuery(), e);
+            logger.debug("problem in creating facetresults for this query {}", drillDownQuery, e);
         } catch (Throwable e) {
-            logger.debug("problem in applying security in creating facetresults for this query {}", queryWrapper.getDrillDownQuery(), e);
+            logger.debug("problem in applying security in creating facetresults for this query {}", drillDownQuery, e);
         }
-        addLowFreqSelectedFacets(selectedFacetFreq, selectedFacets, baseFacets);
+        addLowFreqSelectedFacets(selectedFacetFreq, selectedFacets, drillDownFacets);
         return allResults;
     }
 
-    private void addLowFreqSelectedFacets( Map<String, Map<String, Integer>> selectedFacetFreq, JsonNode selectedFacets, Facets facets){
+    /**
+     * sending data for ui to add selected low frequency facets freq in see all facets usecase
+     */
+    private void addLowFreqSelectedFacets( Map<String, Map<String, Integer>> selectedFacetFreq, JsonNode selectedFacets, Facets perDimFacets){
         Iterator<String> fieldNamesIterator = selectedFacets.fieldNames();
         String dim="";
         String path ="";
         int freq = 0;
+        if(perDimFacets ==null)
+            return;
         while(fieldNamesIterator.hasNext()) {
             dim = fieldNamesIterator.next();
-            if (facets ==null || dim == null)
+            if (dim == null)
                 continue;
             ArrayNode field = (ArrayNode) selectedFacets.get(dim);
             if (field == null)
@@ -156,7 +150,7 @@ public class FacetServiceImpl implements FacetService {
                 if(path==null || path.isEmpty())
                     continue;
                 try {
-                    freq = facets.getSpecificValue(dim, path).intValue();
+                    freq = perDimFacets.getSpecificValue(dim, path).intValue();
                     freqForDim.put(path, freq);
                 } catch (Throwable e) {
                     logger.debug("problem in getSpecificValue", e);
@@ -167,8 +161,8 @@ public class FacetServiceImpl implements FacetService {
 
     @Override
     public JsonNode getDefaultFacetTemplate(String prjName, String queryString, int limit, JsonNode selectedFacetsAndFields){
-        Query queryWithoutFacet = null;
-        DrillDownWrapper queryAfterFacet = null;
+        Query queryWithoutFacet;
+        DrillDownQuery queryAfterFacet = null;
         int hits = 0;
         ObjectMapper mapper = new ObjectMapper();
         JsonNode selectedFacets = selectedFacetsAndFields.get("facets")==null?mapper.createObjectNode():selectedFacetsAndFields.get("facets");
@@ -261,7 +255,7 @@ public class FacetServiceImpl implements FacetService {
     }
 
     @Override
-    public DrillDownWrapper addFacetDrillDownFilters(Query primaryQuery, Map<JsonNode, List<String>> userSelectedDimValues){
+    public DrillDownQuery addFacetDrillDownFilters(Query primaryQuery, Map<JsonNode, List<String>> userSelectedDimValues){
     /*
             BooleanQuery.Builder bQueryBuilder = new BooleanQuery.Builder();
             bQueryBuilder.add(primaryQuery, BooleanClause.Occur.MUST);
@@ -278,7 +272,6 @@ public class FacetServiceImpl implements FacetService {
             }
             return bQueryBuilder.build();
     */
-        DrillDownWrapper drillDownWrapper = new DrillDownWrapper(primaryQuery);
         DrillDownQuery drillDownQuery = new DrillDownQuery(taxonomyManager.getFacetsConfig(), primaryQuery);
         for(JsonNode facet: userSelectedDimValues.keySet()) {
             if (facet==null || !facet.get(Constants.IndexEntryAttributes.FIELD_TYPE).asText().equalsIgnoreCase(Constants.IndexEntryAttributes.FieldTypeValues.FACET))
@@ -287,14 +280,12 @@ public class FacetServiceImpl implements FacetService {
             if(listSelectedValues!=null)
                 for(String value:listSelectedValues) {
                     drillDownQuery.add(facet.get(Constants.IndexEntryAttributes.NAME).asText(), value.toLowerCase());
-                    drillDownWrapper.addDim(facet.get(Constants.IndexEntryAttributes.NAME).asText());
                 }
         }
-        drillDownWrapper.setDrillDownQuery(drillDownQuery);
-        return drillDownWrapper;
+        return drillDownQuery;
     }
 
-    public DrillDownWrapper applyFacets(Query query, JsonNode facets){
+    public DrillDownQuery applyFacets(Query query, JsonNode facets){
         Map<JsonNode, List<String>> selectedFacets = new HashMap<>();
         if(facets!=null){
             Iterator<String> fieldNamesIterator = facets.fieldNames();
