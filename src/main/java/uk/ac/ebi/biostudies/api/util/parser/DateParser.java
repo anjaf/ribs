@@ -41,13 +41,13 @@ public class DateParser extends AbstractParser {
         }
 
         if (submission.has(Constants.Fields.RELEASE_TIME)) {
-            if (!submission.get(Constants.Fields.RELEASE_TIME).asText().equals("-1")) {
+            if (!submission.get(Constants.Fields.RELEASE_TIME).asText().equals("-1") && !submission.get(Constants.Fields.RELEASE_TIME).asText().equals("null")) {
                 releaseDateLong = Long.parseLong(submission.get(Constants.Fields.RELEASE_TIME).asText()) * 1000;
             } else if (String.valueOf(valueMap.get(Constants.Fields.ACCESS)).contains(PUBLIC)) {
                 releaseDateLong = Long.parseLong(submission.get(Constants.Fields.MODIFICATION_TIME).asText()) * 1000;
             }
         } else if (submission.has(Constants.Fields.RELEASE_TIME_FULL)) {
-            if (!submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("-1")) {
+            if (!submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("-1") && !submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("null")) {
                 Instant instant = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.RELEASE_TIME_FULL).asText()));
                 releaseDateLong = (instant.getEpochSecond() < 0) ? 0 : instant.toEpochMilli();
             } else if (String.valueOf(valueMap.get(Constants.Fields.ACCESS)).contains(PUBLIC)) {
