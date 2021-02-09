@@ -61,7 +61,7 @@ public class FacetServiceImpl implements FacetService {
             queryWithoutFacet = securityQueryBuilder.applySecurity(queryWithoutFacet);
 //            queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
             FacetsCollector.search(indexManager.getIndexSearcher(), queryWithoutFacet, Integer.MAX_VALUE, facetsCollector);
-            Facets facets = new FastTaxonomyFacetCounts(taxonomyManager.getTaxonomyReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
+            Facets facets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
             Map<String, JsonNode> allValidFields = indexManager.getIndexEntryMap();
             JsonNode facet = allValidFields.getOrDefault(dimension, null);
             if(facet==null || facet.has(Constants.IndexEntryAttributes.PRIVATE) && facet.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean() && Session.getCurrentUser()==null) {
@@ -100,7 +100,7 @@ public class FacetServiceImpl implements FacetService {
     public List<FacetResult> getFacetsForQuery(DrillDownQuery drillDownQuery, int limit, Map<String, Map<String, Integer>> selectedFacetFreq, JsonNode selectedFacets) {
         Facets drillDownFacets=null;
         List<FacetResult> allResults = new ArrayList<>();
-        DrillSideways mySideWaysQuery = new DrillSideways(indexManager.getIndexSearcher(), indexManager.getTaxonomyManager().getFacetsConfig(), indexManager.getTaxonomyManager().getTaxonomyReader());
+        DrillSideways mySideWaysQuery = new DrillSideways(indexManager.getIndexSearcher(), taxonomyManager.getFacetsConfig(), indexManager.getFacetReader());
         try {
             DrillSideways.DrillSidewaysResult resultSideWays = mySideWaysQuery.search(drillDownQuery, limit);
             int tempLimit;
@@ -161,7 +161,7 @@ public class FacetServiceImpl implements FacetService {
 
     @Override
     public JsonNode getDefaultFacetTemplate(String prjName, String queryString, int limit, JsonNode selectedFacetsAndFields){
-        Query queryWithoutFacet = null;
+        Query queryWithoutFacet;
         DrillDownQuery queryAfterFacet = null;
         int hits = 0;
         ObjectMapper mapper = new ObjectMapper();
