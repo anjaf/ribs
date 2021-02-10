@@ -5,14 +5,13 @@
 <%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
 <c:set var="thorURL"><spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/></c:set>
-<script>
-    var thorURL = '${thorURL}';
-</script>
 <t:generic>
-
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/jquery.dataTables.css">
         <link rel="stylesheet" href="${contextPath}/css/detail.css" type="text/css">
+        <script>
+            var thorURL = '${thorURL}';
+        </script>
         <jwr:script src="/js/detail.min.js"/>
     </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
