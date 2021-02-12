@@ -6,6 +6,7 @@ var FileTable = (function (_self) {
     var columnDefinitions=[];
     var sorting=false;
     var afterTableInit=false;
+    var allPaths = [];
 
     _self.render = function (acc, params, isDetailPage){
         $.ajax({url: contextPath + '/api/v1/studies/' + acc + '/info',
@@ -21,7 +22,7 @@ var FileTable = (function (_self) {
                     return;
                 }
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
-                handleFileDownloadSelection(acc,params.key);
+                handleFileDownloadSelection(acc,params.key, response.relPath);
                 handleFileFilters(acc, params, response.sections);
                 handleAdvancedSearch(columnDefinitions);
                 handleFileListButtons(acc, params.key);
@@ -133,7 +134,7 @@ var FileTable = (function (_self) {
         }
 
         $('#file-list_filter').after('<label id="advanced-search" for="advsearch"  title="Search in columns"><input style=" margin:0;width:0; height:0; opacity: 0" type="checkbox" id="advsearchinput"></input>' +
-                '<i id="advanced-search-icon" class="far fa-plus-square"></i>\n' +
+            '<i id="advanced-search-icon" class="far fa-plus-square"></i>\n' +
             '</label>');
 
         $("#advanced-search").click(function () {
@@ -170,11 +171,11 @@ var FileTable = (function (_self) {
         if (isDetailPage) {
             var sectionColumn = columns.filter(function(c) {return c.name=='Section';});
             if (sectionColumn.length) {
-                    sectionColumn[0].render = function (data, type, row) {
-                        return data && data != '' ?
-                            '<a href="#' + data + '">' + $('#' + $.escapeSelector(data)  + ' .section-name').first().text().trim() + '</a>'
-                            : '';
-                    }
+                sectionColumn[0].render = function (data, type, row) {
+                    return data && data != '' ?
+                        '<a href="#' + data + '">' + $('#' + $.escapeSelector(data)  + ' .section-name').first().text().trim() + '</a>'
+                        : '';
+                }
             }
         } else {
             columns = columns.filter(function(c) {return c.name!='Section';});
@@ -185,8 +186,8 @@ var FileTable = (function (_self) {
         });
         if (thumbnailColumn.length) {
             thumbnailColumn[0].render = function (data, type, row) {
-            return '<img  height="100" width="100" src="'
-                + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + encodeURI(row.path + (params.key? '?key='+params.key :'')).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")+'" </img> ';
+                return '<img  height="100" width="100" src="'
+                    + window.contextPath + '/thumbnail/' + $('#accession').text() + '/' + encodeURI(row.path + (params.key? '?key='+params.key :'')).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")+'" </img> ';
             }
         }
         filesTable = $('#file-list').DataTable({
@@ -296,15 +297,12 @@ var FileTable = (function (_self) {
         $('#clear-file-filter').on('click', function () {
             FileTable.clearFileFilter();
         });
-        
+
         $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px');
         $('.fullscreen').css("top", ( $(window).height() - $('#file-list-container').height()) / 3  + "px");
         // TODO: enable select on tr click
         updateSelectedFiles();
         handleThumbnails(params.key);
-
-
-
 
         if ($('#advanced-search-icon').hasClass('fa-minus-square')) {
             $(".col-advsearch-input").show();
@@ -340,30 +338,29 @@ var FileTable = (function (_self) {
             fileSearchParams[column+'[name]']='Section';
             fileSearchParams[column+'[search][value]']=divId;
             $.post(contextPath + '/api/v1/files/' + acc , fileSearchParams, function(data) {
-                    var bar = $('#' + $.escapeSelector(divId) + '> .bs-name > .section-title-bar');
-                    var button = $('<a class="section-button" data-files-id="'+ divId + '">' +
-                        '<i class="fa fa-filter"></i> '+ data.recordsFiltered + ' file' +
-                        (data.recordsFiltered>1 ? 's' : '') +
-                        '</a>');
-                    // handle clicks on file filters in section
-                    $(button).click(function () {
-                        var expansionSource = '' + $(this).data('files-id');
-                        Metadata.setExpansionSource(expansionSource);
-                        //clearFileFilter();
-                        $('#all-files-expander').click();
-                        filesTable.column(':contains(Section)').search(expansionSource);
-                        filesTable.draw();
+                var bar = $('#' + $.escapeSelector(divId) + '> .bs-name > .section-title-bar');
+                var button = $('<a class="section-button" data-files-id="'+ divId + '">' +
+                    '<i class="fa fa-filter"></i> '+ data.recordsFiltered + ' file' +
+                    (data.recordsFiltered>1 ? 's' : '') +
+                    '</a>');
+                // handle clicks on file filters in section
+                $(button).click(function () {
+                    var expansionSource = '' + $(this).data('files-id');
+                    Metadata.setExpansionSource(expansionSource);
+                    //clearFileFilter();
+                    $('#all-files-expander').click();
+                    filesTable.column(':contains(Section)').search(expansionSource);
+                    filesTable.draw();
 
-                    });
-                    bar.append(button);
+                });
+                bar.append(button);
             });
 
         });
 
     }
 
-    function handleFileDownloadSelection(acc,key) {
-
+    function handleFileDownloadSelection(acc,key,relativePath) {
         // add select all checkboz
         $(filesTable.columns(0).header()).html('<input id="select-all-files"  type="checkbox"/>');
         $('#select-all-files').on('click', function () {
@@ -404,6 +401,8 @@ var FileTable = (function (_self) {
             var ftpCompiledInstructionTemplate = Handlebars.compile(ftpDlInstructionTemplate);
             var asperaDlInstructionTemplate = $('script#aspera-dl-instruction').html();
             var asperaCompiledInstructionTemplate = Handlebars.compile(asperaDlInstructionTemplate);
+            // initAsperaConnect();
+
             $('#batchdl-popup').html(compiledPopUpTemplate({fname:fileName}));
             $('#batchdl-popup').foundation('open');
             var dltype = "/zip";
@@ -432,8 +431,147 @@ var FileTable = (function (_self) {
                 getSelectedFilesForm(key, '/aspera', fileName.os);
             });
 
+            $("#aspera-plugin-dl-button").on('click', function (e) {
+                initAsperaConnect();
+                $('#aspera-dl-message').html("");
+                asperaPluginWarmUp(selectedFiles, relativePath)
+                fileControls.selectFolder();
+                e.preventDefault();
+            });
+
         });
     }
+
+
+    function asperaPluginWarmUp(selectedFiles, relativePath){
+        allPaths=[];
+        $(selectedFiles).each( function(i,v) {
+            var path ={};
+            path.source = relativePath+'/Files/'+v;
+            path.destination = relativePath+"/Files"+v;
+            allPaths[i] = path;
+        });
+        fileControls.selectFolder();
+    };
+
+    fileControls = {};
+    fileControls.handleTransferEvents = function (event, transfersJsonObj) {
+        switch (event) {
+            case 'transfer':
+                if(transfersJsonObj.result_count>0 && transfersJsonObj.transfers[transfersJsonObj.result_count-1]){
+                    var tranfer = transfersJsonObj.transfers[transfersJsonObj.result_count-1]
+                    if(tranfer.status === "failed") {
+                        $('#aspera-dl-message').html( tranfer.title + ": " + tranfer.error_desc);
+                    } else if(tranfer.status === "completed") {
+                        $('#aspera-dl-message').html( tranfer.title + ": completed!");
+                    }
+                }
+                break;
+        }
+    };
+    fileControls.transfer = function(transferSpec, connectSettings, token) {
+        if (typeof token !== "undefined" && token !== "") {
+            transferSpec.authentication="token";
+            transferSpec.token=token;
+        }
+        asperaWeb.startTransfer(transferSpec, connectSettings,
+            callbacks = {
+                error : function(obj) {
+                    console.log("Failed to start : " + JSON.stringify(obj, null, 4));
+                },
+                success:function () {
+
+                }
+            });
+    };
+
+    fileControls.getTokenBeforeTransfer = function(transferSpec, connectSettings, download) {
+        $.post({url: contextPath + '/api/v1/aspera',
+            data:{"paths":JSON.stringify(allPaths)},//
+            success: function(response){
+                token= response;
+                if(token!='')
+                    fileControls.transfer(transferSpec, connectSettings, token);
+            },
+            error : function(response) {
+                console.log("ERR: Failed to generate token " + response);
+                $('#aspera-dl-message').html("Problem in downloading process. Invalid token.");
+            }
+        });
+    }
+
+    fileControls.downloadFile = function (token, destinationPath) {
+        transferSpec = {
+            "paths": allPaths,
+            "create_dir": true,
+            "remote_host": "fasp.ebi.ac.uk",
+            "remote_user": "bsaspera",
+            "token": token,
+            "authentication": "token",
+            "fasp_port": 33001,
+            "ssh_port": 33001,
+            "direction": "receive",
+            "target_rate_kbps": 200000,
+            "rate_policy": "fair",
+            "allow_dialogs": true,
+            "resume": "sparse_checksum",
+            "destination_root": destinationPath
+        };
+
+        connectSettings = {
+            "allow_dialogs": false,
+            "use_absolute_destination_path": true
+        };
+
+        fileControls.getTokenBeforeTransfer(transferSpec, connectSettings, transferSpec.paths[0].source, true);
+    }
+
+    fileControls.selectFolder = function (token) {
+        asperaWeb.showSelectFolderDialog(
+            callbacks = {
+                error : function(obj) {
+                    console.log("Destination folder selection cancelled. Download cancelled."+ obj);
+                },
+                success:function (dataTransferObj) {
+                    var files = dataTransferObj.dataTransfer.files;
+                    if (files !== null && typeof files !== "undefined" && files.length !== 0) {
+                        destPath = files[0].name;
+                        console.log("Destination folder for download: " + destPath);
+                        fileControls.downloadFile(token, destPath);
+                    }
+                }
+            },
+            //disable the multiple selection.
+            options = {
+                allowMultipleSelection : false,
+                title : "Select Download Destination Folder"
+            });
+    };
+
+    // var CONNECT_INSTALLER = "//d3gcli72yxqn2z.cloudfront.net/connect/v4";
+    var CONNECT_INSTALLER = contextPath+"/js/common/connect/v4"
+    var initAsperaConnect = function () {
+        /* This SDK location should be an absolute path, it is a bit tricky since the usage examples
+         * and the install examples are both two levels down the SDK, that's why everything works
+         */
+        this.asperaWeb = new AW4.Connect({sdkLocation: CONNECT_INSTALLER, minVersion: "3.6.0"});
+        var asperaInstaller = new AW4.ConnectInstaller({sdkLocation: CONNECT_INSTALLER});
+        var statusEventListener = function (eventType, data) {
+            if (eventType === AW4.Connect.EVENT.STATUS && data == AW4.Connect.STATUS.INITIALIZING) {
+                asperaInstaller.showLaunching();
+            } else if (eventType === AW4.Connect.EVENT.STATUS && data == AW4.Connect.STATUS.FAILED) {
+                asperaInstaller.showDownload();
+            } else if (eventType === AW4.Connect.EVENT.STATUS && data == AW4.Connect.STATUS.OUTDATED) {
+                asperaInstaller.showUpdate();
+            } else if (eventType === AW4.Connect.EVENT.STATUS && data == AW4.Connect.STATUS.RUNNING) {
+                asperaInstaller.connected();
+            }
+        };
+        asperaWeb.addEventListener(AW4.Connect.EVENT.STATUS, statusEventListener);
+        asperaWeb.addEventListener(AW4.Connect.EVENT.TRANSFER, fileControls.handleTransferEvents);
+        asperaWeb.initSession();
+    }
+
 
     function getOsData(os, acc){
         var fileName={acc:$('#accession').text()};

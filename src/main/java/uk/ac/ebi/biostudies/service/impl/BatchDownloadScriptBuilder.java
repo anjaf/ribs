@@ -49,7 +49,7 @@ public class BatchDownloadScriptBuilder {
             content = String.format(fileTemplate, baseDirectory, allFiles);
         }
         else if(downloadType.equalsIgnoreCase("aspera")){
-            content = fileNames.stream().map(name -> String.format(fileTemplate, "\""+baseDirectory+"/"+name+"\"")).collect(Collectors.joining("\r\n"));
+            content = fileNames.stream().map(name -> String.format(fileTemplate, "\""+baseDirectory+"/Files/"+name+"\"")).collect(Collectors.joining("\r\n"));
         }
         return content;
     }

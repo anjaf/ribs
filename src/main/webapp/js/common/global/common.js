@@ -18,6 +18,10 @@ $(function() {
         $('#elixir-banner').hide();
     }
 
+    $.ajaxSetup({
+        cache: true
+    });
+
     if (collection && collection.toLowerCase()=='bioimages') {
         handleBioImagesUI();
     }

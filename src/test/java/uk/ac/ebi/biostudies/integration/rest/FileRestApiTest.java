@@ -21,7 +21,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
@@ -31,13 +30,8 @@ import uk.ac.ebi.biostudies.auth.UserSecurityService;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
 import uk.ac.ebi.biostudies.service.SearchService;
-import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
-
-import javax.validation.constraints.AssertTrue;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.doReturn;
@@ -63,9 +57,6 @@ public class FileRestApiTest {
 
     @Autowired
     SearchService searchServiceImpl;
-
-    @Autowired
-    ZipDownloadService zipDownloadService;
 
     @LocalServerPort
     int randomPort;
