@@ -302,6 +302,13 @@ var Metadata = (function (_self) {
             $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px').css('top', '45%');
             $('.fullscreen').css("top", ( $(window).height() - $(this).parent().parent().height() ) / 3  + "px");
             $('.fullscreen').css("left", ( $(window).width() - $(this).parent().parent().width() ) / 2 + "px");
+
+            if (!$(this).parent().parent().hasClass('fullscreen') &&  expansionSource) {
+                openHREF('#'+expansionSource);
+                expansionSource = null;
+                clearLinkFilter();
+                clearFileFilter();
+            }
             /*if ($(this).attr('id')=='all-files-expander')   {
                 clearFileFilter();
             }*/
