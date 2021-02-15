@@ -360,6 +360,7 @@ var FileTable = (function (_self) {
 
     }
 
+    var dlIndex = -1;
     function handleFileDownloadSelection(acc,key,relativePath) {
         // add select all checkboz
         $(filesTable.columns(0).header()).html('<input id="select-all-files"  type="checkbox"/>');
@@ -433,7 +434,7 @@ var FileTable = (function (_self) {
 
             $("#aspera-plugin-dl-button").on('click', function (e) {
                 initAsperaConnect();
-                $('#aspera-dl-message').html("");
+                dlIndex = -1;
                 asperaPluginWarmUp(selectedFiles, relativePath)
                 fileControls.selectFolder();
                 e.preventDefault();
@@ -453,17 +454,37 @@ var FileTable = (function (_self) {
         });
         fileControls.selectFolder();
     };
-
     fileControls = {};
     fileControls.handleTransferEvents = function (event, transfersJsonObj) {
         switch (event) {
-            case 'transfer':
+            case AW4.Connect.EVENT.TRANSFER:
                 if(transfersJsonObj.result_count>0 && transfersJsonObj.transfers[transfersJsonObj.result_count-1]){
                     var tranfer = transfersJsonObj.transfers[transfersJsonObj.result_count-1]
-                    if(tranfer.status === "failed") {
-                        $('#aspera-dl-message').html( tranfer.title + ": " + tranfer.error_desc);
-                    } else if(tranfer.status === "completed") {
-                        $('#aspera-dl-message').html( tranfer.title + ": completed!");
+
+                    if(dlIndex>=0){
+                        var percentage = Math.floor(tranfer.percentage*100)+'%';
+                        $('.progress .progress-meter')[0].style.width = percentage;
+                        $('.progress .progress-meter-text').html(percentage);
+                    }
+
+
+                    if(tranfer.status===AW4.Connect.TRANSFER_STATUS.INITIATING) {
+                        dlIndex = transfersJsonObj.result_count - 1;
+                    }
+
+                    if(tranfer.status === AW4.Connect.TRANSFER_STATUS.FAILED && dlIndex>=0) {
+                        $('#aspera-dl-message p').html( tranfer.title + ": " + tranfer.error_desc);
+                        $('#aspera-dl-message').addClass('callout alert').removeClass('success');
+                        $('.progress').addClass('alert');
+                        dlIndex=-1;
+                    } else if(tranfer.status === AW4.Connect.TRANSFER_STATUS.COMPLETED && dlIndex>=0) {
+                        $('#aspera-dl-message p').html(tranfer.title + ' download completed at '+tranfer.transfer_spec.destination_root);
+                        $('#aspera-dl-message').addClass('callout success').removeClass('alert');
+                        $('.progress').addClass('success');
+                        dlIndex=-1;
+                    }else if(tranfer.status === AW4.Connect.TRANSFER_STATUS.RUNNING) {
+
+                        console.log(tranfer.percentage);
                     }
                 }
                 break;
@@ -495,7 +516,8 @@ var FileTable = (function (_self) {
             },
             error : function(response) {
                 console.log("ERR: Failed to generate token " + response);
-                $('#aspera-dl-message').html("Problem in downloading process. Invalid token.");
+                $('#aspera-dl-message').addClass('callout alert').removeClass('success');
+                $('#aspera-dl-message p').html("Problem in downloading process. Invalid token.");
             }
         });
     }
@@ -535,6 +557,12 @@ var FileTable = (function (_self) {
                 success:function (dataTransferObj) {
                     var files = dataTransferObj.dataTransfer.files;
                     if (files !== null && typeof files !== "undefined" && files.length !== 0) {
+                        $('#aspera-dl-message p').html("");
+                        $('#aspera-dl-message').removeClass('callout alert success');
+                        $('#progress_bar')[0].style.display="block";
+                        $('.progress').removeClass('success alert');
+                        $('.progress .progress-meter')[0].style.width = '0%';
+                        $('.progress .progress-meter-text').html('0%');
                         destPath = files[0].name;
                         console.log("Destination folder for download: " + destPath);
                         fileControls.downloadFile(token, destPath);

@@ -88,9 +88,21 @@
             <li class="accordion-item" data-accordion-item>
                  <a href="#" class="accordion-title" style="font-size:medium;">Download Using Aspera Connect plugin</a>
                  <div class="accordion-content" style="padding:5px;" data-tab-content>
+                     <p>After initiating download, the requested files will be downloaded by Aspera and you can close this page.</p>
+                     <p>You can manage downloading files by Aspera's connect management console which is located in taskbar of your operating system.</p>
                      <input id="aspera-plugin-dl-button" class="button" type="button" value="Download"/>
-                     <div class="row">
-                        <div class="alert" id="aspera-dl-message" class="columns small-6 large-4"></div>
+                     <div class="row" id="progress_bar" style="display: none">
+                        <div role="progressbar" class="progress success small-8 medium-8 large-6 round">
+                          <span class="progress-meter" style="width: 0%">
+                            <span class="progress-meter-text">0%</span>
+                          </span>
+                        </div>
+                        <div class="columns small-2 medium-2 large-3 "/>
+                     </div>
+                     <div id="aspera-dl-message" class="">
+                       <p></p>
+                     </div>
+                       <!-- <div class="alert" id="aspera-dl-message" class="columns small-6 large-4"></div>-->
                      </div>
                  </div>
             </li>
