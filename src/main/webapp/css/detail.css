@@ -612,3 +612,6 @@ span.file-list-buttons .fa-file-download {
 .author-name:hover .author-card {
     display:block;
 }
+.progress-meter-text {
+    margin-left: 10px;
+}
