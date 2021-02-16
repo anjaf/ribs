@@ -18,7 +18,12 @@ function addHighlights(selector, data) {
         })
         $.each(highlights, function (i, v) {
             if (v.word != 'AND' && v.word != 'OR' && v.word != 'NOT') {
-                $(selector).mark(v.word, {className: v.class, wildcards:'enabled',separateWordSearch: false, accuracy:'exactly'});
+                $(selector).mark(v.word, {
+                    className: v.class,
+                    wildcards: 'enabled',
+                    separateWordSearch: false,
+                    accuracy: { value: 'exactly', limiters: [',', '.'] }
+                });
             }
         });
 
