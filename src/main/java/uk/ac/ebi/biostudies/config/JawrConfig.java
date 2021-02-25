@@ -19,8 +19,6 @@ public class JawrConfig {
     private JawrSpringController jawrJsController;
     @Autowired
     private JawrSpringController jawrCssController;
-    @Autowired
-    private HandlerMapping jawrHandlerMapping;
 
     @Bean
     public HandlerMapping jawrHandlerMapping() {
@@ -29,7 +27,6 @@ public class JawrConfig {
         Map<String, Object> urlMap = new HashMap();
         urlMap.put("**/*.css", this.jawrCssController);
         urlMap.put("**/*.js", this.jawrJsController);
-        this.jawrHandlerMapping.toString();
         handlerMapping.setUrlMap(urlMap);
         return handlerMapping;
     }
