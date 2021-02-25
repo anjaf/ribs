@@ -4,25 +4,20 @@ package uk.ac.ebi.biostudies.config;
  * Created by ehsan on 23/02/2017.
  */
 
-import net.jawr.web.servlet.JawrSpringController;
 import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardHost;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.config.annotation.*;
-
-import java.util.Properties;
 
 
 @Configuration
@@ -30,14 +25,8 @@ import java.util.Properties;
 @EnableScheduling
 @ComponentScan(basePackages = "uk.ac.ebi.biostudies")
 @PropertySource("classpath:scheduler.properties")
-public class MvcConfig implements WebMvcConfigurer, EnvironmentAware {
-    private Environment environment;
+public class MvcConfig implements WebMvcConfigurer {
 
-
-    @Override
-    public void setEnvironment(final Environment environment) {
-        this.environment = environment;
-    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -125,30 +114,6 @@ public class MvcConfig implements WebMvcConfigurer, EnvironmentAware {
         properties.setIgnoreResourceNotFound(false);
 
         return properties;
-    }
-
-    @Bean
-    public JawrSpringController jawrJsController() {
-        JawrSpringController jawrJsController = new JawrSpringController();
-        Properties config = JawrConfig.loadJawrEnvironmentalConfig(environment);
-        if (config == null)
-            jawrJsController.setConfigLocation("/jawr.properties");
-        else
-            jawrJsController.setConfiguration(config);
-        jawrJsController.setType("js");
-        return jawrJsController;
-    }
-
-    @Bean
-    public JawrSpringController jawrCssController() {
-        JawrSpringController jawrCssController = new JawrSpringController();
-        Properties config = JawrConfig.loadJawrEnvironmentalConfig(environment);
-        if (config == null)
-            jawrCssController.setConfigLocation("/jawr.properties");
-        else
-            jawrCssController.setConfiguration(config);
-        jawrCssController.setType("css");
-        return jawrCssController;
     }
 
     @Bean
