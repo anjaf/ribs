@@ -4,7 +4,7 @@ import net.jawr.web.servlet.JawrSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 
@@ -12,7 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@PropertySource("classpath:jawr.properties")
 public class JawrConfig {
+
     @Autowired
     private JawrSpringController jawrJsController;
     @Autowired
@@ -28,5 +30,4 @@ public class JawrConfig {
         handlerMapping.setUrlMap(urlMap);
         return handlerMapping;
     }
-
 }
