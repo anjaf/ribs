@@ -142,6 +142,17 @@ a.reference:hover {
     font-size: 12px;
     display:none;
 }
+
+@media screen and (max-width: 640px) {
+    #right-column {
+        width: 100%;
+        float:right;
+    }
+    #expand-right-column {
+        display: none;
+    }
+}
+
 div#right-column-header {
     text-align: right;
     margin-bottom: 9pt;
@@ -174,17 +185,6 @@ div#right-column-header {
     margin: auto;
     width: auto;
     max-width: 48px;
-    padding: inherit;
-}
-
-.dlpopup_length select {
-    -moz-appearance: menulist;
-    -webkit-appearance: menulist;
-    apparence: menulist;
-    height: auto;
-    margin: auto;
-    width: auto;
-    max-width: 100px;
     padding: inherit;
 }
 
@@ -543,6 +543,7 @@ ul.recommendations li {
 
 .filetoolbar {
     clear:both;
+    display: flex;
 }
 
 .filetoolbar a[disabled]{
@@ -611,4 +612,7 @@ span.file-list-buttons .fa-file-download {
 
 .author-name:hover .author-card {
     display:block;
+}
+.progress-meter-text {
+    margin-left: 10px;
 }

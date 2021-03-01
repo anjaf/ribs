@@ -12,7 +12,7 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-phantomjsdriver.log
 src/main/resources/git.properties
-src/main/resources/log4j2.properties.orig
-src/test/resources/phantomjs-2.1.1.exe
+chromedriver
+local-application.properties
+local-log4j.properties

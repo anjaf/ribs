@@ -46,6 +46,8 @@ ul#search-results li {
 #sort-by {
     width:auto;
     font-size: 9pt;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem
 }
 #sort-by-div {
     float: right;
