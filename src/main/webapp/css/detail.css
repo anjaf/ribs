@@ -352,6 +352,14 @@ a.section-button:hover {
     color: #aaaaaa;
 }
 
+tr.selected td a.thumbnail-icon {
+    color: #58585a;
+}
+
+tr.selected td a.thumbnail-icon:hover {
+    color: #267799;
+}
+
 .max-content-width{
     width: max-content !important;
 }
