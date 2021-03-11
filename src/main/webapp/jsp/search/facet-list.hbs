@@ -6,7 +6,7 @@
                 {{#ifCond this.type '==' 'boolean' }}
                     <div class="facet-binary">
                         <label class="facet-label" for="facet-{{name}}">
-                            <input class="facet-value" type="checkbox" name="{{name}}" value="true" id="facet-{{name}}"/>
+                            <input class="facet-value" type="checkbox" autocomplete="off" name="{{name}}" value="true" id="facet-{{name}}"/>
                             {{title}}
                         </label>
                         <span class="facet-hits"> {{formatNumber this.children.[0].hits}}</span>
@@ -22,7 +22,7 @@
                         {{#each children}}
                         <li>
                             <label class="facet-label" for="facet-{{../name}}-{{@index}}">
-                                <input class="facet-value" type="checkbox" name="{{../name}}" value="{{value}}" id="facet-{{../name}}-{{@index}}"/>
+                                <input class="facet-value" type="checkbox" autocomplete="off" name="{{../name}}" value="{{value}}" id="facet-{{../name}}-{{@index}}"/>
                                 <span>{{name}}</span>
                             </label>
                             <span class="facet-hits"> {{formatNumber hits}}</span>
