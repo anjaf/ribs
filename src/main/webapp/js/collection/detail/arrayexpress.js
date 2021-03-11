@@ -18,7 +18,8 @@ $('a[data-file-data-search]').click( function () {
 // format MIAME/MinSeq scores
 var $miameTitleDiv = $('.bs-name:contains("MIAME Score")');
 if ($miameTitleDiv.text().trim().toLowerCase()=='miame score') {
-    $miameTitleDiv.next().removeClass('has-child-section').css({'column-count':'5', 'width':'33%'});
+    $miameTitleDiv.next().removeClass('has-child-section').css({'column-count':'5'});
+    $miameTitleDiv.next().wrap('<div style="display:inline-block">');
     $('.bs-name',$miameTitleDiv.next()).toggleClass('bs-name miame-score-title');
     $('.miame-score-title').css('text-align','center').next().css('text-align','center').each(function() {
         $(this).html($(this).text().trim()=='*' ? '<i class="fas fa-asterisk" data-fa-transform="shrink-8"></i>' : '<i class="fas fa-minus" data-fa-transform="shrink-8"></i>' )
@@ -26,7 +27,8 @@ if ($miameTitleDiv.text().trim().toLowerCase()=='miame score') {
 }
 var $minseqTitleDiv = $('.bs-name:contains("MINSEQE Score")');
 if ($minseqTitleDiv.text().trim().toLowerCase()=='minseqe score') {
-    $minseqTitleDiv.next().removeClass('has-child-section').css({'column-count':'5', 'width':'42%'});
+    $minseqTitleDiv.next().removeClass('has-child-section').css({'column-count':'5'});
+    $minseqTitleDiv.next().wrap('<div style="display:inline-block">');
     $('.bs-name',$minseqTitleDiv.next()).toggleClass('bs-name minseq-score-title');
     $('.minseq-score-title').css('text-align','center').next().css('text-align','center').each(function() {
         $(this).html($(this).text().trim()=='*' ? '<i class="fas fa-asterisk" data-fa-transform="shrink-8"></i>' : '<i class="fas fa-minus" data-fa-transform="shrink-8"></i>' )
@@ -50,7 +52,7 @@ var sdrfIcon = $('<div class="bs-name">Detailed sample information and links to 
         var acc = $('#accession').text();
         window.open( contextPath + (collection? '/'+collection:'')+'/studies/'+ acc + '/sdrf');
     });
-sdrfIcon.insertBefore($('.bs-name:contains("Samples and Experimental Factors")').first());
+sdrfIcon.insertBefore($('.bs-name:contains("Samples")').first());
 
 // add AE link
 var accession = $('#orcid-accession').text().trim();
