@@ -186,7 +186,7 @@
                             <input class="submit button" type="submit" value="Login"/>
                         </fieldset>
                         <div id="login-status" class="alert" style="display:none"></div>
-                        <a style="font-size:9pt;float:right;margin-bottom:5pt;" href="/biostudies/submissions#/password_reset_request">Forgot your password?</a>
+                        <a style="font-size:9pt;float:right;margin-bottom:5pt;" href="/biostudies/submissions/password_reset_request">Forgot your password?</a>
                     </form>
                     <form id="logout-form" method="post" action="${contextPath}/logout">
                         <input type="hidden" name="logout" value="true" />

@@ -347,7 +347,7 @@ var FileTable = (function (_self) {
                 $(button).click(function () {
                     var expansionSource = '' + $(this).data('files-id');
                     Metadata.setExpansionSource(expansionSource);
-                    //clearFileFilter();
+                    FileTable.clearFileFilter();
                     $('#all-files-expander').click();
                     filesTable.column(':contains(Section)').search(expansionSource);
                     filesTable.draw();

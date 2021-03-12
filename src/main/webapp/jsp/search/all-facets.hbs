@@ -18,7 +18,7 @@
                 {{#each facets.children}}
                 <li>
                     <label class="facet-label" for="all-{{@index}}">
-                        <input class="facet-value" type="checkbox" name="{{../facets.name}}" value="{{value}}" id="all-{{@index}}"/>
+                        <input class="facet-value" autocomplete="off" type="checkbox" name="{{../facets.name}}" value="{{value}}" id="all-{{@index}}"/>
                         <span>{{name}}</span>
                         <span class="all-facet-hits"> {{formatNumber hits}}</span>
                     </label>

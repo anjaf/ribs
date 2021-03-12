@@ -183,7 +183,8 @@ var Metadata = (function (_self) {
             } else {
                 $.getJSON( 'https://resolver.api.identifiers.org/'+type+':'+name , function (data) {
                     if (data && data.payload && data.payload.resolvedResources) {
-                        var url = data.payload.resolvedResources[0].compactIdentifierResolvedUrl
+                        var ebiResources = data.payload.resolvedResources.filter(function(o){return o.providerCode=='ebi'});
+                        var url = (ebiResources.length ? ebiResources : data.payload.resolvedResources)[0].compactIdentifierResolvedUrl;
                         $($('td',row)[0]).wrapInner('<a href="'+ url +'" target="_blank">');
                     }
                 })
