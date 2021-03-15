@@ -1,4 +1,4 @@
-package uk.ac.ebi.arrayexpress.utils.efo;
+package uk.ac.ebi.biostudies.efo;
 
 /*
  * Copyright 2009-2014 European Molecular Biology Laboratory

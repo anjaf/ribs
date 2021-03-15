@@ -1,4 +1,4 @@
-package uk.ac.ebi.arrayexpress.utils.efo;
+package uk.ac.ebi.biostudies.efo;
 
 import org.semanticweb.HermiT.Reasoner;
 import org.semanticweb.owlapi.apibinding.OWLManager;
