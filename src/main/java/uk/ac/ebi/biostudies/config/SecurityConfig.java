@@ -30,6 +30,12 @@ public class SecurityConfig {
     @Value("${aspera.token.server}")
     private String asperaTokenServer;
 
+    @Value("${http.proxy.host}")
+    private String httpProxyHost;
+
+    @Value("${http.proxy.port}")
+    private Integer getHttpProxyPort;
+
     public String getProfileUrl() {
         return profileUrl;
     }
@@ -52,5 +58,13 @@ public class SecurityConfig {
 
     public String getAsperaTokenServer() {
         return asperaTokenServer;
+    }
+
+    public String getHttpProxyHost() {
+        return httpProxyHost;
+    }
+
+    public Integer getGetHttpProxyPort() {
+        return getHttpProxyPort;
     }
 }
