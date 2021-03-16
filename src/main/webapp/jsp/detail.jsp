@@ -4,11 +4,14 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
 <c:set var="contextPath" value="${pageContext.request.contextPath}" />
+<c:set var="thorURL"><spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/></c:set>
 <t:generic>
-
     <jsp:attribute name="head">
         <link rel="stylesheet" href="${contextPath}/css/jquery.dataTables.css">
         <link rel="stylesheet" href="${contextPath}/css/detail.css" type="text/css">
+        <script>
+            var thorURL = '${thorURL}';
+        </script>
         <jwr:script src="/js/detail.min.js"/>
     </jsp:attribute>
     <jsp:attribute name="breadcrumbs">
@@ -24,7 +27,8 @@
     </jsp:attribute>
 
     <jsp:attribute name="postBody">
-        <script src="<spring:eval expression="@externalServicesConfig.getdataClaimingUrl()"/>"></script>
+        <script type="text/javascript" src="${contextPath}/js/common/connect/v4/connectinstaller-4.min.js"></script>
+        <script type="text/javascript" src="${contextPath}/js/common/connect/v4/asperaweb-4.min.js"></script>
         <%@include file="detail/main-file-table.hbs" %>
         <%@include file="detail/main-link-table.hbs" %>
         <%@include file="detail/orcid-claimer.hbs" %>

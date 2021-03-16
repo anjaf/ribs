@@ -175,10 +175,10 @@ public class IndexServiceImpl implements IndexService {
             indexManager.getIndexWriter().setLiveCommitData(commitData.entrySet());
             executorService.shutdown();
             executorService.awaitTermination(5, TimeUnit.HOURS);
-            taxonomyManager.commitTaxonomy();
+            indexManager.commitTaxonomy();
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
-            taxonomyManager.refreshTaxonomyReader();
+            indexManager.refreshTaxonomyReader();
             logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
             ActiveExecutorService.decrementAndGet();
             searchService.clearStatsCache();
@@ -203,10 +203,10 @@ public class IndexServiceImpl implements IndexService {
         executorService.shutdown();
         try {
             executorService.awaitTermination(5, TimeUnit.HOURS);
-            taxonomyManager.commitTaxonomy();
+            indexManager.commitTaxonomy();
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
-            taxonomyManager.refreshTaxonomyReader();
+            indexManager.refreshTaxonomyReader();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -236,7 +236,7 @@ public class IndexServiceImpl implements IndexService {
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
         }
-        taxonomyManager.resetTaxonomyWriter();
+        indexManager.resetTaxonomyWriter();
         searchService.clearStatsCache();
     }
 
@@ -394,7 +394,7 @@ public class IndexServiceImpl implements IndexService {
 
             }
 
-            Document facetedDocument = taxonomyManager.getFacetsConfig().build(taxonomyManager.getTaxonomyWriter() ,doc);
+            Document facetedDocument = taxonomyManager.getFacetsConfig().build(indexManager.getFacetWriter() ,doc);
             writer.updateDocument(new Term(Fields.ID, valueMap.get(Fields.ACCESSION).toString()), facetedDocument);
 
         }

@@ -31,7 +31,7 @@ var DetailPage = (function (_self) {
         'rnacentral': 'http://rnacentral.org/rna/{0}',
         'nct': 'https://clinicaltrials.gov/ct2/show/{0}',
         'expression atlas': 'https://www.ebi.ac.uk/gxa/experiments/{0}?ref=biostudies',
-        'single cell expression atlas': 'https://www.ebi.ac.uk/gxa/sc/experiments/{0}?ref=biostudies',
+        'expression atlas (single cell)': 'https://www.ebi.ac.uk/gxa/sc/experiments/{0}?ref=biostudies',
         'idr': 'https://idr.openmicroscopy.org/search/?query=Name:{0}',
         'empiar': 'https://www.ebi.ac.uk/pdbe/emdb/empiar/entry/{0}/'
     };
@@ -97,7 +97,7 @@ var DetailPage = (function (_self) {
         'rnacentral': 'RNAcentral',
         'nct': 'NCT',
         'gxa': 'Expression Atlas',
-        'gxa-sc': 'Single Cell Expression Atlas',
+        'gxa-sc': 'Expression Atlas (Single Cell)',
         'idr': 'IDR',
         'empiar': 'EMPIAR',
         'biostudies': 'BioStudies'

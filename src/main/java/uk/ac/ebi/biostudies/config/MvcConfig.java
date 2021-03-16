@@ -4,7 +4,6 @@ package uk.ac.ebi.biostudies.config;
  * Created by ehsan on 23/02/2017.
  */
 
-import net.jawr.web.servlet.JawrSpringController;
 import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardHost;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -115,22 +114,6 @@ public class MvcConfig implements WebMvcConfigurer {
         properties.setIgnoreResourceNotFound(false);
 
         return properties;
-    }
-
-    @Bean
-    public JawrSpringController jawrJsController() {
-        JawrSpringController jawrJsController = new JawrSpringController();
-        jawrJsController.setConfigLocation("/jawr.properties");
-        jawrJsController.setType("js");
-        return jawrJsController;
-    }
-
-    @Bean
-    public JawrSpringController jawrCssController() {
-        JawrSpringController jawrCssController = new JawrSpringController();
-        jawrCssController.setConfigLocation("/jawr.properties");
-        jawrCssController.setType("css");
-        return jawrCssController;
     }
 
     @Bean

@@ -12,16 +12,16 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:announcement.properties")
 public class AnnouncementConfig {
 
-    @Value("${enabled}")
+    @Value("${announcement.enabled}")
     private boolean enabled;
 
-    @Value("${headline}")
+    @Value("${announcement.headline}")
     private String headline;
 
-    @Value("${message}")
+    @Value("${announcement.message}")
     private String message;
 
-    @Value("${priority}")
+    @Value("${announcement.priority}")
     private String priority;
 
     public boolean isEnabled() {

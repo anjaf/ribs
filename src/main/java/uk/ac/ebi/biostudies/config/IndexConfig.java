@@ -61,6 +61,12 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     @Value("${default.collection.list}")
     private List<String> defaultCollectionList;
 
+    @Value("${index.backup.directory}")
+    private String indexBackupDirectory;
+
+    @Value("${index.sync.command}")
+    private String indexSyncCommand;
+
     public static CharArraySet STOP_WORDS;
 
 
@@ -134,4 +140,11 @@ public class IndexConfig implements InitializingBean, DisposableBean {
 
     }
 
+    public String getIndexBackupDirectory() {
+        return indexBackupDirectory;
+    }
+
+    public String getIndexSyncCommand() {
+        return indexSyncCommand;
+    }
 }

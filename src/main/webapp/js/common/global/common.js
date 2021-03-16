@@ -4,11 +4,11 @@ $(function() {
         $('#masthead').css("background-image","url("+contextPath +"/images/collections/bioimages/background.jpg)");
         $('.masthead, #ebi_search .button, .pagination .current').css("background-color","rgb(0, 124, 130)");
         $('.menu.float-left li a').first().attr('href','/bioimage-archive/');
-        $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/our-roadmap/">Our roadmap</a></li>')
+        $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/project-developments/">Project developments</a></li>')
         $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/case-studies/">Case studies</a></li>');
         $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/faq/">FAQs</a></li>');
         $('.menu.float-right').prepend('<li role="menuitem"><a href="'+contextPath+'/bioimages/help">Help</a></li>');
-        $('.menu.float-left li').slice(1, 4).hide();
+        $('.menu.float-left li').slice(2, 4).hide();
         $('.menu.float-left li a').last().attr('target', '_blank');
         $('#query').attr('placeholder','Search BioImages');
         $('.sample-query').first().text('brain');
@@ -17,6 +17,10 @@ $(function() {
         $('#about-link').attr('href','/bioimage-archive/about-us/');
         $('#elixir-banner').hide();
     }
+
+    $.ajaxSetup({
+        cache: true
+    });
 
     if (collection && collection.toLowerCase()=='bioimages') {
         handleBioImagesUI();

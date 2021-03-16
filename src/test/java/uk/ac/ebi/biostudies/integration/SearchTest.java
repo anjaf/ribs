@@ -300,16 +300,4 @@ public class SearchTest {
         Document doc = searchServiceMock.getDocumentByAccession(accession, null);
         assertNotNull(doc);
     }
-
-    @Test
-    public void testFacetCount() {
-        WebDriverWait wait = new WebDriverWait(webDriver, 20);
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/EuropePMC/studies");
-        wait.until(visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
-        assertEquals("3", webDriver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/EuropePMC/studies?facet.europepmc.funding_agency=national+institutes+of+health");
-        wait.until(visibilityOfElementLocated(By.cssSelector("ul li .facet-label")));
-        assertEquals("1", webDriver.findElement(By.cssSelector("#facet_facet\\.released_year li .facet-hits")).getText().trim());
-    }
-
 }
