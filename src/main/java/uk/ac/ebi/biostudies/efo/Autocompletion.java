@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.arrayexpress.utils.efo.EFONode;
+import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.efo.autocompletion.AutocompleteData;
 import uk.ac.ebi.biostudies.efo.autocompletion.AutocompleteStore;
