@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.arrayexpress.utils.efo.EFOLoader;
-import uk.ac.ebi.arrayexpress.utils.efo.EFONode;
-import uk.ac.ebi.arrayexpress.utils.efo.IEFO;
+import uk.ac.ebi.biostudies.efo.EFOLoader;
+import uk.ac.ebi.biostudies.efo.EFONode;
+import uk.ac.ebi.biostudies.efo.IEFO;
 import uk.ac.ebi.biostudies.efo.*;
 import uk.ac.ebi.biostudies.config.EFOConfig;
 
