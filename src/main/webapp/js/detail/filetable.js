@@ -73,10 +73,11 @@ var FileTable = (function (_self) {
         var templateSource = $('script#file-list-buttons-template').html();
         var template = Handlebars.compile(templateSource);
         $('.bs-name:contains("File List")').each( function (node) {
+            var filename = $(this).next().text().trim();
             $(this).next().append(
                 template({
                     accno:acc,
-                    file:$(this).next().text().trim(),
+                    file: filename.toLowerCase().endsWith(".json") ? filename.substring( 0, filename.indexOf( ".json" ) ) : filename ,
                     keyString: key ? '?key='+key : ''
                 })
             );
