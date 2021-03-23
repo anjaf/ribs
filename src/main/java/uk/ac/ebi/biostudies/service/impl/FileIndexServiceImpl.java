@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.jayway.jsonpath.ReadContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,7 +75,7 @@ public class FileIndexServiceImpl implements FileIndexService {
 
         parents.forEach((filename, jsonNode) -> {
             if(jsonNode==null) return;
-            String libraryFilePath = indexConfig.getFileRootDir() + "/"+ relativePath + "/"+  filename+".json";
+            String libraryFilePath = indexConfig.getFileRootDir() + "/"+ relativePath + "/"+  filename + (filename.toLowerCase().endsWith(".json")? "" : ".json");
             try {
                 counter.set(indexLibraryFile(accession, writer, counter.get(), columns, sectionsWithFiles, jsonNode, libraryFilePath));
             } catch (IOException e) {
