@@ -54,7 +54,7 @@
     { "name": "access", "title": "", "fieldType": "tokenized_string", "jsonPath": "$.accessTags[?(@ =~ /[^{].*/i)] OR $.accessTags[?(@.size() > 0)].name", "analyzer": "AccessFieldAnalyzer", "parser": "JPathListParser", "toLowerCase": "true"},
     { "name": "accession", "title": "", "fieldType": "tokenized_string", "retrieved": true, "analyzer": "AttributeFieldAnalyzer", "jsonPath": "$.accno OR $.accNo"},
     { "name": "type", "title": "", "fieldType": "untokenized_string", "retrieved": true, "analyzer": "AttributeFieldAnalyzer", "parser": "TypeParser"},
-    { "name": "title", "title": "", "fieldType": "tokenized_string", "jsonPath": "$..attributes[?(@.name==\"Title\")].value", "retrieved": true, "sortable": true, "analyzer": "ExperimentTextAnalyzer", "parser": "TitleParser"},
+    { "name": "title", "title": "", "fieldType": "tokenized_string", "retrieved": true, "sortable": true, "analyzer": "ExperimentTextAnalyzer", "parser": "TitleParser"},
     { "name": "author", "title": "", "fieldType": "tokenized_string", "jsonPath": "$.section.subsections[?(@.type==\"Author\")].attributes[?(@.name==\"Name\")].value OR $.section.sections[?(@.type==\"Author\")].attributes[?(@.name==\"Name\")].value", "retrieved": true, "sortable": true, "analyzer": "AttributeFieldAnalyzer", "parser": "JPathListParser"},
     { "name": "content", "title": "", "fieldType": "tokenized_string", "expanded": true, "analyzer": "ExperimentTextAnalyzer", "parser": "ContentParser"},
     { "name": "links", "title": "", "fieldType": "long", "jsonPath": "$..links..url OR $..links[?(@.extType=='link')].url", "retrieved": true, "sortable": true, "parser": "NodeCountingParser"},

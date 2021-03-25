@@ -54,7 +54,7 @@ ul#search-results li {
     font-size: 9pt;
 }
 #sorting-links {
-    display:inline-table;
+    display:inline-flex;
 }
 #pager {
     float: left;
@@ -66,7 +66,7 @@ ul#search-results li {
 
 
 #sorting-links a {
-    padding: 10px 13px;
+    padding: 8px 13px;
     border: 1px solid #999999;
 }
 
