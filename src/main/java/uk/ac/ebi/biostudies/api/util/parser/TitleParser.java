@@ -33,7 +33,12 @@ public class TitleParser extends AbstractParser  {
                         .map(jsonNode -> jsonNode.findValue("value").asText().trim())
                         .collect(Collectors.joining(","));//get().get("value").textValue().trim();
             } catch ( Exception ex2) {
-                //LOGGER.error("Title not found for " + submission.toString().substring(0,100));
+            }
+        }
+        if (title.isEmpty()) {
+            try {
+                title = submission.get("title").asText();
+            } catch (Exception ex3) {
             }
         }
         if(title.isEmpty())

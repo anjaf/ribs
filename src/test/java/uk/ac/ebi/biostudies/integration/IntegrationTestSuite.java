@@ -10,6 +10,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.ac.ebi.biostudies.integration.rest.FileRestApiTest;
 import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
+
 import java.io.File;
 
 
@@ -39,8 +40,11 @@ public class IntegrationTestSuite {
         System.setProperty("webdriver.chrome.driver", new File("chromedriver").getAbsolutePath());
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
+        options.addArguments("--start-maximized");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1280,800");
         options.setHeadless(true);
         webDriver = new ChromeDriver(options);
     }
