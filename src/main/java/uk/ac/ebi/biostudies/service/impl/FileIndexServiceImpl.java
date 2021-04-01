@@ -76,7 +76,9 @@ public class FileIndexServiceImpl implements FileIndexService {
         subSections = json.findParents("fileList");
         for (JsonNode subSection : subSections) {
             JsonNode fileList = (JsonNode) subSection.get("fileList");
-            parents.put(fileList.get("fileName").textValue(), subSection);
+            if (fileList!=null && fileList.has("fileName")) {
+                parents.put(fileList.get("fileName").textValue(), subSection);
+            }
         }
 
         parents.forEach((filename, jsonNode) -> {
