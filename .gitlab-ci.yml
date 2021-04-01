@@ -5,15 +5,15 @@ cache:
 
 stages:
   - build
+  - build_docker
   - deploy
 
-.build-template: &build-template
-  stage: build
-  artifacts:
-    paths:
-      - target/biostudies.war
-  script:
-    - mvn -Dmaven.test.skip=true clean install spring-boot:repackage
+variables:
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_IMAGE: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}
+
+services:
+  - docker:dind
 
 .deploy-template: &deploy-template
   stage: deploy
@@ -59,6 +59,21 @@ dev:
   only:
     - develop
 
+build-docker:
+  image: docker
+  stage: build_docker
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --build-arg RUN_AS_USER=${RUN_AS_USER} --build-arg RUN_AS_GROUP=${RUN_AS_GROUP} -t ${DOCKER_IMAGE} -t ${CI_REGISTRY_IMAGE}:latest --no-cache .
+    - docker push ${DOCKER_IMAGE}
+    - docker rmi ${DOCKER_IMAGE}
+    - docker rmi ${CI_REGISTRY_IMAGE}:latest
+    - docker logout $CI_REGISTRY
+  only:
+    - develop
+  when: manual
+
 beta:
   <<: *deploy-template
   environment: beta
@@ -67,7 +82,12 @@ beta:
   when: manual
 
 master-build:
-  <<: *build-template
+  stage: build
+  artifacts:
+    paths:
+      - target/biostudies.war
+  script:
+    - mvn -Dmaven.test.skip=true clean install spring-boot:repackage
   only:
     - master
 
