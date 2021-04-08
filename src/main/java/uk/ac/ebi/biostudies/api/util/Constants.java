@@ -106,6 +106,7 @@ public interface Constants {
         String RECORDFILTERED = "recordsFiltered";
         String DATA = "data";
         String IS_DIRECTORY = "isDirectory";
+        String RELPATH = "relPath";
     }
 
     interface OS{

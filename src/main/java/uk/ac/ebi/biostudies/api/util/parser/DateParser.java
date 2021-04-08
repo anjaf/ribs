@@ -22,20 +22,29 @@ public class DateParser extends AbstractParser {
     public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         long releaseDateLong = 0L;
         long creationDateLong = 0L;
+        long modificationTimeLong = 0L;
 
         if (submission.has(Constants.Fields.CREATION_TIME)) {
             creationDateLong = Long.parseLong(submission.get(Constants.Fields.CREATION_TIME).asText()) * 1000;
         } else if (submission.has(Constants.Fields.CREATION_TIME_FULL)) {
-            creationDateLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.CREATION_TIME_FULL).asText())).toEpochMilli();
+            if (submission.get(Constants.Fields.CREATION_TIME_FULL).isObject() && submission.get(Constants.Fields.CREATION_TIME_FULL).has("$date")) {
+                creationDateLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.CREATION_TIME_FULL).get("$date").textValue())).toEpochMilli();
+            } else {
+                creationDateLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.CREATION_TIME_FULL).asText())).toEpochMilli();
+            }
         }
         valueMap.put(Constants.Fields.CREATION_TIME, creationDateLong);
 
         if (submission.has(Constants.Fields.MODIFICATION_TIME)) {
-            long modificationTimeLong = Long.parseLong(submission.get(Constants.Fields.MODIFICATION_TIME).asText()) * 1000;
-            valueMap.put(Constants.Fields.MODIFICATION_TIME, modificationTimeLong);
-            valueMap.put(Constants.Facets.MODIFICATION_YEAR_FACET, DateTools.timeToString(modificationTimeLong, DateTools.Resolution.YEAR));
+            modificationTimeLong = Long.parseLong(submission.get(Constants.Fields.MODIFICATION_TIME).asText()) * 1000;
         } else if (submission.has(Constants.Fields.MODIFICATION_TIME_FULL)) {
-            long modificationTimeLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.MODIFICATION_TIME_FULL).asText())).toEpochMilli();
+            if (submission.get(Constants.Fields.CREATION_TIME_FULL).isObject() && submission.get(Constants.Fields.CREATION_TIME_FULL).has("$date")) {
+                modificationTimeLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.CREATION_TIME_FULL).get("$date").textValue())).toEpochMilli();
+            } else {
+                modificationTimeLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.MODIFICATION_TIME_FULL).asText())).toEpochMilli();
+            }
+        }
+        if (modificationTimeLong != 0L) {
             valueMap.put(Constants.Fields.MODIFICATION_TIME, modificationTimeLong);
             valueMap.put(Constants.Facets.MODIFICATION_YEAR_FACET, DateTools.timeToString(modificationTimeLong, DateTools.Resolution.YEAR));
         }
@@ -47,7 +56,9 @@ public class DateParser extends AbstractParser {
                 releaseDateLong = Long.parseLong(submission.get(Constants.Fields.MODIFICATION_TIME).asText()) * 1000;
             }
         } else if (submission.has(Constants.Fields.RELEASE_TIME_FULL)) {
-            if (!submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("-1") && !submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("null")) {
+            if (submission.get(Constants.Fields.CREATION_TIME_FULL).isObject() && submission.get(Constants.Fields.CREATION_TIME_FULL).has("$date")) {
+                releaseDateLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.CREATION_TIME_FULL).get("$date").textValue())).toEpochMilli();
+            } else if (!submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("-1") && !submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("null")) {
                 Instant instant = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.RELEASE_TIME_FULL).asText()));
                 releaseDateLong = (instant.getEpochSecond() < 0) ? 0 : instant.toEpochMilli();
             } else if (String.valueOf(valueMap.get(Constants.Fields.ACCESS)).contains(PUBLIC)) {
