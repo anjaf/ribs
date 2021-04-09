@@ -119,7 +119,7 @@ public class FileIndexServiceImpl implements FileIndexService {
                 for (JsonNode singleFile : fNode.get("files")) {
                     counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
                 }
-            } else {
+            } else if (!parent.has("_class") || !parent.get("_class").textValue().endsWith("DocFileList")) {
                 counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, fNode);
             }
         }
@@ -185,6 +185,9 @@ public class FileIndexServiceImpl implements FileIndexService {
         }
         JsonNode pathNode = fNode.get(Constants.File.PATH);
         path = pathNode == null || pathNode.asText().equalsIgnoreCase("null") ? null : pathNode.asText();
+        if (path==null && fNode.has(Constants.File.RELPATH)) {
+            path = fNode.get(Constants.File.RELPATH).asText();
+        }
         pathNode = fNode.get(Constants.IndexEntryAttributes.NAME);
         name = pathNode == null || pathNode.asText().equalsIgnoreCase("null") ? null : pathNode.asText();
         if (name == null && fNode.has(Constants.File.FILENAME)) name = fNode.get(Constants.File.FILENAME).asText();
@@ -206,7 +209,8 @@ public class FileIndexServiceImpl implements FileIndexService {
         attributes = fNode.findValues(Constants.File.ATTRIBUTES);
 
         doc.add(new StringField(Constants.File.TYPE, Constants.File.FILE, Field.Store.YES));
-        doc.add(new StringField(Constants.File.IS_DIRECTORY, String.valueOf(fNode.get(Constants.File.TYPE).textValue().equalsIgnoreCase("directory")), Field.Store.YES));
+        doc.add(new StringField(Constants.File.IS_DIRECTORY,
+                String.valueOf(fNode.has(Constants.File.TYPE) ? fNode.get(Constants.File.TYPE).asText("file").equalsIgnoreCase("directory") : false ), Field.Store.YES));
         doc.add(new StringField(Constants.File.OWNER, accession, Field.Store.YES));
 
         // add section field if file is not global

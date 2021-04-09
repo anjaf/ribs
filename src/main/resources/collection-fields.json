@@ -51,7 +51,7 @@
     { "name": "facet.eutoxrisk.project_part", "title": "Project part", "fieldType": "facet"}
   ],
   "public": [
-    { "name": "access", "title": "", "fieldType": "tokenized_string", "jsonPath": "$.accessTags[?(@ =~ /[^{].*/i)] OR $.accessTags[?(@.size() > 0)].name", "analyzer": "AccessFieldAnalyzer", "parser": "JPathListParser", "toLowerCase": "true"},
+    { "name": "access", "title": "", "fieldType": "tokenized_string", "jsonPath": "$.accessTags[?(@ =~ /[^{].*/i)] OR $.accessTags[?(@.size() > 0)].name", "analyzer": "AccessFieldAnalyzer", "parser": "AccessParser", "toLowerCase": "true"},
     { "name": "accession", "title": "", "fieldType": "tokenized_string", "retrieved": true, "analyzer": "AttributeFieldAnalyzer", "jsonPath": "$.accno OR $.accNo"},
     { "name": "type", "title": "", "fieldType": "untokenized_string", "retrieved": true, "analyzer": "AttributeFieldAnalyzer", "parser": "TypeParser"},
     { "name": "title", "title": "", "fieldType": "tokenized_string", "retrieved": true, "sortable": true, "analyzer": "ExperimentTextAnalyzer", "parser": "TitleParser"},
