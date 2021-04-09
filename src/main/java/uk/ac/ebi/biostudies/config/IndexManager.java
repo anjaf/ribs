@@ -26,7 +26,6 @@ import uk.ac.ebi.biostudies.api.util.SnapshotAwareDirectoryTaxonomyWriter;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
-import uk.ac.ebi.biostudies.efo.Autocompletion;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.service.impl.IndexTransferer;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
@@ -80,8 +79,6 @@ public class IndexManager implements InitializingBean, DisposableBean {
     TaxonomyManager taxonomyManager;
     @Autowired
     AnalyzerManager analyzerManager;
-    @Autowired
-    Autocompletion autocompletion;
     @Autowired
     IndexService indexService;
     @Autowired
