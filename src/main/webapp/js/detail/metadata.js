@@ -211,11 +211,11 @@ var Metadata = (function (_self) {
 
     function drawSubsections() {
         // draw subsection and hide them
-        $(".indented-section").prepend('<span class="toggle-section fa-icon" title="Click to expand"><i class="fa-fw fas fa-caret-right"></i></span>')
+        $(".indented-section .bs-name").prepend('<span class="toggle-section fa-icon" title="Click to expand"><i class="fa-fw fas fa-caret-right"></i></span>')
         $(".indented-section").next().hide();
 
-        $('.toggle-section').parent().css('cursor', 'pointer');
-        $('.toggle-section').parent().on('click', function () {
+        $('.toggle-section').closest('.indented-section').css('cursor', 'pointer');
+        $('.toggle-section').closest('.indented-section').on('click', function () {
             var indented_section = $(this).parent().children().first().next();
             if (indented_section.css('display') == 'none') {
                 $(this).children().first().find('[data-fa-i2svg]').toggleClass('fa-caret-down fa-caret-right').attr('title', 'Click to collapse');
