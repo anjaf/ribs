@@ -38,8 +38,8 @@
         <h3 id="orcid-title"  itemprop="name">{{valueWithName 'Title' attributes}}</h3>
 
         <div id="right-column">
-            <div id="right-column-header">
-                <a id="expand-right-column" data-expanded="false"><i class="fas fa-angle-double-left"></i></a>
+           <div id="right-column-header">
+                <div id="expand-right-column" data-expanded="false"><i class="fas fa-angle-double-left"></i></div>
             </div>
             <div id="right-column-content">
                 {{&main-file-table}}
@@ -117,8 +117,7 @@
             </ul>
 
             <!-- Accession -->
-            <div class="bs-name">Accession</div>
-            <div id="orcid-accession" itemprop="identifier">{{accno}}</div>
+            <div class="bs-attribute"><span class="bs-name">Accession</span><span class="bs-value" id="orcid-accession" itemprop="identifier">{{accno}}</span></div>
 
             <!-- Hidden description -->
             <div style="display:none" itemprop="description">{{valueWithName 'Description' attributes}}</div>

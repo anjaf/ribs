@@ -15,26 +15,15 @@ $('a[data-file-data-search]').click( function () {
     return false;
 })
 
-// format MIAME/MinSeq scores
-var $miameTitleDiv = $('.bs-name:contains("MIAME Score")');
-if ($miameTitleDiv.text().trim().toLowerCase()=='miame score') {
-    $miameTitleDiv.next().removeClass('has-child-section').css({'column-count':'5'});
-    $miameTitleDiv.next().wrap('<div style="display:inline-block">');
-    $('.bs-name',$miameTitleDiv.next()).toggleClass('bs-name miame-score-title');
-    $('.miame-score-title').css('text-align','center').next().css('text-align','center').each(function() {
-        $(this).html($(this).text().trim()=='*' ? '<i class="fas fa-asterisk" data-fa-transform="shrink-8"></i>' : '<i class="fas fa-minus" data-fa-transform="shrink-8"></i>' )
-    })
-}
-var $minseqTitleDiv = $('.bs-name:contains("MINSEQE Score")');
-if ($minseqTitleDiv.text().trim().toLowerCase()=='minseqe score') {
-    $minseqTitleDiv.next().removeClass('has-child-section').css({'column-count':'5'});
-    $minseqTitleDiv.next().wrap('<div style="display:inline-block">');
-    $('.bs-name',$minseqTitleDiv.next()).toggleClass('bs-name minseq-score-title');
-    $('.minseq-score-title').css('text-align','center').next().css('text-align','center').each(function() {
-        $(this).html($(this).text().trim()=='*' ? '<i class="fas fa-asterisk" data-fa-transform="shrink-8"></i>' : '<i class="fas fa-minus" data-fa-transform="shrink-8"></i>' )
-    })
-}
-
+// add icon for sdrf
+var sdrfIcon = $('<div class="bs-attribute"><span class="bs-name inline-block">Detailed sample information and links to data </span>' +
+    ' <span class="bs-value inline-block"><a class="show-more" href="#" title="Click to open SDRF Viewer">' +
+    ' view table <i class="fas fa-external-link-square-alt"></i></a></span>' +
+    '</div>').click(function() {
+    var acc = $('#accession').text();
+    window.open( contextPath + (collection? '/'+collection:'')+'/studies/'+ acc + '/sdrf');
+});
+sdrfIcon.insertBefore($('.bs-attribute:contains("Samples")').first());
 
 // add icon for files
 var newIcon = $('<span class="fa-icon" title="Click to expand"><i class="fa fa-external-link-alt"></i></span>')
@@ -44,15 +33,6 @@ var newIcon = $('<span class="fa-icon" title="Click to expand"><i class="fa fa-e
     });
 $('#all-files-expander').before(newIcon);
 
-// add icon for sdrf
-var sdrfIcon = $('<div class="bs-name">Detailed sample information and links to data ' +
-    '<a class="show-more" href="#" title="Click to open SDRF Viewer">' +
-    ' view table <i class="fas fa-external-link-square-alt"></i></a>' +
-    '</div>').click(function() {
-        var acc = $('#accession').text();
-        window.open( contextPath + (collection? '/'+collection:'')+'/studies/'+ acc + '/sdrf');
-    });
-sdrfIcon.insertBefore($('.bs-name:contains("Samples")').first());
 
 // add AE link
 var accession = $('#orcid-accession').text().trim();
@@ -62,4 +42,27 @@ var notice = $("<div class=\"callout warning\">To streamline the data submission
     "The current ArrayExpress entry can be accessed at <a href=\"https://www.ebi.ac.uk/arrayexpress/"
     + accession +"\">https://www.ebi.ac.uk/arrayexpress/"+ accession+ "</a></div>");
 $('#renderedContent').prepend(notice);
+
+// format MIAME/MinSeq scores -- has to be after the column conversion
+var $miameTitleDiv = $('.bs-attribute:contains("MIAME Score")');
+if ($miameTitleDiv.text().trim().toLowerCase()=='miame score') {
+    $miameTitleDiv.toggleClass("bs-attribute")
+    $('.bs-name',$miameTitleDiv).toggleClass("bs-name").css({color: '#267799'});
+    $miameTitleDiv.next().removeClass('has-child-section').css({'column-count':'5', 'display': 'inline-block', 'text-align':'center'});
+    $('.bs-attribute',$miameTitleDiv.next()).toggleClass('bs-attribute');
+    $('.bs-name',$miameTitleDiv.next()).toggleClass('bs-name block').next().css('text-align','center').each(function() {
+        $(this).html($(this).text().trim()=='*' ? '<i class="fas fa-asterisk" data-fa-transform="shrink-8"></i>' : '<i class="fas fa-minus" data-fa-transform="shrink-8"></i>' )
+    })
+}
+var $minseqTitleDiv = $('.bs-attribute:contains("MINSEQE Score")');
+if ($minseqTitleDiv.text().trim().toLowerCase()=='minseqe score') {
+    $minseqTitleDiv.toggleClass("bs-attribute")
+    $('.bs-name',$minseqTitleDiv).toggleClass("bs-name").css({color: '#267799'});
+    $minseqTitleDiv.next().removeClass('has-child-section').css({'column-count':'5', 'display': 'inline-block', 'text-align':'center'});
+    $('.bs-attribute',$minseqTitleDiv.next()).toggleClass('bs-attribute');
+    $('.bs-name',$minseqTitleDiv.next()).toggleClass('bs-name block').next().each(function() {
+        $(this).html($(this).text().trim()=='*' ? '<i class="fas fa-asterisk" data-fa-transform="shrink-8"></i>' : '<i class="fas fa-minus" data-fa-transform="shrink-8"></i>' )
+    })
+}
+
 

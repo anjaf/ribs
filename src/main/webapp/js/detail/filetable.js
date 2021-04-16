@@ -339,7 +339,7 @@ var FileTable = (function (_self) {
             fileSearchParams[column+'[name]']='Section';
             fileSearchParams[column+'[search][value]']=divId;
             $.post(contextPath + '/api/v1/files/' + acc , fileSearchParams, function(data) {
-                var bar = $('#' + $.escapeSelector(divId) + '> .bs-name > .section-title-bar');
+                var bar = $('#' + $.escapeSelector(divId) + ' > .bs-attribute > .section-title-bar');
                 var button = $('<a class="section-button" data-files-id="'+ divId + '">' +
                     '<i class="fa fa-filter"></i> '+ data.recordsFiltered + ' file' +
                     (data.recordsFiltered>1 ? 's' : '') +
