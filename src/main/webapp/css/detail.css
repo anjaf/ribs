@@ -103,6 +103,7 @@ a.reference:hover {
 .table-wrapper {
     overflow: auto;
     font-size: 10pt;
+    border: 1px solid hsla(201, 65%, 95%, 1);
 }
 
 
