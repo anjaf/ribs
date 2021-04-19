@@ -16,8 +16,7 @@ table.dataTable {
   font-size: inherit;
 }
 table.dataTable thead tr, table.dataTable thead tr:hover {
-  background-color: #267799;
-  color: white;
+  background-color: #eaf5fb;
 }
 table.dataTable thead th,
 table.dataTable tfoot th {
@@ -72,7 +71,7 @@ table.dataTable tbody tr.odd {
 }
 
 table.dataTable tbody tr.selected {
-  background-color: #B0BED9;
+  /*background-color: #B0BED9;*/
 }
 table.dataTable tbody th,
 table.dataTable tbody td {
@@ -102,13 +101,13 @@ table.dataTable.stripe tbody tr.odd, table.dataTable.display tbody tr.odd {
   background-color: #f9f9f9;
 }
 table.dataTable.stripe tbody tr.odd.selected, table.dataTable.display tbody tr.odd.selected {
-  background-color: #acbad4;
+  /*background-color: #acbad4;*/
 }
 table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
   background-color: #f6f6f6;
 }
 table.dataTable.hover tbody tr:hover.selected, table.dataTable.display tbody tr:hover.selected {
-  background-color: #aab7d1;
+  /*background-color: #aab7d1;*/
 }
 table.dataTable.order-column tbody tr > .sorting_1,
 table.dataTable.order-column tbody tr > .sorting_2,
@@ -187,6 +186,7 @@ table.dataTable.nowrap th, table.dataTable.nowrap td {
 table.dataTable.compact thead th,
 table.dataTable.compact thead td {
   padding: 4px 17px 4px 4px;
+  border-bottom: 1px solid #888;
 }
 table.dataTable.compact tfoot th,
 table.dataTable.compact tfoot td {
@@ -196,6 +196,7 @@ table.dataTable.compact tbody th,
 table.dataTable.compact tbody td {
   padding: 4px;
   color: #444;
+  border-right: 1px solid #eaf5fb;
 }
 table.dataTable th.dt-left,
 table.dataTable td.dt-left {
@@ -299,6 +300,7 @@ table.dataTable td {
   clear: both;
   float: left;
   padding-top: 0.755em;
+  padding-bottom: 0.2em;
 }
 .dataTables_wrapper .dataTables_paginate {
   float: right;
