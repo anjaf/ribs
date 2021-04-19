@@ -390,9 +390,24 @@ a.thumbnail-icon {
 }
 
 
-#file-list input[type='checkbox'] {
+#file-list input[type='checkbox'], .table-wrapper input[type='checkbox'] {
     margin: auto;
+    vertical-align: middle;
+    outline: none;
     cursor: pointer;
+    width: 1.5em;
+    height: 1.5em;
+    border: 1px solid #333;
+    background-color: white;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#file-list input[type='checkbox']:checked:after, .table-wrapper input[type='checkbox']:checked:after {
+    content: "✔";
+    font-size: 120%;
+    padding-left: 2pt;
 }
 
 
@@ -644,4 +659,17 @@ span.file-list-buttons .fa-file-download {
 }
 .progress-meter-text {
     margin-left: 10px;
+}
+
+.bs-section-files-text {
+    color: #444444;
+    padding-right: 4pt;
+}
+
+#select-all-files {
+    padding: 0pt;
+}
+.download-files-container {
+    text-align: center;
+    padding-top: 1em;
 }
