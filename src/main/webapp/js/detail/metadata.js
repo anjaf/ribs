@@ -164,7 +164,14 @@ var Metadata = (function (_self) {
         $(".section-table").each(function () {
             var dt = $(this).DataTable({
                 "dom": "t",
-                paging: false
+                paging: false,
+                "initComplete": function(settings) {
+                    var api = new $.fn.dataTable.Api( settings );
+                    api.columns().every(function () {
+                        if (this.data().join('')==='' ) this.visible(false)
+                    });
+                    api.columns.adjust();
+                }
             });
             sectionTables.push(dt);
         });
