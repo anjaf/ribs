@@ -196,7 +196,7 @@ table.dataTable.compact tbody th,
 table.dataTable.compact tbody td {
   padding: 4px;
   color: #444;
-  border-right: 1px solid #eaf5fb;
+  border-right: 1px solid white;
 }
 table.dataTable th.dt-left,
 table.dataTable td.dt-left {
