@@ -115,6 +115,10 @@ public class FileIndexServiceImpl implements FileIndexService {
                 for (JsonNode singleFile : fNode) {
                     counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
                 }
+            } else if ( fNode.has("files") && fNode.get("files").isArray()) {
+                for (JsonNode singleFile : fNode.get("files")) {
+                    counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
+                }
             } else if (fNode.has("extType") && fNode.get("extType").textValue().equalsIgnoreCase("filesTable")) {
                 for (JsonNode singleFile : fNode.get("files")) {
                     counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
