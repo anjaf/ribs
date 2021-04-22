@@ -1,14 +1,14 @@
 <script id='section-template' type='text/x-handlebars-template'>
     <section id="{{accToLink this.accno}}" name="{{accToLink this.accno}}">
         <div class="bs-attribute {{this.indentClass}}">
-            <span class="section-name bs-name inline-block ">
+            <span class="section-name bs-name">
                 {{#ifHasAttribute 'Title' this.attributes}}
                     {{valueWithName 'Title' this.attributes}}
                 {{else}}
                     {{type}}
                 {{/ifHasAttribute}}
             </span>
-            <span class="section-title-bar inline-block"></span>
+            <span class="section-title-bar"></span>
         </div>
         <div class="has-child-section">
             {{#if subsections}}

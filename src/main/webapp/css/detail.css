@@ -27,21 +27,23 @@ body.is-reveal-open { /*avoid jumping of body to the left*/
 .bs-name {
     color: #267799;
     margin:0;
-    display: table-cell;
-    padding: 0pt 6pt 0pt 1pt;
-    min-width: max-content;
-    width: max-content;
-    line-height: 1em;
-}
-.inline-block {
     display: inline-block;
+    padding: 0pt 6pt 0pt 1pt;
+    line-height: 1em;
+    min-width: 8em;
 }
+
+.bs-value {
+    display: inline;
+}
+
 .block {
     display: block;
 }
 .bs-attribute {
     display: table-row;
 }
+
 .bs-attribute::after {
     display: block;
     content: ' ';
@@ -580,10 +582,6 @@ a.thumbnail-icon {
 
 ul.recommendations li {
     margin-bottom: 5pt;
-}
-
-.publication-div {
-    padding-bottom: 10pt;
 }
 
 .filetoolbar {

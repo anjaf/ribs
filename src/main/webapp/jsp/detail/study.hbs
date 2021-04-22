@@ -119,9 +119,6 @@
             <!-- Accession -->
             <div class="bs-attribute"><span class="bs-name">Accession</span><span class="bs-value" id="orcid-accession" itemprop="identifier">{{accno}}</span></div>
 
-            <!-- Hidden description -->
-            <div style="display:none" itemprop="description">{{valueWithName 'Description' attributes}}</div>
-
             <!-- Study level attributes -->
             {{&renderAttributes attributes}}
 
@@ -132,7 +129,8 @@
             <!-- Funding -->
             {{#eachFunder this}}
             {{#if @first}}
-            <div class="bs-name">Funding</div>
+            <div class="bs-attribute"><span class="bs-name">Funding</span>
+            <span class="bs-value">
             <ul id="bs-funding">
                 {{/if}}
                 <li><span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">{{name}}</span></span>{{#if grants}}:
@@ -143,8 +141,12 @@
                 </li>
                 {{#if @last}}
             </ul>
+            </span>
             {{/if}}
             {{/eachFunder}}
+
+            <!-- Hidden description -->
+            <div style="display:none" itemprop="description">{{valueWithName 'Description' attributes}}</div>
 
             <!-- Subsections v1-->
             {{#if subsections}}

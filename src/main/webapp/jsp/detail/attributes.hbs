@@ -5,8 +5,7 @@
             <a href="{{makeAnchor value}}" class="reference"><i class="far fa-bookmark"></i> {{name}}</a>
         {{else}}
             {{#ifCond name '!=' 'Title'}}
-                {{#if @first}}<div class="bs-attribute"><span class="bs-name">{{name}}</span><span class="bs-value">{{/if}}
-                {{valueWithName name this}}{{#if @last}}</span></div>{{else}}, {{/if}}
+                {{#if @first}}<div class="bs-attribute"><span class="bs-name">{{name}}</span><span class="bs-value">{{/if}}{{valueWithName name this}}{{#if @last}}</span></div>{{else}}, {{/if}}
             {{/ifCond}}
         {{/if}}
     {{/each}}

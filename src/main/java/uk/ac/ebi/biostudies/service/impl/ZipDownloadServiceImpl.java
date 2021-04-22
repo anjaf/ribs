@@ -17,8 +17,12 @@ import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Stack;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -74,6 +78,7 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
             try (ZipOutputStream zos = new ZipOutputStream( new BufferedOutputStream(response.getOutputStream()))) {
                 String canonicalPath = rootFolder + "/" + relativePath + "/Files/";
                 String envIndependentCanonicalPath = new File(canonicalPath).getCanonicalPath();
+                var streamedFiles = new HashSet<String>();
                 while (!fileStack.empty()) {
                     final String filename = StringUtils.replace(fileStack.pop(),"..",".");
                     File file = new File(canonicalPath,filename);
@@ -83,26 +88,31 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
                         file = new File(canonicalPath+"u/", filename );
                         logger.debug( "Trying ", file.getAbsolutePath());
                     }
-                    if (file.isDirectory()) {
-                        fileStack.addAll(Collections2.transform(Arrays.asList(file.list()),
-                                f -> filename+"/"+f));
-                    } else if(file.exists()) {
-                        ZipEntry entry = new ZipEntry(filename);
-                        zos.putNextEntry(entry);
-                        InputStream fin = new FileInputStream(file);
-                        if (key != null) {
-                            FilteredMageTabDownloadFile filteredMageTabDownloadFile =
-                                    new FilteredMageTabDownloadFile(file);
-                            if (filteredMageTabDownloadFile.isSupported()) {
-                                fin = filteredMageTabDownloadFile.getInputStream();
+                    if(file.exists() && !streamedFiles.contains(file.getAbsolutePath())) {
+                        if (file.isDirectory()) {
+                            ZipEntry entry = new ZipEntry(filename+"/");
+                            zos.putNextEntry(entry);
+                            fileStack.addAll(Collections2.transform(Arrays.asList(file.list()),
+                                    f -> filename+"/"+f));
+                        } else {
+                            ZipEntry entry = new ZipEntry(filename);
+                            zos.putNextEntry(entry);
+                            InputStream fin = new FileInputStream(file);
+                            if (key != null) {
+                                FilteredMageTabDownloadFile filteredMageTabDownloadFile =
+                                        new FilteredMageTabDownloadFile(file);
+                                if (filteredMageTabDownloadFile.isSupported()) {
+                                    fin = filteredMageTabDownloadFile.getInputStream();
+                                }
                             }
+                            int length;
+                            while ((length = fin.read(buffer)) > 0) {
+                                zos.write(buffer, 0, length);
+                            }
+                            fin.close();
                         }
-                        int length;
-                        while ((length = fin.read(buffer)) > 0) {
-                            zos.write(buffer, 0, length);
-                        }
-                        fin.close();
                         zos.closeEntry();
+                        streamedFiles.add(file.getAbsolutePath());
                     }
 
                 }
