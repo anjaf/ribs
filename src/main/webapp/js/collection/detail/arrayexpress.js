@@ -16,8 +16,8 @@ $('a[data-file-data-search]').click( function () {
 })
 
 // add icon for sdrf
-var sdrfIcon = $('<div class="bs-attribute"><span class="bs-name inline-block">Detailed sample information and links to data </span>' +
-    ' <span class="bs-value inline-block"><a class="show-more" href="#" title="Click to open SDRF Viewer">' +
+var sdrfIcon = $('<div class="bs-attribute"><span class="bs-name">Detailed sample information and links to data </span>' +
+    ' <span class="bs-value"><a class="show-more" href="#" title="Click to open SDRF Viewer">' +
     ' view table <i class="fas fa-external-link-square-alt"></i></a></span>' +
     '</div>').click(function() {
     var acc = $('#accession').text();
