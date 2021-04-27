@@ -149,6 +149,7 @@ var Metadata = (function (_self) {
     function  showRightColumn() {
         if ($('#right-column').text().trim().length>0) {
             $('#right-column').show();
+            FileTable.adjust();
         }
 
         $('#expand-right-column').click(function() {
@@ -157,6 +158,7 @@ var Metadata = (function (_self) {
             $('#right-column').css('width', expanded ? '30%' : '100%');
             $("i",$(this)).toggleClass('fa-angle-double-left fa-angle-double-right');
             $(this).find('[data-fa-i2svg]').toggleClass('fa-angle-double-left fa-angle-double-right');
+            FileTable.adjust();
         });
     }
 
@@ -170,7 +172,6 @@ var Metadata = (function (_self) {
                     api.columns().every(function () {
                         if (this.data().join('')==='' ) this.visible(false)
                     });
-                    api.columns.adjust();
                 }
             });
             sectionTables.push(dt);
@@ -254,8 +255,8 @@ var Metadata = (function (_self) {
             var type = $(this).hasClass("toggle-files") ? "file" : $(this).hasClass("toggle-links") ? "link" : "table";
             var section = $(this).parent().siblings('.bs-section-' + type + 's');
             if (section.css('display') == 'none') {
-                section.show();
-                //redrawTables(true);
+                section.css('display','grid');
+                $('.dataTable', $(this).parent().next()).dataTable().api().columns.adjust();
                 $(this).html('<i class="fa fa-caret-down"></i> hide ' + type + ($(this).data('total') == '1' ? '' : 's'))
             } else {
                 section.hide();
