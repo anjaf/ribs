@@ -94,6 +94,8 @@ public class UpdateOntologyJob {
     private static boolean isVersionNewer(String version, String baseVersion) {
         if (version == null || version.isEmpty())
             return false;
+        if (baseVersion == null || baseVersion.isEmpty())
+            return false;
         String[] versionArr = version.split("\\.");
         String[] baseVersionArr = baseVersion.split("\\.");
         int baseVer, newVer;
