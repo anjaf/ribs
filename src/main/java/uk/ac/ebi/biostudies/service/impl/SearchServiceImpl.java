@@ -139,10 +139,12 @@ public class SearchServiceImpl implements SearchService {
             int searchResultsSize = Math.min(page * pageSize, Integer.MAX_VALUE);
             TopDocs hits = searcher.search(query, searchResultsSize, sort);
             long totalHits = hits.totalHits != null ? hits.totalHits.value : 0;
+            boolean isTotalHitsExact = hits.totalHits == null || hits.totalHits.relation.equals(TotalHits.Relation.EQUAL_TO);
             long to = page * pageSize > totalHits ? totalHits : page * pageSize;
             response.put("page", page);
             response.put("pageSize", pageSize);
             response.put("totalHits", totalHits);
+            response.put("isTotalHitsExact", isTotalHitsExact);
             response.put("sortBy", sortBy.equalsIgnoreCase(Fields.RELEASE_TIME) ? RELEASE_DATE : sortBy);
             response.put("sortOrder", shouldReverse ? SortOrder.DESCENDING : SortOrder.ASCENDING);
             if (totalHits > 0) {
