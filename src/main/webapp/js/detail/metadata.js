@@ -104,6 +104,7 @@ var Metadata = (function (_self) {
         handleImageURLs();
         handleCollectionBasedScriptInjection();
         handleTableCentering();
+        handleCitation(data.accno);
         handleAnchors(params);
         handleHighlights(params);
     }
@@ -126,24 +127,25 @@ var Metadata = (function (_self) {
 
     }
 
-    function handleCitation() {
-
-        $('#cite').bind('click', function() {
+    function handleCitation(accession) {
+        if (accession.toUpperCase().startsWith('S-EPMC')) return;
+        var $cite = $('<a id="cite" title="Cite" class="source-icon source-icon-cite openModal">[Cite]</a>');
+        $cite.bind('click', function() {
             var data = {};
             data.id = $('#orcid-accession').text();
             data.title = $('#orcid-title').text();
             if (data.title[data.title.length-1]=='.') data.title = data.title.slice(0,-1);
             data.authors = $('.author span[itemprop]').map( function () { return $(this).text();}).toArray();
             data.issued =  new Date($('#orcid-publication-year').text()).getFullYear();
-            data.URL =  [window.location.href.split("?")[0].split("#")[0]];
+            data.URL =  window.location.href.split("?")[0].split("#")[0];
             data.today = (new Date()).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
-            data.code = data.authors[0].replace(/ /g, '')+ data.issued;
+            data.code = (data.authors && data.authors.length ? data.authors[0].replace(/ /g, '') : data.title.toLowerCase().trim().split(' ')[0]) + data.issued;
             var templateSource = $('script#citation-template').html();
             var template = Handlebars.compile(templateSource);
             $('#biostudies-citation').html(template(data));
             $('#biostudies-citation').foundation('open');
-        })
-
+        });
+        $('#download-source').prepend($cite);
     }
 
     function  showRightColumn() {

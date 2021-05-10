@@ -277,7 +277,7 @@ ul#bs-orgs {
     font-size: 80%;
     padding: 0px 5px 1px 5px;
     border-radius: 3px;
-    margin-left: 3px;
+    margin-left: 4pt;
     font-family: Consolas, monospace,'Courier New';
     text-align: center;
     display: inline-block;
@@ -573,11 +573,21 @@ a.thumbnail-icon {
     -ms-user-select: all;
     user-select: all;
 }
+
+#biostudies-citation .value::-moz-selection, #biostudies-citation .value::selection,
+#biostudies-citation .value i::-moz-selection, #biostudies-citation .value i::selection{
+    background: #fff8ce;
+}
+
 #bibtex.value {
     white-space: pre-wrap;
     white-space: -o-pre-wrap;
     white-space: -moz-pre-wrap;
     word-wrap: break-word;
+    background: none;
+    border: none;
+    font-size: 10pt;
+    display: inline-block;
 }
 
 ul.recommendations li {
