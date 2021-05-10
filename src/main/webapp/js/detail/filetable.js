@@ -1,6 +1,6 @@
 var FileTable = (function (_self) {
-    var selectedFiles=[];
-    var selectedFilesCount=0;
+    var selectedFiles= new Set();
+    var totalFiles=0;
     var filesTable;
     var firstRender = true;
     var columnDefinitions=[];
@@ -23,19 +23,22 @@ var FileTable = (function (_self) {
                 }
                 handleFileTableColumns(response.columns, acc, params, isDetailPage);
                 handleFileDownloadSelection(acc,params.key, response.relPath);
-                handleFileFilters(acc, params, response.sections);
                 handleAdvancedSearch(columnDefinitions);
-                handleFileListButtons(acc, params.key);
+                if (isDetailPage) {
+                    handleSectionButtons(acc, params, response.sections, response.relPath);
+                    handleFileListButtons(acc, params.key);
+                }
             }});
     };
 
 
-    _self.clearFileFilter =  function() {
+    _self.clearFileFilter =  function(draw = true) {
         if (!filesTable) return; // not yet initialised
         filesTable.columns().visible(true);
         $(".col-advsearch-input").val('');
         filesTable.state.clear();
-        filesTable.search('').columns().search('').draw();
+        filesTable.search('').columns().search('');
+        if (draw) filesTable.draw();
     };
 
     _self.getFilesTable = function() {
@@ -193,6 +196,7 @@ var FileTable = (function (_self) {
         }
         filesTable = $('#file-list').DataTable({
             lengthMenu: [[5, 10, 25, 50, 100], [5, 10, 25, 50, 100]],
+            pageLength: (isDetailPage ? 5 : 25),
             processing: true,
             serverSide: true,
             columns: columns,
@@ -251,7 +255,7 @@ var FileTable = (function (_self) {
                 }
             },
             rowCallback: function( row, data ) {
-                if ( $.inArray(data.path, selectedFiles) !== -1 ) {
+                if ( selectedFiles.has(data.path)) {
                     $(row).addClass('selected');
                 }
             },
@@ -260,12 +264,14 @@ var FileTable = (function (_self) {
                     +'<i class="fas fa-filter"></i>'
                     +'<span class="fa-layers-text" data-fa-transform="shrink-2 down-4 right-6">×</span>'
                     +'</span> show all files');
+                totalFiles = max;
                 return (total== max) ? out : out + btn.html();
             }
         }).on('preDraw', function (e) {
+            console.log("preDraw")
             filesTable.columns().visible(true);
         }).on('draw.dt', function (e) {
-            handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable);
+            handleDataTableDraw(handleThumbnails, params, filesTable);
         }).on( 'search.dt', function (e) {
         }).on( 'order.dt', function () {
             if(afterTableInit) {
@@ -278,19 +284,21 @@ var FileTable = (function (_self) {
 
     }
 
-    function handleDataTableDraw(selectedFiles, updateSelectedFiles, handleThumbnails, params, filesTable) {
+    function handleDataTableDraw(handleThumbnails, params, filesTable) {
+
         $('.file-check-box input').on('click', function () {
             if ($(this).is(':checked')) {
-                selectedFiles.push($(this).data('name'));
+                selectedFiles.add($(this).data('name'));
+                $('#select-all-files').show();
             } else {
-                selectedFiles.splice($.inArray($(this).data('name'), selectedFiles), 1);
+                selectedFiles.delete($(this).data('name'));
             }
             $(this).parent().parent().parent().toggleClass('selected');
             updateSelectedFiles();
         });
 
         $('.file-check-box input').each(function () {
-            if ($.inArray($(this).data('name'), selectedFiles) >= 0) {
+            if ( selectedFiles.has($(this).data('name'))) {
                 $(this).attr('checked', 'checked');
             }
         });
@@ -302,8 +310,6 @@ var FileTable = (function (_self) {
         $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px');
         $('.fullscreen').css("top", ( $(window).height() - $('#file-list-container').height()) / 3  + "px");
         // TODO: enable select on tr click
-        updateSelectedFiles();
-        handleThumbnails(params.key);
 
         if ($('#advanced-search-icon').hasClass('fa-minus-square')) {
             $(".col-advsearch-input").show();
@@ -327,43 +333,120 @@ var FileTable = (function (_self) {
         } else {
             sorting=false;
         }
+        updateSelectedFiles();
+        // handle thumbnails. Has to be called last
+        handleThumbnails(params.key);
     }
 
-
-    function handleFileFilters(acc,params, sections) {
+    function handleSectionButtons(acc,params, sections, relPath) {
         // add file filter button for section
         $(sections).each(function (i,divId) {
             var column = 'columns['+filesTable.column(':contains(Section)').index()+']';
             var section = this;
-            var fileSearchParams = {key:params.key};
+            var fileSearchParams = {key:params.key, length:0};
             fileSearchParams[column+'[name]']='Section';
             fileSearchParams[column+'[search][value]']=divId;
             $.post(contextPath + '/api/v1/files/' + acc , fileSearchParams, function(data) {
-                var bar = $('#' + $.escapeSelector(divId) + '> .bs-name > .section-title-bar');
-                var button = $('<a class="section-button" data-files-id="'+ divId + '">' +
-                    '<i class="fa fa-filter"></i> '+ data.recordsFiltered + ' file' +
-                    (data.recordsFiltered>1 ? 's' : '') +
-                    '</a>');
-                // handle clicks on file filters in section
-                $(button).click(function () {
-                    var expansionSource = '' + $(this).data('files-id');
-                    Metadata.setExpansionSource(expansionSource);
-                    FileTable.clearFileFilter();
-                    $('#all-files-expander').click();
-                    filesTable.column(':contains(Section)').search(expansionSource);
-                    filesTable.draw();
-
-                });
-                bar.append(button);
+                var bar = $('#' + $.escapeSelector(divId) + ' > .bs-attribute > .section-title-bar');
+                bar.append($('<span/>').addClass('bs-section-files-text').html(data.recordsFiltered + (data.recordsFiltered > 1 ? ' files' : ' file')))
+                addFileFilterButton(divId, bar);
+                addFileDownloadButton(acc,divId, bar, params.key, relPath);
             });
 
         });
 
     }
 
+    function addFileFilterButton(divId, bar) {
+        var button = $('<a class="section-button"><i class="fa fa-filter"></i> Show </a>');
+        // handle clicks on file filters in section
+        $(button).click(function () {
+            var expansionSource = '' + divId;
+            Metadata.setExpansionSource(expansionSource);
+            FileTable.clearFileFilter(false);
+            $('#all-files-expander').click();
+            filesTable.column(':contains(Section)').search(expansionSource);
+            filesTable.draw();
+        });
+        bar.append(button);
+    }
+
+    function addFileDownloadButton(acc, divId, bar, key, relPath) {
+        var button = $('<a class="section-button" data-files-id="' + divId + '">' +
+            '<i class="fa fa-cloud-download-alt"></i> Download </a>');
+        // handle clicks on file download in section
+        $(button).click(function () {
+            var columns=[];
+            columns[3]=[];
+            columns[3]['name']='Section';
+            columns[3]['search'] = []
+            columns[3]['search']['value'] = divId;
+            $.post(contextPath+ '/api/v1/files/'+ acc, {
+                    columns: [null,null,{name:'Section', search: {value:divId}}],
+                    length: -1,
+                    metadata: false,
+                    start: 0
+                },
+                function (response) {
+                    var filelist = response.data.map( function (v) {
+                       return v.path
+                    });
+                    createDownloadDialog(key, relPath, new Set(filelist));
+                })
+            });
+        bar.append(button);
+    }
+
     var dlIndex = -1;
+
+    function createDownloadDialog(key, relativePath, filelist) {
+        var fileName = {os: "unix", ps: ".sh", acc: $('#accession').text(), dldir: "/home/user/"};
+        var popUpTemplateSource = $('script#batchdl-accordion-template').html();
+        var compiledPopUpTemplate = Handlebars.compile(popUpTemplateSource);
+        var ftpDlInstructionTemplate = $('script#ftp-dl-instruction').html();
+        var ftpCompiledInstructionTemplate = Handlebars.compile(ftpDlInstructionTemplate);
+        var asperaDlInstructionTemplate = $('script#aspera-dl-instruction').html();
+        var asperaCompiledInstructionTemplate = Handlebars.compile(asperaDlInstructionTemplate);
+        // initAsperaConnect();
+        $('#batchdl-popup').html(compiledPopUpTemplate({fname: fileName, fileCount: filelist.size}));
+        $('#batchdl-popup').foundation('open');
+        var dltype = "/zip";
+        fileName = getOsData('');
+        $('#ftp-instruct').html(ftpCompiledInstructionTemplate({fname: fileName}));
+        $('#aspera-instruct').html(asperaCompiledInstructionTemplate({fname: fileName}));
+        $("#ftp-script-os-select").on('change', function () {
+            var os = $("#ftp-script-os-select :selected").val();
+            fileName = getOsData(os);
+            $('#ftp-instruct').html(ftpCompiledInstructionTemplate({fname: fileName}));
+        });
+        $("#zip-dl-button").on('click', function () {
+            getSelectedFilesForm(key, '/zip', fileName.os, filelist);
+        });
+
+        $("#ftp-dl-button").on('click', function () {
+            getSelectedFilesForm(key, '/ftp', fileName.os, filelist);
+        });
+
+        $("#aspera-script-os-select").on('change', function () {
+            var os = $("#aspera-script-os-select :selected").val();
+            fileName = getOsData(os);
+            $('#aspera-instruct').html(asperaCompiledInstructionTemplate({fname: fileName}));
+        });
+        $("#aspera-dl-button").on('click', function () {
+            getSelectedFilesForm(key, '/aspera', fileName.os, filelist);
+        });
+
+        $("#aspera-plugin-dl-button").on('click', function (e) {
+            initAsperaConnect();
+            dlIndex = -1;
+            asperaPluginWarmUp(filelist, relativePath)
+            fileControls.selectFolder();
+            e.preventDefault();
+        });
+    }
+
     function handleFileDownloadSelection(acc,key,relativePath) {
-        // add select all checkboz
+        // add select all checkbox
         $(filesTable.columns(0).header()).html('<input id="select-all-files"  type="checkbox"/>');
         $('#select-all-files').on('click', function () {
             $('body').css('cursor', 'progress');
@@ -378,74 +461,42 @@ var FileTable = (function (_self) {
                         start: 0
                     }),
                     function (response) {
-                        var filtered = [];
                         for (var i=0; i< response.data.length; i++) {
-                            filtered.push(response.data[i].path);
+                            selectedFiles.add(response.data[i].path);
                         }
-                        selectedFiles = $.uniqueSort($.merge(selectedFiles, filtered ));
                         updateSelectedFiles();
                     }
                 );
             } else {
-                selectedFiles=[];
+                selectedFiles.clear();
                 $('.select-checkbox').parent().removeClass('selected');
-                $('.select-checkbox input').prop('checked',false);
-                $('#file-list_wrapper').css('pointer-events','auto');
+                $('.select-checkbox input').prop('checked', false);
+                //$('#select-all-files').prop('disbaled', 'disabled');
                 updateSelectedFiles();
             }
         });
         $('#batchdl-popup').foundation();
         $("#download-selected-files").on('click', function () {
-            var fileName = {os:"unix", ps:".sh", acc:$('#accession').text(), dldir:"/home/user/"};
-            var popUpTemplateSource = $('script#batchdl-accordion-template').html();
-            var compiledPopUpTemplate = Handlebars.compile(popUpTemplateSource);
-            var ftpDlInstructionTemplate = $('script#ftp-dl-instruction').html();
-            var ftpCompiledInstructionTemplate = Handlebars.compile(ftpDlInstructionTemplate);
-            var asperaDlInstructionTemplate = $('script#aspera-dl-instruction').html();
-            var asperaCompiledInstructionTemplate = Handlebars.compile(asperaDlInstructionTemplate);
-            // initAsperaConnect();
-
-            $('#batchdl-popup').html(compiledPopUpTemplate({fname:fileName}));
-            $('#batchdl-popup').foundation('open');
-            var dltype = "/zip";
-            fileName = getOsData('');
-            $('#ftp-instruct').html(ftpCompiledInstructionTemplate({fname:fileName}));
-            $('#aspera-instruct').html(asperaCompiledInstructionTemplate({fname:fileName}));
-            $("#ftp-script-os-select").on('change', function () {
-                var os = $("#ftp-script-os-select :selected").val();
-                fileName = getOsData(os);
-                $('#ftp-instruct').html(ftpCompiledInstructionTemplate({fname:fileName}));
-            });
-            $("#zip-dl-button").on('click', function () {
-                getSelectedFilesForm(key, '/zip', fileName.os);
-            });
-
-            $("#ftp-dl-button").on('click', function () {
-                getSelectedFilesForm(key, '/ftp', fileName.os);
-            });
-
-            $("#aspera-script-os-select").on('change', function () {
-                var os = $("#aspera-script-os-select :selected").val();
-                fileName = getOsData(os);
-                $('#aspera-instruct').html(asperaCompiledInstructionTemplate({fname:fileName}));
-            });
-            $("#aspera-dl-button").on('click', function () {
-                getSelectedFilesForm(key, '/aspera', fileName.os);
-            });
-
-            $("#aspera-plugin-dl-button").on('click', function (e) {
-                initAsperaConnect();
-                dlIndex = -1;
-                asperaPluginWarmUp(selectedFiles, relativePath)
-                fileControls.selectFolder();
-                e.preventDefault();
-            });
-
+            if (selectedFiles.size) {
+                createDownloadDialog(key, relativePath, selectedFiles);
+            } else {
+                $.post(contextPath+ '/api/v1/files/'+ acc, {
+                        length: -1,
+                        metadata: false,
+                        start: 0
+                    },
+                function (response) {
+                    var filelist = response.data.map( function (v) {
+                        return v.path
+                    });
+                    createDownloadDialog(key, relativePath, new Set(filelist));
+                });
+            }
         });
     }
 
 
-    function asperaPluginWarmUp(selectedFiles, relativePath){
+    function asperaPluginWarmUp(relativePath){
         allPaths=[];
         $(selectedFiles).each( function(i,v) {
             var path ={};
@@ -633,11 +684,11 @@ var FileTable = (function (_self) {
         return fileName;
     }
 
-    function getSelectedFilesForm(key, type, os){
+    function getSelectedFilesForm(key, type, os, filelist){
         var selectedHtml = '<form method="POST" target="_blank" action="'
             + window.contextPath + "/files/"
             + $('#accession').text() +  type + '">';
-        $(selectedFiles).each( function(i,v) {
+        $(Array.from(filelist)).each( function(i,v) {
             selectedHtml += '<input type="hidden" name="files" value="'+v+'"/>'
         });
         if (key) {
@@ -656,13 +707,11 @@ var FileTable = (function (_self) {
     }
 
     function updateSelectedFiles() {
-        if (selectedFiles.length>0) {
-            $('.filetoolbar #selected-file-count').html(selectedFiles.length);
-            $('.filetoolbar').css('visibility', 'visible');
+        if (selectedFiles.size>0 && selectedFiles.size!=totalFiles) {
+            $('#selected-file-count').html(selectedFiles.size + ( selectedFiles.size ==1 ? " file" : " files") );
         } else {
-            $('.filetoolbar').css('visibility', 'hidden');
+            $('#selected-file-count').html('all files');
         }
-
         $('#select-all-files').prop('checked', $('.select-checkbox input:checked').length == $('.select-checkbox input').length );
         $('body').css('cursor', 'default');
         $('#select-all-files').css('cursor', 'default');

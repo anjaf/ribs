@@ -76,7 +76,10 @@ a.tag:hover { color: #fff; }
 .button:hover,
 .button:focus,
 .button,
-.button:active { background: #267799; }
+.button:active {
+    background: #267799;
+    border-radius: 3px;
+}
 
 .tabs-title > a:focus,
 .tabs-title > a[aria-selected='true'] {

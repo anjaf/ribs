@@ -35,15 +35,14 @@ import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.service.*;
 
-import java.io.*;
 import java.io.File;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.ac.ebi.biostudies.api.util.Constants.*;
@@ -162,11 +161,11 @@ public class IndexServiceImpl implements IndexService {
                 }
             }
             Map<String,String> commitData = new HashMap<>();
-            while(token!=JsonToken.END_OBJECT){
-                if(token.name().equalsIgnoreCase("field_name")) {
+            while (token != null && token != JsonToken.END_OBJECT) {
+                if (token.name().equalsIgnoreCase("field_name")) {
                     String key = parser.getText();
                     token = parser.nextToken();
-                    commitData.put(key,token.isNumeric() ? Long.toString(parser.getLongValue()) : parser.getText());
+                    commitData.put(key, token.isNumeric() ? Long.toString(parser.getLongValue()) : parser.getText());
 
                 }
                 token = parser.nextToken();

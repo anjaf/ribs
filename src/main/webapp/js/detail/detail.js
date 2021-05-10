@@ -1,4 +1,3 @@
-
 $(function() {
     Metadata.render();
 });

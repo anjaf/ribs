@@ -2,17 +2,19 @@
     <section>
         <div id="file-list-container">
             <div class="table-caption">
-                <span class="widge-title"><i class="fa fa-download"></i> Data files</span>
+                <span class="widge-title"><i class="fa fa-paperclip"></i> Data files</span>
                 <span class="fa-icon table-expander" id="all-files-expander" title="Click to expand"><i class="fa fa-expand"></i></span>
             </div>
             <div class="table-wrapper">
                 <table id="file-list" class="stripe compact hover" width="100%">
                 </table>
-                <div class="filetoolbar">
-                    <a class="section-button" id="download-selected-files">Download <span id="selected-file-count">0</span> selected files</a>
-                    <div class="reveal large" id="batchdl-popup" data-reveal></div>
-                </div>
             </div>
+            <div class="download-files-container">
+                <span class="button" id="download-selected-files"><i class="fa fa-cloud-download-alt"></i> Download
+                    <span id="selected-file-count">all files</span>
+                </span>
+            </div>
+            <div class="reveal large" id="batchdl-popup" data-reveal></div>
         </div>
     </section>
 </script>
@@ -23,13 +25,16 @@
           <span aria-hidden="true">&times;</span>
         </button>
         <div>
-            <p style="font-weight:bold; font-size: 14pt">Zip/Ftp/Aspera Download <p>
+            <p style="font-weight:bold; font-size: 14pt">File Download <p>
+        </div>
+        <div>
+            <p>Please select how you want to download your requested {{fileCount}} file{{#ifCond fileCount '>' 1}}s{{/ifCond}}</a>.</p>
         </div>
         <ul class="accordion" data-accordion>
             <li class="accordion-item is-active" data-accordion-item>
                 <!-- Accordion tab title -->
 
-                <a href="#" class="accordion-title" style="font-size:medium;">Download as a Zip file</a>
+                <a href="#" class="accordion-title" style="font-size:medium;">Download as a ZIP file</a>
 
                 <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
                 <div class="accordion-content" data-tab-content>
@@ -39,7 +44,7 @@
             </li>
             <li class="accordion-item" data-accordion-item>
                   <!-- Accordion tab title -->
-                  <a href="#" class="accordion-title" style="font-size:medium;">Download Using FTP</a>
+                  <a href="#" class="accordion-title" style="font-size:medium;">Download using FTP</a>
                   <div class="accordion-content" data-tab-content>
                     <div class="row">
                         <div class="columns small-6 large-4">
@@ -61,7 +66,7 @@
             </li>
             <li class="accordion-item" data-accordion-item>
                   <!-- Accordion tab title -->
-                  <a href="#" class="accordion-title" style="font-size:medium;">Download Using Aspera</a>
+                  <a href="#" class="accordion-title" style="font-size:medium;">Download using Aspera</a>
 
                   <div class="accordion-content" style="padding:5px;" data-tab-content>
                       <div class="row">
@@ -85,14 +90,14 @@
                   </div>
             </li>
             <li class="accordion-item" data-accordion-item>
-                 <a href="#" class="accordion-title" style="font-size:medium;">Download Using Aspera Connect plugin</a>
+                 <a href="#" class="accordion-title" style="font-size:medium;">Download using Aspera Connect plugin</a>
                  <div class="accordion-content" style="padding:5px;" data-tab-content>
                      <p>After initiating download, the requested files will be downloaded by Aspera and you can close this page.</p>
                      <p>You can manage downloading files by Aspera's connect management console which is located in taskbar of your operating system.</p>
                      <input id="aspera-plugin-dl-button" class="button" type="button" value="Download"/>
                      <div class="row" id="progress_bar" style="display: none">
                         <div role="progressbar" class="progress success small-8 medium-8 large-6 round">
-                          <span class="progress-meter" style="width: 0%">
+                          <span class="progress-meter" style="width: 0">
                             <span class="progress-meter-text">0%</span>
                           </span>
                         </div>

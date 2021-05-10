@@ -26,10 +26,15 @@
         <%@include file="detail/main-file-table.hbs" %>
     </jsp:attribute>
     <jsp:body>
-        <div class="filetoolbar" style="visibility:hidden; text-align: center; font-size: 10pt;">
-            <a class="section-button" id="download-selected-files"><i class="fas fa-download"></i> Download <span id="selected-file-count">0</span> selected files</a>
+        <div class="table-wrapper">
+            <table id="file-list" class="stripe compact hover" width="100%">
+            </table>
         </div>
-        <table id="file-list" class="display stripe compact hover" width="100%">
-        </table>
+        <div class="download-files-container">
+                <span class="button" id="download-selected-files"><i class="fa fa-cloud-download-alt"></i> Download
+                    <span id="selected-file-count">all files</span>
+                </span>
+        </div>
+        <div class="reveal large" id="batchdl-popup" data-reveal></div>
     </jsp:body>
 </t:generic>

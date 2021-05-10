@@ -104,6 +104,7 @@ var Metadata = (function (_self) {
         handleImageURLs();
         handleCollectionBasedScriptInjection();
         handleTableCentering();
+        handleCitation(data.accno);
         handleAnchors(params);
         handleHighlights(params);
     }
@@ -126,24 +127,25 @@ var Metadata = (function (_self) {
 
     }
 
-    function handleCitation() {
-
-        $('#cite').bind('click', function() {
+    function handleCitation(accession) {
+        if (accession.toUpperCase().startsWith('S-EPMC')) return;
+        var $cite = $('<a id="cite" title="Cite" class="source-icon source-icon-cite openModal">[Cite]</a>');
+        $cite.bind('click', function() {
             var data = {};
             data.id = $('#orcid-accession').text();
             data.title = $('#orcid-title').text();
             if (data.title[data.title.length-1]=='.') data.title = data.title.slice(0,-1);
             data.authors = $('.author span[itemprop]').map( function () { return $(this).text();}).toArray();
             data.issued =  new Date($('#orcid-publication-year').text()).getFullYear();
-            data.URL =  [window.location.href.split("?")[0].split("#")[0]];
+            data.URL =  window.location.href.split("?")[0].split("#")[0];
             data.today = (new Date()).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
-            data.code = data.authors[0].replace(/ /g, '')+ data.issued;
+            data.code = (data.authors && data.authors.length ? data.authors[0].replace(/ /g, '') : data.title.toLowerCase().trim().split(' ')[0]) + data.issued;
             var templateSource = $('script#citation-template').html();
             var template = Handlebars.compile(templateSource);
             $('#biostudies-citation').html(template(data));
             $('#biostudies-citation').foundation('open');
-        })
-
+        });
+        $('#download-source').prepend($cite);
     }
 
     function  showRightColumn() {
@@ -164,7 +166,14 @@ var Metadata = (function (_self) {
         $(".section-table").each(function () {
             var dt = $(this).DataTable({
                 "dom": "t",
-                paging: false
+                paging: false,
+                "initComplete": function(settings) {
+                    var api = new $.fn.dataTable.Api( settings );
+                    api.columns().every(function () {
+                        if (this.data().join('')==='' ) this.visible(false)
+                    });
+                    api.columns.adjust();
+                }
             });
             sectionTables.push(dt);
         });
@@ -211,11 +220,11 @@ var Metadata = (function (_self) {
 
     function drawSubsections() {
         // draw subsection and hide them
-        $(".indented-section").prepend('<span class="toggle-section fa-icon" title="Click to expand"><i class="fa-fw fas fa-caret-right"></i></span>')
+        $(".indented-section .bs-name").prepend('<span class="toggle-section fa-icon" title="Click to expand"><i class="fa-fw fas fa-caret-right"></i></span>')
         $(".indented-section").next().hide();
 
-        $('.toggle-section').parent().css('cursor', 'pointer');
-        $('.toggle-section').parent().on('click', function () {
+        $('.toggle-section').closest('.indented-section').css('cursor', 'pointer');
+        $('.toggle-section').closest('.indented-section').on('click', function () {
             var indented_section = $(this).parent().children().first().next();
             if (indented_section.css('display') == 'none') {
                 $(this).children().first().find('[data-fa-i2svg]').toggleClass('fa-caret-down fa-caret-right').attr('title', 'Click to collapse');

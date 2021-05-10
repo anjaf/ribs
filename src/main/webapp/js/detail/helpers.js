@@ -344,7 +344,8 @@ var Metadata = (function (_self) {
             });
             if (!pubs || pubs.length < 1) return null;
             var template = Handlebars.compile($('script#publication-template').html());
-            var html = '<div class="bs-name">Publication'+ (pubs.length>1 ? 's': '') +'</div>';
+            var html = '<div class="bs-attribute"><span class="bs-name">Publication'+ (pubs.length>1 ? 's': '')
+                +'</span><span class="bs-value">';
             $.each(pubs, function(i,pub) {
                 publication.URLs = [];
                 $.each(pub.attributes, function (i, v) {
@@ -378,6 +379,7 @@ var Metadata = (function (_self) {
                 if (!publication.URLs.length) delete publication.URLs
                 html += template(publication);
             });
+            html+='</span></div>'
             return new Handlebars.SafeString(html);
         });
 

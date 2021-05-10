@@ -1,15 +1,15 @@
 <script id='section-table' type='text/x-handlebars-template'>
     {{setHeaders}}
-    <section>
+    <section class="bs-attribute">
         <div class="bs-name">{{this.type}}
-           <a class="show-more toggle-tables" data-total="1"><i class="fa fa-caret-right"></i> show table</a>
+            <a class="show-more toggle-tables" data-total="1"><i class="fa fa-caret-right"></i> show table</a>
         </div>
         <div class="bs-section-tables">
             <div class="table-caption">
                 <span class="fa-icon table-expander" title="Click to expand"><i class="fa fa-expand"></i></span>
             </div>
             <div class="table-wrapper">
-                <table class="stripe compact hover section-table">
+                <table class="stripe compact hover section-table" width="100%">
                     <thead>
                     <tr>
                         {{#each this.headers}}
