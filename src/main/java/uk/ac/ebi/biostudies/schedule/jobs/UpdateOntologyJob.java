@@ -35,9 +35,9 @@ import java.net.URI;
 import java.nio.file.StandardCopyOption;
 
 @Service
-public class UpdateOntologyJob{
+public class UpdateOntologyJob {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final static Logger LOGGER = LoggerFactory.getLogger(UpdateOntologyJob.class);
 
     @Autowired
     Ontology ontology;
@@ -56,22 +56,22 @@ public class UpdateOntologyJob{
         // over to our location and launch a reload process
         String efoLocation = efoConfig.getUrl();//getPreferences().getString("bs.efo.update.source");
         URI efoURI = new URI(efoLocation);
-        logger.info("Checking EFO ontology version from [{}]", efoURI.toString());
+        LOGGER.info("Checking EFO ontology version from [{}]", efoURI.toString());
         String version = EFOLoader.getOWLVersion(efoURI);
         String loadedVersion = null;
-        if(ontology.getEfo()!=null)
+        if (ontology.getEfo() != null)
             loadedVersion = ontology.getEfo().getVersionInfo();
         if (loadedVersion == null || (null != version
                 && !version.equals(loadedVersion)
                 && isVersionNewer(version, loadedVersion))
 
-                ) {
+        ) {
             // we have newer version, let's fetch it and copy it over to our working location
-            logger.info("Updating EFO with version [{}]", version);
+            LOGGER.info("Updating EFO with version [{}]", version);
 
             try (InputStream is = efoURI.toURL().openStream()) {
                 File efoFile = new File(efoConfig.getOwlFilename());
-                java.nio.file.Files.copy( is, efoFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                java.nio.file.Files.copy(is, efoFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 try {
                     emailSender.send(mailConfig.getReportsRecipients(),
                             mailConfig.getHiddenRecipients()
@@ -82,18 +82,36 @@ public class UpdateOntologyJob{
                                     + "Host [${variable.hostname}]" + StringTools.EOL,
                             mailConfig.getReportsOriginator()
                     );
-                }catch(Throwable e){
-                    logger.debug("Problem in sending email for EFO update",e);
+                } catch (Throwable e) {
+                    LOGGER.debug("Problem in sending email for EFO update", e);
                 }
                 reloadOntologyJob.doExecute();
-                logger.info("EFO has updated");
+                LOGGER.info("EFO has updated");
             }
         }
     }
 
-    private boolean isVersionNewer(String version, String baseVersion) {
-        return null != version
-                && null != baseVersion
-                && Float.parseFloat("0." + version.replace(".", "")) > Float.parseFloat("0." + baseVersion.replace(".", ""));
+    private static boolean isVersionNewer(String version, String baseVersion) {
+        if (version == null || version.isEmpty())
+            return false;
+        if (baseVersion == null || baseVersion.isEmpty())
+            return false;
+        String[] versionArr = version.split("\\.");
+        String[] baseVersionArr = baseVersion.split("\\.");
+        int baseVer, newVer;
+        try {
+            for (int i = 0; i < versionArr.length; i++) {
+                baseVer = Integer.parseInt(baseVersionArr[i]);
+                newVer = Integer.parseInt(versionArr[i]);
+                if (newVer > baseVer)
+                    return true;
+                if (newVer < baseVer)
+                    return false;
+            }
+            return false;
+        } catch (Throwable error) {
+            LOGGER.error("problem in parsing new version or base version new:{} and base:{}", version, baseVersion);
+            return false;
+        }
     }
 }
