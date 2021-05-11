@@ -310,6 +310,7 @@ public class IndexServiceImpl implements IndexService {
                 if (valueMap.containsKey(Facets.COLLECTION)) {
                     collectionFacets.addAll(Arrays.asList(valueMap.get(Facets.COLLECTION).toString().toLowerCase().split("\\" + Facets.DELIMITER)));
                     collectionFacets.remove("");
+                    collectionFacets.remove(PUBLIC);
                     valueMap.put(Facets.COLLECTION, String.join(Facets.DELIMITER, collectionFacets));
                 }
 
