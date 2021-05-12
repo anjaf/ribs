@@ -1,11 +1,5 @@
 package uk.ac.ebi.biostudies.controller;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,11 +77,13 @@ public class Authentication {
     }
 
     @RequestMapping(value = "/logout")
-    public void logout(@CookieValue(HttpTools.TOKEN_COOKIE) String token, HttpServletRequest request, HttpServletResponse response) {
+    public void logout(@CookieValue(value=HttpTools.TOKEN_COOKIE, required=false) String token, HttpServletRequest request, HttpServletResponse response) {
         try {
             User user = Session.getCurrentUser();
-            logger.info("Logging out user [{}]", user.getLogin());
-            users.logout();
+            if (user!=null) {
+                logger.info("Logging out user [{}]", user.getLogin());
+                users.logout();
+            }
             HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, 0);
             HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
             String returnURL = request.getHeader(HttpTools.REFERER_HEADER);

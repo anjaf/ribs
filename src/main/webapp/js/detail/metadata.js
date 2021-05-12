@@ -19,12 +19,12 @@ var Metadata = (function (_self) {
         var url = contextPath + '/api/v1/studies/' + accession;
         var params = getParams();
         $.getJSON(url, params, function (data) {
+            if (!data.accno && data.submissions) data = data.submissions[0]; // for v0, when everything was a submission
             // redirect to collection page if accession is a collection
             if (data.section.type.toLowerCase()==='collection' || data.section.type.toLowerCase()==='project') {
                 location.href= contextPath + '/'+ accession + '/studies';
                 return;
             }
-            if (!data.accno && data.submissions) data = data.submissions[0]; // for v0, when everything was a submission
             if (params.key) {
                 data.section.keyString = '?key='+params.key;
             }
@@ -36,10 +36,10 @@ var Metadata = (function (_self) {
             var title = data.accno, releaseDate = '';
             if (data.attributes) { //v1
                 title = data.attributes.filter(function (v, i) {
-                    return v.name == 'Title';
+                    return v.name.trim() == 'Title';
                 });
                 data.attributes.forEach(function (v, i) {
-                    if (v.name == 'ReleaseDate') {
+                    if (v.name.trim() == 'ReleaseDate') {
                         releaseDate = v.value;
                     }
                 });
@@ -52,11 +52,12 @@ var Metadata = (function (_self) {
             if (data.section ) {
                 if (!data.section.attributes) data.section.attributes = [];
                 if (!data.section.attributes.filter(function (v, i) {
-                    return v.name == 'Title';
+                    return v.name.trim() == 'Title';
                 }).length) {
                     data.section.attributes.push({name: 'Title', value: title[0].value});
                 }
             }
+            console.log(data.section)
             $('#renderedContent').html(template(data.section));
             postRender(params, data.section);
         }).fail(function (error) {
