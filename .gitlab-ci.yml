@@ -6,6 +6,7 @@ cache:
 stages:
   - build
   - build_docker
+  - deploy-k8s
   - deploy
 
 variables:
@@ -72,6 +73,30 @@ build-docker:
     - docker logout $CI_REGISTRY
   only:
     - develop
+  when: manual
+
+.deploy-k8s:
+  stage: deploy-k8s
+  image: alpine:latest
+  script:
+    - apk add --no-cache curl gettext
+    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/local/bin/kubectl
+    - cd ci
+    - kubectl apply -f "$APP_CONFIG"
+    - envsubst < deployment.tmpl | kubectl apply -f -
+
+deploy:k8s:hx:
+  extends: .deploy-k8s
+  environment:
+    name: hx
+  when: manual
+
+deploy:k8s-hl:
+  extends: .deploy-k8s
+  environment:
+    name: hl
   when: manual
 
 beta:
