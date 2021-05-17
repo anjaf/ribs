@@ -18,4 +18,4 @@ COPY ./target/biostudies.war ./
 WORKDIR ./
 
 EXPOSE 8080
-CMD java -Dhttp.proxyHost=${PROXY_HOST} -Dhttp.proxyPort=${PROXY_HOST} -Dhttps.proxyHost=${PROXY_HOST} -Dhttps.proxyPort=${PROXY_HOST} -Djava.io.tmpdir=/tmp -Dtomcat.hostname=ui -jar biostudies.war
+CMD java -Dhttp.proxyHost=${PROXY_HOST} -Dhttp.proxyPort=${PROXY_HOST} -Dhttps.proxyHost=${PROXY_HOST} -Dhttps.proxyPort=${PROXY_HOST} -Djava.io.tmpdir=/tmp -Dlog-path=/tmp/logs -Dtomcat.hostname=ui -jar biostudies.war
