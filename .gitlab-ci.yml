@@ -6,7 +6,6 @@ cache:
 stages:
   - build
   - build_docker
-  - deploy-k8s
   - deploy
 
 variables:
@@ -72,11 +71,10 @@ build-docker:
     - docker rmi ${CI_REGISTRY_IMAGE}:latest
     - docker logout $CI_REGISTRY
   only:
-    - develop
-  when: manual
+    - k8s
 
 .deploy-k8s:
-  stage: deploy-k8s
+  stage: deploy
   image: alpine:latest
   script:
     - apk add --no-cache curl gettext
@@ -84,17 +82,23 @@ build-docker:
     - chmod +x ./kubectl
     - mv ./kubectl /usr/local/bin/kubectl
     - cd ci
-    - kubectl apply -f "$APP_CONFIG"
+    - cat "$APP_CONFIG" | kubectl apply -f -
     - envsubst < deployment.tmpl | kubectl apply -f -
+  only:
+    - k8s
 
 deploy:k8s:hx:
   extends: .deploy-k8s
+  only:
+    - k8s
   environment:
     name: hx
   when: manual
 
 deploy:k8s-hl:
   extends: .deploy-k8s
+  only:
+    - k8s
   environment:
     name: hl
   when: manual
@@ -115,6 +119,7 @@ master-build:
     - mvn -Dmaven.test.skip=true clean install spring-boot:repackage
   only:
     - master
+    - k8s
 
 prod-backup:
   <<: *deploy-template
@@ -136,5 +141,3 @@ preview:
   only:
     - master
   when: manual
-
-

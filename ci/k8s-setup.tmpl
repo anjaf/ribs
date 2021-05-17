@@ -20,10 +20,10 @@ metadata:
   name: <NAMESPACE>-role
 rules:
 - apiGroups: ["apps/v1","apps","extensions"]
-  resources: ["deployments", "replicasets"]
+  resources: ["deployments", "replicasets","secrets"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: [""]
-  resources: ["configmaps", "services"]
+  resources: ["configmaps", "services","secrets"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 
 ---
