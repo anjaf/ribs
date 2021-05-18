@@ -1,18 +1,16 @@
 package uk.ac.ebi.biostudies.controller;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.biostudies.api.util.HttpTools;
+import uk.ac.ebi.biostudies.auth.RestBasedAuthenticationProvider;
 import uk.ac.ebi.biostudies.auth.Session;
 import uk.ac.ebi.biostudies.auth.User;
 import uk.ac.ebi.biostudies.auth.UserSecurityService;
@@ -34,8 +32,10 @@ public class Authentication {
 
     @Autowired
     UserSecurityService users;
+    @Autowired
+    RestBasedAuthenticationProvider authenticationProvider;
 
-    @RequestMapping(value = "/auth")
+    @RequestMapping(value = "/auth", method = RequestMethod.POST)
     public void login(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String returnURL = request.getHeader(HttpTools.REFERER_HEADER);
         String username = request.getParameter("u");
@@ -48,14 +48,15 @@ public class Authentication {
             returnURL = applicationRoot;
         }
         boolean isLoginSuccessful = false;
-        User authenticatedUser = users.login(username, password);
-        isLoginSuccessful = authenticatedUser != null;
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+        org.springframework.security.core.Authentication userPassAuth = authenticationProvider.authenticate(authRequest);
+        isLoginSuccessful = userPassAuth != null;
         // 31,557,600 is a standard year in seconds
         Integer maxAge = "on".equals(remember) ? 31557600 : null;
 
         if (isLoginSuccessful) {
             logger.info("Successfully authenticated user [{}]", username);
-            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, authenticatedUser.getToken(), maxAge);
+            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, ((User)userPassAuth.getPrincipal()).getToken(), maxAge);
             HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
         } else {
             HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, null);
@@ -82,7 +83,7 @@ public class Authentication {
         }
     }
 
-    @RequestMapping(value = "/logout")
+    @RequestMapping(value = "/signout", method = RequestMethod.POST)
     public void logout(@CookieValue(HttpTools.TOKEN_COOKIE) String token, HttpServletRequest request, HttpServletResponse response) {
         try {
             User user = Session.getCurrentUser();

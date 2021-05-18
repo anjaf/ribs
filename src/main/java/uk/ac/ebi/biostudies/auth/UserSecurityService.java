@@ -71,24 +71,7 @@ public class UserSecurityService {
     }
 
     public JsonNode sendLoginRequest(String username, String password) throws IOException {
-        JsonNode responseJSON = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(securityConfig.getLoginUrl());
-        httpPost.setConfig(RequestConfig.custom()
-                .setConnectionRequestTimeout(REQUEST_TIMEOUT)
-                .setConnectTimeout(REQUEST_TIMEOUT)
-                .setSocketTimeout(REQUEST_TIMEOUT).build());
-        httpPost.setHeader("Content-Type", "application/json; charset=UTF-8");
-        ObjectNode creds = mapper.createObjectNode();
-        creds.put("login", username);
-        creds.put("password", password);
-        httpPost.setEntity(new StringEntity( mapper.writeValueAsString(creds)));
-        try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
-            responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
-        }catch (Exception exception){
-            logger.error("problem in sending http req to authentication server", exception);
-        }
-        return responseJSON;
+        throw new UnsupportedOperationException();
     }
 
 
@@ -100,9 +83,7 @@ public class UserSecurityService {
     }
 
     public User login(String username, String password) throws IOException {
-        User user = createUserFromJSONResponse(sendLoginRequest(username, password));
-        if (user == null) return null;
-        return user;
+        throw new UnsupportedOperationException();
     }
 
     public void logout() {
@@ -121,8 +102,8 @@ public class UserSecurityService {
         return user;
     }
 
-    private User createUserFromJSONResponse(JsonNode responseJSON) throws IOException {
-        User user;
+    public User createUserFromJSONResponse(JsonNode responseJSON) throws IOException {
+        User user=null;
         if (responseJSON == null || !responseJSON.has("sessid")) {
             return null;
         }

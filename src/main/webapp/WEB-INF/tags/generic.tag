@@ -188,7 +188,7 @@
                         <div id="login-status" class="alert" style="display:none"></div>
                         <a style="font-size:9pt;float:right;margin-bottom:5pt;" href="/biostudies/submissions/password_reset_request">Forgot your password?</a>
                     </form>
-                    <form id="logout-form" method="post" action="${contextPath}/logout">
+                    <form id="logout-form" method="post" action="${contextPath}/signout">
                         <input type="hidden" name="logout" value="true" />
                     </form>
                 </div>
@@ -244,8 +244,14 @@
 <script src="//www.ebi.ac.uk/web_guidelines/EBI-Framework/v1.4/js/foundationExtendEBI.js"></script>
 <script>$(document).foundation();</script>
 <script>$(document).foundationExtendEBI();</script>
+<script>
+    let myUrl = new URL(location.href);
+    if(myUrl.searchParams.get("login"))
+        showLoginForm();
+</script>
 <c:if test="${announce}">
 <script>
+
 $(function() {
     ebiInjectAnnouncements({
         headline: '<spring:eval expression="@announcementConfig.getHeadline()"/>'
