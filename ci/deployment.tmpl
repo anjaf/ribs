@@ -38,7 +38,7 @@ spec:
         imagePullPolicy: Always
         volumeMounts:
         - name: config-volume
-          mountPath: /opt/app/application.properties
+          mountPath: /app/application.properties
           subPath: application.properties
         - name: nfs-volume
           mountPath: /nfs/biostudies

@@ -96,7 +96,6 @@ deploy:k8s:hx:
     - k8s
   environment:
     name: hx
-  when: manual
 
 deploy:k8s-hl:
   extends: .deploy-k8s
