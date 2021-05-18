@@ -15,6 +15,7 @@ RUN addgroup --gid "$GID" "$USER" \
    "$USER"
 
 WORKDIR /opt/app
-COPY ./target/biostudies.war ./
+COPY ./target/biostudies.war /opt/app
+RUN CHMOD 777 /opt/app
 EXPOSE 8080
-CMD java -Dhttp.proxyHost="$proxy_host" -Dhttp.proxyPort="$proxy_port" -Dhttps.proxyHost="$proxy_host" -Dhttps.proxyPort="$proxy_port" -Djava.io.tmpdir=/tmp -Dlog-path=/tmp/logs -Dlog.level=debug -Dtomcat.hostname=ui -jar biostudies.war
+CMD java -Dhttp.proxyHost="$proxy_host" -Dhttp.proxyPort="$proxy_port" -Dhttps.proxyHost="$proxy_host" -Dhttps.proxyPort="$proxy_port" -Djava.io.tmpdir=/tmp -Dlog-path=logs -Dlog.level=debug -Dtomcat.hostname=`hostname` -jar biostudies.war
