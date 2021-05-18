@@ -71,6 +71,8 @@ build-docker:
     - docker rmi ${DOCKER_IMAGE}
     - docker rmi ${CI_REGISTRY_IMAGE}:latest
     - docker logout $CI_REGISTRY
+  environment:
+    name: hx
   only:
     - k8s
 
