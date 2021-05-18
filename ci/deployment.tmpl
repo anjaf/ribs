@@ -25,6 +25,14 @@ spec:
           value: "$PROXY_HOST"
         - name: proxy_port
           value: "$PROXY_PORT"
+        - name: http_proxy
+          value: "http://$PROXY_HOST:$PROXY_PORT"
+        - name: https_proxy
+          value: "http://$PROXY_HOST:$PROXY_PORT"
+        - name: HTTP_PROXY
+          value: "http://$PROXY_HOST:$PROXY_PORT"
+        - name: HTTPS_PROXY
+          value: "http://$PROXY_HOST:$PROXY_PORT"
         ports:
         - containerPort: 8080
         imagePullPolicy: Always
