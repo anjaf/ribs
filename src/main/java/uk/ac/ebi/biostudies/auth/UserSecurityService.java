@@ -23,13 +23,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
+import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +44,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -53,16 +59,25 @@ public class UserSecurityService {
     private SecurityConfig securityConfig;
     private static int REQUEST_TIMEOUT = 30000;
 
-    public JsonNode sendAuthenticationCheckRequest(String token) throws IOException {
+    public JsonNode sendAuthenticationCheckRequest(String token) throws Exception {
         JsonNode responseJSON = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpClientBuilder clientBuilder = HttpClients.custom();
+        if(securityConfig.getHttpProxyHost()!=null && !securityConfig.getHttpProxyHost().isEmpty()) {
+            clientBuilder.setProxy(new HttpHost(securityConfig.getHttpProxyHost(), securityConfig.getGetHttpProxyPort()));
+        }
+        CloseableHttpClient httpClient = clientBuilder
+                .setSSLSocketFactory(new SSLConnectionSocketFactory(SSLContexts.custom()
+                                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                                .build(), NoopHostnameVerifier.INSTANCE
+                        )
+                ).build();
         HttpGet httpGet = new HttpGet(securityConfig.getProfileUrl());
         httpGet.setConfig(RequestConfig.custom()
                 .setConnectionRequestTimeout(REQUEST_TIMEOUT)
                 .setConnectTimeout(REQUEST_TIMEOUT)
                 .setSocketTimeout(REQUEST_TIMEOUT).build());
         httpGet.setHeader(X_SESSION_TOKEN, token);
-        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
+        try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
         }catch (Exception exception){
             logger.error("problem in sending http req to authentication server", exception);
@@ -70,9 +85,18 @@ public class UserSecurityService {
         return responseJSON;
     }
 
-    public JsonNode sendLoginRequest(String username, String password) throws IOException {
+    public JsonNode sendLoginRequest(String username, String password) throws Exception {
         JsonNode responseJSON = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpClientBuilder clientBuilder = HttpClients.custom();
+        if(securityConfig.getHttpProxyHost()!=null && !securityConfig.getHttpProxyHost().isEmpty()) {
+            clientBuilder.setProxy(new HttpHost(securityConfig.getHttpProxyHost(), securityConfig.getGetHttpProxyPort()));
+        }
+        CloseableHttpClient httpClient = clientBuilder
+                .setSSLSocketFactory(new SSLConnectionSocketFactory(SSLContexts.custom()
+                                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                                .build(), NoopHostnameVerifier.INSTANCE
+                        )
+                ).build();
         HttpPost httpPost = new HttpPost(securityConfig.getLoginUrl());
         httpPost.setConfig(RequestConfig.custom()
                 .setConnectionRequestTimeout(REQUEST_TIMEOUT)
@@ -83,7 +107,7 @@ public class UserSecurityService {
         creds.put("login", username);
         creds.put("password", password);
         httpPost.setEntity(new StringEntity( mapper.writeValueAsString(creds)));
-        try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
+        try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
         }catch (Exception exception){
             logger.error("problem in sending http req to authentication server", exception);
@@ -99,7 +123,7 @@ public class UserSecurityService {
                 .build();
     }
 
-    public User login(String username, String password) throws IOException {
+    public User login(String username, String password) throws Exception {
         User user = createUserFromJSONResponse(sendLoginRequest(username, password));
         if (user == null) return null;
         return user;
@@ -109,7 +133,7 @@ public class UserSecurityService {
         userAuthCache.invalidate(Session.getCurrentUser().getToken());
     }
 
-    User checkAccess(String token) throws IOException {
+    User checkAccess(String token) throws Exception {
         if (token == null) return null;
 
         User user = (User) userAuthCache.getIfPresent(token);

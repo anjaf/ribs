@@ -13,9 +13,8 @@ RUN addgroup --gid "$GID" "$USER" \
    --no-create-home \
    --uid "$UID" \
    "$USER"
-
-COPY ./target/biostudies.war ./
-WORKDIR ./
-
 EXPOSE 8080
-CMD java -Dhttp.proxyHost=${PROXY_HOST} -Dhttp.proxyPort=${PROXY_HOST} -Dhttps.proxyHost=${PROXY_HOST} -Dhttps.proxyPort=${PROXY_HOST} -Djava.io.tmpdir=tmp -jar biostudies.war
+WORKDIR /app
+RUN chown -R docker:docker /app
+COPY --chown=docker:docker ./target/biostudies.war /app
+CMD java -Dhttp.proxyHost="$proxy_host" -Dhttp.proxyPort="$proxy_port" -Dhttps.proxyHost="$proxy_host" -Dhttps.proxyPort="$proxy_port" -Djava.io.tmpdir=/tmp -Dlog-path=logs -Dlog.level=debug -Dtomcat.hostname=`hostname` -jar biostudies.war
