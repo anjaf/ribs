@@ -56,7 +56,7 @@ public class Authentication {
         isLoginSuccessful = userPassAuth != null;
         // 31,557,600 is a standard year in seconds
         Integer maxAge = "on".equals(remember) ? 31557600 : null;
-
+//        Integer maxAge = 31557600;
         if (isLoginSuccessful) {
             logger.info("Successfully authenticated user [{}]", username);
             HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, ((User)userPassAuth.getPrincipal()).getToken(), maxAge);

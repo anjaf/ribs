@@ -41,6 +41,8 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        if(authentication.isAuthenticated())
+            return authentication;
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
         Authentication  authenticatedUser = null;
@@ -72,7 +74,7 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
         }catch (Exception ex){}
     }
 
-    public static JsonNode sendLoginRequest(String username, String password) throws IOException {
+    public static JsonNode sendLoginRequest(String username, String password) throws Exception {
         JsonNode responseJSON = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(/**securityConfig.getLoginUrl()*/"http://biostudy-dev:8788/auth/signin");
@@ -89,6 +91,7 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
         } catch (Exception exception) {
             LOGGER.error("problem in sending http req to authentication server", exception);
+            throw exception;
         }
         return responseJSON;
     }

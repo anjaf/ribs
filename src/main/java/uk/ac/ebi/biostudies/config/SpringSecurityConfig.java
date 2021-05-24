@@ -38,7 +38,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable().anonymous().principal("guest").authorities("GUEST").and()
         .authorizeRequests().antMatchers("/**").permitAll()
         .and().formLogin().successHandler(new RefererAuthenticationSuccessHandler())
-        .loginPage("/auth").usernameParameter("u").passwordParameter("p").permitAll()
+        .loginPage("/auth?login=true").usernameParameter("u").passwordParameter("p").permitAll()
         .and().logout().deleteCookies("JSESSIONID").logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
         .and().rememberMe().rememberMeServices(customRememberMeCookieService).alwaysRemember(true);
 

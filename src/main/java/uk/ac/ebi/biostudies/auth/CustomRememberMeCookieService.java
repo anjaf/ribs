@@ -46,7 +46,7 @@ public class CustomRememberMeCookieService implements RememberMeServices {
                 User user = null;
 
                 try {
-                        user = userSecurityService.createUserFromJSONResponse(userSecurityService.sendAuthenticationCheckRequest(rememberMeCookie));
+                        user = userSecurityService.checkAccess(rememberMeCookie);
                         if(user==null || user.getAllow()==null)
                             return null;
                         this.logger.debug("Remember-me cookie accepted");

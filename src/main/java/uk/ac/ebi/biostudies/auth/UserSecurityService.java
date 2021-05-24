@@ -87,7 +87,8 @@ public class UserSecurityService {
     }
 
     public void logout() {
-        userAuthCache.invalidate(Session.getCurrentUser().getToken());
+        if(Session.getCurrentUser().token!=null)
+            userAuthCache.invalidate(Session.getCurrentUser().token);
     }
 
     User checkAccess(String token) throws IOException {
