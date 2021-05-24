@@ -8,7 +8,7 @@ $(function() {
         $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/case-studies/">Case studies</a></li>');
         $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/faq/">FAQs</a></li>');
         $('.menu.float-right').prepend('<li role="menuitem"><a href="'+contextPath+'/bioimages/help">Help</a></li>');
-        $('.menu.float-left li').slice(2, 4).hide();
+        $('.menu.float-left li').slice(1, 4).hide();
         $('.menu.float-left li a').last().attr('target', '_blank');
         $('#query').attr('placeholder','Search BioImages');
         $('.sample-query').first().text('brain');

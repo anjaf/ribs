@@ -4,23 +4,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.Properties;
+
 @Service
-@PropertySource("classpath:normalised-text.properties")
 public class TextService implements InitializingBean, DisposableBean {
 
-
     private Logger logger = LogManager.getLogger(TextService.class.getName());
-
-    @Autowired
-    Environment env;
+    Properties props = null;
 
     public String getNormalisedString(String string) {
-        return env.containsProperty(string) ? env.getProperty(string)  : string;
+        return props.containsKey(string) ? props.getProperty(string) : string;
     }
 
     @Override
@@ -31,5 +30,11 @@ public class TextService implements InitializingBean, DisposableBean {
     @Override
     public void afterPropertiesSet() {
         logger.debug("Initialising TextService");
+        Resource resource = new ClassPathResource("normalised-text.properties");
+        try {
+            props = PropertiesLoaderUtils.loadProperties(resource);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
