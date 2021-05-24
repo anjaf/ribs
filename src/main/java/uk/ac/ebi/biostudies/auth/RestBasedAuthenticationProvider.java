@@ -21,6 +21,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +84,9 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
         try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
         } catch (Exception exception) {
+            if(exception instanceof IOException)
+                Session.setUserMessage("Unable to connect authentication server");
+
             LOGGER.error("problem in sending http req to authentication server", exception);
             throw exception;
         }

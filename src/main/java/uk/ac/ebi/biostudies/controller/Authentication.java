@@ -63,7 +63,13 @@ public class Authentication {
             HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
         } else {
             HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, null);
-            HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, URLEncoder.encode("Invalid username or password", "UTF-8"), 5);
+            String message = Session.getUserMessage();
+            if(message!=null && message.length()>0){
+                HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, URLEncoder.encode(message, "UTF-8"), 5);
+            }else {
+                HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, URLEncoder.encode("Invalid username or password", "UTF-8"), 5);
+            }
+            Session.clearMessage();
         }
 
         sendRedirect(response, returnURL, isLoginSuccessful);
