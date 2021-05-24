@@ -71,10 +71,7 @@ build-docker:
     - docker rmi ${DOCKER_IMAGE}
     - docker rmi ${CI_REGISTRY_IMAGE}:latest
     - docker logout $CI_REGISTRY
-  environment:
-    name: hx
-  only:
-    - k8s
+  when: manual
 
 .deploy-k8s:
   stage: deploy
@@ -87,20 +84,15 @@ build-docker:
     - cd ci
     - cat "$APP_CONFIG" | kubectl apply -f -
     - envsubst < deployment.tmpl | kubectl apply -f -
-  only:
-    - k8s
 
 deploy:k8s:hx:
   extends: .deploy-k8s
-  only:
-    - k8s
   environment:
     name: hx
+  when: manual
 
 deploy:k8s-hl:
   extends: .deploy-k8s
-  only:
-    - k8s
   environment:
     name: hl
   when: manual
@@ -121,7 +113,6 @@ master-build:
     - mvn -Dmaven.test.skip=true clean install spring-boot:repackage
   only:
     - master
-    - k8s
 
 prod-backup:
   <<: *deploy-template
