@@ -21,8 +21,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,16 +66,10 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
 
     }
 
-    public static void main(String args[]){
-        try {
-            sendLoginRequest("manager", "m4n4g3r");
-        }catch (Exception ex){}
-    }
-
-    public static JsonNode sendLoginRequest(String username, String password) throws Exception {
+    public JsonNode sendLoginRequest(String username, String password) throws Exception {
         JsonNode responseJSON = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(/**securityConfig.getLoginUrl()*/"http://biostudy-dev:8788/auth/signin");
+        HttpPost httpPost = new HttpPost(securityConfig.getLoginUrl());
         httpPost.setConfig(RequestConfig.custom()
                 .setConnectionRequestTimeout(REQUEST_TIMEOUT)
                 .setConnectTimeout(REQUEST_TIMEOUT)

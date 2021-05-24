@@ -40,7 +40,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         .and().formLogin().successHandler(new RefererAuthenticationSuccessHandler())
         .loginPage("/auth?login=true").usernameParameter("u").passwordParameter("p").permitAll()
         .and().logout().deleteCookies("JSESSIONID").logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-        .and().rememberMe().rememberMeServices(customRememberMeCookieService).alwaysRemember(true);
+        .and().rememberMe().rememberMeServices(customRememberMeCookieService);
 
 
     }

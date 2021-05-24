@@ -51,17 +51,17 @@ public class CustomRememberMeCookieService implements RememberMeServices {
                             return null;
                         this.logger.debug("Remember-me cookie accepted");
                         return this.createSuccessfulAuthentication(httpServletRequest, user);
-                } catch (CookieTheftException var6) {
+                } catch (CookieTheftException exp) {
                     this.cancelCookie(httpServletRequest, httpServletResponse);
-                    throw var6;
-                } catch (UsernameNotFoundException var7) {
-                    this.logger.debug("Remember-me login was valid but corresponding user not found.", var7);
-                } catch (InvalidCookieException var8) {
-                    this.logger.debug("Invalid remember-me cookie: " + var8.getMessage());
-                } catch (AccountStatusException var9) {
-                    this.logger.debug("Invalid UserDetails: " + var9.getMessage());
-                } catch (Throwable var10) {
-                    this.logger.debug(var10.getMessage());
+                    throw exp;
+                } catch (UsernameNotFoundException exp) {
+                    this.logger.debug("Remember-me login was valid but corresponding user not found.", exp);
+                } catch (InvalidCookieException exp) {
+                    this.logger.debug("Invalid remember-me cookie: " + exp.getMessage());
+                } catch (AccountStatusException exp) {
+                    this.logger.debug("Invalid UserDetails: " + exp.getMessage());
+                } catch (Throwable exp) {
+                    this.logger.debug(exp.getMessage());
                 }
 
                 this.cancelCookie(httpServletRequest, httpServletResponse);
@@ -92,21 +92,20 @@ public class CustomRememberMeCookieService implements RememberMeServices {
     }
 
     protected boolean rememberMeRequested(HttpServletRequest request, String parameter) {
-        return true;
-//        if (this.alwaysRemember) {
-//            return true;
-//        } else {
-//            String paramValue = request.getParameter(parameter);
-//            if (paramValue != null && (paramValue.equalsIgnoreCase("true") || paramValue.equalsIgnoreCase("on") || paramValue.equalsIgnoreCase("yes") || paramValue.equals("1"))) {
-//                return true;
-//            } else {
-//                if (this.logger.isDebugEnabled()) {
-//                    this.logger.debug("Did not send remember-me cookie (principal did not set parameter '" + parameter + "')");
-//                }
-//
-//                return false;
-//            }
-//        }
+        if (this.alwaysRemember) {
+            return true;
+        } else {
+            String paramValue = request.getParameter(parameter);
+            if (paramValue != null && (paramValue.equalsIgnoreCase("true") || paramValue.equalsIgnoreCase("on") || paramValue.equalsIgnoreCase("yes") || paramValue.equals("1"))) {
+                return true;
+            } else {
+                if (this.logger.isDebugEnabled()) {
+                    this.logger.debug("Did not send remember-me cookie (principal did not set parameter '" + parameter + "')");
+                }
+
+                return false;
+            }
+        }
     }
 
     public void onLoginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication) {
@@ -129,11 +128,9 @@ public class CustomRememberMeCookieService implements RememberMeServices {
     protected String extractRememberMeCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null && cookies.length != 0) {
-            Cookie[] var3 = cookies;
-            int var4 = cookies.length;
-
-            for(int var5 = 0; var5 < var4; ++var5) {
-                Cookie cookie = var3[var5];
+            Cookie[] allCookies = cookies;
+            for(int i = 0; i < cookies.length; ++i) {
+                Cookie cookie = allCookies[i];
                 if (cookieName.equals(cookie.getName())) {
                     return cookie.getValue();
                 }
