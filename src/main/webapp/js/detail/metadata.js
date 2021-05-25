@@ -19,12 +19,12 @@ var Metadata = (function (_self) {
         var url = contextPath + '/api/v1/studies/' + accession;
         var params = getParams();
         $.getJSON(url, params, function (data) {
+            if (!data.accno && data.submissions) data = data.submissions[0]; // for v0, when everything was a submission
             // redirect to collection page if accession is a collection
             if (data.section.type.toLowerCase()==='collection' || data.section.type.toLowerCase()==='project') {
                 location.href= contextPath + '/'+ accession + '/studies';
                 return;
             }
-            if (!data.accno && data.submissions) data = data.submissions[0]; // for v0, when everything was a submission
             if (params.key) {
                 data.section.keyString = '?key='+params.key;
             }
@@ -36,10 +36,10 @@ var Metadata = (function (_self) {
             var title = data.accno, releaseDate = '';
             if (data.attributes) { //v1
                 title = data.attributes.filter(function (v, i) {
-                    return v.name == 'Title';
+                    return v.name.trim() == 'Title';
                 });
                 data.attributes.forEach(function (v, i) {
-                    if (v.name == 'ReleaseDate') {
+                    if (v.name.trim() == 'ReleaseDate') {
                         releaseDate = v.value;
                     }
                 });
@@ -52,11 +52,12 @@ var Metadata = (function (_self) {
             if (data.section ) {
                 if (!data.section.attributes) data.section.attributes = [];
                 if (!data.section.attributes.filter(function (v, i) {
-                    return v.name == 'Title';
+                    return v.name.trim() == 'Title';
                 }).length) {
                     data.section.attributes.push({name: 'Title', value: title[0].value});
                 }
             }
+            console.log(data.section)
             $('#renderedContent').html(template(data.section));
             postRender(params, data.section);
         }).fail(function (error) {
@@ -104,6 +105,7 @@ var Metadata = (function (_self) {
         handleImageURLs();
         handleCollectionBasedScriptInjection();
         handleTableCentering();
+        handleCitation(data.accno);
         handleAnchors(params);
         handleHighlights(params);
     }
@@ -126,24 +128,25 @@ var Metadata = (function (_self) {
 
     }
 
-    function handleCitation() {
-
-        $('#cite').bind('click', function() {
+    function handleCitation(accession) {
+        if (accession.toUpperCase().startsWith('S-EPMC')) return;
+        var $cite = $('<a id="cite" title="Cite" class="source-icon source-icon-cite openModal">[Cite]</a>');
+        $cite.bind('click', function() {
             var data = {};
             data.id = $('#orcid-accession').text();
             data.title = $('#orcid-title').text();
             if (data.title[data.title.length-1]=='.') data.title = data.title.slice(0,-1);
             data.authors = $('.author span[itemprop]').map( function () { return $(this).text();}).toArray();
             data.issued =  new Date($('#orcid-publication-year').text()).getFullYear();
-            data.URL =  [window.location.href.split("?")[0].split("#")[0]];
+            data.URL =  window.location.href.split("?")[0].split("#")[0];
             data.today = (new Date()).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
-            data.code = data.authors[0].replace(/ /g, '')+ data.issued;
+            data.code = (data.authors && data.authors.length ? data.authors[0].replace(/ /g, '') : data.title.toLowerCase().trim().split(' ')[0]) + data.issued;
             var templateSource = $('script#citation-template').html();
             var template = Handlebars.compile(templateSource);
             $('#biostudies-citation').html(template(data));
             $('#biostudies-citation').foundation('open');
-        })
-
+        });
+        $('#download-source').prepend($cite);
     }
 
     function  showRightColumn() {

@@ -23,13 +23,13 @@ public class TitleParser extends AbstractParser  {
 
         try {
             title = StreamSupport.stream(submission.get("section").get("attributes").spliterator(), false)
-                    .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
+                    .filter(jsonNode -> jsonNode.get("name").textValue().trim().equalsIgnoreCase("Title"))
                     .findFirst().get().get("value").textValue().trim();
         } catch (Exception ex1) {
             //LOGGER.debug( "Title not found. Trying submission title for " + accession);
             try {
                 title = StreamSupport.stream(submission.get("attributes").spliterator(), false)
-                        .filter(jsonNode -> jsonNode.get("name").textValue().equalsIgnoreCase("Title"))
+                        .filter(jsonNode -> jsonNode.get("name").textValue().trim().equalsIgnoreCase("Title"))
                         .map(jsonNode -> jsonNode.findValue("value").asText().trim())
                         .collect(Collectors.joining(","));//get().get("value").textValue().trim();
             } catch ( Exception ex2) {

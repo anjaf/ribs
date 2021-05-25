@@ -13,7 +13,7 @@ var Metadata = (function (_self) {
         Handlebars.registerHelper('valueWithName', function(val, obj) {
             if (obj==null) return;
             if (!Array.isArray(obj)) obj = [obj];
-            var e = obj.filter( function(o) { return o['name']==val})[0];
+            var e = obj.filter( function(o) { return o['name'].trim()==val.trim()})[0];
             if (e==undefined) return '';
             $.each(e.valqual, function(i,v){
                 if (v.name=='url') {
