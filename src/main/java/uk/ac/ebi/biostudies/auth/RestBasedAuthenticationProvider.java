@@ -56,9 +56,6 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
             JsonNode secResponse = sendLoginRequest(name, password);
             User user  = userSecurityService.createUserFromJSONResponse(secResponse);
             if(user!=null&&user.getToken()!=null){
-                List<GrantedAuthority> grantedAuths = new ArrayList();
-                if(user.isSuperUser())
-                    grantedAuths.add(new SimpleGrantedAuthority("POWER_USER"));
                 return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities() );
             }
 

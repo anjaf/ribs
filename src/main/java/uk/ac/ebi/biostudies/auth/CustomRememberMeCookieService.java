@@ -16,7 +16,6 @@ import java.util.Arrays;
 @Service
 public class CustomRememberMeCookieService implements RememberMeServices {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final String cookieName = HttpTools.TOKEN_COOKIE;
     @Autowired
     UserSecurityService userSecurityService;
     @Override
@@ -80,21 +79,13 @@ public class CustomRememberMeCookieService implements RememberMeServices {
         Cookie[] cookies = request.getCookies();
         return cookies==null ? null :
                 Arrays.stream(cookies)
-                        .filter(cookie -> cookieName.equals(cookie.getName()))
+                        .filter(cookie -> HttpTools.TOKEN_COOKIE.equals(cookie.getName()))
                         .findAny()
                         .map(Cookie::getValue)
                         .orElse(null);
     }
     protected void cancelCookie(HttpServletRequest request, HttpServletResponse response) {
         logger.debug("Cancelling cookie");
-        // cookies are being unset in Authentication::login as well. Should probably move both to a utility method
-        Cookie cookie = new Cookie(this.cookieName, (String) null);
-        cookie.setMaxAge(0);
-        cookie.setPath(this.getCookiePath(request));
-        response.addCookie(cookie);
-    }
-    private String getCookiePath(HttpServletRequest request) {
-        String contextPath = request.getContextPath();
-        return contextPath.length() > 0 ? contextPath : "/";
+        HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, 0);
     }
 }

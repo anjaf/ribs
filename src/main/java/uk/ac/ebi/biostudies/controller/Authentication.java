@@ -106,7 +106,7 @@ public class Authentication {
                 session.invalidate();
             }
             SecurityContext context = SecurityContextHolder.getContext();
-            context.setAuthentication((org.springframework.security.core.Authentication)null);
+            context.setAuthentication(null);
             SecurityContextHolder.clearContext();
             String returnURL = request.getHeader(HttpTools.REFERER_HEADER);
             sendRedirect(response, returnURL, true);

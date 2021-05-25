@@ -36,6 +36,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().anonymous().principal("guest").authorities("GUEST").and()
+        .authorizeRequests().antMatchers("/api/v1/index/**").hasAuthority("SUPER_USER").and()
         .authorizeRequests().antMatchers("/**").permitAll()
         .and().formLogin().successHandler(new RefererAuthenticationSuccessHandler())
         .loginPage("/auth?login=true").usernameParameter("u").passwordParameter("p").permitAll()
