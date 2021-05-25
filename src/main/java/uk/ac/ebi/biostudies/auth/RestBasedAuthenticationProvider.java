@@ -3,12 +3,18 @@ package uk.ac.ebi.biostudies.auth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +76,16 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
 
     public JsonNode sendLoginRequest(String username, String password) throws Exception {
         JsonNode responseJSON = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpClientBuilder clientBuilder = HttpClients.custom();
+        if(securityConfig.getHttpProxyHost()!=null && !securityConfig.getHttpProxyHost().isEmpty()) {
+            clientBuilder.setProxy(new HttpHost(securityConfig.getHttpProxyHost(), securityConfig.getGetHttpProxyPort()));
+        }
+        CloseableHttpClient httpClient = clientBuilder
+                .setSSLSocketFactory(new SSLConnectionSocketFactory(SSLContexts.custom()
+                                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                                .build(), NoopHostnameVerifier.INSTANCE
+                        )
+                ).build();
         HttpPost httpPost = new HttpPost(securityConfig.getLoginUrl());
         httpPost.setConfig(RequestConfig.custom()
                 .setConnectionRequestTimeout(REQUEST_TIMEOUT)
@@ -80,15 +95,13 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
         ObjectNode creds = mapper.createObjectNode();
         creds.put("login", username);
         creds.put("password", password);
-        httpPost.setEntity(new StringEntity(mapper.writeValueAsString(creds)));
-        try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
+        httpPost.setEntity(new StringEntity( mapper.writeValueAsString(creds)));
+        try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
-        } catch (Exception exception) {
+        }catch (Exception exception){
             if(exception instanceof IOException)
                 Session.setUserMessage("Unable to connect authentication server");
-
             LOGGER.error("problem in sending http req to authentication server", exception);
-            throw exception;
         }
         return responseJSON;
     }
