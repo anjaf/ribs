@@ -28,6 +28,7 @@ var FileTable = (function (_self) {
                     handleSectionButtons(acc, params, response.sections, response.relPath);
                     handleFileListButtons(acc, params.key);
                 }
+                FileTable.getFilesTable().columns.adjust();
             }});
     };
 
@@ -71,6 +72,11 @@ var FileTable = (function (_self) {
         }
     };
 
+    _self.adjust = function() {
+        if (filesTable) {
+            filesTable.columns.adjust();
+        }
+    }
 
     function handleFileListButtons(acc, key){
         var templateSource = $('script#file-list-buttons-template').html();
