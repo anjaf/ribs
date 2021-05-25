@@ -274,7 +274,6 @@ var FileTable = (function (_self) {
                 return (total== max) ? out : out + btn.html();
             }
         }).on('preDraw', function (e) {
-            console.log("preDraw")
             filesTable.columns().visible(true);
         }).on('draw.dt', function (e) {
             handleDataTableDraw(handleThumbnails, params, filesTable);
