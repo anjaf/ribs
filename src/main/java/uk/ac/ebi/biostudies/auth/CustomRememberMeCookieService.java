@@ -121,7 +121,6 @@ public class CustomRememberMeCookieService implements RememberMeServices {
 
     protected Authentication createSuccessfulAuthentication(HttpServletRequest request, User user) {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
-//        auth.setDetails(this.authenticationDetailsSource.buildDetails(request));
         return auth;
     }
 
