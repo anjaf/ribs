@@ -30,6 +30,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private CustomRememberMeCookieService customRememberMeCookieService;
     @Autowired
     private BioStudiesLogoutHandler bioStudiesLogoutHandler;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authProvider);
@@ -39,16 +40,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().anonymous().principal("guest").authorities("GUEST").and()
-        .authorizeRequests().antMatchers("/api/v1/index/**").hasAuthority("SUPER_USER").and()
-        .authorizeRequests().antMatchers("/**").permitAll()
-        .and().formLogin().successHandler(new RefererAuthenticationSuccessHandler())
-        .loginPage("/?login=true").usernameParameter("u").passwordParameter("p").permitAll()
-        .and().logout().logoutUrl("/logout").deleteCookies("JSESSIONID").addLogoutHandler(bioStudiesLogoutHandler).logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-        .and().rememberMe().rememberMeServices(customRememberMeCookieService);
+                .authorizeRequests().antMatchers("/api/v1/index/**").hasAuthority("SUPER_USER").and()
+                .authorizeRequests().antMatchers("/**").permitAll()
+                .and().formLogin().successHandler(new RefererAuthenticationSuccessHandler())
+                .loginPage("/?login=true").usernameParameter("u").passwordParameter("p").permitAll()
+                .and().logout().logoutUrl("/logout").deleteCookies("JSESSIONID").addLogoutHandler(bioStudiesLogoutHandler).logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                .and().rememberMe().rememberMeServices(customRememberMeCookieService);
 
 
     }
-
 
 
 }

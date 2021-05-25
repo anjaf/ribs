@@ -1,4 +1,5 @@
 package uk.ac.ebi.biostudies.auth;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,15 +10,18 @@ import org.springframework.security.web.authentication.rememberme.CookieTheftExc
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import uk.ac.ebi.biostudies.api.util.HttpTools;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+
 @Service
 public class CustomRememberMeCookieService implements RememberMeServices {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     UserSecurityService userSecurityService;
+
     @Override
     public Authentication autoLogin(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String rememberMeCookie = this.extractRememberMeCookie(httpServletRequest);
@@ -38,13 +42,16 @@ public class CustomRememberMeCookieService implements RememberMeServices {
         cancelCookie(httpServletRequest, httpServletResponse);
         return null;
     }
+
     @Override
     public void loginFail(HttpServletRequest request, HttpServletResponse response) {
         onLoginFail(request, response);
     }
+
     protected void onLoginFail(HttpServletRequest request, HttpServletResponse response) {
         logger.debug("Interactive login attempt was unsuccessful.");
     }
+
     @Override
     public void loginSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) {
         String parameter = "r";
@@ -54,36 +61,39 @@ public class CustomRememberMeCookieService implements RememberMeServices {
             onLoginSuccess(httpServletRequest, httpServletResponse, authentication);
         }
     }
+
     protected boolean rememberMeRequested(HttpServletRequest request, String parameter) {
         String paramValue = request.getParameter(parameter);
-        if (paramValue==null) return false;
+        if (paramValue == null) return false;
         return paramValue.equalsIgnoreCase("true")
                 || paramValue.equalsIgnoreCase("on")
                 || paramValue.equalsIgnoreCase("yes")
                 || paramValue.equals("1");
     }
+
     public void onLoginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication) {
         String token = ((User) successfulAuthentication.getPrincipal()).getToken();
         if (!StringUtils.hasLength(token)) {
             logger.debug("Unable to retrieve token for cookie");
         }
-        // cookies are being set in Authentication::login as well. Should probably move both to a utility method
-        Integer maxAge = 31557600; // should probably be moved to a static constant in Authentication and used there
-        HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, token, maxAge);
+        HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, token, HttpTools.MAX_AGE);
         HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
     }
+
     protected Authentication createSuccessfulAuthentication(HttpServletRequest request, User user) {
         return new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
     }
+
     protected String extractRememberMeCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        return cookies==null ? null :
+        return cookies == null ? null :
                 Arrays.stream(cookies)
                         .filter(cookie -> HttpTools.TOKEN_COOKIE.equals(cookie.getName()))
                         .findAny()
                         .map(Cookie::getValue)
                         .orElse(null);
     }
+
     protected void cancelCookie(HttpServletRequest request, HttpServletResponse response) {
         logger.debug("Cancelling cookie");
         HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, 0);

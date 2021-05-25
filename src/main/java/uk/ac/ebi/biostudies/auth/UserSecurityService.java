@@ -59,7 +59,7 @@ public class UserSecurityService {
     public JsonNode sendAuthenticationCheckRequest(String token) throws Exception {
         JsonNode responseJSON = null;
         HttpClientBuilder clientBuilder = HttpClients.custom();
-        if(securityConfig.getHttpProxyHost()!=null && !securityConfig.getHttpProxyHost().isEmpty()) {
+        if (securityConfig.getHttpProxyHost() != null && !securityConfig.getHttpProxyHost().isEmpty()) {
             clientBuilder.setProxy(new HttpHost(securityConfig.getHttpProxyHost(), securityConfig.getGetHttpProxyPort()));
         }
         CloseableHttpClient httpClient = clientBuilder
@@ -76,7 +76,7 @@ public class UserSecurityService {
         httpGet.setHeader(X_SESSION_TOKEN, token);
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
-        }catch (Exception exception){
+        } catch (Exception exception) {
             logger.error("problem in sending http req to authentication server", exception);
         }
         return responseJSON;
@@ -99,7 +99,7 @@ public class UserSecurityService {
     }
 
     public void logout() {
-        if(Session.getCurrentUser().token!=null)
+        if (Session.getCurrentUser().token != null)
             userAuthCache.invalidate(Session.getCurrentUser().token);
     }
 
@@ -110,13 +110,13 @@ public class UserSecurityService {
         if (user == null || !token.equals(user.getToken())) {
             user = createUserFromJSONResponse(sendAuthenticationCheckRequest(token));
         }
-        if (user == null || user.getAllow()==null) return null;
+        if (user == null || user.getAllow() == null) return null;
 
         return user;
     }
 
     public User createUserFromJSONResponse(JsonNode responseJSON) throws IOException {
-        User user=null;
+        User user = null;
         if (responseJSON == null || !responseJSON.has("sessid")) {
             return null;
         }
@@ -125,14 +125,14 @@ public class UserSecurityService {
         user.setLogin(responseJSON.get("username").textValue());
         user.setToken(responseJSON.get("sessid").textValue());
         user.setEmail(responseJSON.get("email").textValue());
-        if (responseJSON.has("allow") && responseJSON.get("allow")!=null && responseJSON.get("allow").isArray()) {
+        if (responseJSON.has("allow") && responseJSON.get("allow") != null && responseJSON.get("allow").isArray()) {
             String[] allow = mapper.convertValue(responseJSON.get("allow"), String[].class);
             String[] deny = mapper.convertValue(responseJSON.get("deny"), String[].class);
             Set<String> allowedSet = Sets.difference(Sets.newHashSet(allow), Sets.newHashSet(deny));
             user.setAllow(allowedSet.toArray(new String[allowedSet.size()]));
             user.setDeny(deny);
-            user.allow = Stream.of(allow).map( item -> item.replaceAll("~", "")).toArray(String[]::new);
-            user.deny = Stream.of(deny).map( item -> item.replaceAll("~", "")).toArray(String[]::new);
+            user.allow = Stream.of(allow).map(item -> item.replaceAll("~", "")).toArray(String[]::new);
+            user.deny = Stream.of(deny).map(item -> item.replaceAll("~", "")).toArray(String[]::new);
         }
         user.setSuperUser(responseJSON.get("superuser").asBoolean(false));
         userAuthCache.put(user.getToken(), user);

@@ -19,6 +19,7 @@ package uk.ac.ebi.biostudies.api.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +38,7 @@ public class HttpTools {
     public static final String TOKEN_COOKIE = "BioStudiesToken";
     public static final String AUTH_MESSAGE_COOKIE = "BioStudiesMessage";
     public static final String REFERER_HEADER = "Referer";
+    public static final Integer MAX_AGE = 31557600;
 
     public static void setCookie(HttpServletResponse response, String name, String value, Integer maxAge) {
         Cookie cookie = new Cookie(name, null != value ? value : "");

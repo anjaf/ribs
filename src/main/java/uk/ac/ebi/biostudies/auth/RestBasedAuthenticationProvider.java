@@ -47,19 +47,19 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        if(authentication.isAuthenticated())
+        if (authentication.isAuthenticated())
             return authentication;
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
-        Authentication  authenticatedUser = null;
+        Authentication authenticatedUser = null;
         try {
             JsonNode secResponse = sendLoginRequest(name, password);
-            User user  = userSecurityService.createUserFromJSONResponse(secResponse);
-            if(user!=null&&user.getToken()!=null){
-                return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities() );
+            User user = userSecurityService.createUserFromJSONResponse(secResponse);
+            if (user != null && user.getToken() != null) {
+                return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
             }
 
-        }catch (Throwable exception){
+        } catch (Throwable exception) {
             LOGGER.debug("problem in sending login request to auth server", exception);
         }
         return authenticatedUser;
@@ -74,7 +74,7 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
     public JsonNode sendLoginRequest(String username, String password) throws Exception {
         JsonNode responseJSON = null;
         HttpClientBuilder clientBuilder = HttpClients.custom();
-        if(securityConfig.getHttpProxyHost()!=null && !securityConfig.getHttpProxyHost().isEmpty()) {
+        if (securityConfig.getHttpProxyHost() != null && !securityConfig.getHttpProxyHost().isEmpty()) {
             clientBuilder.setProxy(new HttpHost(securityConfig.getHttpProxyHost(), securityConfig.getGetHttpProxyPort()));
         }
         CloseableHttpClient httpClient = clientBuilder
@@ -92,11 +92,11 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
         ObjectNode creds = mapper.createObjectNode();
         creds.put("login", username);
         creds.put("password", password);
-        httpPost.setEntity(new StringEntity( mapper.writeValueAsString(creds)));
+        httpPost.setEntity(new StringEntity(mapper.writeValueAsString(creds)));
         try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
-        }catch (Exception exception){
-            if(exception instanceof IOException)
+        } catch (Exception exception) {
+            if (exception instanceof IOException)
                 Session.setUserMessage("Unable to connect authentication server");
             LOGGER.error("problem in sending http req to authentication server", exception);
         }

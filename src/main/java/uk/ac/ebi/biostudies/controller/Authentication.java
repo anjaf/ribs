@@ -49,7 +49,7 @@ public class Authentication {
         String requestURL = request.getRequestURL().toString();
         String applicationRoot = requestURL.substring(0, requestURL.indexOf(request.getServletPath()));
 
-        if (returnURL !=null && !returnURL.replaceFirst("https","").replaceFirst("http","").startsWith(applicationRoot.replaceFirst("https","").replaceFirst("http",""))) {
+        if (returnURL != null && !returnURL.replaceFirst("https", "").replaceFirst("http", "").startsWith(applicationRoot.replaceFirst("https", "").replaceFirst("http", ""))) {
             returnURL = applicationRoot;
         }
         boolean isLoginSuccessful = false;
@@ -57,19 +57,19 @@ public class Authentication {
         org.springframework.security.core.Authentication userPassAuth = authenticationProvider.authenticate(authRequest);
         isLoginSuccessful = userPassAuth != null;
         // 31,557,600 is a standard year in seconds
-        Integer maxAge = "on".equals(remember) ? 31557600 : null;
+        Integer maxAge = "on".equals(remember) ? HttpTools.MAX_AGE : null;
 
         if (isLoginSuccessful) {
             logger.info("Successfully authenticated user [{}]", username);
-            returnURL = returnURL.replaceAll("login=true","");
-            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, ((User)userPassAuth.getPrincipal()).getToken(), maxAge);
+            returnURL = returnURL.replaceAll("login=true", "");
+            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, ((User) userPassAuth.getPrincipal()).getToken(), maxAge);
             HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
         } else {
             HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, null);
             String message = Session.getUserMessage();
-            if(message!=null && message.length()>0){
+            if (message != null && message.length() > 0) {
                 HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, URLEncoder.encode(message, "UTF-8"), 5);
-            }else {
+            } else {
                 HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, URLEncoder.encode("Invalid username or password", "UTF-8"), 5);
             }
             Session.clearMessage();
