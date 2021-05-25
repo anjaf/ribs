@@ -496,9 +496,9 @@ var FileTable = (function (_self) {
     }
 
 
-    function asperaPluginWarmUp(relativePath){
+    function asperaPluginWarmUp(filelist, relativePath){
         allPaths=[];
-        $(selectedFiles).each( function(i,v) {
+        $(filelist).each( function(i,v) {
             var path ={};
             path.source = relativePath+'/Files/'+v;
             path.destination = relativePath+"/Files"+v;
