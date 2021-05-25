@@ -57,7 +57,6 @@ var Metadata = (function (_self) {
                     data.section.attributes.push({name: 'Title', value: title[0].value});
                 }
             }
-            console.log(data.section)
             $('#renderedContent').html(template(data.section));
             postRender(params, data.section);
         }).fail(function (error) {
@@ -314,6 +313,7 @@ var Metadata = (function (_self) {
             $('.fullscreen .table-wrapper').css('max-height', (parseInt($(window).height()) * 0.80) + 'px').css('top', '45%');
             $('.fullscreen').css("top", ( $(window).height() - $(this).parent().parent().height() ) / 3  + "px");
             $('.fullscreen').css("left", ( $(window).width() - $(this).parent().parent().width() ) / 2 + "px");
+            $('.dataTable', $(this).parent().next()).dataTable().api().columns.adjust();
 
             if (!$(this).parent().parent().hasClass('fullscreen') &&  expansionSource) {
                 openHREF('#'+expansionSource);
