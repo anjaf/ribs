@@ -28,6 +28,7 @@ var FileTable = (function (_self) {
                     handleSectionButtons(acc, params, response.sections, response.relPath);
                     handleFileListButtons(acc, params.key);
                 }
+                FileTable.getFilesTable().columns.adjust();
             }});
     };
 
@@ -71,6 +72,11 @@ var FileTable = (function (_self) {
         }
     };
 
+    _self.adjust = function() {
+        if (filesTable) {
+            filesTable.columns.adjust();
+        }
+    }
 
     function handleFileListButtons(acc, key){
         var templateSource = $('script#file-list-buttons-template').html();
@@ -268,7 +274,6 @@ var FileTable = (function (_self) {
                 return (total== max) ? out : out + btn.html();
             }
         }).on('preDraw', function (e) {
-            console.log("preDraw")
             filesTable.columns().visible(true);
         }).on('draw.dt', function (e) {
             handleDataTableDraw(handleThumbnails, params, filesTable);
@@ -496,9 +501,9 @@ var FileTable = (function (_self) {
     }
 
 
-    function asperaPluginWarmUp(relativePath){
+    function asperaPluginWarmUp(filelist, relativePath){
         allPaths=[];
-        $(selectedFiles).each( function(i,v) {
+        $(filelist).each( function(i,v) {
             var path ={};
             path.source = relativePath+'/Files/'+v;
             path.destination = relativePath+"/Files"+v;
