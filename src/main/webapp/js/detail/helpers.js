@@ -13,7 +13,7 @@ var Metadata = (function (_self) {
         Handlebars.registerHelper('valueWithName', function(val, obj) {
             if (obj==null) return;
             if (!Array.isArray(obj)) obj = [obj];
-            var e = obj.filter( function(o) { return o['name']==val})[0];
+            var e = obj.filter( function(o) { return o['name'].trim()==val.trim()})[0];
             if (e==undefined) return '';
             $.each(e.valqual, function(i,v){
                 if (v.name=='url') {
@@ -344,7 +344,8 @@ var Metadata = (function (_self) {
             });
             if (!pubs || pubs.length < 1) return null;
             var template = Handlebars.compile($('script#publication-template').html());
-            var html = '<div class="bs-name">Publication'+ (pubs.length>1 ? 's': '') +'</div>';
+            var html = '<div class="bs-attribute"><span class="bs-name">Publication'+ (pubs.length>1 ? 's': '')
+                +'</span><span class="bs-value">';
             $.each(pubs, function(i,pub) {
                 publication.URLs = [];
                 $.each(pub.attributes, function (i, v) {
@@ -378,6 +379,7 @@ var Metadata = (function (_self) {
                 if (!publication.URLs.length) delete publication.URLs
                 html += template(publication);
             });
+            html+='</span></div>'
             return new Handlebars.SafeString(html);
         });
 

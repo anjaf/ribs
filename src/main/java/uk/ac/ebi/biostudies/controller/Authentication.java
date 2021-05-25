@@ -4,9 +4,6 @@ package uk.ac.ebi.biostudies.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -56,7 +53,7 @@ public class Authentication {
         isLoginSuccessful = userPassAuth != null;
         // 31,557,600 is a standard year in seconds
         Integer maxAge = "on".equals(remember) ? 31557600 : null;
-//        Integer maxAge = 31557600;
+
         if (isLoginSuccessful) {
             logger.info("Successfully authenticated user [{}]", username);
             HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, ((User)userPassAuth.getPrincipal()).getToken(), maxAge);
@@ -93,7 +90,7 @@ public class Authentication {
     }
 
     @RequestMapping(value = "/signout", method = RequestMethod.POST)
-    public void logout(@CookieValue(HttpTools.TOKEN_COOKIE) String token, HttpServletRequest request, HttpServletResponse response) {
+    public void logout(@CookieValue(value = HttpTools.TOKEN_COOKIE, required = false) String token, HttpServletRequest request, HttpServletResponse response) {
         try {
             User user = Session.getCurrentUser();
             logger.info("Logging out user [{}]", user.getLogin());

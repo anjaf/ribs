@@ -27,14 +27,14 @@
         if (collection==='undefined') collection = undefined;
     </script>
     <meta charset="utf-8">
-    <title>The European Bioinformatics Institute &lt; EMBL-EBI</title>
-    <meta name="description" content="EMBL-EBI" /><!-- Describe what this page is about -->
-    <meta name="keywords" content="bioinformatics, europe, institute" /><!-- A few keywords that relate to the content of THIS PAGE (not the whole project) -->
-    <meta name="author" content="EMBL-EBI" /><!-- Your [project-name] here -->
+    <title>BioStudies &lt; The European Bioinformatics Institute &lt; EMBL-EBI</title>
+    <meta name="description" content="BioStudies – one package for all the data supporting a study" />
+    <meta name="keywords" content="bioinformatics, europe, institute, biostudies" />
+    <meta name="author" content="BioStudies" />
     <meta name="HandheldFriendly" content="true" />
     <meta name="MobileOptimized" content="width" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#70BDBD" /> <!-- Android Chrome mobile browser tab color -->
+    <meta name="theme-color" content="#75C8EC" /> <!-- Android Chrome mobile browser tab color -->
     <meta http-equiv="pragma" content="no-cache" />
 
     <!-- If you link to any other sites frequently, consider optimising performance with a DNS prefetch -->

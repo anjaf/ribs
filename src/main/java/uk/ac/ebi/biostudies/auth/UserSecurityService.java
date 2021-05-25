@@ -19,17 +19,20 @@ package uk.ac.ebi.biostudies.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
+import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,16 +56,25 @@ public class UserSecurityService {
     private SecurityConfig securityConfig;
     private static int REQUEST_TIMEOUT = 30000;
 
-    public JsonNode sendAuthenticationCheckRequest(String token) throws IOException {
+    public JsonNode sendAuthenticationCheckRequest(String token) throws Exception {
         JsonNode responseJSON = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpClientBuilder clientBuilder = HttpClients.custom();
+        if(securityConfig.getHttpProxyHost()!=null && !securityConfig.getHttpProxyHost().isEmpty()) {
+            clientBuilder.setProxy(new HttpHost(securityConfig.getHttpProxyHost(), securityConfig.getGetHttpProxyPort()));
+        }
+        CloseableHttpClient httpClient = clientBuilder
+                .setSSLSocketFactory(new SSLConnectionSocketFactory(SSLContexts.custom()
+                                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                                .build(), NoopHostnameVerifier.INSTANCE
+                        )
+                ).build();
         HttpGet httpGet = new HttpGet(securityConfig.getProfileUrl());
         httpGet.setConfig(RequestConfig.custom()
                 .setConnectionRequestTimeout(REQUEST_TIMEOUT)
                 .setConnectTimeout(REQUEST_TIMEOUT)
                 .setSocketTimeout(REQUEST_TIMEOUT).build());
         httpGet.setHeader(X_SESSION_TOKEN, token);
-        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
+        try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
         }catch (Exception exception){
             logger.error("problem in sending http req to authentication server", exception);
@@ -91,7 +103,7 @@ public class UserSecurityService {
             userAuthCache.invalidate(Session.getCurrentUser().token);
     }
 
-    User checkAccess(String token) throws IOException {
+    User checkAccess(String token) throws Exception {
         if (token == null) return null;
 
         User user = (User) userAuthCache.getIfPresent(token);

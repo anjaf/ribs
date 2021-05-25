@@ -26,10 +26,29 @@ body.is-reveal-open { /*avoid jumping of body to the left*/
 
 .bs-name {
     color: #267799;
-    margin:20px 0px 5px 0px;
-    font-size: 120%;
+    margin:0;
+    display: inline-block;
+    padding: 0pt 6pt 0pt 1pt;
+    line-height: 1em;
+    min-width: 8em;
 }
 
+.bs-value {
+    display: inline;
+}
+
+.block {
+    display: block;
+}
+.bs-attribute {
+    display: table-row;
+}
+
+.bs-attribute::after {
+    display: block;
+    content: ' ';
+    padding: 2pt;
+}
 .browse-study-accession {
     font-size: 70%;
     padding: 5px;
@@ -52,7 +71,8 @@ ul#bs-authors > li+li:before {
 .has-child-section{
     padding-left: 10px;
     border-left: 2px solid #EAF5FB;
-    margin-left: 8px;
+    margin-left: 8pt;
+    margin-bottom: 8pt;
 }
 
 .bs-section-files, .bs-section-links, .bs-section-tables, .bs-section-file, .bs-section-link, .bs-section-table {
@@ -66,13 +86,14 @@ a.show-more, a.show-less, a.reference {
     cursor: pointer;
     white-space: nowrap;
     font-size: 11pt;
+    margin-left: 3pt;
 }
 
 a.show-more:hover,
 a.show-less:hover,
 a.reference:hover {
     padding: 0 4px;
-    margin-left: -4px;
+    margin-left: -1px;
     color: #fff;
     background-color: #A66A27;
     -moz-border-radius: 3px;
@@ -151,6 +172,9 @@ a.reference:hover {
     #expand-right-column {
         display: none;
     }
+    .bs-name {
+        display: block;
+    }
 }
 
 div#right-column-header {
@@ -161,7 +185,7 @@ div#right-column-header {
 #expand-right-column {
     color: #575759;
     cursor: pointer;
-    margin: 4pt;
+    margin: 0pt 4pt;
     border: 0;
     font-size: 9pt;
 }
@@ -253,7 +277,7 @@ ul#bs-orgs {
     font-size: 80%;
     padding: 0px 5px 1px 5px;
     border-radius: 3px;
-    margin-left: 3px;
+    margin-left: 4pt;
     font-family: Consolas, monospace,'Courier New';
     text-align: center;
     display: inline-block;
@@ -369,9 +393,24 @@ a.thumbnail-icon {
 }
 
 
-#file-list input[type='checkbox'] {
+#file-list input[type='checkbox'], .table-wrapper input[type='checkbox'] {
     margin: auto;
+    vertical-align: middle;
+    outline: none;
     cursor: pointer;
+    width: 1.5em;
+    height: 1.5em;
+    border: 1px solid #333;
+    background-color: white;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#file-list input[type='checkbox']:checked:after, .table-wrapper input[type='checkbox']:checked:after {
+    content: "✔";
+    font-size: 120%;
+    padding-left: 2pt;
 }
 
 
@@ -534,19 +573,25 @@ a.thumbnail-icon {
     -ms-user-select: all;
     user-select: all;
 }
+
+#biostudies-citation .value::-moz-selection, #biostudies-citation .value::selection,
+#biostudies-citation .value i::-moz-selection, #biostudies-citation .value i::selection{
+    background: #fff8ce;
+}
+
 #bibtex.value {
     white-space: pre-wrap;
     white-space: -o-pre-wrap;
     white-space: -moz-pre-wrap;
     word-wrap: break-word;
+    background: none;
+    border: none;
+    font-size: 10pt;
+    display: inline-block;
 }
 
 ul.recommendations li {
     margin-bottom: 5pt;
-}
-
-.publication-div {
-    padding-bottom: 10pt;
 }
 
 .filetoolbar {
@@ -623,4 +668,17 @@ span.file-list-buttons .fa-file-download {
 }
 .progress-meter-text {
     margin-left: 10px;
+}
+
+.bs-section-files-text {
+    color: #444444;
+    padding-right: 4pt;
+}
+
+#select-all-files {
+    padding: 0pt;
+}
+.download-files-container {
+    text-align: center;
+    padding-top: 1em;
 }
