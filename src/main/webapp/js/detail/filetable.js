@@ -503,12 +503,15 @@ var FileTable = (function (_self) {
 
     function asperaPluginWarmUp(filelist, relativePath){
         allPaths=[];
-        $(filelist).each( function(i,v) {
-            var path ={};
-            path.source = relativePath+'/Files/'+v;
-            path.destination = relativePath+"/Files"+v;
-            allPaths[i] = path;
-        });
+        var i =0;
+        if(filelist) {
+            for (var iter = filelist.values(), val = null; val = iter.next().value;) {
+                var path = {};
+                path.source = relativePath + '/Files/' + val;
+                path.destination = relativePath + "/Files" + val;
+                allPaths[i++] = path;
+            }
+        }
         fileControls.selectFolder();
     };
     fileControls = {};

@@ -213,3 +213,7 @@ function getDateFromEpochTime(t) {
     var date = (new Date(parseInt(t))).toLocaleDateString("en-gb", { year: 'numeric', month: 'long', day: 'numeric' });
     return date == 'Invalid Date' ? (new Date()).getFullYear() : date;
 }
+
+function htmlEncode(v) {
+    return $('<span/>').text(v).html();
+}
