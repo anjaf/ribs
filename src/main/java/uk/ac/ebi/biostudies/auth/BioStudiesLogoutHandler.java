@@ -30,8 +30,7 @@ public class BioStudiesLogoutHandler implements LogoutHandler {
                 LOGGER.info("Logging out user [{}]", user.getLogin());
                 users.logout();
             }
-            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, 0);
-            HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
+            HttpTools.removeTokenCookie(response);
             HttpSession session = request.getSession(false);
             if (session != null) {
                 LOGGER.debug("Invalidating session: " + session.getId());

@@ -40,6 +40,24 @@ public class HttpTools {
     public static final String REFERER_HEADER = "Referer";
     public static final Integer MAX_AGE = 31557600;
 
+    public static void removeTokenCookie(HttpServletResponse response) {
+        try {
+            setCookie(response, HttpTools.TOKEN_COOKIE, null, 0);
+            setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
+        } catch (Exception ex) {
+            LOGGER.debug("cannot remove token cookie ", ex);
+        }
+    }
+
+    public static void setTokenCookie(HttpServletResponse response, String token, Integer maxAge) {
+        try {
+            setCookie(response, HttpTools.TOKEN_COOKIE, token, maxAge);
+            HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
+        } catch (Exception ex) {
+            LOGGER.debug("can not set toke cookie", ex);
+        }
+    }
+
     public static void setCookie(HttpServletResponse response, String name, String value, Integer maxAge) {
         Cookie cookie = new Cookie(name, null != value ? value : "");
         // if the value is null - delete cookie by expiring it

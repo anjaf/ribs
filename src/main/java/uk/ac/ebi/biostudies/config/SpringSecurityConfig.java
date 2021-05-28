@@ -3,21 +3,15 @@ package uk.ac.ebi.biostudies.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-import uk.ac.ebi.biostudies.api.util.HttpTools;
 import uk.ac.ebi.biostudies.auth.BioStudiesLogoutHandler;
 import uk.ac.ebi.biostudies.auth.CustomRememberMeCookieService;
 import uk.ac.ebi.biostudies.auth.RefererAuthenticationSuccessHandler;
 import uk.ac.ebi.biostudies.auth.RestBasedAuthenticationProvider;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity
@@ -40,11 +34,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().anonymous().principal("guest").authorities("GUEST").and()
-                .authorizeRequests().antMatchers("/api/v1/index/**").hasAuthority("SUPER_USER").and()
-                .authorizeRequests().antMatchers("/**").permitAll()
+                .authorizeRequests().antMatchers("/api/v1/index/**").access("hasIpAddress('localhost') or hasIpAddress('127.0.0.1') or hasIpAddress('0:0:0:0:0:0:0:1') or hasAuthority('SUPER_USER')")
+                .antMatchers("/**").permitAll()
                 .and().formLogin().successHandler(new RefererAuthenticationSuccessHandler())
-                .loginPage("/?login=true").usernameParameter("u").passwordParameter("p").permitAll()
-                .and().logout().logoutUrl("/logout").deleteCookies("JSESSIONID").addLogoutHandler(bioStudiesLogoutHandler).logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                .loginPage("/").usernameParameter("u").passwordParameter("p").permitAll()
+                .and().logout().logoutUrl("/logout").addLogoutHandler(bioStudiesLogoutHandler).deleteCookies("JSESSIONID")
                 .and().rememberMe().rememberMeServices(customRememberMeCookieService);
 
 

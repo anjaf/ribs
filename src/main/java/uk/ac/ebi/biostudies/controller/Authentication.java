@@ -5,9 +5,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +16,6 @@ import uk.ac.ebi.biostudies.auth.UserSecurityService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.net.URLEncoder;
 
 import static uk.ac.ebi.biostudies.api.util.HttpTools.sendRedirect;
@@ -61,11 +56,8 @@ public class Authentication {
 
         if (isLoginSuccessful) {
             logger.info("Successfully authenticated user [{}]", username);
-            returnURL = returnURL.replaceAll("login=true", "");
-            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, ((User) userPassAuth.getPrincipal()).getToken(), maxAge);
-            HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
+            HttpTools.setTokenCookie(response, ((User) userPassAuth.getPrincipal()).getToken(), maxAge);
         } else {
-            HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, null);
             String message = Session.getUserMessage();
             if (message != null && message.length() > 0) {
                 HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, URLEncoder.encode(message, "UTF-8"), 5);

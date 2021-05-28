@@ -76,8 +76,7 @@ public class CustomRememberMeCookieService implements RememberMeServices {
         if (!StringUtils.hasLength(token)) {
             logger.debug("Unable to retrieve token for cookie");
         }
-        HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, token, HttpTools.MAX_AGE);
-        HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
+        HttpTools.setTokenCookie(response, token, HttpTools.MAX_AGE);
     }
 
     protected Authentication createSuccessfulAuthentication(HttpServletRequest request, User user) {
@@ -96,6 +95,6 @@ public class CustomRememberMeCookieService implements RememberMeServices {
 
     protected void cancelCookie(HttpServletRequest request, HttpServletResponse response) {
         logger.debug("Cancelling cookie");
-        HttpTools.setCookie(response, HttpTools.TOKEN_COOKIE, null, 0);
+        HttpTools.removeTokenCookie(response);
     }
 }

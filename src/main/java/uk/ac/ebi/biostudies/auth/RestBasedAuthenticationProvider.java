@@ -23,14 +23,10 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class RestBasedAuthenticationProvider implements AuthenticationProvider {
@@ -97,7 +93,7 @@ public class RestBasedAuthenticationProvider implements AuthenticationProvider {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
         } catch (Exception exception) {
             if (exception instanceof IOException)
-                Session.setUserMessage("Unable to connect authentication server");
+                Session.setUserMessage("Unable to login, please come back later.");
             LOGGER.error("problem in sending http req to authentication server", exception);
         }
         return responseJSON;
