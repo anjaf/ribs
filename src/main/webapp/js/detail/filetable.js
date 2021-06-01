@@ -503,7 +503,7 @@ var FileTable = (function (_self) {
             for (var iter = filelist.values(), val = null; val = iter.next().value;) {
                 var path = {};
                 path.source = relativePath + '/Files/' + val;
-                path.destination = relativePath + "/Files" + val;
+                path.destination = relativePath + '/Files/' + val;
                 allPaths[i++] = path;
             }
         }
