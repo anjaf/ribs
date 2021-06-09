@@ -45,7 +45,7 @@ public class SearchTest {
 
     @Test
     public void testPageStats() {
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "studies");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector(".result-count")));
         String pages = webDriver.findElement(By.cssSelector(".result-count")).getAttribute("innerText");
@@ -55,7 +55,7 @@ public class SearchTest {
     // Does not work with <input type="search"...
     //@Test
     public void testAutoComplete() throws Exception{
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies/");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "studies/");
         WebDriverWait wait = new WebDriverWait(webDriver, 120);
         wait.until(visibilityOfElementLocated(By.cssSelector(".result-count")));
         WebElement searchBox = webDriver.findElement (By.cssSelector("#query"));
@@ -139,7 +139,7 @@ public class SearchTest {
 
     @Test
     public void testFilesDescendingSort() throws Exception{
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
@@ -156,7 +156,7 @@ public class SearchTest {
 
     @Test(expected = TimeoutException.class)
     public void testFilesAscendingSort() throws Exception{
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Files");
@@ -176,7 +176,7 @@ public class SearchTest {
 
     @Test
     public void testLinksDescendingSort() throws Exception{
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
@@ -193,7 +193,7 @@ public class SearchTest {
 
     @Test(expected = TimeoutException.class)
     public void testLinksAscendingSort() throws Exception{
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Links");
@@ -212,7 +212,7 @@ public class SearchTest {
 
     @Test
     public void testReleasedDescendingSort() throws Exception{
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
@@ -250,7 +250,7 @@ public class SearchTest {
 
     @Test
     public void testReleasedAscendingSort() throws Exception{
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?query=cancer");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "studies?query=cancer");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector("#sort-by")));
         new Select(webDriver.findElement(By.cssSelector("#sort-by"))).selectByVisibleText("Released");
@@ -291,7 +291,7 @@ public class SearchTest {
 
     @Test
     public void testPaging() throws Throwable{
-        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "/studies?page=2&pageSize=3");
+        webDriver.get(integrationTestProperties.getBaseUrl(randomPort) + "studies?page=2&pageSize=3");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(visibilityOfElementLocated(By.cssSelector(".result-count")));
         String pages = webDriver.findElement(By.cssSelector(".result-count")).getAttribute("innerText").trim();
