@@ -18,6 +18,11 @@
 package uk.ac.ebi.biostudies.auth;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class User {
     protected String login;
@@ -27,6 +32,16 @@ public class User {
     protected String[] deny;
     protected String email;
     protected boolean superUser;
+
+    public Set<GrantedAuthority> getAuthorities(){
+        Set<GrantedAuthority> grantedAuths = new HashSet();
+        if(allow!=null && allow.length>0)
+            for(int i=0; i<allow.length; i++)
+                grantedAuths.add(new SimpleGrantedAuthority(allow[i]));
+        if(superUser)
+            grantedAuths.add(new SimpleGrantedAuthority("SUPER_USER"));
+        return grantedAuths;
+    }
 
     public String getLogin() {
         return login;

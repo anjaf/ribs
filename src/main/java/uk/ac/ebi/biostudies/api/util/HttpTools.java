@@ -17,6 +17,9 @@
 
 package uk.ac.ebi.biostudies.api.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -30,9 +33,30 @@ import java.net.URLEncoder;
 
 public class HttpTools {
 
+    private final static Logger LOGGER = LogManager.getLogger(HttpTools.class.getName());
+
     public static final String TOKEN_COOKIE = "BioStudiesToken";
     public static final String AUTH_MESSAGE_COOKIE = "BioStudiesMessage";
     public static final String REFERER_HEADER = "Referer";
+    public static final Integer MAX_AGE = 31557600;
+
+    public static void removeTokenCookie(HttpServletResponse response) {
+        try {
+            setCookie(response, HttpTools.TOKEN_COOKIE, null, 0);
+            setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
+        } catch (Exception ex) {
+            LOGGER.debug("cannot remove token cookie ", ex);
+        }
+    }
+
+    public static void setTokenCookie(HttpServletResponse response, String token, Integer maxAge) {
+        try {
+            setCookie(response, HttpTools.TOKEN_COOKIE, token, maxAge);
+            HttpTools.setCookie(response, HttpTools.AUTH_MESSAGE_COOKIE, null, 0);
+        } catch (Exception ex) {
+            LOGGER.debug("can not set toke cookie", ex);
+        }
+    }
 
     public static void setCookie(HttpServletResponse response, String name, String value, Integer maxAge) {
         Cookie cookie = new Cookie(name, null != value ? value : "");
@@ -45,6 +69,24 @@ public class HttpTools {
         }
         response.addCookie(cookie);
     }
+
+    public static void sendRedirect(HttpServletResponse response, String returnURL, boolean isSuccessful) throws IOException {
+        if (null != returnURL) {
+            if (isSuccessful && returnURL.matches("^http[:]//www(dev)?[.]ebi[.]ac[.]uk/.+")) {
+                returnURL = returnURL.replaceFirst("^http[:]//", "https://");
+            }
+            LOGGER.debug("Will redirect to [{}]", returnURL);
+            response.sendRedirect(returnURL);
+        } else {
+            response.setContentType("text/plain; charset=UTF-8");
+            // Disable cache no matter what (or we're fucked on IE side)
+            response.addHeader("Pragma", "no-cache");
+            response.addHeader("Cache-Control", "no-cache");
+            response.addHeader("Cache-Control", "must-revalidate");
+            response.addHeader("Expires", "Fri, 16 May 2008 10:00:00 GMT"); // some date in the past
+        }
+    }
+
 
     public static String getCookie(HttpServletRequest request, String name) {
         CookieMap cookies = new CookieMap(request.getCookies());
@@ -65,19 +107,19 @@ public class HttpTools {
         String forwardedParams = String.format("?title=%s&message=%s",
                 URLEncoder.encode(title, "UTF-8"),
                 URLEncoder.encode(message, "UTF-8"));
-        request.getRequestDispatcher("/servlets/view/display/message/html"+forwardedParams).forward(request, response);
+        request.getRequestDispatcher("/servlets/view/display/message/html" + forwardedParams).forward(request, response);
     }
 
     public static File uploadFile(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String sourceLocation = System.getProperty("java.io.tmpdir");
         Part filePart = request.getPart("file");
         if (filePart == null) {
-            displayMessage(request,response,"Error!", "Could not upload file.");
+            displayMessage(request, response, "Error!", "Could not upload file.");
             return null;
         }
         String fileName = getFileNameFromPart(filePart);
         if ("studies.xml".equalsIgnoreCase(fileName)) {
-            displayMessage(request,response,"Error!", fileName+" can't be overwritten.");
+            displayMessage(request, response, "Error!", fileName + " can't be overwritten.");
             return null;
         }
         File uploadedFile = new File(sourceLocation, fileName);
