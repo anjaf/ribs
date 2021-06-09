@@ -117,11 +117,11 @@ public class DetailTest {
         String file = accession + ".json";
         doReturn(new InputStreamResource(getClass().getClassLoader().getResource(file).openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
-        webDriver.get(baseUrl + "/studies?query=" + accession);
+        webDriver.get(baseUrl + "studies?query=" + accession);
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".title a")));
         WebElement secondLink = webDriver.findElements(By.cssSelector(".title a")).get(0);
-        String expectedTitle = secondLink.getText();
+        String expectedTitle = secondLink.getAttribute("text");
         webDriver.navigate().to(secondLink.getAttribute("href"));
         wait = new WebDriverWait(webDriver, 20);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#orcid-title")));
