@@ -18,10 +18,10 @@ import java.util.regex.Pattern;
 /**
  * Created by ehsan on 15/03/2017.
  */
-//@WebFilter(urlPatterns = "/api/v1/index/*")
-public class AdminFilter /**implements Filter**/ {
+@WebFilter(urlPatterns = "/api/v1/index/*")
+public class AdminFilter implements Filter {
 
-/**    private Logger logger = LogManager.getLogger(AdminFilter.class.getName());
+    private Logger logger = LogManager.getLogger(AdminFilter.class.getName());
 
 
     @Autowired
@@ -81,5 +81,4 @@ public class AdminFilter /**implements Filter**/ {
     public void destroy() {
 
     }
-**/
 }

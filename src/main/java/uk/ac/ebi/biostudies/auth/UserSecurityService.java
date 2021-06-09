@@ -19,6 +19,7 @@ package uk.ac.ebi.biostudies.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
@@ -26,9 +27,11 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -59,7 +62,7 @@ public class UserSecurityService {
     public JsonNode sendAuthenticationCheckRequest(String token) throws Exception {
         JsonNode responseJSON = null;
         HttpClientBuilder clientBuilder = HttpClients.custom();
-        if (securityConfig.getHttpProxyHost() != null && !securityConfig.getHttpProxyHost().isEmpty()) {
+        if(securityConfig.getHttpProxyHost()!=null && !securityConfig.getHttpProxyHost().isEmpty()) {
             clientBuilder.setProxy(new HttpHost(securityConfig.getHttpProxyHost(), securityConfig.getGetHttpProxyPort()));
         }
         CloseableHttpClient httpClient = clientBuilder
@@ -76,14 +79,40 @@ public class UserSecurityService {
         httpGet.setHeader(X_SESSION_TOKEN, token);
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
             responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
-        } catch (Exception exception) {
+        }catch (Exception exception){
             logger.error("problem in sending http req to authentication server", exception);
         }
         return responseJSON;
     }
 
-    public JsonNode sendLoginRequest(String username, String password) throws IOException {
-        throw new UnsupportedOperationException();
+    public JsonNode sendLoginRequest(String username, String password) throws Exception {
+        JsonNode responseJSON = null;
+        HttpClientBuilder clientBuilder = HttpClients.custom();
+        if(securityConfig.getHttpProxyHost()!=null && !securityConfig.getHttpProxyHost().isEmpty()) {
+            clientBuilder.setProxy(new HttpHost(securityConfig.getHttpProxyHost(), securityConfig.getGetHttpProxyPort()));
+        }
+        CloseableHttpClient httpClient = clientBuilder
+                .setSSLSocketFactory(new SSLConnectionSocketFactory(SSLContexts.custom()
+                                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                                .build(), NoopHostnameVerifier.INSTANCE
+                        )
+                ).build();
+        HttpPost httpPost = new HttpPost(securityConfig.getLoginUrl());
+        httpPost.setConfig(RequestConfig.custom()
+                .setConnectionRequestTimeout(REQUEST_TIMEOUT)
+                .setConnectTimeout(REQUEST_TIMEOUT)
+                .setSocketTimeout(REQUEST_TIMEOUT).build());
+        httpPost.setHeader("Content-Type", "application/json; charset=UTF-8");
+        ObjectNode creds = mapper.createObjectNode();
+        creds.put("login", username);
+        creds.put("password", password);
+        httpPost.setEntity(new StringEntity( mapper.writeValueAsString(creds)));
+        try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
+            responseJSON = mapper.readTree(EntityUtils.toString(response.getEntity()));
+        }catch (Exception exception){
+            logger.error("problem in sending http req to authentication server", exception);
+        }
+        return responseJSON;
     }
 
 
@@ -94,13 +123,14 @@ public class UserSecurityService {
                 .build();
     }
 
-    public User login(String username, String password) throws IOException {
-        throw new UnsupportedOperationException();
+    public User login(String username, String password) throws Exception {
+        User user = createUserFromJSONResponse(sendLoginRequest(username, password));
+        if (user == null) return null;
+        return user;
     }
 
     public void logout() {
-        if (Session.getCurrentUser().token != null)
-            userAuthCache.invalidate(Session.getCurrentUser().token);
+        userAuthCache.invalidate(Session.getCurrentUser().getToken());
     }
 
     User checkAccess(String token) throws Exception {
@@ -110,13 +140,13 @@ public class UserSecurityService {
         if (user == null || !token.equals(user.getToken())) {
             user = createUserFromJSONResponse(sendAuthenticationCheckRequest(token));
         }
-        if (user == null || user.getAllow() == null) return null;
+        if (user == null || user.getAllow()==null) return null;
 
         return user;
     }
 
-    public User createUserFromJSONResponse(JsonNode responseJSON) throws IOException {
-        User user = null;
+    private User createUserFromJSONResponse(JsonNode responseJSON) throws IOException {
+        User user;
         if (responseJSON == null || !responseJSON.has("sessid")) {
             return null;
         }
@@ -125,14 +155,14 @@ public class UserSecurityService {
         user.setLogin(responseJSON.get("username").textValue());
         user.setToken(responseJSON.get("sessid").textValue());
         user.setEmail(responseJSON.get("email").textValue());
-        if (responseJSON.has("allow") && responseJSON.get("allow") != null && responseJSON.get("allow").isArray()) {
+        if (responseJSON.has("allow") && responseJSON.get("allow")!=null && responseJSON.get("allow").isArray()) {
             String[] allow = mapper.convertValue(responseJSON.get("allow"), String[].class);
             String[] deny = mapper.convertValue(responseJSON.get("deny"), String[].class);
             Set<String> allowedSet = Sets.difference(Sets.newHashSet(allow), Sets.newHashSet(deny));
             user.setAllow(allowedSet.toArray(new String[allowedSet.size()]));
             user.setDeny(deny);
-            user.allow = Stream.of(allow).map(item -> item.replaceAll("~", "")).toArray(String[]::new);
-            user.deny = Stream.of(deny).map(item -> item.replaceAll("~", "")).toArray(String[]::new);
+            user.allow = Stream.of(allow).map( item -> item.replaceAll("~", "")).toArray(String[]::new);
+            user.deny = Stream.of(deny).map( item -> item.replaceAll("~", "")).toArray(String[]::new);
         }
         user.setSuperUser(responseJSON.get("superuser").asBoolean(false));
         userAuthCache.put(user.getToken(), user);
