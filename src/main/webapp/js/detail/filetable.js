@@ -238,7 +238,9 @@ var FileTable = (function (_self) {
                 },
                 {
                     targets: '_all',
-                    render: $.fn.dataTable.render.text()
+                    render:  function (data, type, row) {
+                        return linkify(data);
+                    }
                 }
             ],
             ajax: {
@@ -775,6 +777,12 @@ var FileTable = (function (_self) {
         return parseFloat(b / Math.pow(1000, i)).toFixed(prec[keys[i]]) + ' ' + keys[i];
     }
 
+    function linkify(text) {
+        text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        // re from https://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
+        var reURL = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/g;
+        return text.replace(reURL, "<a target='_blank' href='$1'>$1</a>")
+    }
 
     return _self;
 
