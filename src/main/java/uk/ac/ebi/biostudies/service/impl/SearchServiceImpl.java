@@ -306,7 +306,7 @@ public class SearchServiceImpl implements SearchService {
             response.put("links", linkStats.sum());
 
             indexManager.getIndexWriter().getLiveCommitData().forEach(entry -> {
-                if (entry.getKey().equalsIgnoreCase("@endTimeTS")) {
+                if (entry.getKey().equalsIgnoreCase("updateTime")) {
                     response.put("time", Long.parseLong(entry.getValue()));
                 }
             });
