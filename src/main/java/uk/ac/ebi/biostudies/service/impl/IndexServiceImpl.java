@@ -160,18 +160,14 @@ public class IndexServiceImpl implements IndexService {
                     logger.info("{} docs indexed", counter);
                 }
             }
-            Map<String,String> commitData = new HashMap<>();
             while (token != null && token != JsonToken.END_OBJECT) {
-                if (token.name().equalsIgnoreCase("field_name")) {
-                    String key = parser.getText();
-                    token = parser.nextToken();
-                    commitData.put(key, token.isNumeric() ? Long.toString(parser.getLongValue()) : parser.getText());
-
-                }
                 token = parser.nextToken();
             }
 
+            Map<String,String> commitData = new HashMap<>();
+            commitData.put("updateTime", Long.toString (new Date().getTime()) );
             indexManager.getIndexWriter().setLiveCommitData(commitData.entrySet());
+
             executorService.shutdown();
             executorService.awaitTermination(5, TimeUnit.HOURS);
             indexManager.commitTaxonomy();
@@ -201,6 +197,10 @@ public class IndexServiceImpl implements IndexService {
         executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments, parserManager));
         executorService.shutdown();
         try {
+            Map<String,String> commitData = new HashMap<>();
+            commitData.put("updateTime", Long.toString (new Date().getTime()) );
+            indexManager.getIndexWriter().setLiveCommitData(commitData.entrySet());
+
             executorService.awaitTermination(5, TimeUnit.HOURS);
             indexManager.commitTaxonomy();
             indexManager.getIndexWriter().commit();
