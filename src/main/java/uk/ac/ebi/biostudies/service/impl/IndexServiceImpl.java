@@ -140,7 +140,7 @@ public class IndexServiceImpl implements IndexService {
 
 
             JsonToken token = parser.nextToken();
-            while (!JsonToken.START_ARRAY.equals(token)) {
+            while (token!=null && !JsonToken.START_ARRAY.equals(token)) {
                 token = parser.nextToken();
             }
 

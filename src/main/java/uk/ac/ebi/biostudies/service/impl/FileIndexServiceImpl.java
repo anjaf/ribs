@@ -135,7 +135,7 @@ public class FileIndexServiceImpl implements FileIndexService {
             JsonFactory factory = new JsonFactory();
             JsonParser parser = factory.createParser(inputStreamReader);
             JsonToken token = parser.nextToken();
-            while (!JsonToken.START_ARRAY.equals(token)) {
+            while (token!=null && !JsonToken.START_ARRAY.equals(token)) {
                 token = parser.nextToken();
             }
 
