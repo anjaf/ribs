@@ -25,15 +25,6 @@ var sdrfIcon = $('<div class="bs-attribute"><span class="bs-name">Detailed sampl
 });
 sdrfIcon.insertBefore($('.bs-attribute:contains("Samples")').first());
 
-// add icon for files
-/*var newIcon = $('<span class="fa-icon" title="Click to expand"><i class="fa fa-external-link-alt"></i></span>')
-    .css({'float':'right', 'padding-left': '3px', 'cursor': 'pointer'})
-    .click(function() {
-        window.open( contextPath + (collection? '/'+collection:'')+'/studies/'+ $('#accession').text() + '/files' );
-    });
-$('#all-files-expander').before(newIcon);
-*/
-
 // add AE link
 var accession = $('#orcid-accession').text().trim();
 var notice = $("<div class=\"callout warning\">To streamline the data submission processes and data representation at " +

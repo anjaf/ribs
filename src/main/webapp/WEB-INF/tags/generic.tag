@@ -246,7 +246,6 @@
 <script>$(document).foundationExtendEBI();</script>
 <c:if test="${announce}">
 <script>
-
 $(function() {
     ebiInjectAnnouncements({
         headline: '<spring:eval expression="@announcementConfig.getHeadline()"/>'

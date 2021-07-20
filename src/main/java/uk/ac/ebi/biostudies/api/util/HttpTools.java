@@ -107,19 +107,19 @@ public class HttpTools {
         String forwardedParams = String.format("?title=%s&message=%s",
                 URLEncoder.encode(title, "UTF-8"),
                 URLEncoder.encode(message, "UTF-8"));
-        request.getRequestDispatcher("/servlets/view/display/message/html" + forwardedParams).forward(request, response);
+        request.getRequestDispatcher("/servlets/view/display/message/html"+forwardedParams).forward(request, response);
     }
 
     public static File uploadFile(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String sourceLocation = System.getProperty("java.io.tmpdir");
         Part filePart = request.getPart("file");
         if (filePart == null) {
-            displayMessage(request, response, "Error!", "Could not upload file.");
+            displayMessage(request,response,"Error!", "Could not upload file.");
             return null;
         }
         String fileName = getFileNameFromPart(filePart);
         if ("studies.xml".equalsIgnoreCase(fileName)) {
-            displayMessage(request, response, "Error!", fileName + " can't be overwritten.");
+            displayMessage(request,response,"Error!", fileName+" can't be overwritten.");
             return null;
         }
         File uploadedFile = new File(sourceLocation, fileName);

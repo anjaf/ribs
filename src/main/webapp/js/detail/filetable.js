@@ -28,6 +28,7 @@ var FileTable = (function (_self) {
                     handleSectionButtons(acc, params, response.sections, response.relPath);
                     handleFileListButtons(acc, params.key);
                 }
+                FileTable.getFilesTable().columns.adjust();
             }});
     };
 
@@ -71,6 +72,11 @@ var FileTable = (function (_self) {
         }
     };
 
+    _self.adjust = function() {
+        if (filesTable) {
+            filesTable.columns.adjust();
+        }
+    }
 
     function handleFileListButtons(acc, key){
         var templateSource = $('script#file-list-buttons-template').html();
@@ -232,7 +238,9 @@ var FileTable = (function (_self) {
                 },
                 {
                     targets: '_all',
-                    render: $.fn.dataTable.render.text()
+                    render:  function (data, type, row) {
+                        return linkify(data);
+                    }
                 }
             ],
             ajax: {
@@ -268,7 +276,6 @@ var FileTable = (function (_self) {
                 return (total== max) ? out : out + btn.html();
             }
         }).on('preDraw', function (e) {
-            console.log("preDraw")
             filesTable.columns().visible(true);
         }).on('draw.dt', function (e) {
             handleDataTableDraw(handleThumbnails, params, filesTable);
@@ -496,14 +503,17 @@ var FileTable = (function (_self) {
     }
 
 
-    function asperaPluginWarmUp(relativePath){
+    function asperaPluginWarmUp(filelist, relativePath){
         allPaths=[];
-        $(selectedFiles).each( function(i,v) {
-            var path ={};
-            path.source = relativePath+'/Files/'+v;
-            path.destination = relativePath+"/Files"+v;
-            allPaths[i] = path;
-        });
+        var i =0;
+        if(filelist) {
+            for (var iter = filelist.values(), val = null; val = iter.next().value;) {
+                var path = {};
+                path.source = relativePath + '/Files/' + val;
+                path.destination = relativePath + '/Files/' + val;
+                allPaths[i++] = path;
+            }
+        }
         fileControls.selectFolder();
     };
     fileControls = {};
@@ -767,6 +777,12 @@ var FileTable = (function (_self) {
         return parseFloat(b / Math.pow(1000, i)).toFixed(prec[keys[i]]) + ' ' + keys[i];
     }
 
+    function linkify(text) {
+        text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        // re from https://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
+        var reURL = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/g;
+        return text.replace(reURL, "<a target='_blank' href='$1'>$1</a>")
+    }
 
     return _self;
 

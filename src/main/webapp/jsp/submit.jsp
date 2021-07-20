@@ -72,7 +72,7 @@
                 (for example ArrayExpress, PRIDE, ENA etc) and use the "links" section when submitting to BioStudies to
                 indicate where your data is stored.
                 You may find the following tool helpful <a href="http://www.ebi.ac.uk/submission/">Data Submission</a>
-                to see which the appropriate resource for your data should be.
+                to see which should be the appropriate resource for your data.
             </p>
 
             <h5 class="icon icon-generic" data-icon="i">I would like to host my own data</h5>

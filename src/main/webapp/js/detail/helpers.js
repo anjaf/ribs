@@ -16,7 +16,7 @@ var Metadata = (function (_self) {
             var e = obj.filter( function(o) { return o['name'].trim()==val.trim()})[0];
             if (e==undefined) return '';
             $.each(e.valqual, function(i,v){
-                if (v.name=='url') {
+                if (v.name.toLowerCase()==='url') {
                     e.url = v.value;
                 }
             });
@@ -54,7 +54,7 @@ var Metadata = (function (_self) {
                 + e.url
                 + (e.url[0]!='#' ? '" target="_blank"':'"')
                 + (e.title ? ' title="'+e.title+'"' : '')
-                +'>'+ value+'</a></td>' : '<td>'+value+'</td>');
+                +'>'+ htmlEncode(value)+'</a></td>' : '<td>'+ htmlEncode(value) +'</td>');
         });
 
         Handlebars.registerHelper('ifHasAttribute', function(val, obj, options) {
