@@ -1,6 +1,7 @@
 $(function() {
     function handleBioImagesUI() {
         $('.menu.float-left li').slice(1, 2).hide();
+        $('.menu.float-left li').slice(4, 5).hide();
         $('#local-title').html('<h1><img src="' + contextPath + '/images/collections/bioimages/logo.png"></img></h1>');
         $('#masthead').css("background-image","url("+contextPath +"/images/collections/bioimages/background.jpg)");
         $('.masthead, #ebi_search .button, .pagination .current').css("background-color","rgb(0, 124, 130)");
@@ -8,8 +9,8 @@ $(function() {
         $('.menu.float-left li:nth-child(3) a').attr('href','/bioimage-archive/submit');
         $('.menu.float-left li:nth-child(4) a').attr('href', '/bioimage-archive/help');
         ;
-        const menu = $('.menu.float-left li:nth-child(5)').parent().
-            append('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="About us" data-is-click="false">\n' +
+        const menu = $('.menu.float-left li:nth-child(5)');
+        menu.before('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="About us" data-is-click="false">\n' +
             '                            <a href="#" role="menuitem">About us</a>\n' +
             '                            <ul class="menu submenu is-dropdown-submenu first-sub vertical" data-submenu="" role="menubar" style="">\n' +
             '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/faq" role="menuitem">FAQs</a></li>\n' +
@@ -17,7 +18,7 @@ $(function() {
             '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/case-studies/" role="menuitem">Case Studies</a></li>\n' +
             '                            </ul>\n' +
             '                        </li>');
-        new Foundation.DropdownMenu(menu);
+        new Foundation.DropdownMenu(menu.parent());
         $('#query').attr('placeholder','Search BioImages');
         $('.sample-query').first().text('brain');
         $('.sample-query').first().next().text('capsid');
