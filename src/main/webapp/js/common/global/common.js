@@ -1,20 +1,26 @@
 $(function() {
     function handleBioImagesUI() {
+        $('.menu.float-left li').slice(1, 2).hide();
         $('#local-title').html('<h1><img src="' + contextPath + '/images/collections/bioimages/logo.png"></img></h1>');
         $('#masthead').css("background-image","url("+contextPath +"/images/collections/bioimages/background.jpg)");
         $('.masthead, #ebi_search .button, .pagination .current').css("background-color","rgb(0, 124, 130)");
-        $('.menu.float-left li a').first().attr('href','/bioimage-archive/');
-        $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/project-developments/">Project developments</a></li>')
-        $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/case-studies/">Case studies</a></li>');
-        $('.menu.float-left').append('<li role="menuitem"><a href="/bioimage-archive/faq/">FAQs</a></li>');
-        $('.menu.float-right').prepend('<li role="menuitem"><a href="'+contextPath+'/bioimages/help">Help</a></li>');
-        $('.menu.float-left li').slice(1, 4).hide();
-        $('.menu.float-left li a').last().attr('target', '_blank');
+        $('.menu.float-left li:nth-child(1) a').attr('href','/bioimage-archive/');
+        $('.menu.float-left li:nth-child(3) a').attr('href','/bioimage-archive/submit');
+        $('.menu.float-left li:nth-child(4) a').attr('href', '/bioimage-archive/help');
+        ;
+        const menu = $('.menu.float-left li:nth-child(5)').parent().
+            append('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="About us" data-is-click="false">\n' +
+            '                            <a href="#" role="menuitem">About us</a>\n' +
+            '                            <ul class="menu submenu is-dropdown-submenu first-sub vertical" data-submenu="" role="menubar" style="">\n' +
+            '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/faq" role="menuitem">FAQs</a></li>\n' +
+            '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/project-developments/" role="menuitem">Project developments</a></li>\n' +
+            '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/case-studies/" role="menuitem">Case Studies</a></li>\n' +
+            '                            </ul>\n' +
+            '                        </li>');
+        new Foundation.DropdownMenu(menu);
         $('#query').attr('placeholder','Search BioImages');
         $('.sample-query').first().text('brain');
         $('.sample-query').first().next().text('capsid');
-        $('#about-link').text('About us');
-        $('#about-link').attr('href','/bioimage-archive/about-us/');
         $('#elixir-banner').hide();
     }
 
