@@ -7,10 +7,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import uk.ac.ebi.biostudies.auth.BioStudiesLogoutHandler;
-import uk.ac.ebi.biostudies.auth.CustomRememberMeCookieService;
-import uk.ac.ebi.biostudies.auth.RefererAuthenticationSuccessHandler;
-import uk.ac.ebi.biostudies.auth.RestBasedAuthenticationProvider;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import uk.ac.ebi.biostudies.auth.*;
 
 
 @Configuration
@@ -24,6 +22,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private CustomRememberMeCookieService customRememberMeCookieService;
     @Autowired
     private BioStudiesLogoutHandler bioStudiesLogoutHandler;
+    @Autowired
+    CookieFilter cookieFilter;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -33,7 +33,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().anonymous().principal("guest").authorities("GUEST").and()
+        http.addFilterAfter(cookieFilter, AnonymousAuthenticationFilter.class).csrf().disable().anonymous().principal("guest").authorities("GUEST").and()
                 .authorizeRequests().antMatchers("/api/v1/index/**").access("hasIpAddress('localhost') or hasIpAddress('127.0.0.1') or hasIpAddress('0:0:0:0:0:0:0:1') or hasAuthority('SUPER_USER')")
                 .antMatchers("/**").permitAll()
                 .and().formLogin().successHandler(new RefererAuthenticationSuccessHandler())
