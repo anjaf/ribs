@@ -46,8 +46,8 @@ public class MvcConfig implements WebMvcConfigurer {
         registry.addViewController("arrayexpress").setViewName("arrayexpress");
         registry.addViewController("arrayexpress/").setViewName("arrayexpress");
 
-        registry.addRedirectViewController("/{collection:.+}/studies/EMPIAR-{id:.+}", "https://www.ebi.ac.uk/pdbe/emdb/empiar/entry/{id}/");
-        registry.addRedirectViewController("/studies/EMPIAR-{id:.+}", "https://www.ebi.ac.uk/pdbe/emdb/empiar/entry/{id}/");
+        registry.addRedirectViewController("/{collection:.+}/studies/EMPIAR-{id:.+}", "https://www.ebi.ac.uk/empiar/{id}/");
+        registry.addRedirectViewController("/studies/EMPIAR-{id:.+}", "https://www.ebi.ac.uk/empiar/{id}/");
         registry.addViewController("/").setViewName("index");
         registry.addViewController("/about").setViewName("about");
         registry.addViewController("/about/*").setViewName("about");
