@@ -54,7 +54,7 @@ public class Study {
         }
         accession = document.get(Constants.Fields.ACCESSION);
         String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
-        InputStreamResource result;
+        String result;
         try {
             result = searchService.getStudyAsStream(accession.replace("..",""), relativePath, seckey!=null);
         } catch (IOException e) {

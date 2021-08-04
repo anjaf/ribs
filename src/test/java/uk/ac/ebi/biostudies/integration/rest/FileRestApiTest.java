@@ -93,8 +93,8 @@ public class FileRestApiTest {
         if ((pathToFile.charAt(0) == '\\' || pathToFile.charAt(0) == '/') && pathToFile.charAt(2) == ':')
             pathToFile = pathToFile.substring(1);
         doReturn(pathToFile).when(indexConfigMock).getFileRootDir();
-        InputStreamResource myFileStream = searchServiceImpl.getStudyAsStream(ACCESSION, "", true);
-        ReadContext jsonPathContext = JsonPath.parse(myFileStream.getInputStream());
+        String myFileStream = searchServiceImpl.getStudyAsStream(ACCESSION, "", true);
+        ReadContext jsonPathContext = JsonPath.parse(myFileStream);
         JSONArray authors = jsonPathContext.read("$.section.subsections[?(@.type==\"Author\")].attributes[?(@.name==\"Name\")].value");
         JSONArray organizations = jsonPathContext.read("$.section.subsections[?(@.type==\"Organization\")].attributes[?(@.name==\"Name\")].value");
         assertEquals(0, authors.size());

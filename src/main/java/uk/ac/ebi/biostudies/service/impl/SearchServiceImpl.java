@@ -33,10 +33,8 @@ import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import javax.annotation.PostConstruct;
-import java.io.ByteArrayInputStream;
+import java.io.*;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -78,6 +76,9 @@ public class SearchServiceImpl implements SearchService {
     SecurityQueryBuilder securityQueryBuilder;
     @Autowired
     QueryService queryService;
+    @Autowired
+    FireService fireService;
+
 
 
     private static Cache<String, String> statsCache;
@@ -267,25 +268,35 @@ public class SearchServiceImpl implements SearchService {
 
 
     @Override
-    public InputStreamResource getStudyAsStream(String accession, String relativePath, boolean anonymise)
+    public String getStudyAsStream(String accession, String relativePath, boolean anonymise)
             throws IOException {
-        File file = Paths.get(indexConfig.getFileRootDir(), relativePath, accession + ".json").toFile();
-        if (anonymise) {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode json = mapper.readTree(file);
-            JsonNode subSections = json.get("section").get("subsections");
-            if (subSections.isArray()) {
-                Iterator<JsonNode> iterator = ((ArrayNode) subSections).iterator();
-                while (iterator.hasNext()) {
-                    JsonNode node = iterator.next();
-                    if (node.has("type") && sectionsToFilter.contains(node.get("type").textValue().toLowerCase())) {
-                        iterator.remove();
+        StringWriter s3StringWriter = null;
+        try {
+            s3StringWriter = fireService.getFireObjectStringContentByPath(null, relativePath + "/" + accession + ".json");
+
+            if (s3StringWriter == null)
+                return "Not Found; 404";
+            if (anonymise) {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode json = mapper.readTree(s3StringWriter.toString());
+                JsonNode subSections = json.get("section").get("subsections");
+                if (subSections.isArray()) {
+                    Iterator<JsonNode> iterator = ((ArrayNode) subSections).iterator();
+                    while (iterator.hasNext()) {
+                        JsonNode node = iterator.next();
+                        if (node.has("type") && sectionsToFilter.contains(node.get("type").textValue().toLowerCase())) {
+                            iterator.remove();
+                        }
                     }
                 }
+                return mapper.writeValueAsString(json);
+            } else {
+                return s3StringWriter.toString();
             }
-            return new InputStreamResource(new ByteArrayInputStream(mapper.writeValueAsBytes(json)));
-        } else {
-            return new InputStreamResource(new FileInputStream(file));
+        }
+        finally{
+            if(s3StringWriter!=null)
+                s3StringWriter.close();
         }
     }
 

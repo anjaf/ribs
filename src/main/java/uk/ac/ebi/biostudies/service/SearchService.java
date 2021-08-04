@@ -23,7 +23,7 @@ public interface SearchService {
     String getEfoTree(String query);
     String getFieldStats() throws Exception;
     void clearStatsCache();
-    InputStreamResource getStudyAsStream(String accession, String relativePath, boolean b) throws IOException;
+    String getStudyAsStream(String accession, String relativePath, boolean b) throws IOException;
     ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception;
     Document getDocumentByAccession(String accession, String secretKey) throws SubmissionNotAccessibleException;
     boolean isDocumentPresent(String accession);
