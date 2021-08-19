@@ -173,7 +173,7 @@ public class IndexServiceImpl implements IndexService {
 
             indexManager.getIndexWriter().setLiveCommitData(commitData.entrySet());
             executorService.shutdown();
-            executorService.awaitTermination(5, TimeUnit.HOURS);
+            executorService.awaitTermination(5, TimeUnit.MINUTES);
             indexManager.commitTaxonomy();
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
