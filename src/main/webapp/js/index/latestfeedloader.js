@@ -11,7 +11,7 @@ Home.LatestFeedLoader = (function () {
                 $('#latestContainer').show();
                 $('#latest').slideDown();*/
                 $('#studyCount').text(formatNumber(data.totalHits)+' studies').removeClass('fader');
-                $('#lastUpdateTime').slideDown();
+                $('#lastUpdateTime').css('display','inline-block');
             }
 
         });

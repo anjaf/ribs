@@ -22,7 +22,7 @@ import java.io.File;
 @Suite.SuiteClasses({
         IndexTest.class,
         DetailTest.class,
-        AuthTest.class,
+//        AuthTest.class,
         SearchTest.class,
         FileRestApiTest.class
 })

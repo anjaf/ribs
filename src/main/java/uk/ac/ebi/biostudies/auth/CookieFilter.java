@@ -2,50 +2,31 @@ package uk.ac.ebi.biostudies.auth;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-import uk.ac.ebi.biostudies.api.util.CookieMap;
 import uk.ac.ebi.biostudies.api.util.HttpTools;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
  * Created by ehsan on 15/03/2017.
  */
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class CookieFilter implements Filter {
 
     private Logger logger = LogManager.getLogger(CookieFilter.class.getName());
 
 
-    final UserSecurityService users;
-
-    public CookieFilter(UserSecurityService users) {
-        this.users = users;
-    }
-
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
-        try {
-            CookieMap cookies = new CookieMap(((HttpServletRequest) servletRequest).getCookies());
-            String token = cookies.getCookieValue(HttpTools.TOKEN_COOKIE);
-            User user = users.checkAccess(token);
-            if (user != null)
-                Session.setCurrentUser(user);
-            else
-                Session.clear();
-        } catch (Throwable x) {
-            logger.error(x);
+        String sessionCookie = HttpTools.getCookie((HttpServletRequest) servletRequest, HttpTools.TOKEN_COOKIE);
+        if (Session.getCurrentUser() != null && (sessionCookie == null || !sessionCookie.equalsIgnoreCase(Session.getCurrentUser().token))) {
+            SecurityContextHolder.clearContext();
         }
-        if(response instanceof HttpServletResponse)
-            ((HttpServletResponse)response).setHeader("Cache-Control","no-cache");
         filterChain.doFilter(servletRequest, response);
     }
 
