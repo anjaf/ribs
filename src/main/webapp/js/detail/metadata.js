@@ -56,6 +56,8 @@ var Metadata = (function (_self) {
                 }).length) {
                     data.section.attributes.push({name: 'Title', value: title[0].value});
                 }
+                data.section.isFromSubmissionTool = document.referrer.toLowerCase().indexOf("ebi.ac.uk/biostudies/submissions/")>0
+                && $('#logout-button') && $('#logout-button').text().trim().startsWith("Logout");
             }
             $('#renderedContent').html(template(data.section));
             postRender(params, data.section);
