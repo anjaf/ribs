@@ -16,10 +16,9 @@ import static uk.ac.ebi.biostudies.api.util.Constants.RELEASE_DATE;
 
 public class DateParser extends AbstractParser {
 
-    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         long releaseDateLong = 0L;
         long creationDateLong = 0L;
         long modificationTimeLong = 0L;
