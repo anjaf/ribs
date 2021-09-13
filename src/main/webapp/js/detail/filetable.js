@@ -139,13 +139,16 @@ var FileTable = (function (_self) {
             var col = filesTable.column(index);
             if (!col.visible() || !columnDefinitions[index].searchable ) continue;
             var title = $(col.header()).text();
-            var txtbox= $('<input style="display:none" type="text" class="col-advsearch-input col-' + title.toLowerCase() + '" placeholder="Search ' + title + '"  />')
+            var txtbox= $('<input style="display:none" type="text" aria-label="' + title
+                +'" class="col-advsearch-input col-' + title.toLowerCase() + '" placeholder="Search ' + title + '"  />')
             $(col.header()).append(txtbox);
         }
 
-        $('#file-list_filter').after('<label id="advanced-search" for="advsearch"  title="Search in columns"><input style=" margin:0;width:0; height:0; opacity: 0" type="checkbox" id="advsearchinput"></input>' +
-            '<i id="advanced-search-icon" class="far fa-plus-square"></i>\n' +
-            '</label>');
+        $('#file-list_filter').after('<span id="advanced-search" title="Search in columns"><input ' +
+            'style=" margin:0;width:0; height:0; opacity: 0" type="checkbox" id="advsearchinput"' +
+            'title="Advanced Search"></input>' +
+            '<i id="advanced-search-icon" class="far fa-plus-square"></i>' +
+            '</span>');
 
         $("#advanced-search").click(function () {
             $('#advanced-search-icon').toggleClass('fa-plus-square').toggleClass('fa-minus-square');
@@ -158,6 +161,8 @@ var FileTable = (function (_self) {
             }
             $(".col-size").prop('disabled', true);
         });
+
+        $('#file-list_length').attr('title', 'File list length');
 
     }
 
@@ -174,7 +179,7 @@ var FileTable = (function (_self) {
             visible: true,
             orderable: false,
             render: function (data, type, row) {
-                return '<div class="file-check-box"><input type="checkbox" data-name="' + row.path + '"></input></div>';;
+                return '<div class="file-check-box"><input title="Select file" type="checkbox" data-name="' + row.path + '"></input></div>';;
             }
         });
         // add section rendering
@@ -454,7 +459,8 @@ var FileTable = (function (_self) {
 
     function handleFileDownloadSelection(acc,key,relativePath) {
         // add select all checkbox
-        $(filesTable.columns(0).header()).html('<input id="select-all-files"  type="checkbox"/>');
+        $(filesTable.columns(0).header()).html('<input id="select-all-files" title="Select all files" type="checkbox"/>' +
+            '<span style="display: none">Select all files</span>');
         $('#select-all-files').on('click', function () {
             $('body').css('cursor', 'progress');
             $('#select-all-files').css('cursor', 'progress');
@@ -741,7 +747,7 @@ var FileTable = (function (_self) {
             $('a',this).addClass('overflow-name-column');
             $('a',this).attr('title',$(this).text());
             if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
-                var tnButton = $('<a href="#" class="thumbnail-icon" ' +
+                var tnButton = $('<a href="#" aria-label="thumbnail" class="thumbnail-icon" ' +
                     'data-thumbnail="'+window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'">' +
                     '<i class="far fa-image"></i></a>');
                 $(this).append(tnButton);
