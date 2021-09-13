@@ -86,8 +86,11 @@ a.tag:hover { color: #fff; }
     color: #fff;
     background: #666; }
 
-.masthead, #ebi_search .button, .pagination .current {
+.masthead, .pagination .current {
     background-color: #75C8EC;
+}
+#ebi_search .button {
+    background-color: transparent;
 }
 .pagination li {
     font-size: 11pt;

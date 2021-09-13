@@ -24,7 +24,7 @@ Home.CollectionLoader = (function () {
                         if (!path && data.section && data.section.files && data.section.files[0]) path =data.section.files[0].path;
                         if (!path && data.section.files && data.section.files[0] && data.section.files[0][0]) path = data.section.files[0][0].path;
                         if (path) {
-                            $prj.prepend('<img src="' + contextPath + '/files/' + accession + '/' + path + '"/>');
+                            $prj.prepend('<img src="' + contextPath + '/files/' + accession + '/' + path + '" alt="'+accession+'" />');
                         }
                     })});
             }
