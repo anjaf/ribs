@@ -87,9 +87,10 @@ public class IndexManager implements InitializingBean, DisposableBean {
     IndexTransferer indexTransferer;
 
     @Override
-    public void afterPropertiesSet() { logger.debug("Initializing IndexManager");
+    public void afterPropertiesSet() {
+        logger.debug("Initializing IndexManager");
         refreshIndexWriterAndWholeOtherIndices();
-        indexService.processFileForIndexing();
+        if (indexConfig.isApiEnabled()) indexService.processFileForIndexing();
     }
 
     public void refreshIndexWriterAndWholeOtherIndices(){
