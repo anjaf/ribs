@@ -28,20 +28,21 @@ body.is-reveal-open { /*avoid jumping of body to the left*/
     color: #267799;
     margin:0;
     display: inline-block;
-    padding: 0pt 6pt 0pt 1pt;
     line-height: 1em;
-    min-width: 8em;
+    min-width: 6em;
 }
 
 .bs-value {
     display: inline;
+    padding-left: 0.3em;
 }
 
 .block {
     display: block;
 }
 .bs-attribute {
-    display: table-row;
+    display: block;
+    padding-top: 2pt;
 }
 
 .bs-attribute::after {
@@ -460,6 +461,13 @@ a.thumbnail-icon {
     cursor: pointer;
 }
 
+.publication:not(:first-child)::before {
+    display: inline-block;
+    content: ' ▪ ';
+    padding: 0 4pt;
+    color: #aaa;
+}
+
 .publication-link {
     display: inline-block;
 }
@@ -652,7 +660,7 @@ span.file-list-buttons .fa-file-download {
 #file-list_filter input {
     width: 140px;
 }
-.author-card {
+.author-card , .attribute-card {
     position: absolute;
     background: #fafafa;
     padding: 6pt;
@@ -662,8 +670,13 @@ span.file-list-buttons .fa-file-download {
     max-width: 500px;
     cursor: text;
 }
-
-.author-name:hover .author-card {
+.attribute-container:hover .attribute-card {
+    display: inline-block;
+}
+.attribute-card:empty {
+    display: none !important;
+}
+.author-name:hover .author-card{
     display:block;
 }
 .progress-meter-text {
