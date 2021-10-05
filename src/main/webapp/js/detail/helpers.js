@@ -351,13 +351,11 @@ var Metadata = (function (_self) {
                 });
                 publication.accno = pub.accno;
                 if (publication.accno) {
-                    var url = getURL(publication.accno);
-                    if (url != null) {
-                        if (/^\d+$/.test(publication.accno)) {
-                            publication.URLs.push(getURL('PMID' + publication.accno));
-                        } else {
-                            publication.URLs.push(url);
-                        }
+                    const url = getURL(publication.accno);
+                    if (url) {
+                        publication.URLs.push(url);
+                    } else if (/^\d+$/.test(publication.accno)) {
+                        publication.URLs.push(getURL(publication.accno,'PMID'));
                     }
                 }
                 $($.map(pub.links, function (v) {
