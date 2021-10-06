@@ -67,6 +67,9 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     @Value("${index.sync.command}")
     private String indexSyncCommand;
 
+    @Value("${index.api.enabled}")
+    private boolean apiEnabled;
+
     public static CharArraySet STOP_WORDS;
 
 
@@ -146,5 +149,9 @@ public class IndexConfig implements InitializingBean, DisposableBean {
 
     public String getIndexSyncCommand() {
         return indexSyncCommand;
+    }
+
+    public boolean isApiEnabled() {
+        return apiEnabled;
     }
 }

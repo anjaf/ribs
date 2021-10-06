@@ -102,7 +102,8 @@ var Metadata = (function (_self) {
 
         Handlebars.registerHelper('ifRenderable', function(arr,options) {
             var specialSections = ['author', 'organization','organisation', 'funding', 'publication'];
-            if(Array.isArray(arr) || (arr.type &&  $.inArray(arr.type.toLowerCase(),specialSections) < 0)) {
+            var type = Array.isArray(arr) ? arr[0].type : arr.type;
+            if( $.inArray(type.toLowerCase(),specialSections) < 0) {
                 return options.fn(this);
             } else if (arr.extType && arr.extType.toLowerCase()=='sectionstable') {
                 return options.fn(this);
@@ -234,8 +235,7 @@ var Metadata = (function (_self) {
             // make an org map
             if (!subsections) return '';
             $.each(subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation') ;}), function (i,o) {
-                var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
-                orgs[o.accno ? o.accno : o.accNo] = orgName[0].value ;
+                orgs[o.accno ? o.accno : o.accNo] = o;
             });
             var orgNumber = 1;
             var orgToNumberMap = {}
@@ -260,23 +260,15 @@ var Metadata = (function (_self) {
                      if (!$.isArray(author.affiliation)) {
                          author.affiliation = [author.affiliation];
                      }
-                        var affiliations = [];
-                        $(author.affiliation).each(function (i,aff) {
-                            if (!orgToNumberMap[aff]) {
-                                orgToNumberMap[aff] = orgNumber++;
-                                orgOrder.push(aff);
-                            }
-                            affiliations.push({org:aff, affiliationNumber:orgToNumberMap[aff], name: orgs[aff]});
-                        })
-                        author.affiliation = affiliations;
-                    /*else {
-                        if (!orgToNumberMap[author.affiliation]) {
-                            orgToNumberMap[author.affiliation] = orgNumber++;
-                            orgOrder.push(author.affiliation);
+                    var affiliations = [];
+                    $(author.affiliation).each(function (i,affRef) {
+                        if (!orgToNumberMap[affRef]) {
+                            orgToNumberMap[affRef] = orgNumber++;
+                            orgOrder.push(affRef);
                         }
-                        author.affiliationNumber = orgToNumberMap[author.affiliation];
-                        author.affiliationName = orgs[author.affiliation];
-                    }*/
+                        affiliations.push({org:affRef, affiliationNumber:orgToNumberMap[affRef], organisation: orgs[affRef]});
+                    })
+                    author.affiliation = affiliations;
                 }
                 var data = Handlebars.createFrame(options.data);
                 data.first = i==0, data.last = i==(authors.length-1), data.index = i, data.left = authors.length-10;
@@ -289,17 +281,16 @@ var Metadata = (function (_self) {
             var orgs = {};
             var subsections = study.subsections ? study.subsections : study.sections;
             if (!subsections) return '';
-
             // make an org map
             $.each(subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation');}), function (i,o) {
                 var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
-                orgs[o.accno ? o.accno : o.accNo] = orgName[0].value ;
+                orgs[o.accno ? o.accno : o.accNo] = o;
             });
 
-            $.each(orgOrder, function(i,v) {
+            $.each(orgOrder, function(i,affRef) {
                 var data = Handlebars.createFrame(options.data);
                 data.first = i==0, data.last = i==(orgOrder.length-1), data.index = i, data.left = orgOrder.length-10;
-                ret += options.fn({name:orgs[v],affiliationNumber:i+1, affiliation:v}, {data:data});
+                ret += options.fn({affiliationNumber:i+1, affiliation:orgs[affRef]}, {data:data});
             });
             return ret;
         });
@@ -308,35 +299,35 @@ var Metadata = (function (_self) {
             var ret = '';
             var orgs = {};
             var subsections = study.subsections ? study.subsections : study.sections;
+            subsections = subsections.flatMap( s=> s.length ? s : [s] );
             if (!subsections) return '';
-            // make an org map
             $.each(subsections.filter( function(subsection) { return subsection.type && subsection.type.toLowerCase()=='funding';}), function (i,o) {
-                var org = null, grant;
+                var org = null, grant = null, attributes=[];
                 $(o.attributes).each(function () {
                     if (this.name.toLowerCase()=='agency') org = this.value;
-                    if (this.name.toLowerCase()=='grant_id') grant = this.value;
+                    else if (this.name.toLowerCase()=='grant_id') grant = this.value;
+                    else attributes.push (this);
                 });
                 if (org) {
                     if (!orgs[org]) orgs[org] = {};
                     if (grant) {
                         if (!orgs[org].grants) orgs[org].grants= [];
                         orgs[org].grants.push({'ga':org, 'gid':grant,
-                            'link': ('https://europepmc.org/grantfinder/grantdetails?query=gid:"'+grant+'" ga:"'+org+'"')
+                            'link': ('https://europepmc.org/grantfinder/grantdetails?query=gid:"'+grant+'" ga:"'+org+'"'),
+                            'attributes' : attributes
                             } );
                     }
-                    orgs[org].links = o.links;
                 }
             });
             var keys = Object.keys(orgs), data = Handlebars.createFrame(options.data);
             $.each(keys, function (i,v) {
                 data.first = i==0, data.last = i==(keys.length-1), data.index = i;
-                ret += options.fn({name:v, grants:orgs[v].grants, links:orgs[v].links },{data:data});
+                ret += options.fn({name:v, grants:orgs[v].grants},{data:data});
             });
             return ret;
         });
 
         Handlebars.registerHelper('renderPublication', function(study, options) {
-            var publication = {}
             var subsections = study.subsections ? study.subsections : study.sections;
             if (!subsections) return '';
             var pubs = subsections.filter(function (o) {
@@ -347,6 +338,7 @@ var Metadata = (function (_self) {
             var html = '<div class="bs-attribute"><span class="bs-name">Publication'+ (pubs.length>1 ? 's': '')
                 +'</span><span class="bs-value">';
             $.each(pubs, function(i,pub) {
+                var publication = {}
                 publication.URLs = [];
                 $.each(pub.attributes, function (i, v) {
                     var name = v.name.toLowerCase().replace(' ', '_');
@@ -359,13 +351,11 @@ var Metadata = (function (_self) {
                 });
                 publication.accno = pub.accno;
                 if (publication.accno) {
-                    var url = getURL(publication.accno);
-                    if (url != null) {
-                        if (/^\d+$/.test(publication.accno)) {
-                            publication.URLs.push(getURL('PMID' + publication.accno));
-                        } else {
-                            publication.URLs.push(url);
-                        }
+                    const url = getURL(publication.accno);
+                    if (url) {
+                        publication.URLs.push(url);
+                    } else if (/^\d+$/.test(publication.accno)) {
+                        publication.URLs.push(getURL(publication.accno,'PMID'));
                     }
                 }
                 $($.map(pub.links, function (v) {

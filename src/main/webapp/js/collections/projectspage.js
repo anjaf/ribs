@@ -29,7 +29,7 @@ var CollectionsPage = (function (_self) {
                 if (!path && data.section.files[0][0]) path = data.section.files[0][0].path;
                 if (path) {
                     $prj.prepend('<div><a class="collection-logo" href="' + contextPath + '/' + accession + '/studies">' +
-                        '<img src="' + contextPath + '/files/' + accession + '/' + path + '"/>'
+                        '<img src="' + contextPath + '/files/' + accession + '/' + path + '" alt="'+ accession +'"/>'
                         + '</a></div>');
                 }
             })

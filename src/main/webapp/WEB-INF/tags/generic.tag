@@ -98,7 +98,7 @@
 
                 <!-- local-title -->
                 <div class="columns medium-7" id="local-title">
-                    <h1><a href="${contextPath}" alt="BioStudies homepage" title="BioStudies homepage"><img src="${contextPath}/images/logo.png"/></a></h1>
+                    <h1><a href="${contextPath}" alt="BioStudies homepage" title="BioStudies homepage"><img src="${contextPath}/images/logo.png" alt="BioStudies homepage" /></a></h1>
 
                 </div>
                 <!-- /local-title -->
@@ -106,7 +106,7 @@
                     <form id="ebi_search" action="${contextPath}/studies">
                         <fieldset>
                             <div class="input-group margin-bottom-none margin-top-large">
-                                <input id="query" class="input-group-field" tabindex="1" type="text" name="query"  size="35" maxlength="2048" placeholder="Search BioStudies" value="${fn:escapeXml(query)}" />
+                                <input id="query" class="input-group-field" tabindex="1" type="text" name="query"  size="35" maxlength="2048" title="Search BioStudies" placeholder="Search BioStudies" value="${fn:escapeXml(query)}" />
                                 <div class="input-group-button">
                                     <input id="search_submit" class="button icon icon-functional" tabindex="2" type="submit" value="1" />
                                 </div>
@@ -171,7 +171,7 @@
                 <div id="login-form" class="popup">
                     <div class="popup-header">
                         <span class="popup-title">Login</span>
-                        <a class="popup-close" href="#"><i class="icon icon-functional" data-icon="x"></i></a>
+                        <a class="popup-close" aria-label="Close" href="#"><i class="icon icon-functional" data-icon="x"></i></a>
                         <div class="clearboth"></div>
                     </div>
                     <form method="post" class="popup-content" action="${contextPath}/auth" >

@@ -65,12 +65,12 @@
                                     {{#ifCond @key 'notin' "['affiliationNumber','Name']"}}
                                         {{#ifCond @key '==' 'affiliation'}}
                                             {{#ifCond this 'haslength' 1}}
-                                                <b>Affiliation</b>: {{this.0.name}}
+                                                <b>Affiliation</b>: {{valueWithName 'Name' this.0.organisation.attributes}}
                                             {{else}}
                                                 <b>Affiliations</b>
                                                 <ul>
                                                 {{#each this}}
-                                                    <li>{{name}}</li>
+                                                    <li>{{valueWithName 'Name' this.organisation.attributes}}</li>
                                                 {{/each}}
                                                 </ul>
                                             {{/ifCond}}
@@ -106,14 +106,17 @@
             <!-- Affiliations -->
             <ul id="bs-orgs">
                 {{#eachOrganization this}}
-                <li {{#ifCond @index '>=' 10}}class="hidden"{{/ifCond}} id="{{affiliation}}"><sup>{{affiliationNumber}}</sup>
-                <span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">{{name}}</span></span>
-                </li>
-                {{#if @last}}
-                {{#ifCond @index '>=' 10}}
-                <li><span class="more" id="expand-orgs">+ {{@left}} more</span></li>
-                {{/ifCond}}
-                {{/if}}
+                    <li class="attribute-container {{#ifCond @index '>=' 10}}hidden{{/ifCond}}" id="{{this.affiliation.accno}}"><sup>{{affiliationNumber}}</sup>
+                        <span itemscope itemtype="http://schema.org/Organization"><span itemprop="name"  data-card-id="attribute-card-{{@index}}">{{valueWithName 'Name' affiliation.attributes}}</span></span>
+                        <div class="attribute-card" id="attribute-card-{{@index}}">{{#each this.affiliation.attributes}}{{#ifCond this.name 'notin' "['Name']"}}
+                                   <b>{{this.name}}:</b> {{this.value}}<br/>
+                                {{/ifCond}}{{/each}}</div>
+                    </li>
+                    {{#if @last}}
+                        {{#ifCond @index '>=' 10}}
+                            <li><span class="more" id="expand-orgs">+ {{@left}} more</span></li>
+                        {{/ifCond}}
+                    {{/if}}
                 {{/eachOrganization}}
             </ul>
 
@@ -136,7 +139,10 @@
                 {{/if}}
                 <li><span itemscope itemtype="http://schema.org/Organization"><span itemprop="name">{{name}}</span></span>{{#if grants}}:
                     {{#each grants}}
-                        <span class="bs-grants"><a target="_blank" href="{{link}}">{{this.gid}}</a></span>
+                        <span class="bs-grants attribute-container" data-card-id="grant-card-{{@index}}"><a target="_blank" href="{{link}}">{{this.gid}}</a>
+                        <div class="attribute-card" id="grant-card-{{@index}}">{{#each this.attributes}}
+                           <b>{{this.name}}:</b> {{this.value}}<br/>
+                        {{/each}}</div></span>
                     {{/each}}
                     {{/if}}
                 </li>
