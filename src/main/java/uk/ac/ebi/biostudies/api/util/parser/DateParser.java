@@ -55,8 +55,8 @@ public class DateParser extends AbstractParser {
                 releaseDateLong = Long.parseLong(submission.get(Constants.Fields.MODIFICATION_TIME).asText()) * 1000;
             }
         } else if (submission.has(Constants.Fields.RELEASE_TIME_FULL)) {
-            if (submission.get(Constants.Fields.CREATION_TIME_FULL).isObject() && submission.get(Constants.Fields.CREATION_TIME_FULL).has("$date")) {
-                releaseDateLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.CREATION_TIME_FULL).get("$date").textValue())).toEpochMilli();
+            if (submission.get(Constants.Fields.RELEASE_TIME_FULL).isObject() && submission.get(Constants.Fields.RELEASE_TIME_FULL).has("$date")) {
+                releaseDateLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.RELEASE_TIME_FULL).get("$date").textValue())).toEpochMilli();
             } else if (!submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("-1") && !submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("null")) {
                 Instant instant = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.RELEASE_TIME_FULL).asText()));
                 releaseDateLong = (instant.getEpochSecond() < 0) ? 0 : instant.toEpochMilli();
