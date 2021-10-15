@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
-import uk.ac.ebi.biostudies.file.download.FilteredMageTabDownloadFile;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 import uk.ac.ebi.biostudies.file.download.RegularDownloadFile;
 import uk.ac.ebi.biostudies.service.FileDownloadService;
@@ -78,7 +77,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                 key = null;
             }
 
-            Document document = searchService.getDocumentByAccession(accession, key);
+            Document document = searchService.getSubmissionDocumentByAccession(accession, key);
             if (document == null) {
                 throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
             }
@@ -107,7 +106,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
     }
 
     private void verifyFile(IDownloadFile file, HttpServletResponse response)
-            throws FileNotFoundException, IOException {
+            throws IOException {
         // Check if file is actually supplied to the request URL.
         if (null == file) {
             // Do your thing if the file is not supplied to the request URL.
@@ -150,7 +149,13 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             throw new SubmissionNotAccessibleException();
         }
 
-        this.logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
+        logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
+
+        Document fileDocument = searchService.getFileDocumentByAccessionAndPath(accession, name, key);
+        if (fileDocument == null) {
+            throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
+        }
+
 
         if (name.equalsIgnoreCase(accession + ".json") || name.equalsIgnoreCase(accession + ".xml") || name.equalsIgnoreCase(accession + ".pagetab.tsv")) {
             file = new RegularDownloadFile(Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + name));
@@ -160,31 +165,32 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             //TODO: Remove this bad^∞ hack
             //Hack start: override relative path if file is not found
             if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                this.logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
+                logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
                 downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
-                this.logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
+                logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
             }
             if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
                 downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + relativePath + "/" + name);
-                this.logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
+                logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
             }
             if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) { // for file list
-                this.logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
+                logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
                 downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + name);
-                this.logger.debug("Trying file list file {}", downloadFile.toFile().getAbsolutePath());
+                logger.debug("Trying file list file {}", downloadFile.toFile().getAbsolutePath());
             }
             //Hack end
             if (Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
                 file = new RegularDownloadFile(downloadFile);
                 if (key != null) {
-                    FilteredMageTabDownloadFile filteredMageTabDownloadFile =
-                            new FilteredMageTabDownloadFile(downloadFile.toFile());
-                    if (filteredMageTabDownloadFile.isSupported()) {
-                        file = filteredMageTabDownloadFile;
-                    }
+                    // TODO: add logic to filter magetab
+//                    FilteredMageTabDownloadFile filteredMageTabDownloadFile =
+//                            new FilteredMageTabDownloadFile(downloadFile.toFile());
+//                    if (filteredMageTabDownloadFile.isSupported()) {
+//                        file = filteredMageTabDownloadFile;
+//                    }
                 }
             } else {
-                this.logger.error("Could not find {}", downloadFile.toFile().getAbsolutePath());
+                logger.error("Could not find {}", downloadFile.toFile().getAbsolutePath());
                 throw new FileNotFoundException();
             }
         }
@@ -195,7 +201,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
 
     private void sendRandomAccessFile(IDownloadFile downloadFile, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, FileNotFoundException {
+            throws IOException {
         // Prepare some variables. The ETag is an unique identifier of the file
         String fileName = downloadFile.getName();
         long length = downloadFile.getLength();

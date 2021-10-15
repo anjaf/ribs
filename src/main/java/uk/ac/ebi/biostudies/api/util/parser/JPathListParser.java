@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostudies.api.util.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPathException;
 import com.jayway.jsonpath.ReadContext;
 import net.minidev.json.JSONArray;
@@ -13,7 +14,6 @@ import uk.ac.ebi.biostudies.api.util.Constants.IndexEntryAttributes.FieldTypeVal
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.NA;
 
@@ -47,6 +47,9 @@ public class JPathListParser extends AbstractParser{
                     break;
                 case FieldTypeValues.LONG:
                     result = resultData.stream().mapToLong( v -> Long.parseLong(v.toString()) ).sum();
+                    break;
+                case FieldTypeValues.JSON:
+                    result = new ObjectMapper().writeValueAsString(resultData);
                     break;
                 default:
                     result =  String.join (" ", resultData);

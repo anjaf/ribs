@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,14 +23,12 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.service.FileIndexService;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class FileIndexServiceImpl implements FileIndexService {
@@ -39,6 +36,9 @@ public class FileIndexServiceImpl implements FileIndexService {
 
     @Autowired
     IndexConfig indexConfig;
+
+    @Autowired
+    SubmissionFileFactory submissionFileFactory;
 
 
     public Map<String, Object> indexSubmissionFiles(String accession, String relativePath, JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
@@ -55,44 +55,31 @@ public class FileIndexServiceImpl implements FileIndexService {
         if (filesParents != null) {
             for (JsonNode parent : filesParents) {
                 if (parent == null) continue;
-                counter.set(indexFileList(accession, writer, counter.get(), columns, sectionsWithFiles, parent, parent));
+                long fileCount = indexFileList(accession, writer, counter.get(), columns, sectionsWithFiles, parent);
+                counter.set(fileCount);
             }
         }
 
         ObjectMapper mapper = new ObjectMapper();
 
         //find file lists
-        List<JsonNode> subSections = json.findParents("attributes");
         Map<String, JsonNode> parents = new HashMap<>();
+        List<JsonNode> subSections = json.findParents(Constants.File.FILE_LIST);
         for (JsonNode subSection : subSections) {
-            ArrayNode attributes = (ArrayNode) subSection.get("attributes");
-            for (JsonNode attribute : attributes) {
-                if (attribute.get("name").textValue().equalsIgnoreCase("file list")) {
-                    parents.put(attribute.get("value").textValue(), subSection);
+            JsonNode fileListNode = (JsonNode) subSection.get(Constants.File.FILE_LIST);
+            if (fileListNode!=null && fileListNode.has(Constants.File.FILENAME)) {
+                String libraryFilePath = null;
+                JsonNode jsonNode = StreamSupport.stream(fileListNode.get(Constants.File.PAGETAB_FILES).spliterator(), false).filter(
+                        fileNode -> fileNode.get(Constants.File.FILENAME).textValue().toLowerCase().endsWith(".json")
+                ).findFirst().get();
+                try {
+                    long fileCount = indexLibraryFile(accession, relativePath, writer, counter.get(), columns, sectionsWithFiles, subSection, jsonNode);
+                    counter.set(fileCount);
+                } catch (IOException e) {
+                    logger.error(e);
                 }
             }
         }
-
-        subSections = json.findParents("fileList");
-        for (JsonNode subSection : subSections) {
-            JsonNode fileList = (JsonNode) subSection.get("fileList");
-            if (fileList!=null && fileList.has("fileName")) {
-                parents.put(fileList.get("fileName").textValue(), subSection);
-            }
-        }
-
-        parents.forEach((filename, jsonNode) -> {
-            if (jsonNode == null) return;
-            String libraryFilePath = indexConfig.getFileRootDir() + "/" + relativePath + "/Files/" + filename + (filename.toLowerCase().endsWith(".json") ? "" : ".json");
-            if (!Files.exists(Paths.get(libraryFilePath))) {
-                libraryFilePath = indexConfig.getFileRootDir() + "/" + relativePath + "/" + filename + (filename.toLowerCase().endsWith(".json") ? "" : ".json");
-            }
-            try {
-                counter.set(indexLibraryFile(accession, writer, counter.get(), columns, sectionsWithFiles, jsonNode, libraryFilePath));
-            } catch (IOException e) {
-                logger.error(e);
-            }
-        });
 
 
         //put Section as the first column. Name and size would be prepended later
@@ -109,8 +96,8 @@ public class FileIndexServiceImpl implements FileIndexService {
         return valueMap;
     }
 
-    private long indexFileList(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode nodeWithFiles) throws IOException {
-        for (JsonNode fNode : nodeWithFiles.get("files")) {
+    private long indexFileList(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent) throws IOException {
+        for (JsonNode fNode : parent.get("files")) {
             if (fNode.isArray()) {
                 for (JsonNode singleFile : fNode) {
                     counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
@@ -130,8 +117,9 @@ public class FileIndexServiceImpl implements FileIndexService {
         return counter;
     }
 
-    private long indexLibraryFile(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, String libraryFilePath) throws IOException {
-        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(libraryFilePath), "UTF-8")) {
+    private long indexLibraryFile(String accession, String relativePath, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode libraryFileNode) throws IOException {
+
+        try (InputStreamReader inputStreamReader =  new InputStreamReader(submissionFileFactory.createSubmissionFile(libraryFileNode, accession, relativePath).getInputStreamResource().getInputStream() , "UTF-8") ) {
             JsonFactory factory = new JsonFactory();
             JsonParser parser = factory.createParser(inputStreamReader);
             JsonToken token = parser.nextToken();
@@ -158,7 +146,7 @@ public class FileIndexServiceImpl implements FileIndexService {
 
 
     private long indexSingleFile(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode fNode) throws IOException {
-        Document doc = getFileDocument(accession, columns, fNode, parent);
+        Document doc = createFileDocument(accession, columns, fNode, parent);
         writer.updateDocument(new Term(Constants.Fields.ID, accession + "-" + counter++), doc);
         if (doc.get(Constants.File.SECTION) != null) {
             IndexableField[] sectionFields = doc.getFields(Constants.File.SECTION);
@@ -175,7 +163,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         return counter;
     }
 
-    private static Document getFileDocument(String accession, List<String> attributeColumns, JsonNode fNode, JsonNode parent) {
+    private static Document createFileDocument(String accession, List<String> attributeColumns, JsonNode fNode, JsonNode parent) {
         Long size;
         String path;
         String name;
@@ -213,6 +201,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         attributes = fNode.findValues(Constants.File.ATTRIBUTES);
 
         doc.add(new StringField(Constants.File.TYPE, Constants.File.FILE, Field.Store.YES));
+        doc.add(new StringField(Constants.File.EXT_TYPE, fNode.get(Constants.File.EXT_TYPE).textValue() , Field.Store.YES));
         doc.add(new StringField(Constants.File.IS_DIRECTORY,
                 String.valueOf(fNode.has(Constants.File.TYPE) ? fNode.get(Constants.File.TYPE).asText("file").equalsIgnoreCase("directory") : false ), Field.Store.YES));
         doc.add(new StringField(Constants.File.OWNER, accession, Field.Store.YES));

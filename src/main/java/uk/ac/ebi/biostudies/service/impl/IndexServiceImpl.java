@@ -370,6 +370,7 @@ public class IndexServiceImpl implements IndexService {
                             doc.add(new TextField(String.valueOf(field), value, Field.Store.YES));
                             break;
                         case IndexEntryAttributes.FieldTypeValues.UNTOKENIZED_STRING:
+                        case IndexEntryAttributes.FieldTypeValues.JSON:
                             if (!valueMap.containsKey(field)) break;
                             value = String.valueOf(valueMap.get(field));
                             Field unTokenizeField = new Field(String.valueOf(field), value, TYPE_NOT_ANALYZED);

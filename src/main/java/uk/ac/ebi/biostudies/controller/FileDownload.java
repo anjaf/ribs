@@ -83,7 +83,7 @@ public class FileDownload {
 
         Document doc = null;
         try {
-            doc = searchService.getDocumentByAccession(args[0], key);
+            doc = searchService.getSubmissionDocumentByAccession(args[0], key);
         } catch (SubmissionNotAccessibleException e) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return null;

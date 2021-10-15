@@ -297,7 +297,7 @@ public class SearchTest {
         String pages = webDriver.findElement(By.cssSelector(".result-count")).getAttribute("innerText").trim();
         assertTrue(pages.contains("of"));
         String accession  = webDriver.findElement(By.cssSelector(".accession")).getAttribute("innerText").trim();
-        Document doc = searchServiceMock.getDocumentByAccession(accession, null);
+        Document doc = searchServiceMock.getSubmissionDocumentByAccession(accession, null);
         assertNotNull(doc);
     }
 }

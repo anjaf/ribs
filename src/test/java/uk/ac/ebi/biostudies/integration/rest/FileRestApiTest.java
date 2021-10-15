@@ -128,7 +128,7 @@ public class FileRestApiTest {
         privateLuceneDoc.add(new StringField(Constants.File.FILE_ATTS, "A|B", Field.Store.YES));
         privateLuceneDoc.add(new StringField(Constants.Fields.SECRET_KEY, "test12345", Field.Store.YES));
 
-        doReturn(privateLuceneDoc).when(searchServiceMock).getDocumentByAccession(Mockito.anyString(), Mockito.any());
+        doReturn(privateLuceneDoc).when(searchServiceMock).getSubmissionDocumentByAccession(Mockito.anyString(), Mockito.any());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         String result = testRestTemplate.getForObject(baseUrl + "api/v1/studies/" + ACCESSION + "/info", String.class);
         JsonNode responseJSON = mapper.readTree(result);
@@ -210,7 +210,7 @@ public class FileRestApiTest {
         privateLuceneDoc.add(new StringField(Constants.Fields.ACCESSION, ACCESSION, Field.Store.YES));
         privateLuceneDoc.add(new StringField(Constants.Fields.RELATIVE_PATH, "", Field.Store.YES));
         privateLuceneDoc.add(new StringField(Constants.Fields.SECRET_KEY, "test12345", Field.Store.YES));
-        doReturn(privateLuceneDoc).when(searchServiceMock).getDocumentByAccession(Mockito.anyString(), Mockito.any());
+        doReturn(privateLuceneDoc).when(searchServiceMock).getSubmissionDocumentByAccession(Mockito.anyString(), Mockito.any());
 
         String result = testRestTemplate.getForObject(baseUrl + "files/" + ACCESSION + "/" + ACCESSION + ".json", String.class);
         assertNotNull(result);
@@ -234,7 +234,7 @@ public class FileRestApiTest {
         privateLuceneDoc.add(new StringField(Constants.Fields.ACCESSION, ACCESSION, Field.Store.YES));
         privateLuceneDoc.add(new StringField(Constants.Fields.RELATIVE_PATH, "", Field.Store.YES));
         privateLuceneDoc.add(new StringField(Constants.Fields.SECRET_KEY, "test12345", Field.Store.YES));
-        doReturn(privateLuceneDoc).when(searchServiceMock).getDocumentByAccession(Mockito.anyString(), Mockito.any());
+        doReturn(privateLuceneDoc).when(searchServiceMock).getSubmissionDocumentByAccession(Mockito.anyString(), Mockito.any());
 
         String result = testRestTemplate.getForObject(baseUrl + "files/" + ACCESSION + "/" + ACCESSION + ".json?key=test12345", String.class);
         assertNotNull(result);
@@ -257,7 +257,7 @@ public class FileRestApiTest {
         privateLuceneDoc.add(new StringField(Constants.Fields.ACCESSION, ACCESSION, Field.Store.YES));
         privateLuceneDoc.add(new StringField(Constants.Fields.RELATIVE_PATH, "", Field.Store.YES));
         privateLuceneDoc.add(new StringField(Constants.Fields.SECRET_KEY, "test12345", Field.Store.YES));
-        doReturn(privateLuceneDoc).when(searchServiceMock).getDocumentByAccession(Mockito.anyString(), Mockito.any());
+        doReturn(privateLuceneDoc).when(searchServiceMock).getSubmissionDocumentByAccession(Mockito.anyString(), Mockito.any());
 
         String result = testRestTemplate.getForObject(baseUrl + "files/" + ACCESSION + "/test.properties?key=test12345", String.class);
         assertNotNull(result);
@@ -276,7 +276,7 @@ public class FileRestApiTest {
         privateLuceneDoc.add(new StringField(Constants.Fields.ACCESSION, ACCESSION, Field.Store.YES));
         privateLuceneDoc.add(new StringField(Constants.Fields.RELATIVE_PATH, "updates", Field.Store.YES));
         privateLuceneDoc.add(new StringField(Constants.Fields.SECRET_KEY, "test12345", Field.Store.YES));
-        doReturn(privateLuceneDoc).when(searchServiceMock).getDocumentByAccession(Mockito.anyString(), Mockito.any());
+        doReturn(privateLuceneDoc).when(searchServiceMock).getSubmissionDocumentByAccession(Mockito.anyString(), Mockito.any());
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("type", "zip");
         map.add("files", "A.txt");

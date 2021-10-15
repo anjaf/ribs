@@ -9,9 +9,11 @@ import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queries.mlt.MoreLikeThis;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +60,10 @@ import static uk.ac.ebi.biostudies.controller.Stats.STATS_ENDPOINT;
 public class SearchServiceImpl implements SearchService {
 
     private static final int MAX_PAGE_SIZE = 100;
-    private Logger logger = LogManager.getLogger(SearchServiceImpl.class.getName());
-
+    private static Cache<String, String> statsCache;
+    private static Query excludeCompound;
+    private static QueryParser parser;
+    private static Set<String> sectionsToFilter;
     @Autowired
     IndexConfig indexConfig;
     @Autowired
@@ -78,12 +82,7 @@ public class SearchServiceImpl implements SearchService {
     SecurityQueryBuilder securityQueryBuilder;
     @Autowired
     QueryService queryService;
-
-
-    private static Cache<String, String> statsCache;
-    private static Query excludeCompound;
-    private static QueryParser parser;
-    private static Set<String> sectionsToFilter;
+    private Logger logger = LogManager.getLogger(SearchServiceImpl.class.getName());
 
     @PostConstruct
     void init() {
@@ -349,8 +348,25 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public Document getDocumentByAccession(String accession, String secretKey) throws SubmissionNotAccessibleException {
+    public Document getSubmissionDocumentByAccession(String accession, String secretKey) throws SubmissionNotAccessibleException {
         Integer docNumber = getDocumentNumberByAccession(accession, secretKey);
+        if (docNumber == null) {
+            if (isDocumentPresent(accession)) {
+                throw new SubmissionNotAccessibleException();
+            }
+            return null;
+        }
+        try {
+            return indexManager.getIndexReader().document(docNumber);
+        } catch (IOException ex) {
+            logger.error("Problem retrieving " + accession, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public Document getFileDocumentByAccessionAndPath(String accession, String path, String secretKey) throws SubmissionNotAccessibleException {
+        Integer docNumber = getFileDocumentNumberByAccessionAndPath(accession,path, secretKey);
         if (docNumber == null) {
             if (isDocumentPresent(accession)) {
                 throw new SubmissionNotAccessibleException();
@@ -371,6 +387,29 @@ public class SearchServiceImpl implements SearchService {
         Query query = null;
         try {
             query = parser.parse(Fields.ACCESSION + ":" + accession);
+            Query result = securityQueryBuilder.applySecurity(query, secretKey);
+            TopDocs topDocs = indexManager.getIndexSearcher().search(result, 1);
+            if (topDocs.totalHits.value == 1) {
+                return topDocs.scoreDocs[0].doc;
+            }
+        } catch (Throwable ex) {
+            logger.error("Problem in checking security", ex);
+        }
+        return null;
+    }
+
+    private Integer getFileDocumentNumberByAccessionAndPath(String accession, String path, String secretKey) {
+        String[] fields = new String[] { Constants.File.OWNER, Constants.File.PATH, Constants.File.TYPE };
+        QueryParser parser = new MultiFieldQueryParser(fields,new KeywordAnalyzer());
+        parser.setDefaultOperator(QueryParser.Operator.AND);
+        parser.setSplitOnWhitespace(false);
+        Query query = null;
+        try {
+
+            query = parser.parse(String.format("%s:%s %s:%s %s:\"%s\"",
+                    Constants.File.TYPE, Constants.File.FILE,
+                    Constants.File.OWNER, accession,
+                    Constants.File.PATH, path));
             Query result = securityQueryBuilder.applySecurity(query, secretKey);
             TopDocs topDocs = indexManager.getIndexSearcher().search(result, 1);
             if (topDocs.totalHits.value == 1) {

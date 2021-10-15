@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 import uk.ac.ebi.biostudies.api.util.Constants;
-import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.file.Thumbnails;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
@@ -49,7 +48,7 @@ public class Thumbnail {
         try {//Maybe I need to apply some modification to change accession to relative path
             Document document = null;
             try {
-                document = searchService.getDocumentByAccession(accession, key);
+                document = searchService.getSubmissionDocumentByAccession(accession, key);
             } catch (SubmissionNotAccessibleException e) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;

@@ -47,6 +47,7 @@ public interface Constants {
             String UNTOKENIZED_STRING = "untokenized_string";
             String LONG = "long";
             String FACET = "facet";
+            String JSON = "json";
         }
 
     }
@@ -107,6 +108,17 @@ public interface Constants {
         String DATA = "data";
         String IS_DIRECTORY = "isDirectory";
         String RELPATH = "relPath";
+        String FILE_LIST = "fileList";
+        String FILE_PATH = "filePath";
+        String PAGETAB_FILES = "pageTabFiles";
+        String PAGETAB_JSON = "pageTabJson";
+        String EXT_TYPE = "extType";
+        interface FileExtType {
+            String NFS_FILE = "nfsFile";
+            String FIRE_FILE = "fireFile";
+            String NFS_DIRECTORY = "nfsDirectory";
+            String FIRE_DIRECTORY = "fireDirectory";
+        }
     }
 
     interface OS{

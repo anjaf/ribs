@@ -24,8 +24,6 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private BioStudiesLogoutHandler bioStudiesLogoutHandler;
     @Autowired
     CookieFilter cookieFilter;
-    @Autowired
-    SecurityConfig securityConfig;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -35,19 +33,15 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String adminIPAllowStr = securityConfig.getAdminIPAllowList();
-        String adminIPAllowList[] = adminIPAllowStr.split("\\|");
-        StringBuilder ipAllowList = new StringBuilder("");
-        for(String ipAdmin:adminIPAllowList){
-            ipAllowList.append(String.format(" or hasIpAddress('%s')", ipAdmin));
-        }
         http.addFilterAfter(cookieFilter, AnonymousAuthenticationFilter.class).csrf().disable().anonymous().principal("guest").authorities("GUEST").and()
-                .authorizeRequests().antMatchers("/api/v1/index/**").access("hasAuthority('SUPER_USER')"+ipAllowList.toString())
+                .authorizeRequests().antMatchers("/api/v1/index/**").access("hasIpAddress('localhost') or hasIpAddress('127.0.0.1') or hasIpAddress('0:0:0:0:0:0:0:1') or hasAuthority('SUPER_USER')")
                 .antMatchers("/**").permitAll()
                 .and().formLogin().successHandler(new RefererAuthenticationSuccessHandler())
                 .loginPage("/").usernameParameter("u").passwordParameter("p").permitAll()
                 .and().logout().logoutUrl("/logout").addLogoutHandler(bioStudiesLogoutHandler).deleteCookies("JSESSIONID")
                 .and().rememberMe().rememberMeServices(customRememberMeCookieService);
+
+
     }
 
 

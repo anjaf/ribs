@@ -70,18 +70,18 @@ public class IndexTest {
         doReturn("src/test/resources/updates/"+ Constants.STUDIES_JSON_FILE).when(indexConfigMock).getStudiesInputFile();
         webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/reload/smallJson.json");
         Thread.sleep(2000);
-        Document noDoc = searchService.getDocumentByAccession("S-EPMC3343805", null);
+        Document noDoc = searchService.getSubmissionDocumentByAccession("S-EPMC3343805", null);
         assertNotNull(noDoc);
     }
 
 
     @Test
     public void test4_deleteDocument() throws Throwable{
-        Document deletDoc = searchService.getDocumentByAccession("S-EPMC3343805", null);
+        Document deletDoc = searchService.getSubmissionDocumentByAccession("S-EPMC3343805", null);
         assertNotNull(deletDoc);
         webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/delete/S-EPMC3343805");
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
-        deletDoc = searchService.getDocumentByAccession("S-EPMC3343805", null);
+        deletDoc = searchService.getSubmissionDocumentByAccession("S-EPMC3343805", null);
         assertNull(deletDoc);
     }
 
