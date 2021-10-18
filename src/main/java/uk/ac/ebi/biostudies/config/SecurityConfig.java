@@ -15,6 +15,9 @@ public class SecurityConfig {
     @Value("${auth.profileUrl}")
     private String profileUrl;
 
+    @Value("${partial.update.rest.token}")
+    private String partialUpdateRestSecurityToken;
+
     @Value("${auth.loginUrl}")
     private String loginUrl;
 
@@ -66,5 +69,9 @@ public class SecurityConfig {
 
     public Integer getGetHttpProxyPort() {
         return getHttpProxyPort;
+    }
+
+    public String getPartialUpdateRestSecurityToken() {
+        return partialUpdateRestSecurityToken;
     }
 }
