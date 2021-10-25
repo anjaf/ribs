@@ -299,7 +299,8 @@ var Metadata = (function (_self) {
             var ret = '';
             var orgs = {};
             var subsections = study.subsections ? study.subsections : study.sections;
-            subsections = subsections.flatMap( s=> s.length ? s : [s] );
+            if (subsections)
+                subsections = subsections.flatMap( s=> s.length ? s : [s] );
             if (!subsections) return '';
             $.each(subsections.filter( function(subsection) { return subsection.type && subsection.type.toLowerCase()=='funding';}), function (i,o) {
                 var org = null, grant = null, attributes=[];
