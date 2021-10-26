@@ -36,8 +36,12 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false))
+        logger.debug("initiating stomp client service");
+        if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false)) {
+            logger.debug("stomp client is disable");
             return;
+        }
+        logger.debug("stomp client is enable");
         String url = "ws://%s:%s/ws";
         url = String.format(url, securityConfig.getStompHost(), securityConfig.getStompPort());
         WebSocketClient client = new StandardWebSocketClient();
@@ -49,6 +53,7 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
         stompHeaders.add(StompHeaderAccessor.STOMP_ACCEPT_VERSION_HEADER, "1.1,1.2");
         RabbitMQStompSessionHandler sessionHandler = new RabbitMQStompSessionHandler();
         stompClient.connect(url, new WebSocketHttpHeaders(), stompHeaders, sessionHandler);
+        logger.debug("stomp client going to connect");
     }
 
     private class RabbitMQStompSessionHandler extends StompSessionHandlerAdapter {
@@ -56,6 +61,7 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
         public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
             String submissionPartialQueue = env.getProperty("partial.submission.rabbitmq.queue", String.class, "/queue/submission-submitted-partials-queue");
             session.subscribe(submissionPartialQueue, this);
+            logger.debug("stomp client connected successfully");
         }
 
         @Override
