@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.messaging.converter.StringMessageConverter;
 import org.springframework.messaging.simp.stomp.*;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.WebSocketClient;
@@ -47,6 +48,9 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
         WebSocketClient client = new StandardWebSocketClient();
         WebSocketStompClient stompClient = new WebSocketStompClient(client);
         stompClient.setMessageConverter(new StringMessageConverter());
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.afterPropertiesSet();
+        stompClient.setTaskScheduler(taskScheduler);
         final StompHeaders stompHeaders = new StompHeaders();
         stompHeaders.add(StompHeaderAccessor.STOMP_LOGIN_HEADER, securityConfig.getStompLoginUser());
         stompHeaders.add(StompHeaderAccessor.STOMP_PASSCODE_HEADER, securityConfig.getStompPassword());
@@ -64,8 +68,7 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
                 submissionPartialQueue = "/queue/"+submissionPartialQueue;
             logger.debug("stomp connection: session:{} \t server:{}",connectedHeaders.get("session"),connectedHeaders.get("server"));
             session.subscribe(submissionPartialQueue, this);
-            logger.debug("queue name {}", submissionPartialQueue);
-            logger.debug("stomp client connected successfully!");
+            logger.debug("stomp client connected successfully! Queue name {}", submissionPartialQueue);
         }
 
         @Override
@@ -75,7 +78,6 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
 
         @Override
         public void handleFrame(StompHeaders headers, Object payload) {
-            logger.info("Received a frame!");
             String msg = (String) payload;
             logger.info("Received : {}" , msg);
         }
