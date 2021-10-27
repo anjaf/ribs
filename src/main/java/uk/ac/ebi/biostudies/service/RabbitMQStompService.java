@@ -60,7 +60,7 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
         @Override
         public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
             String submissionPartialQueue = env.getProperty("partial.submission.rabbitmq.queue", String.class, "/queue/submission-submitted-partials-queue");
-            session.subscribe(submissionPartialQueue, this);
+            session.subscribe("/queue/"+submissionPartialQueue, this);
             logger.debug("stomp client connected successfully");
         }
 
