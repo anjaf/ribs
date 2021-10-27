@@ -60,14 +60,24 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
         @Override
         public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
             String submissionPartialQueue = env.getProperty("partial.submission.rabbitmq.queue", String.class, "/queue/submission-submitted-partials-queue");
-            session.subscribe("/queue/"+submissionPartialQueue, this);
+            if(submissionPartialQueue.indexOf("/queue/")<0)
+                submissionPartialQueue = "/queue/"+submissionPartialQueue;
+            logger.debug("stomp connection: session:{} \t server:{}",connectedHeaders.get("session"),connectedHeaders.get("server"));
+            session.subscribe(submissionPartialQueue, this);
+            logger.debug("queue name {}", submissionPartialQueue);
             logger.debug("stomp client connected successfully");
         }
 
         @Override
+        public void handleTransportError(StompSession session, Throwable exception) {
+            logger.error("Got a transport exception", exception);
+        }
+
+        @Override
         public void handleFrame(StompHeaders headers, Object payload) {
+            logger.info("Received a frame!");
             String msg = (String) payload;
-            logger.info("Received : " + msg);
+            logger.info("Received : {}" , msg);
         }
 
         @Override
