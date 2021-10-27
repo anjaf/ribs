@@ -65,7 +65,7 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
             logger.debug("stomp connection: session:{} \t server:{}",connectedHeaders.get("session"),connectedHeaders.get("server"));
             session.subscribe(submissionPartialQueue, this);
             logger.debug("queue name {}", submissionPartialQueue);
-            logger.debug("stomp client connected successfully");
+            logger.debug("stomp client connected successfully!");
         }
 
         @Override
