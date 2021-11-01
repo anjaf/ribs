@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.facet.*;
-import org.apache.lucene.facet.taxonomy.FastTaxonomyFacetCounts;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,21 +52,21 @@ public class FacetServiceImpl implements FacetService {
         Query queryWithoutFacet = null;
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode facetJSON = mapper.createObjectNode();
-        FacetsCollector facetsCollector = new FacetsCollector();
         try {
             JsonNode selectedFacets = facetAndFields.get("facets")==null?mapper.createObjectNode():facetAndFields.get("facets");
             JsonNode selectedFields = facetAndFields.get("fields")==null?mapper.createObjectNode():facetAndFields.get("fields");
             queryWithoutFacet = queryService.makeQuery(queryString, collection, selectedFields).getKey();
             queryWithoutFacet = securityQueryBuilder.applySecurity(queryWithoutFacet);
-//            queryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
-            FacetsCollector.search(indexManager.getIndexSearcher(), queryWithoutFacet, Integer.MAX_VALUE, facetsCollector);
-            Facets facets = new FastTaxonomyFacetCounts(indexManager.getFacetReader(), taxonomyManager.getFacetsConfig(), facetsCollector);
+            DrillDownQuery drillDownQueryAfterFacet = applyFacets(queryWithoutFacet, selectedFacets);
+            DrillSideways mySideWaysQuery = new DrillSideways(indexManager.getIndexSearcher(), taxonomyManager.getFacetsConfig(), indexManager.getFacetReader());
+            DrillSideways.DrillSidewaysResult resultSideWays = mySideWaysQuery.search(drillDownQueryAfterFacet, 10);
+
             Map<String, JsonNode> allValidFields = indexManager.getIndexEntryMap();
             JsonNode facet = allValidFields.getOrDefault(dimension, null);
             if(facet==null || facet.has(Constants.IndexEntryAttributes.PRIVATE) && facet.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean() && Session.getCurrentUser()==null) {
                 return facetJSON;
             }
-            FacetResult childrenFacets = facets.getTopChildren(Integer.MAX_VALUE, dimension);
+            FacetResult childrenFacets = resultSideWays.facets.getTopChildren(Integer.MAX_VALUE, dimension);
             List<JsonNode> children = new ArrayList<>();//mapper.createArrayNode();
             facetJSON.put(Constants.IndexEntryAttributes.TITLE, facet.get(Constants.IndexEntryAttributes.TITLE).asText());
             facetJSON.put(Constants.IndexEntryAttributes.NAME, facet.get(Constants.IndexEntryAttributes.NAME).asText());
