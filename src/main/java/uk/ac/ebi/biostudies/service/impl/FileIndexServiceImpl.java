@@ -41,17 +41,22 @@ public class FileIndexServiceImpl implements FileIndexService {
     SubmissionFileFactory submissionFileFactory;
 
 
-    public Map<String, Object> indexSubmissionFiles(String accession, String relativePath, JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
-        Map<String, Object> valueMap = new HashMap<>();
+    public void indexSubmissionFiles(Map<String, Object> valueMap, JsonNode submissionJson, IndexWriter writer, boolean removeFileDocuments) throws IOException {
+
         AtomicLong counter = new AtomicLong();
         List<String> columns = new ArrayList<>();
         Set<String> sectionsWithFiles = new HashSet<>();
+
+        String accession = valueMap.get(Constants.Fields.ACCESSION).toString();
+        String relativePath = valueMap.get(Constants.Fields.RELATIVE_PATH).toString();
+        Constants.Fields.StorageType storageType =  Constants.Fields.StorageType.valueOf(valueMap.get(Constants.Fields.STORAGE_TYPE).toString());
+
         if (removeFileDocuments) {
             removeFileDocuments(writer, accession);
         }
 
         // find files
-        List<JsonNode> filesParents = json.findParents("files").stream().filter(p -> p.get("files").size() > 0).collect(Collectors.toList());
+        List<JsonNode> filesParents = submissionJson.findParents("files").stream().filter(p -> p.get("files").size() > 0).collect(Collectors.toList());
         if (filesParents != null) {
             for (JsonNode parent : filesParents) {
                 if (parent == null) continue;
@@ -60,20 +65,16 @@ public class FileIndexServiceImpl implements FileIndexService {
             }
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-
         //find file lists
-        Map<String, JsonNode> parents = new HashMap<>();
-        List<JsonNode> subSections = json.findParents(Constants.File.FILE_LIST);
+        List<JsonNode> subSections = submissionJson.findParents(Constants.File.FILE_LIST);
         for (JsonNode subSection : subSections) {
             JsonNode fileListNode = (JsonNode) subSection.get(Constants.File.FILE_LIST);
             if (fileListNode!=null && fileListNode.has(Constants.File.FILENAME)) {
-                String libraryFilePath = null;
-                JsonNode jsonNode = StreamSupport.stream(fileListNode.get(Constants.File.PAGETAB_FILES).spliterator(), false).filter(
+                JsonNode fileListJsonNode = StreamSupport.stream(fileListNode.get(Constants.File.PAGETAB_FILES).spliterator(), false).filter(
                         fileNode -> fileNode.get(Constants.File.FILENAME).textValue().toLowerCase().endsWith(".json")
                 ).findFirst().get();
                 try {
-                    long fileCount = indexLibraryFile(accession, relativePath, writer, counter.get(), columns, sectionsWithFiles, subSection, jsonNode);
+                    long fileCount = indexLibraryFile(accession, relativePath, writer, counter.get(), columns, sectionsWithFiles, subSection, fileListJsonNode, storageType);
                     counter.set(fileCount);
                 } catch (IOException e) {
                     logger.error(e);
@@ -81,19 +82,18 @@ public class FileIndexServiceImpl implements FileIndexService {
             }
         }
 
-
         //put Section as the first column. Name and size would be prepended later
         if (columns.contains("Section")) {
             columns.remove("Section");
             columns.add(0, "Section");
         }
-        attributeColumns.addAll(columns);
+
+
         if (sectionsWithFiles.size() != 0) {
             valueMap.put(Constants.Fields.SECTIONS_WITH_FILES, String.join(" ", sectionsWithFiles));
         }
         valueMap.put(Constants.Fields.FILES, counter.longValue());
-
-        return valueMap;
+        valueMap.put(Constants.File.FILE_ATTS, columns);
     }
 
     private long indexFileList(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent) throws IOException {
@@ -117,9 +117,10 @@ public class FileIndexServiceImpl implements FileIndexService {
         return counter;
     }
 
-    private long indexLibraryFile(String accession, String relativePath, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode libraryFileNode) throws IOException {
+    private long indexLibraryFile(String accession, String relativePath, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode libraryFileNode, Constants.Fields.StorageType storageType) throws IOException {
 
-        try (InputStreamReader inputStreamReader =  new InputStreamReader(submissionFileFactory.createSubmissionFile(libraryFileNode, accession, relativePath).getInputStreamResource().getInputStream() , "UTF-8") ) {
+        SubmissionFile submissionFile = submissionFileFactory.createSubmissionFile(libraryFileNode, relativePath, storageType);
+        try (InputStreamReader inputStreamReader =  new InputStreamReader(submissionFile.getInputStreamResource().getInputStream() , "UTF-8") ) {
             JsonFactory factory = new JsonFactory();
             JsonParser parser = factory.createParser(inputStreamReader);
             JsonToken token = parser.nextToken();

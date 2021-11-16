@@ -16,15 +16,18 @@ public class SubmissionFileFactory {
     @Autowired
     private FireService fireService;
 
-    public SubmissionFile createSubmissionFile(JsonNode fileNode, String accession, String relativePath) {
+    public SubmissionFile createSubmissionFile(JsonNode fileNode, String relativePath, Constants.Fields.StorageType storageType) {
         SubmissionFile submissionFile;
         //TODO: Remove check for PATH
         String key = fileNode.has(Constants.File.FILE_PATH) ? Constants.File.FILE_PATH : Constants.File.PATH;
         String filePath = fileNode.get(key).textValue();
-        if (fileNode.get(Constants.File.EXT_TYPE).textValue().equalsIgnoreCase("fireFile")) {
-            submissionFile = new FireSubmissionFile(filePath, fireService);
-        } else {
-            submissionFile = new NFSSubmissionFile(indexConfig.getFileRootDir() + '/' + relativePath + "/Files/" + filePath);
+        switch (storageType) {
+            case FIRE:
+                submissionFile = new FireSubmissionFile(relativePath + "/Files/" + filePath, fireService);
+                break;
+            case NFS:
+            default:
+                submissionFile = new NFSSubmissionFile(indexConfig.getFileRootDir() + '/' + relativePath + "/Files/" + filePath);
         }
         return submissionFile;
     }

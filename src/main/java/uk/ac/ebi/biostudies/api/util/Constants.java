@@ -85,6 +85,20 @@ public interface Constants {
         String RELEASE_TIME_FULL = "releaseTime";
         String MODIFICATION_TIME_FULL ="modificationTime";
         String CREATION_TIME_FULL = "creationTime";
+        String STORAGE_TYPE = "storage_type";
+        public enum StorageType {
+            NFS("nfsFile"),
+            FIRE("fireFile");
+
+            private final String type;
+            StorageType(String type) {
+                this.type=type;
+            }
+            @Override
+            public String toString() {
+                return type;
+            }
+        }
     }
 
     interface File{

@@ -26,9 +26,6 @@ public class PartialUpdateListener {
     @Autowired
     IndexService indexService;
 
-    @Autowired
-    MongoDBService mongoDBService;
-
     @RabbitListener(queues = "${partial.submission.rabbitmq.queue}", id = PARTIAL_UPDATE_LISTENER)
     public void receivedMessage(JsonNode msg) throws IOException, InterruptedException {
         try {
@@ -46,7 +43,6 @@ public class PartialUpdateListener {
                 return;
             }
             indexService.indexOne(submission, true);
-            mongoDBService.replaceOne(submission);
             logger.debug("{} updated", acc);
         } catch (Exception ex) {
             logger.error("Error parsing message {}", msg);

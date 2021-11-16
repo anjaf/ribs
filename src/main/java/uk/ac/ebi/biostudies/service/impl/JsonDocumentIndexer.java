@@ -28,16 +28,16 @@ public class JsonDocumentIndexer implements Runnable {
     private Logger logger = LogManager.getLogger(JsonDocumentIndexer.class.getName());
 
     private IndexWriter writer;
-    private JsonNode json;
+    private JsonNode submissionJson;
     private TaxonomyManager taxonomyManager;
     private IndexManager indexManager;
     private FileIndexService fileIndexService;
     private boolean removeFileDocuments;
     private ParserManager parserManager;
 
-    public JsonDocumentIndexer(JsonNode json, TaxonomyManager taxonomyManager, IndexManager indexManager, FileIndexService fileIndexService, boolean removeFileDocuments, ParserManager parserManager) {
+    public JsonDocumentIndexer(JsonNode submissionJson, TaxonomyManager taxonomyManager, IndexManager indexManager, FileIndexService fileIndexService, boolean removeFileDocuments, ParserManager parserManager) {
         this.writer = indexManager.getIndexWriter();
-        this.json = json;
+        this.submissionJson = submissionJson;
         this.taxonomyManager = taxonomyManager;
         this.indexManager = indexManager;
         this.removeFileDocuments = removeFileDocuments;
@@ -50,13 +50,13 @@ public class JsonDocumentIndexer implements Runnable {
         Map<String, Object> valueMap = new HashMap<>();
         String accession = "";
         try {
-            ReadContext jsonPathContext = JsonPath.parse(json.toString());
-            accession = parserManager.getParser(Constants.Fields.ACCESSION).parse(valueMap, json, jsonPathContext);
-            parserManager.getParser(Constants.Fields.SECRET_KEY).parse(valueMap, json, jsonPathContext);
+            ReadContext jsonPathContext = JsonPath.parse(submissionJson.toString());
+            accession = parserManager.getParser(Constants.Fields.ACCESSION).parse(valueMap, submissionJson, jsonPathContext);
+            parserManager.getParser(Constants.Fields.SECRET_KEY).parse(valueMap, submissionJson, jsonPathContext);
 
             for (JsonNode fieldMetadataNode : indexManager.getIndexDetails().findValue(PUBLIC)) {//parsing common "public" facet and fields
                 AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
-                abstractParser.parse(valueMap, json, jsonPathContext);
+                abstractParser.parse(valueMap, submissionJson, jsonPathContext);
             }
             //collections do not need more parsing
             if (valueMap.getOrDefault(Constants.Fields.TYPE, "").toString().equalsIgnoreCase("collection")) {
@@ -79,18 +79,11 @@ public class JsonDocumentIndexer implements Runnable {
                 if (collectionSpecificFields != null) {
                     for (JsonNode fieldMetadataNode : collectionSpecificFields) {//parsing collection's facet and fields
                         AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
-                        abstractParser.parse(valueMap, json, jsonPathContext);
+                        abstractParser.parse(valueMap, submissionJson, jsonPathContext);
                     }
                 }
             }
-            Set<String> columnSet = new LinkedHashSet<>();
-
-            Map<String, Object> fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Constants.Fields.ACCESSION), (String) valueMap.get(Constants.Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
-            if (fileValueMap != null) {
-                valueMap.putAll(fileValueMap);
-            }
-
-            valueMap.put(Constants.File.FILE_ATTS, columnSet);
+            fileIndexService.indexSubmissionFiles( valueMap, submissionJson, writer, removeFileDocuments);
             updateDocument(valueMap);
 
         } catch (Exception ex) {
@@ -130,6 +123,7 @@ public class JsonDocumentIndexer implements Runnable {
                         doc.add(new TextField(String.valueOf(field), value, Field.Store.YES));
                         break;
                     case Constants.IndexEntryAttributes.FieldTypeValues.UNTOKENIZED_STRING:
+                    case Constants.IndexEntryAttributes.FieldTypeValues.JSON:
                         if (!valueMap.containsKey(field)) break;
                         value = String.valueOf(valueMap.get(field));
                         Field unTokenizeField = new Field(String.valueOf(field), value, IndexServiceImpl.TYPE_NOT_ANALYZED);

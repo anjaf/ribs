@@ -76,6 +76,7 @@
     { "name": "facet.link_type", "title": "Link Type", "fieldType": "facet", "jsonPath": "$..links..attributes[?(@.name=='Type')].value OR $..links[?(@.extType=='link')]..attributes[?(@.name=='Type')].value", "parser": "JPathListParser"},
     { "name": "facet.file_type", "title": "File Type", "fieldType": "facet", "jsonPath": "$..files.*[?(@.type==\"file\")] OR $..files[?(@.extType=='file')]", "parser": "FileTypeParser"},
     { "name": "relPath", "title": "", "fieldType": "untokenized_string", "jsonPath": "$.relPath"},
-    { "name": "pageTabJson", "title": "", "fieldType": "json", "jsonPath": "$.pageTabFiles.*[?(@.type==\"file\")][?(@.fileName =~ /.*json/i )]"}
+    { "name": "pageTabJson", "title": "", "fieldType": "json", "jsonPath": "$.pageTabFiles.*[?(@.type==\"file\")][?(@.fileName =~ /.*json/i )]"},
+    { "name": "storage_type", "title": "", "fieldType": "untokenized_string", "jsonPath": "$.pageTabFiles[0].extType"}
   ]
 }

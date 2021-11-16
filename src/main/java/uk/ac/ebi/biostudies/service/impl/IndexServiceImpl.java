@@ -5,20 +5,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.ReadContext;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.document.*;
-import org.apache.lucene.facet.FacetField;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.BytesRef;
 import org.springframework.amqp.rabbit.listener.MessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,24 +21,25 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
-import uk.ac.ebi.biostudies.api.util.parser.AbstractParser;
 import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.service.*;
 
-import java.io.File;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static uk.ac.ebi.biostudies.api.util.Constants.*;
+import static uk.ac.ebi.biostudies.api.util.Constants.Fields;
+import static uk.ac.ebi.biostudies.api.util.Constants.STUDIES_JSON_FILE;
 
 /**
  * Created by ehsan on 27/02/2017.
@@ -261,184 +255,6 @@ public class IndexServiceImpl implements IndexService {
     @Override
     public void afterPropertiesSet() throws Exception {
 
-    }
-
-    public static class JsonDocumentIndexer implements Runnable {
-        private Logger logger = LogManager.getLogger(JsonDocumentIndexer.class.getName());
-
-        private IndexWriter writer;
-        private JsonNode json;
-        private TaxonomyManager taxonomyManager;
-        private IndexManager indexManager;
-        private FileIndexService fileIndexService;
-        private boolean removeFileDocuments;
-        private ParserManager parserManager;
-
-        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, FileIndexService fileIndexService, boolean removeFileDocuments, ParserManager parserManager) {
-            this.writer = indexManager.getIndexWriter();
-            this.json = json;
-            this.taxonomyManager = taxonomyManager;
-            this.indexManager = indexManager;
-            this.removeFileDocuments = removeFileDocuments;
-            this.parserManager = parserManager;
-            this.fileIndexService = fileIndexService;
-        }
-
-        @Override
-        public void run(){
-            Map<String, Object> valueMap = new HashMap<>();
-            String accession="";
-            try {
-                ReadContext jsonPathContext = JsonPath.parse(json.toString());
-                accession = parserManager.getParser(Fields.ACCESSION).parse(valueMap, json, jsonPathContext);
-                parserManager.getParser(Fields.SECRET_KEY).parse(valueMap, json, jsonPathContext);
-
-                for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(PUBLIC)){//parsing common "public" facet and fields
-                    AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
-                    abstractParser.parse(valueMap, json, jsonPathContext);
-                }
-                //collections do not need more parsing
-                if(valueMap.getOrDefault(Fields.TYPE,"").toString().equalsIgnoreCase("collection"))
-                {
-                    addCollectionToHierarchy(valueMap, accession);
-                    updateDocument(valueMap);
-                    return;
-                }
-
-                // remove repeating collections
-                Set<String> collectionFacets = new HashSet<>();
-                if (valueMap.containsKey(Facets.COLLECTION)) {
-                    collectionFacets.addAll(Arrays.asList(valueMap.get(Facets.COLLECTION).toString().toLowerCase().split("\\" + Facets.DELIMITER)));
-                    collectionFacets.remove("");
-                    collectionFacets.remove(PUBLIC);
-                    valueMap.put(Facets.COLLECTION, String.join(Facets.DELIMITER, collectionFacets));
-                }
-
-                for (String collectionName:  collectionFacets ) {
-                    JsonNode collectionSpecificFields = indexManager.getIndexDetails().findValue(collectionName);
-                    if(collectionSpecificFields != null) {
-                        for (JsonNode fieldMetadataNode : collectionSpecificFields) {//parsing collection's facet and fields
-                            AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
-                            abstractParser.parse(valueMap, json, jsonPathContext);
-                        }
-                    }
-                }
-                Set<String> columnSet = new LinkedHashSet<>();
-
-                Map<String, Object> fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
-                if (fileValueMap!=null) {
-                    valueMap.putAll(fileValueMap);
-                }
-
-                valueMap.put(Constants.File.FILE_ATTS, columnSet);
-                updateDocument(valueMap);
-
-            }catch (Exception ex){
-                logger.debug("problem in parser for parsing accession: {}!", accession, ex);
-            }
-        }
-
-        private void addCollectionToHierarchy(Map<String, Object> valueMap, String accession) {
-            Object parent =valueMap.getOrDefault (Facets.COLLECTION, null);
-            //TODO: Start - Remove this when backend supports subcollections
-            if (accession.equalsIgnoreCase("JCB") || accession.equalsIgnoreCase("BioImages-EMPIAR")) {
-                parent="BioImages";
-            }
-            //TODO: End - Remove this when backend supports subcollections
-            if (parent==null || StringUtils.isEmpty(parent.toString())) {
-                indexManager.unsetCollectionParent(accession);
-            } else {
-                indexManager.setSubCollection(parent.toString(), accession);
-            }
-        }
-
-        private void updateDocument(Map<String, Object> valueMap) throws IOException {
-            Document doc = new Document();
-
-            //TODO: replace by classes if possible
-            String value;
-            String prjName = (String)valueMap.get(Facets.COLLECTION);
-            //updateCollectionParents(valueMap);
-            addFileAttributes(doc, (Set<String>) valueMap.get(Constants.File.FILE_ATTS));
-            for (String field: indexManager.getCollectionRelatedFields(prjName.toLowerCase())) {
-                JsonNode curNode = indexManager.getIndexEntryMap().get(field);
-                String fieldType = curNode.get(IndexEntryAttributes.FIELD_TYPE).asText();
-                try{
-                    switch (fieldType) {
-                        case IndexEntryAttributes.FieldTypeValues.TOKENIZED_STRING:
-                            value = String.valueOf(valueMap.get(field));
-                            doc.add(new TextField(String.valueOf(field), value, Field.Store.YES));
-                            break;
-                        case IndexEntryAttributes.FieldTypeValues.UNTOKENIZED_STRING:
-                        case IndexEntryAttributes.FieldTypeValues.JSON:
-                            if (!valueMap.containsKey(field)) break;
-                            value = String.valueOf(valueMap.get(field));
-                            Field unTokenizeField = new Field(String.valueOf(field), value, TYPE_NOT_ANALYZED);
-                            doc.add(unTokenizeField);
-                            if(curNode.has (IndexEntryAttributes.SORTABLE) && curNode.get(IndexEntryAttributes.SORTABLE).asBoolean(false))
-                                doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef( valueMap.get(field).toString())));
-                            break;
-                        case IndexEntryAttributes.FieldTypeValues.LONG:
-                            if (!valueMap.containsKey(field) || StringUtils.isEmpty(valueMap.get(field).toString()) ) break;
-                            doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));
-                            doc.add(new StoredField(String.valueOf(field), valueMap.get(field).toString()));
-                            doc.add( new LongPoint(String.valueOf(field), (Long) valueMap.get(field)  ));
-                            break;
-                        case IndexEntryAttributes.FieldTypeValues.FACET:
-                            addFacet(valueMap.containsKey(field) && valueMap.get(field)!=null ?
-                                    String.valueOf(valueMap.get(field)) : null, field, doc, curNode);
-                    }
-                }catch(Exception ex){
-                    logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(Fields.ACCESSION)), ex);
-                }
-
-
-            }
-
-            Document facetedDocument = taxonomyManager.getFacetsConfig().build(indexManager.getFacetWriter() ,doc);
-            writer.updateDocument(new Term(Fields.ID, valueMap.get(Fields.ACCESSION).toString()), facetedDocument);
-
-        }
-
-        /*private void updateCollectionParents(Map<String, Object> valueMap) {
-            String collection = valueMap.getOrDefault (Facets.PROJECT, "").toString();
-            if (StringUtils.isEmpty(collection)) return;
-            Map<String, String> collectionParentMap = indexManager.getCollectionParentMap();
-            List<String> parents = new ArrayList<>();
-            parents.add(collection);
-            while (collectionParentMap.containsKey(collection)) {
-                String parent = collectionParentMap.get(collection);
-                parents.add(parent);
-                collection = parent;
-            }
-            valueMap.put(Facets.PROJECT, StringUtils.join(parents,Facets.DELIMITER));
-        }*/
-
-        private void addFileAttributes(Document doc, Set<String> columnAtts){
-            StringBuilder allAtts = new StringBuilder("Name|Size|");
-            if(columnAtts==null)
-                columnAtts = new HashSet<>();
-            for(String att:columnAtts)
-                allAtts.append(att).append("|");
-            doc.add(new StringField(Constants.File.FILE_ATTS, allAtts.toString(),Field.Store.YES));
-        }
-
-        private void addFacet(String value, String fieldName, Document doc, JsonNode facetConfig){
-            if(value==null || value.isEmpty()){
-                if(fieldName.equalsIgnoreCase(Facets.FILE_TYPE) || fieldName.equalsIgnoreCase(Facets.LINK_TYPE)
-                        || (facetConfig.has(IndexEntryAttributes.FACET_TYPE) && facetConfig.get(IndexEntryAttributes.FACET_TYPE).asText().equalsIgnoreCase("boolean"))
-                )
-                    return;
-                else
-                    value = NA;
-            }
-            for(String subVal: org.apache.commons.lang3.StringUtils.split(value, Facets.DELIMITER)) {
-                if(subVal.equalsIgnoreCase(NA) && facetConfig.has(IndexEntryAttributes.DEFAULT_VALUE)){
-                    subVal = facetConfig.get(IndexEntryAttributes.DEFAULT_VALUE).textValue();
-                }
-                doc.add(new FacetField(fieldName, subVal.trim().toLowerCase()));
-            }
-        }
     }
 
     @Async
