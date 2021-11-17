@@ -1,5 +1,7 @@
 package uk.ac.ebi.biostudies.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
@@ -28,7 +30,11 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
     @Autowired
     SecurityConfig securityConfig;
     @Autowired
+    PartialUpdater partialUpdater;
+    @Autowired
     private Environment env;
+
+    private final static ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     @Override
     public void destroy() throws Exception {
@@ -64,9 +70,9 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
         @Override
         public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
             String submissionPartialQueue = env.getProperty("partial.submission.rabbitmq.queue", String.class, "/queue/submission-submitted-partials-queue");
-            if(submissionPartialQueue.indexOf("/queue/")<0)
-                submissionPartialQueue = "/queue/"+submissionPartialQueue;
-            logger.debug("stomp connection: session:{} \t server:{}",connectedHeaders.get("session"),connectedHeaders.get("server"));
+            if (submissionPartialQueue.indexOf("/queue/") < 0)
+                submissionPartialQueue = "/queue/" + submissionPartialQueue;
+            logger.debug("stomp connection: session:{} \t server:{}", connectedHeaders.get("session"), connectedHeaders.get("server"));
             session.subscribe(submissionPartialQueue, this);
             logger.debug("stomp client connected successfully! Queue name {}", submissionPartialQueue);
         }
@@ -78,13 +84,32 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
 
         @Override
         public void handleFrame(StompHeaders headers, Object payload) {
-            String msg = (String) payload;
-            logger.info("Received : {}" , msg);
+            JsonNode partialUpdateMessage = null;
+            try{
+                partialUpdateMessage = JSON_MAPPER.readTree((String)payload);
+            }catch (Exception ex){
+                logger.error("problem in parsing stomp message ", ex);
+            }
+
+            try {
+                partialUpdater.receivedMessage(partialUpdateMessage);
+            } catch (Throwable throwable) {
+                logger.error(throwable);
+            }
+            logger.info("Received update message:", headers.get(StompHeaders.MESSAGE_ID));
         }
 
         @Override
         public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload, Throwable exception) {
             logger.error("Got an exception", exception);
+            if(!session.isConnected()){
+                try {
+                    Thread.sleep(3000);
+                    afterPropertiesSet();
+                } catch (Exception e) {
+                    logger.error("Problem in reconnecting stomp", e);
+                }
+            }
         }
     }
 

@@ -70,8 +70,6 @@ public class IndexServiceImpl implements IndexService {
 
     private static  BlockingQueue<String> indexFileQueue = new LinkedBlockingQueue<>();
 
-    private static AtomicBoolean closed = new AtomicBoolean(false);
-
     @Autowired
     private Environment env;
 
@@ -95,36 +93,6 @@ public class IndexServiceImpl implements IndexService {
 
     @Autowired
     ParserManager parserManager;
-
-    @Autowired
-    private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
-
-    @Override
-    public synchronized boolean isClosed() {
-        return closed.get();
-    }
-
-    @Override
-    public synchronized void close() {
-        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class, false))
-            return;
-        MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
-        if(listenerContainer.isRunning()) {
-            listenerContainer.stop();
-            closed.set(true);
-        }
-    }
-
-    @Override
-    public synchronized void open() {
-        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class, false))
-            return;
-        MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
-        if(!listenerContainer.isRunning()) {
-            listenerContainer.start();
-            closed.set(false);
-        }
-    }
 
     @Override
     public void indexAll(InputStream inputStream, boolean removeFileDocuments) throws IOException {
@@ -458,7 +426,6 @@ public class IndexServiceImpl implements IndexService {
                     continue;
                 }
                 if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))  {
-                    close();
                     clearIndex(false);
                     filename = Constants.STUDIES_JSON_FILE;
                     removeFileDocuments = false;
@@ -469,8 +436,6 @@ public class IndexServiceImpl implements IndexService {
                 e.printStackTrace();
                 logger.log(Level.ERROR, e);
             } finally {
-                if(closed.get())
-                    open();
                 try {
                     Files.delete(Paths.get(inputStudiesFilePath));
                 } catch (Throwable e) {

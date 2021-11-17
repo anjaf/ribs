@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +16,6 @@ import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.schedule.jobs.UpdateOntologyJob;
 import uk.ac.ebi.biostudies.service.IndexService;
 import uk.ac.ebi.biostudies.service.SearchService;
-import uk.ac.ebi.biostudies.service.impl.IndexServiceImpl;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 import static uk.ac.ebi.biostudies.api.util.Constants.STRING_UNICODE_MEDIA_TYPE;
@@ -40,6 +40,7 @@ public class Index {
     UpdateOntologyJob updateOntologyJob;
 
 
+
     /**
      * Method handling HTTP GET requests. The returned object will be sent
      * to the client as "text/plain" media type.
@@ -48,8 +49,6 @@ public class Index {
      */
     @RequestMapping(value = "/index/reload/{filename:.*}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> indexAll(@PathVariable("filename") String filename) throws Exception {
-        if (indexService.isClosed())
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode message = mapper.createObjectNode();
         try {
@@ -67,42 +66,16 @@ public class Index {
 
     @RequestMapping(value = "/index/clear", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> clearIndex() throws Exception {
-        if (indexService.isClosed())
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
         indexService.clearIndex(true);
         return new ResponseEntity<String>("{\"message\":\"Index empty\"}", HttpStatus.OK);
     }
 
     @RequestMapping(value = "/index/delete/{accession}", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
     public ResponseEntity<String> deleteDoc(@PathVariable(required = false) String accession) throws Exception {
-        if (indexService.isClosed())
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Indexer does not accept new submissions");
         indexService.deleteDoc(accession);
         return new ResponseEntity<String>("{\"message\":\"" + accession + " deleted\"}", HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/index/close", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public ResponseEntity<String> shutDown() throws Exception {
-        indexService.close();
-        return new ResponseEntity<String>("{\"message\":\"Closing indexer\"}", HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/index/open", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public ResponseEntity<String> start() throws Exception {
-        indexService.open();
-        return new ResponseEntity<String>("{\"message\":\"Indexer open\"}", HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/index/status", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public ResponseEntity<String> getStatus() throws Exception {
-        if (!indexService.isClosed())
-            return new ResponseEntity<String>("{\"message\":\"UP\"}", HttpStatus.OK);
-        else if (indexService.getIndexFileQueue().size() == 0 && IndexServiceImpl.ActiveExecutorService.get() == 0) {
-            return new ResponseEntity<String>("{\"message\":\"DOWN\"}", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<String>("{\"message\":\"CLOSING\"}", HttpStatus.OK);
-        }
-    }
 
     /**
      * updating and building EFO ontology index manually

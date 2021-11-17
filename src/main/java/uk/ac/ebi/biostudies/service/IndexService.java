@@ -27,10 +27,4 @@ public interface IndexService extends InitializingBean, DisposableBean {
     BlockingQueue<String> getIndexFileQueue();
 
     void processFileForIndexing();
-
-    boolean isClosed();
-
-    void close();
-
-    void open();
 }
