@@ -27,6 +27,7 @@ import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
 import uk.ac.ebi.biostudies.service.IndexService;
+import uk.ac.ebi.biostudies.service.RabbitMQStompService;
 import uk.ac.ebi.biostudies.service.impl.IndexTransferer;
 import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
@@ -45,30 +46,11 @@ import java.util.concurrent.Executors;
 @Scope("singleton")
 public class IndexManager implements InitializingBean, DisposableBean {
 
-    private Logger logger = LogManager.getLogger(IndexManager.class.getName());
-    private IndexReader indexReader;
-    private IndexSearcher indexSearcher;
-    private IndexWriter indexWriter;
-    private Directory indexDirectory;
-    private IndexWriterConfig indexWriterConfig;
-    private SnapshotDeletionPolicy mainIndexSnapShot;
-    private SnapshotDeletionPolicy efoIndexSnapShot;
-    private SnapshotDeletionPolicy facetIndexSnapShot;
-    private Directory efoIndexDirectory;
-    private IndexReader efoIndexReader;
-    private IndexSearcher efoIndexSearcher;
-    private IndexWriter efoIndexWriter;
-    private Map<String, JsonNode> indexEntryMap = new LinkedHashMap<>();
-    private Map<String, Set<String>> collectionRelatedFields = new LinkedHashMap<>();
-    private SpellChecker spellChecker;
-    private JsonNode indexDetails;
-    private Map<String, List<String>> subCollectionMap = new LinkedHashMap<>();
-    private DrillSideways drillSideways;
-    private Set<String> privateFields = new HashSet<>();
-    private SnapshotAwareDirectoryTaxonomyWriter facetWriter;
-    private TaxonomyReader facetReader;
-    private Directory taxoDirectory;
-
+    private final Logger logger = LogManager.getLogger(IndexManager.class.getName());
+    private final Map<String, JsonNode> indexEntryMap = new LinkedHashMap<>();
+    private final Map<String, Set<String>> collectionRelatedFields = new LinkedHashMap<>();
+    private final Map<String, List<String>> subCollectionMap = new LinkedHashMap<>();
+    private final Set<String> privateFields = new HashSet<>();
     @Autowired
     IndexConfig indexConfig;
     @Autowired
@@ -85,6 +67,26 @@ public class IndexManager implements InitializingBean, DisposableBean {
     ParserManager parserManager;
     @Autowired
     IndexTransferer indexTransferer;
+    @Autowired
+    RabbitMQStompService rabbitMQStompService;
+    private IndexReader indexReader;
+    private IndexSearcher indexSearcher;
+    private IndexWriter indexWriter;
+    private Directory indexDirectory;
+    private IndexWriterConfig indexWriterConfig;
+    private SnapshotDeletionPolicy mainIndexSnapShot;
+    private SnapshotDeletionPolicy efoIndexSnapShot;
+    private SnapshotDeletionPolicy facetIndexSnapShot;
+    private Directory efoIndexDirectory;
+    private IndexReader efoIndexReader;
+    private IndexSearcher efoIndexSearcher;
+    private IndexWriter efoIndexWriter;
+    private SpellChecker spellChecker;
+    private JsonNode indexDetails;
+    private DrillSideways drillSideways;
+    private SnapshotAwareDirectoryTaxonomyWriter facetWriter;
+    private TaxonomyReader facetReader;
+    private Directory taxoDirectory;
 
     @Override
     public void afterPropertiesSet() {
@@ -93,7 +95,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
         if (indexConfig.isApiEnabled()) indexService.processFileForIndexing();
     }
 
-    public void refreshIndexWriterAndWholeOtherIndices(){
+    public void refreshIndexWriterAndWholeOtherIndices() {
         InputStream indexJsonFile = this.getClass().getClassLoader().getResourceAsStream("collection-fields.json");
         indexDetails = readJson(indexJsonFile);
         fillAllFields();
@@ -101,14 +103,14 @@ public class IndexManager implements InitializingBean, DisposableBean {
         parserManager.init(indexEntryMap);
         try {
             //TODO: Start - Remove this when backend supports subcollections
-            setSubCollection("BioImages","JCB" );
+            setSubCollection("BioImages", "JCB");
             setSubCollection("BioImages", "BioImages-EMPIAR");
             //TODO: End - Remove this when backend supports subcollections
             taxonomyManager.init(indexEntryMap.values());
             openIndicesWritersAndSearchers();
             drillSideways = new DrillSideways(indexSearcher, taxonomyManager.getFacetsConfig(), facetReader);
-        }catch (Throwable error){
-            logger.error("Problem in reading lucene indices",error);
+        } catch (Throwable error) {
+            logger.error("Problem in reading lucene indices", error);
         }
     }
 
@@ -122,128 +124,127 @@ public class IndexManager implements InitializingBean, DisposableBean {
         facetWriter = new SnapshotAwareDirectoryTaxonomyWriter(taxoDirectory, IndexWriterConfig.OpenMode.CREATE);
     }
 
-    public void openIndicesWritersAndSearchers(){
+    public void openIndicesWritersAndSearchers() {
         try {
+            rabbitMQStompService.startWebSocket();
             openMainIndex();
             openEfoIndex();
             openFacetIndex();
-            if(spellChecker==null) {
+            if (spellChecker == null) {
                 spellChecker = new SpellChecker(FSDirectory.open(Paths.get(indexConfig.getSpellcheckerLocation())));
                 spellChecker.indexDictionary(new LuceneDictionary(indexReader, Constants.Fields.CONTENT), new IndexWriterConfig(), false);
             }
-        }catch (Throwable error){
+        } catch (Throwable error) {
             logger.error(error);
         }
 
     }
 
-    public void commitIndices(){
+    public void commitIndices() {
         try {
             indexWriter.commit();
             efoIndexWriter.commit();
             facetWriter.commit();
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error("problem in committing indices", ex);
 
         }
     }
 
-    public void closeIndices(){
+    public void closeIndices() {
         try {
+            rabbitMQStompService.stopWebSocket();
             indexReader.close();
             efoIndexReader.close();
             facetReader.close();
             indexWriter.close();
             efoIndexWriter.close();
             facetWriter.close();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error("problem in closing indices", ex);
-
         }
     }
 
     public void takeIndexSnapShotForBackUp() throws IOException {
-        IndexCommit mainSnapShot=null, facetSnapshot=null, efoSnapShot=null;
-        try{
+        IndexCommit mainSnapShot = null, facetSnapshot = null, efoSnapShot = null;
+        try {
             mainSnapShot = mainIndexSnapShot.snapshot();
-            indexTransferer.copyIndexFromSnapShot(mainSnapShot.getFileNames(), indexConfig.getIndexDirectory(), indexConfig.getIndexBackupDirectory()+"/submission");
+            indexTransferer.copyIndexFromSnapShot(mainSnapShot.getFileNames(), indexConfig.getIndexDirectory(), indexConfig.getIndexBackupDirectory() + "/submission");
             facetSnapshot = facetWriter.getDeletionPolicy().snapshot();
-            indexTransferer.copyIndexFromSnapShot(facetSnapshot.getFileNames(), indexConfig.getFacetDirectory(), indexConfig.getIndexBackupDirectory()+"/taxonomy");
+            indexTransferer.copyIndexFromSnapShot(facetSnapshot.getFileNames(), indexConfig.getFacetDirectory(), indexConfig.getIndexBackupDirectory() + "/taxonomy");
             efoSnapShot = efoIndexSnapShot.snapshot();
-            indexTransferer.copyIndexFromSnapShot(efoSnapShot.getFileNames(), eFOConfig.getIndexLocation(), indexConfig.getIndexBackupDirectory()+"/efo");
+            indexTransferer.copyIndexFromSnapShot(efoSnapShot.getFileNames(), eFOConfig.getIndexLocation(), indexConfig.getIndexBackupDirectory() + "/efo");
 
-        } catch (Exception ex){
+        } catch (Exception ex) {
             logger.error("problem in taking snapshot from main index", ex);
             throw ex;
-        }
-        finally {
+        } finally {
             try {
-                if(mainSnapShot!=null)
+                if (mainSnapShot != null)
                     mainIndexSnapShot.release(mainSnapShot);
-                if(facetSnapshot!=null)
+                if (facetSnapshot != null)
                     facetWriter.getDeletionPolicy().release(facetSnapshot);
-                if(efoSnapShot!=null)
+                if (efoSnapShot != null)
                     efoIndexSnapShot.release(efoSnapShot);
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error("problem in releasing snapshot lock", ex);
             }
         }
     }
 
-    public boolean copyBackupToLocal()
-    {
+    public boolean copyBackupToLocal() {
         try {
             indexTransferer.copyIndexFromNetworkFileSystemToLocal(indexConfig.getIndexBackupDirectory() + "/submission", indexConfig.getIndexDirectory());
             indexTransferer.copyIndexFromNetworkFileSystemToLocal(indexConfig.getIndexBackupDirectory() + "/taxonomy", indexConfig.getFacetDirectory());
             indexTransferer.copyIndexFromNetworkFileSystemToLocal(indexConfig.getIndexBackupDirectory() + "/efo", eFOConfig.getIndexLocation());
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.fatal("problem in copying remote index to local file system, INDEX's STATE IS INVALID", ex);
             return false;
         }
         return true;
     }
 
-    private void openFacetIndex(){
+    private void openFacetIndex() {
         taxonomyManager.init(indexEntryMap.values());
         boolean shouldRefresh = false;
         try {
             taxoDirectory = FSDirectory.open(Paths.get(indexConfig.getFacetDirectory()));
-            if(facetWriter==null || facetWriter.isOpen()==false) {
+            if (facetWriter == null || facetWriter.isOpen() == false) {
                 facetWriter = new SnapshotAwareDirectoryTaxonomyWriter(taxoDirectory, IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
                 shouldRefresh = true;
             }
-            if(facetReader==null || shouldRefresh)
+            if (facetReader == null || shouldRefresh)
                 facetReader = new DirectoryTaxonomyReader(facetWriter);
         } catch (Throwable e) {
             logger.error("can not create taxonomy writer or reader", e);
         }
     }
 
-    private void openMainIndex() throws Throwable{
+    private void openMainIndex() throws Throwable {
         String indexDir = indexConfig.getIndexDirectory();
         indexDirectory = FSDirectory.open(Paths.get(indexDir));
         indexWriterConfig = new IndexWriterConfig(analyzerManager.getPerFieldAnalyzerWrapper());
         indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
         mainIndexSnapShot = new SnapshotDeletionPolicy(new KeepOnlyLastCommitDeletionPolicy());
         indexWriterConfig.setIndexDeletionPolicy(mainIndexSnapShot);
-        if(indexWriter==null || indexWriter.isOpen()==false)
+        if (indexWriter == null || indexWriter.isOpen() == false)
             indexWriter = new IndexWriter(getIndexDirectory(), getIndexWriterConfig());
-        if(indexReader!=null)
+        if (indexReader != null)
             indexReader.close();
         indexReader = DirectoryReader.open(indexWriter);
         indexSearcher = new IndexSearcher(indexReader);
     }
 
-    private void openEfoIndex() throws Throwable{
+    private void openEfoIndex() throws Throwable {
         IndexWriterConfig efoIndexWriterConfig = new IndexWriterConfig(new LowercaseAnalyzer());
         efoIndexSnapShot = new SnapshotDeletionPolicy(new KeepOnlyLastCommitDeletionPolicy());
         efoIndexWriterConfig.setIndexDeletionPolicy(efoIndexSnapShot);
         efoIndexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
         efoIndexDirectory = FSDirectory.open(Paths.get(eFOConfig.getIndexLocation()));
-        if(efoIndexWriter==null || efoIndexWriter.isOpen()==false)
+        if (efoIndexWriter == null || efoIndexWriter.isOpen() == false)
             efoIndexWriter = new IndexWriter(efoIndexDirectory, efoIndexWriterConfig);
-        if(!DirectoryReader.indexExists(efoIndexDirectory)) {
+        if (!DirectoryReader.indexExists(efoIndexDirectory)) {
             try (InputStream resourceInputStream = (new ClassPathResource(eFOConfig.getLocalOwlFilename())).getInputStream()) {
                 ontology.update(resourceInputStream);
                 logger.info("EFO loading completed");
@@ -251,7 +252,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
                 logger.error("EFO file not found", ex);
             }
         }
-        if(efoIndexReader!=null)
+        if (efoIndexReader != null)
             efoIndexReader.close();
         efoIndexReader = DirectoryReader.open(efoIndexWriter);
         efoIndexSearcher = new IndexSearcher(efoIndexReader);
@@ -259,23 +260,23 @@ public class IndexManager implements InitializingBean, DisposableBean {
     }
 
 
-    private void loadEFO(IndexWriterConfig efoIndexWriterConfig) throws Exception{
-        if(!DirectoryReader.indexExists(efoIndexDirectory)){
-            try (InputStream resourceInputStream = (new ClassPathResource(eFOConfig.getLocalOwlFilename())).getInputStream()){
+    private void loadEFO(IndexWriterConfig efoIndexWriterConfig) throws Exception {
+        if (!DirectoryReader.indexExists(efoIndexDirectory)) {
+            try (InputStream resourceInputStream = (new ClassPathResource(eFOConfig.getLocalOwlFilename())).getInputStream()) {
                 efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
                 ontology.update(resourceInputStream);
                 logger.info("EFO loading completed");
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error("EFO file not found", ex);
             }
         }
     }
 
-    public void destroy(){
+    public void destroy() {
 
     }
 
-    private JsonNode readJson(InputStream inp){
+    private JsonNode readJson(InputStream inp) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode actualObj = mapper.readTree(inp);
@@ -286,34 +287,33 @@ public class IndexManager implements InitializingBean, DisposableBean {
         return null;
     }
 
-    public void refreshIndexSearcherAndReader(){
+    public void refreshIndexSearcherAndReader() {
 
         try {
             indexReader.close();
             indexReader = DirectoryReader.open(indexWriter);
             indexSearcher = new IndexSearcher(indexReader);
             drillSideways = new DrillSideways(indexSearcher, taxonomyManager.getFacetsConfig(), facetReader);
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             logger.error("Problem in refreshing index", ex);
         }
     }
 
-    public void refreshTaxonomyReader(){
+    public void refreshTaxonomyReader() {
         try {
-                if(facetWriter==null || facetWriter.isOpen()==false)
-                    facetWriter = new SnapshotAwareDirectoryTaxonomyWriter(taxoDirectory, IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-                facetReader = new DirectoryTaxonomyReader(facetWriter);
+            if (facetWriter == null || facetWriter.isOpen() == false)
+                facetWriter = new SnapshotAwareDirectoryTaxonomyWriter(taxoDirectory, IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+            facetReader = new DirectoryTaxonomyReader(facetWriter);
         } catch (IOException e) {
             logger.error("problem in refreshing taxonomy", e);
         }
     }
 
-    public Map<String, JsonNode> getIndexEntryMap(){
+    public Map<String, JsonNode> getIndexEntryMap() {
         return indexEntryMap;
     }
 
-    public void commitTaxonomy(){
+    public void commitTaxonomy() {
         try {
             facetWriter.commit();
         } catch (IOException e) {
@@ -321,16 +321,16 @@ public class IndexManager implements InitializingBean, DisposableBean {
         }
     }
 
-    private void fillAllFields(){
+    private void fillAllFields() {
         Iterator<String> fieldNames = indexDetails.fieldNames();
-        while(fieldNames.hasNext()){
+        while (fieldNames.hasNext()) {
             String key = fieldNames.next();
             Set<String> curPrjRelatedFields = new LinkedHashSet<>();
             JsonNode curFieldsArray = indexDetails.get(key);
-            for(JsonNode curField:curFieldsArray){
+            for (JsonNode curField : curFieldsArray) {
                 indexEntryMap.put(curField.get("name").asText(), curField);
                 curPrjRelatedFields.add(curField.get("name").asText());
-                if(curField.has(Constants.IndexEntryAttributes.PRIVATE) && curField.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean())
+                if (curField.has(Constants.IndexEntryAttributes.PRIVATE) && curField.get(Constants.IndexEntryAttributes.PRIVATE).asBoolean())
                     privateFields.add(curField.get(Constants.IndexEntryAttributes.NAME).asText());
             }
             collectionRelatedFields.put(key, curPrjRelatedFields);
@@ -343,8 +343,8 @@ public class IndexManager implements InitializingBean, DisposableBean {
     }
 
 
-    public Set<String> getCollectionRelatedFields(String prjName){
-        if(!collectionRelatedFields.containsKey(prjName))
+    public Set<String> getCollectionRelatedFields(String prjName) {
+        if (!collectionRelatedFields.containsKey(prjName))
             return collectionRelatedFields.get(Constants.PUBLIC);
         else
             return collectionRelatedFields.get(prjName);
@@ -425,6 +425,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
     public TaxonomyReader getFacetReader() {
         return facetReader;
     }
+
     public DrillSideways getDrillSideways() {
         return drillSideways;
     }
@@ -435,14 +436,14 @@ public class IndexManager implements InitializingBean, DisposableBean {
 
     public void copyBackupToRemote() throws Exception {
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command("sh", "-c",indexConfig.getIndexSyncCommand());
+        builder.command("sh", "-c", indexConfig.getIndexSyncCommand());
         Process process = builder.start();
         Executors.newSingleThreadExecutor().submit(() ->
                 new BufferedReader(new InputStreamReader(process.getInputStream()))
-                .lines()
-                .forEach(s -> logger.debug(s)));
+                        .lines()
+                        .forEach(s -> logger.debug(s)));
         int exitCode = process.waitFor();
-        if (exitCode!=0) {
+        if (exitCode != 0) {
             throw new Exception("Error running remote copying script");
         }
     }

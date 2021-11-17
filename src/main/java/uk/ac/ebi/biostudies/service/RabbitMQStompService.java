@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
@@ -24,25 +22,31 @@ import uk.ac.ebi.biostudies.config.SecurityConfig;
  */
 @Service
 @Scope("singleton")
-public class RabbitMQStompService implements InitializingBean, DisposableBean {
+public class RabbitMQStompService {
 
-    private static Logger logger = LogManager.getLogger(RabbitMQStompService.class);
+    private final static ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private static final Logger logger = LogManager.getLogger(RabbitMQStompService.class);
     @Autowired
     SecurityConfig securityConfig;
     @Autowired
     PartialUpdater partialUpdater;
     @Autowired
     private Environment env;
+    private StompSession stompSession;
 
-    private final static ObjectMapper JSON_MAPPER = new ObjectMapper();
-
-    @Override
-    public void destroy() throws Exception {
-
+    public void stopWebSocket() {
+        if (stompSession != null)
+            if (stompSession.isConnected())
+                stompSession.disconnect();
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    public void startWebSocket() {
+        if (stompSession == null || !stompSession.isConnected())
+            init();
+    }
+
+
+    public void init() {
         logger.debug("initiating stomp client service");
         if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false)) {
             logger.debug("stomp client is disable");
@@ -72,6 +76,7 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
             String submissionPartialQueue = env.getProperty("partial.submission.rabbitmq.queue", String.class, "/queue/submission-submitted-partials-queue");
             if (submissionPartialQueue.indexOf("/queue/") < 0)
                 submissionPartialQueue = "/queue/" + submissionPartialQueue;
+            stompSession = session;
             logger.debug("stomp connection: session:{} \t server:{}", connectedHeaders.get("session"), connectedHeaders.get("server"));
             session.subscribe(submissionPartialQueue, this);
             logger.debug("stomp client connected successfully! Queue name {}", submissionPartialQueue);
@@ -85,9 +90,9 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
         @Override
         public void handleFrame(StompHeaders headers, Object payload) {
             JsonNode partialUpdateMessage = null;
-            try{
-                partialUpdateMessage = JSON_MAPPER.readTree((String)payload);
-            }catch (Exception ex){
+            try {
+                partialUpdateMessage = JSON_MAPPER.readTree((String) payload);
+            } catch (Exception ex) {
                 logger.error("problem in parsing stomp message ", ex);
             }
 
@@ -102,10 +107,10 @@ public class RabbitMQStompService implements InitializingBean, DisposableBean {
         @Override
         public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload, Throwable exception) {
             logger.error("Got an exception", exception);
-            if(!session.isConnected()){
+            if (!session.isConnected()) {
                 try {
                     Thread.sleep(3000);
-                    afterPropertiesSet();
+                    startWebSocket();
                 } catch (Exception e) {
                     logger.error("Problem in reconnecting stomp", e);
                 }
