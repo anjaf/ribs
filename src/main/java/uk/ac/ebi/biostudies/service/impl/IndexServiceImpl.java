@@ -21,6 +21,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.springframework.amqp.rabbit.listener.MessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
@@ -55,7 +56,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.*;
 @Service
 @Scope("singleton")
 
-public class IndexServiceImpl implements IndexService {
+public class IndexServiceImpl implements IndexService, InitializingBean {
 
     public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
     static {
@@ -96,8 +97,14 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     ParserManager parserManager;
 
+
     @Autowired
-    private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
+    RabbitMQStompService rabbitMQStompService;
+
+    @Override
+    public void afterPropertiesSet() throws Exception{
+        rabbitMQStompService.setIndexService(this);
+    }
 
     @Override
     public synchronized boolean isClosed() {
@@ -106,24 +113,18 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public synchronized void close() {
-        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class, false))
+        if(!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false))
             return;
-        MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
-        if(listenerContainer.isRunning()) {
-            listenerContainer.stop();
-            closed.set(true);
-        }
+        rabbitMQStompService.stopWebSocket();
+        closed.set(true);
     }
 
     @Override
     public synchronized void open() {
-        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class, false))
+        if(!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false))
             return;
-        MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
-        if(!listenerContainer.isRunning()) {
-            listenerContainer.start();
-            closed.set(false);
-        }
+        rabbitMQStompService.startWebSocket();
+        closed.set(false);
     }
 
     @Override
@@ -258,10 +259,6 @@ public class IndexServiceImpl implements IndexService {
 
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-    }
 
     public static class JsonDocumentIndexer implements Runnable {
         private Logger logger = LogManager.getLogger(JsonDocumentIndexer.class.getName());

@@ -8,9 +8,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.auth.UserSecurityService;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
@@ -19,18 +20,20 @@ import java.io.IOException;
 
 @Component
 @Order()
-public class PartialUpdateListener {
+public class PartialUpdater {
 
-    public static final String PARTIAL_UPDATE_LISTENER = "partialUpdateListener";
-    private final Logger LOGGER = LogManager.getLogger(PartialUpdateListener.class.getName());
-    @Autowired
+    private final Logger LOGGER = LogManager.getLogger(PartialUpdater.class.getName());
     IndexService indexService;
     @Autowired
     MongoDBService mongoDBService;
     @Autowired
     SecurityConfig securityConfig;
 
-    @RabbitListener(queues = "${partial.submission.rabbitmq.queue}", id = PARTIAL_UPDATE_LISTENER)
+    public void setIndexService(IndexService indexService){
+        this.indexService=indexService;
+    }
+
+    @Async
     public void receivedMessage(JsonNode msg) throws IOException, InterruptedException {
         try {
             String url = msg.get("extTabUrl").asText();
@@ -42,6 +45,7 @@ public class PartialUpdateListener {
                 submission = new ObjectMapper().readTree(EntityUtils.toString(response.getEntity()));
             } catch (Exception exception) {
                 LOGGER.error("problem in sending http req to authentication server", exception);
+                return;
             }
             if (submission != null && submission.has("log") && submission.get("log").has("message")
                     && submission.get("log").get("message").asText().endsWith("was not found")) {
