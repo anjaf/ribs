@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
@@ -22,22 +23,33 @@ import uk.ac.ebi.biostudies.config.SecurityConfig;
  */
 @Service
 @Scope("singleton")
-public class RabbitMQStompService {
+public class RabbitMQStompService  implements InitializingBean {
 
     private final static ObjectMapper JSON_MAPPER = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(RabbitMQStompService.class);
     @Autowired
     SecurityConfig securityConfig;
+
+    IndexService indexService;
     @Autowired
     PartialUpdater partialUpdater;
     @Autowired
     private Environment env;
     private StompSession stompSession;
 
+    @Override
+    public void afterPropertiesSet() throws Exception{
+        partialUpdater.setIndexService(indexService);
+    }
+
     public void stopWebSocket() {
         if (stompSession != null)
             if (stompSession.isConnected())
                 stompSession.disconnect();
+    }
+
+    public void setIndexService(IndexService indexService) {
+        this.indexService = indexService;
     }
 
     public void startWebSocket() {

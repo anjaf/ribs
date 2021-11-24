@@ -8,6 +8,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
@@ -22,12 +23,15 @@ import java.io.IOException;
 public class PartialUpdater {
 
     private final Logger LOGGER = LogManager.getLogger(PartialUpdater.class.getName());
-    @Autowired
     IndexService indexService;
     @Autowired
     MongoDBService mongoDBService;
     @Autowired
     SecurityConfig securityConfig;
+
+    public void setIndexService(IndexService indexService){
+        this.indexService=indexService;
+    }
 
     @Async
     public void receivedMessage(JsonNode msg) throws IOException, InterruptedException {

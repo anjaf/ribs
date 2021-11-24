@@ -21,6 +21,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.springframework.amqp.rabbit.listener.MessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
@@ -55,7 +56,7 @@ import static uk.ac.ebi.biostudies.api.util.Constants.*;
 @Service
 @Scope("singleton")
 
-public class IndexServiceImpl implements IndexService {
+public class IndexServiceImpl implements IndexService, InitializingBean {
 
     public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
     static {
@@ -69,6 +70,8 @@ public class IndexServiceImpl implements IndexService {
     private Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
 
     private static  BlockingQueue<String> indexFileQueue = new LinkedBlockingQueue<>();
+
+    private static AtomicBoolean closed = new AtomicBoolean(false);
 
     @Autowired
     private Environment env;
@@ -93,6 +96,36 @@ public class IndexServiceImpl implements IndexService {
 
     @Autowired
     ParserManager parserManager;
+
+
+    @Autowired
+    RabbitMQStompService rabbitMQStompService;
+
+    @Override
+    public void afterPropertiesSet() throws Exception{
+        rabbitMQStompService.setIndexService(this);
+    }
+
+    @Override
+    public synchronized boolean isClosed() {
+        return closed.get();
+    }
+
+    @Override
+    public synchronized void close() {
+        if(!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false))
+            return;
+        rabbitMQStompService.stopWebSocket();
+        closed.set(true);
+    }
+
+    @Override
+    public synchronized void open() {
+        if(!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false))
+            return;
+        rabbitMQStompService.startWebSocket();
+        closed.set(false);
+    }
 
     @Override
     public void indexAll(InputStream inputStream, boolean removeFileDocuments) throws IOException {
@@ -226,10 +259,6 @@ public class IndexServiceImpl implements IndexService {
 
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-    }
 
     public static class JsonDocumentIndexer implements Runnable {
         private Logger logger = LogManager.getLogger(JsonDocumentIndexer.class.getName());
@@ -426,6 +455,7 @@ public class IndexServiceImpl implements IndexService {
                     continue;
                 }
                 if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))  {
+                    close();
                     clearIndex(false);
                     filename = Constants.STUDIES_JSON_FILE;
                     removeFileDocuments = false;
@@ -436,6 +466,8 @@ public class IndexServiceImpl implements IndexService {
                 e.printStackTrace();
                 logger.log(Level.ERROR, e);
             } finally {
+                if(closed.get())
+                    open();
                 try {
                     Files.delete(Paths.get(inputStudiesFilePath));
                 } catch (Throwable e) {

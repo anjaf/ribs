@@ -76,7 +76,6 @@ public class IndexManager implements InitializingBean, DisposableBean {
     private IndexWriterConfig indexWriterConfig;
     private SnapshotDeletionPolicy mainIndexSnapShot;
     private SnapshotDeletionPolicy efoIndexSnapShot;
-    private SnapshotDeletionPolicy facetIndexSnapShot;
     private Directory efoIndexDirectory;
     private IndexReader efoIndexReader;
     private IndexSearcher efoIndexSearcher;
