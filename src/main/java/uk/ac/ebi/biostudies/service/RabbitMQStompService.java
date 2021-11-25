@@ -1,14 +1,13 @@
 package uk.ac.ebi.biostudies.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
-import org.springframework.messaging.converter.StringMessageConverter;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.*;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
@@ -18,29 +17,27 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 import uk.ac.ebi.biostudies.config.SecurityConfig;
 
+import java.lang.reflect.Type;
+
 /**
  * Ehsan
  */
 @Service
 @Scope("singleton")
-public class RabbitMQStompService  implements InitializingBean {
+public class RabbitMQStompService {
 
-    private final static ObjectMapper JSON_MAPPER = new ObjectMapper();
-    private static final Logger logger = LogManager.getLogger(RabbitMQStompService.class);
+    private static final Logger LOGGER = LogManager.getLogger(RabbitMQStompService.class);
     @Autowired
     SecurityConfig securityConfig;
-
+    @Autowired
     IndexService indexService;
     @Autowired
+    @Lazy
     PartialUpdater partialUpdater;
     @Autowired
     private Environment env;
     private StompSession stompSession;
 
-    @Override
-    public void afterPropertiesSet() throws Exception{
-        partialUpdater.setIndexService(indexService);
-    }
 
     public void stopWebSocket() {
         if (stompSession != null)
@@ -59,17 +56,17 @@ public class RabbitMQStompService  implements InitializingBean {
 
 
     public void init() {
-        logger.debug("initiating stomp client service");
+        LOGGER.debug("initiating stomp client service");
         if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false)) {
-            logger.debug("stomp client is disable");
+            LOGGER.debug("stomp client is disable");
             return;
         }
-        logger.debug("stomp client is enable");
+        LOGGER.debug("stomp client is enable");
         String url = "ws://%s:%s/ws";
         url = String.format(url, securityConfig.getStompHost(), securityConfig.getStompPort());
         WebSocketClient client = new StandardWebSocketClient();
         WebSocketStompClient stompClient = new WebSocketStompClient(client);
-        stompClient.setMessageConverter(new StringMessageConverter());
+        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.afterPropertiesSet();
         stompClient.setTaskScheduler(taskScheduler);
@@ -79,52 +76,50 @@ public class RabbitMQStompService  implements InitializingBean {
         stompHeaders.add(StompHeaderAccessor.STOMP_ACCEPT_VERSION_HEADER, "1.1,1.2");
         RabbitMQStompSessionHandler sessionHandler = new RabbitMQStompSessionHandler();
         stompClient.connect(url, new WebSocketHttpHeaders(), stompHeaders, sessionHandler);
-        logger.debug("stomp client going to connect");
+        LOGGER.debug("stomp client going to connect");
     }
 
     private class RabbitMQStompSessionHandler extends StompSessionHandlerAdapter {
+        @Override
+        public Type getPayloadType(StompHeaders headers) {
+            return JsonNode.class;
+        }
+
         @Override
         public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
             String submissionPartialQueue = env.getProperty("partial.submission.rabbitmq.queue", String.class, "/queue/submission-submitted-partials-queue");
             if (submissionPartialQueue.indexOf("/queue/") < 0)
                 submissionPartialQueue = "/queue/" + submissionPartialQueue;
             stompSession = session;
-            logger.debug("stomp connection: session:{} \t server:{}", connectedHeaders.get("session"), connectedHeaders.get("server"));
+            LOGGER.debug("stomp connection: session:{} \t server:{}", connectedHeaders.get("session"), connectedHeaders.get("server"));
             session.subscribe(submissionPartialQueue, this);
-            logger.debug("stomp client connected successfully! Queue name {}", submissionPartialQueue);
+            LOGGER.debug("stomp client connected successfully! Queue name {}", submissionPartialQueue);
         }
 
         @Override
         public void handleTransportError(StompSession session, Throwable exception) {
-            logger.error("Got a transport exception", exception);
+            LOGGER.error("Got a transport exception", exception);
         }
 
         @Override
         public void handleFrame(StompHeaders headers, Object payload) {
-            JsonNode partialUpdateMessage = null;
             try {
-                partialUpdateMessage = JSON_MAPPER.readTree((String) payload);
-            } catch (Exception ex) {
-                logger.error("problem in parsing stomp message ", ex);
-            }
-
-            try {
-                partialUpdater.receivedMessage(partialUpdateMessage);
+                partialUpdater.receivedMessage((JsonNode) payload);
             } catch (Throwable throwable) {
-                logger.error(throwable);
+                LOGGER.error("Problem in parsing RabbitMQ message to JsonNode", throwable);
             }
-            logger.info("Received update message:", headers.get(StompHeaders.MESSAGE_ID));
+            LOGGER.info("Received update message:", headers.get(StompHeaders.MESSAGE_ID));
         }
 
         @Override
         public void handleException(StompSession session, StompCommand command, StompHeaders headers, byte[] payload, Throwable exception) {
-            logger.error("Got an exception", exception);
+            LOGGER.error("Got an exception", exception);
             if (!session.isConnected()) {
                 try {
                     Thread.sleep(3000);
                     startWebSocket();
                 } catch (Exception e) {
-                    logger.error("Problem in reconnecting stomp", e);
+                    LOGGER.error("Problem in reconnecting stomp", e);
                 }
             }
         }
