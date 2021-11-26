@@ -38,6 +38,10 @@ public class RabbitMQStompService {
     private Environment env;
     private StompSession stompSession;
 
+    public boolean isSessionConnected() {
+        return stompSession.isConnected();
+    }
+
 
     public void stopWebSocket() {
         if (stompSession != null)

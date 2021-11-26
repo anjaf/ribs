@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
@@ -58,9 +59,9 @@ import static uk.ac.ebi.biostudies.api.util.Constants.*;
 public class IndexServiceImpl implements IndexService {
 
     public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
-    public static AtomicInteger ActiveExecutorService = new AtomicInteger(0);
     private static final BlockingQueue<String> indexFileQueue = new LinkedBlockingQueue<>();
     private static final AtomicBoolean closed = new AtomicBoolean(false);
+    public static AtomicInteger ActiveExecutorService = new AtomicInteger(0);
 
     static {
         TYPE_NOT_ANALYZED.setIndexOptions(IndexOptions.DOCS);
@@ -68,6 +69,7 @@ public class IndexServiceImpl implements IndexService {
         TYPE_NOT_ANALYZED.setStored(true);
     }
 
+    private final Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
     @Autowired
     IndexConfig indexConfig;
     @Autowired
@@ -85,7 +87,6 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     @Lazy
     RabbitMQStompService rabbitMQStompService;
-    private final Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
     @Autowired
     private Environment env;
 
@@ -96,6 +97,14 @@ public class IndexServiceImpl implements IndexService {
     @Override
     public synchronized boolean isClosed() {
         return closed.get();
+    }
+
+    @Override
+    @Scheduled(fixedDelayString = "${schedule.stomp.isalive:300000}", initialDelay = 600000)
+    public void webSocketWatchDog() {
+        if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false) || rabbitMQStompService.isSessionConnected() || isClosed())
+            return;
+        open();
     }
 
     @Override

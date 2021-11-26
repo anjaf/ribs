@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.Async;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Dictionary;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -33,4 +32,6 @@ public interface IndexService extends InitializingBean, DisposableBean {
     void close();
 
     void open();
+
+    void webSocketWatchDog();
 }
