@@ -105,6 +105,7 @@ public class IndexServiceImpl implements IndexService {
         if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false) || rabbitMQStompService.isSessionConnected() || isClosed())
             return;
         open();
+        logger.info("Failed Websocket Connection recovered by watchDog!");
     }
 
     @Override
