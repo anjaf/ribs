@@ -248,11 +248,9 @@ public class IndexServiceImpl implements IndexService {
             }
             File srcFile = new File(sourceLocation);
             logger.info("Making a local copy  of {} at {}", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
-            //com.google.common.io.Files.copy(srcFile, destFile);
-            return srcFile.getAbsolutePath();
+            com.google.common.io.Files.copy(srcFile, destFile);
         }
-        //return destFile.getAbsolutePath();
-        return null;
+        return destFile.getAbsolutePath();
     }
 
     @Override
