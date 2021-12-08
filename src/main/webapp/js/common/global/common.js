@@ -1,4 +1,6 @@
 $(function() {
+    const specialCollections = ['bioimages', 'arrayexpress'];
+
     function handleBioImagesUI() {
         $('.menu.float-left li').slice(1, 2).hide();
         $('.menu.float-left li').slice(4, 5).hide();
@@ -25,12 +27,26 @@ $(function() {
         $('#elixir-banner').hide();
     }
 
+    function handleArrayExpressUI() {
+        $('#local-title').html('<h1><img src="' + contextPath + '/images/collections/arrayexpress/ae-logo-64.svg"></img><span style="font-weight:lighter;padding-left: 4pt;vertical-align:bottom;">ArrayExpress</span></h1>');
+        $('#masthead').css("background-color","#5E8CC0");
+        $('#query').attr('placeholder','Search ArrayExpress');
+        $('.sample-query').first().text('E-MEXP-31');
+        $('.sample-query').first().next().text('cancer');
+        $('.menu.float-left li:contains("Submit") a').attr('href','/fg/annotare');
+        $('.menu.float-left li:contains("Browse") a').attr('href',contextPath + '/arrayexpress/studies');
+        $('span.elixir-banner-name').text('This service');
+        $('span.elixir-banner-description').text('ArrayExpress is an ELIXIR Core Data Resource');
+    }
+
     $.ajaxSetup({
         cache: true
     });
 
     if (collection && collection.toLowerCase()=='bioimages') {
         handleBioImagesUI();
+    } else if (collection && collection.toLowerCase()=='arrayexpress') {
+        handleArrayExpressUI();
     }
     $('#login-button').click(function () {
         showLoginForm();
@@ -158,11 +174,11 @@ function showCollectionBanner(data) {
         collectionObj[this.name.toLowerCase()] = this.value
     })
     var html = template(collectionObj);
-    if (collection.toLowerCase()!='bioimages') {
+    if ($.inArray(collection.toLowerCase(), specialCollections)) {
         $('#collection-banner').html(html);
     }
     // add collection search checkbox
-    $('#example').append('<label id="collection-search"'+ ( collection.toLowerCase()=='bioimages'? 'style="display:none;"' : '')
+    $('#example').append('<label id="collection-search"'+ ( $.inArray(collection.toLowerCase(), specialCollections) ? 'style="display:none;"' : '')
         +'><input id="search-in-collection" type="checkbox" />Search in '+collectionObj.title+' only</label>');
     $('#search-in-collection').bind('change', function(){
         $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');

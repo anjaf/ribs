@@ -120,6 +120,15 @@ master-build:
   only:
     - master
 
+manual-branch-build:
+  stage: build
+  artifacts:
+    paths:
+      - target/biostudies.war
+  script:
+    - mvn -Dmaven.test.skip=true clean install spring-boot:repackage
+  when: manual
+
 prod-backup:
   <<: *deploy-template
   environment: prod-backup

@@ -39,6 +39,34 @@ public class SecurityConfig {
     @Value("${http.proxy.port}")
     private Integer getHttpProxyPort;
 
+    @Value("${stomp.login.header}")
+    private String stompLoginUser;
+
+    @Value("${stomp.password.header}")
+    private String stompPassword;
+
+    @Value("${stomp.host}")
+    private String stompHost;
+
+    public String getStompLoginUser() {
+        return stompLoginUser;
+    }
+
+    public String getStompPassword() {
+        return stompPassword;
+    }
+
+    public String getStompHost() {
+        return stompHost;
+    }
+
+    public String getStompPort() {
+        return stompPort;
+    }
+
+    @Value("${stomp.port}")
+    private String stompPort;
+
     public String getProfileUrl() {
         return profileUrl;
     }

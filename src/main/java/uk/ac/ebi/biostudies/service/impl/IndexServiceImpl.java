@@ -19,12 +19,12 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
-import org.springframework.amqp.rabbit.listener.MessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
@@ -37,6 +37,7 @@ import uk.ac.ebi.biostudies.service.*;
 
 import java.io.File;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -58,46 +59,40 @@ import static uk.ac.ebi.biostudies.api.util.Constants.*;
 public class IndexServiceImpl implements IndexService {
 
     public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
+    private static final BlockingQueue<String> indexFileQueue = new LinkedBlockingQueue<>();
+    private static final AtomicBoolean closed = new AtomicBoolean(false);
+    public static AtomicInteger ActiveExecutorService = new AtomicInteger(0);
+
     static {
         TYPE_NOT_ANALYZED.setIndexOptions(IndexOptions.DOCS);
         TYPE_NOT_ANALYZED.setTokenized(false);
         TYPE_NOT_ANALYZED.setStored(true);
     }
 
-    public static AtomicInteger ActiveExecutorService = new AtomicInteger(0);
-
-    private Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
-
-    private static  BlockingQueue<String> indexFileQueue = new LinkedBlockingQueue<>();
-
-    private static AtomicBoolean closed = new AtomicBoolean(false);
-
+    private final Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
+    @Autowired
+    IndexConfig indexConfig;
+    @Autowired
+    IndexManager indexManager;
+    @Autowired
+    FileIndexService fileIndexService;
+    @Autowired
+    SearchService searchService;
+    @Autowired
+    TaxonomyManager taxonomyManager;
+    @Autowired
+    FacetService facetService;
+    @Autowired
+    ParserManager parserManager;
+    @Autowired
+    @Lazy
+    RabbitMQStompService rabbitMQStompService;
     @Autowired
     private Environment env;
 
-    @Autowired
-    IndexConfig indexConfig;
-
-    @Autowired
-    IndexManager indexManager;
-
-    @Autowired
-    FileIndexService fileIndexService;
-
-    @Autowired
-    SearchService searchService;
-
-    @Autowired
-    TaxonomyManager taxonomyManager;
-
-    @Autowired
-    FacetService facetService;
-
-    @Autowired
-    ParserManager parserManager;
-
-    @Autowired
-    private RabbitListenerEndpointRegistry rabbitListenerEndpointRegistry;
+    @Override
+    public void afterPropertiesSet() throws Exception {
+    }
 
     @Override
     public synchronized boolean isClosed() {
@@ -105,25 +100,28 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public synchronized void close() {
-        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class, false))
+    @Scheduled(fixedDelayString = "${schedule.stomp.isalive:300000}", initialDelay = 600000)
+    public void webSocketWatchDog() {
+        if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false) || rabbitMQStompService.isSessionConnected() || isClosed())
             return;
-        MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
-        if(listenerContainer.isRunning()) {
-            listenerContainer.stop();
-            closed.set(true);
-        }
+        open();
+        logger.info("Failed Websocket Connection recovered by watchDog!");
+    }
+
+    @Override
+    public synchronized void close() {
+        if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false))
+            return;
+        rabbitMQStompService.stopWebSocket();
+        closed.set(true);
     }
 
     @Override
     public synchronized void open() {
-        if(!env.getProperty("spring.rabbitmq.listener.simple.auto-startup", Boolean.class, false))
+        if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false))
             return;
-        MessageListenerContainer listenerContainer = rabbitListenerEndpointRegistry.getListenerContainer(PartialUpdateListener.PARTIAL_UPDATE_LISTENER);
-        if(!listenerContainer.isRunning()) {
-            listenerContainer.start();
-            closed.set(false);
-        }
+        rabbitMQStompService.startWebSocket();
+        closed.set(false);
     }
 
     @Override
@@ -134,13 +132,13 @@ public class IndexServiceImpl implements IndexService {
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
         ActiveExecutorService.incrementAndGet();
         int counter = 0;
-        try (InputStreamReader inputStreamReader = new InputStreamReader( inputStream , "UTF-8")) {
+        try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             JsonFactory factory = new JsonFactory();
             JsonParser parser = factory.createParser(inputStreamReader);
 
 
             JsonToken token = parser.nextToken();
-            while (token!=null && !JsonToken.START_ARRAY.equals(token)) {
+            while (token != null && !JsonToken.START_ARRAY.equals(token)) {
                 token = parser.nextToken();
             }
 
@@ -156,7 +154,7 @@ public class IndexServiceImpl implements IndexService {
 
                 JsonNode submission = mapper.readTree(parser);
                 executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments, parserManager));
-                if(++counter % 10000==0) {
+                if (++counter % 10000 == 0) {
                     logger.info("{} docs indexed", counter);
                 }
             }
@@ -164,8 +162,8 @@ public class IndexServiceImpl implements IndexService {
                 token = parser.nextToken();
             }
 
-            Map<String,String> commitData = new HashMap<>();
-            commitData.put("updateTime", Long.toString (new Date().getTime()) );
+            Map<String, String> commitData = new HashMap<>();
+            commitData.put("updateTime", Long.toString(new Date().getTime()));
             indexManager.getIndexWriter().setLiveCommitData(commitData.entrySet());
 
             executorService.shutdown();
@@ -174,11 +172,10 @@ public class IndexServiceImpl implements IndexService {
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
             indexManager.refreshTaxonomyReader();
-            logger.info("Indexing lasted {} seconds", (System.currentTimeMillis()-startTime)/1000);
+            logger.info("Indexing lasted {} seconds", (System.currentTimeMillis() - startTime) / 1000);
             ActiveExecutorService.decrementAndGet();
             searchService.clearStatsCache();
-        }
-        catch (Throwable error){
+        } catch (Throwable error) {
             logger.error("problem in parsing partial update", error);
         } finally {
             //logger.debug("Deleting temp file {}", inputStudiesFilePath);
@@ -197,8 +194,8 @@ public class IndexServiceImpl implements IndexService {
         executorService.execute(new JsonDocumentIndexer(submission, taxonomyManager, indexManager, fileIndexService, removeFileDocuments, parserManager));
         executorService.shutdown();
         try {
-            Map<String,String> commitData = new HashMap<>();
-            commitData.put("updateTime", Long.toString (new Date().getTime()) );
+            Map<String, String> commitData = new HashMap<>();
+            commitData.put("updateTime", Long.toString(new Date().getTime()));
             indexManager.getIndexWriter().setLiveCommitData(commitData.entrySet());
 
             executorService.awaitTermination(5, TimeUnit.HOURS);
@@ -214,11 +211,11 @@ public class IndexServiceImpl implements IndexService {
     }
 
     @Override
-    public void deleteDoc(String accession) throws Exception{
-        if(accession==null || accession.isEmpty())
+    public void deleteDoc(String accession) throws Exception {
+        if (accession == null || accession.isEmpty())
             return;
         QueryParser parser = new QueryParser(Fields.ACCESSION, new AttributeFieldAnalyzer());
-        String strquery = Fields.ACCESSION+":"+accession;
+        String strquery = Fields.ACCESSION + ":" + accession;
         parser.setSplitOnWhitespace(true);
         Query query = parser.parse(strquery);
         indexManager.getIndexWriter().deleteDocuments(query);
@@ -231,7 +228,7 @@ public class IndexServiceImpl implements IndexService {
     public void clearIndex(boolean commit) throws IOException {
         indexManager.getIndexWriter().deleteAll();
         indexManager.getIndexWriter().forceMergeDeletes();
-        if(commit) {
+        if (commit) {
             indexManager.getIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
         }
@@ -258,23 +255,63 @@ public class IndexServiceImpl implements IndexService {
 
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    @Async
+    public void processFileForIndexing() {
+        logger.debug("Initializing File Queue for Indexing");
+        while (true) {
+            String filename = null;
+            String inputStudiesFilePath = null;
+            try {
+                filename = indexFileQueue.take();
+                logger.log(Level.INFO, "Started indexing {}. {} files left in the queue.", filename, indexFileQueue.size());
+                boolean removeFileDocuments = true;
+                if (indexManager.getIndexWriter() == null || !indexManager.getIndexWriter().isOpen()) {
+                    logger.log(Level.INFO, "IndexWriter was closed trying to construct a new IndexWriter");
+                    indexManager.refreshIndexWriterAndWholeOtherIndices();
+                    Thread.sleep(30000);
+                    indexFileQueue.put(filename);
+                    continue;
+                }
+                if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default")) {
+                    close();
+                    clearIndex(false);
+                    filename = Constants.STUDIES_JSON_FILE;
+                    removeFileDocuments = false;
+                }
+                inputStudiesFilePath = getCopiedSourceFile(filename);
+                indexAll(new FileInputStream(inputStudiesFilePath), removeFileDocuments);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.log(Level.ERROR, e);
+            } finally {
+                if (closed.get())
+                    open();
+                try {
+                    Files.delete(Paths.get(inputStudiesFilePath));
+                } catch (Throwable e) {
+                    logger.error("Cannot delete {}", inputStudiesFilePath);
+                }
+            }
+            logger.log(Level.INFO, "Finished indexing {}", filename);
+        }
+    }
 
+    public BlockingQueue<String> getIndexFileQueue() {
+        return indexFileQueue;
     }
 
     public static class JsonDocumentIndexer implements Runnable {
-        private Logger logger = LogManager.getLogger(JsonDocumentIndexer.class.getName());
+        private final Logger logger = LogManager.getLogger(JsonDocumentIndexer.class.getName());
 
-        private IndexWriter writer;
-        private JsonNode json;
-        private TaxonomyManager taxonomyManager;
-        private IndexManager indexManager;
-        private FileIndexService fileIndexService;
-        private boolean removeFileDocuments;
-        private ParserManager parserManager;
+        private final IndexWriter writer;
+        private final JsonNode json;
+        private final TaxonomyManager taxonomyManager;
+        private final IndexManager indexManager;
+        private final FileIndexService fileIndexService;
+        private final boolean removeFileDocuments;
+        private final ParserManager parserManager;
 
-        public JsonDocumentIndexer(JsonNode json,TaxonomyManager taxonomyManager, IndexManager indexManager, FileIndexService fileIndexService, boolean removeFileDocuments, ParserManager parserManager) {
+        public JsonDocumentIndexer(JsonNode json, TaxonomyManager taxonomyManager, IndexManager indexManager, FileIndexService fileIndexService, boolean removeFileDocuments, ParserManager parserManager) {
             this.writer = indexManager.getIndexWriter();
             this.json = json;
             this.taxonomyManager = taxonomyManager;
@@ -285,21 +322,20 @@ public class IndexServiceImpl implements IndexService {
         }
 
         @Override
-        public void run(){
+        public void run() {
             Map<String, Object> valueMap = new HashMap<>();
-            String accession="";
+            String accession = "";
             try {
                 ReadContext jsonPathContext = JsonPath.parse(json.toString());
                 accession = parserManager.getParser(Fields.ACCESSION).parse(valueMap, json, jsonPathContext);
                 parserManager.getParser(Fields.SECRET_KEY).parse(valueMap, json, jsonPathContext);
 
-                for(JsonNode fieldMetadataNode:indexManager.getIndexDetails().findValue(PUBLIC)){//parsing common "public" facet and fields
+                for (JsonNode fieldMetadataNode : indexManager.getIndexDetails().findValue(PUBLIC)) {//parsing common "public" facet and fields
                     AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
                     abstractParser.parse(valueMap, json, jsonPathContext);
                 }
                 //collections do not need more parsing
-                if(valueMap.getOrDefault(Fields.TYPE,"").toString().equalsIgnoreCase("collection"))
-                {
+                if (valueMap.getOrDefault(Fields.TYPE, "").toString().equalsIgnoreCase("collection")) {
                     addCollectionToHierarchy(valueMap, accession);
                     updateDocument(valueMap);
                     return;
@@ -314,9 +350,9 @@ public class IndexServiceImpl implements IndexService {
                     valueMap.put(Facets.COLLECTION, String.join(Facets.DELIMITER, collectionFacets));
                 }
 
-                for (String collectionName:  collectionFacets ) {
+                for (String collectionName : collectionFacets) {
                     JsonNode collectionSpecificFields = indexManager.getIndexDetails().findValue(collectionName);
-                    if(collectionSpecificFields != null) {
+                    if (collectionSpecificFields != null) {
                         for (JsonNode fieldMetadataNode : collectionSpecificFields) {//parsing collection's facet and fields
                             AbstractParser abstractParser = parserManager.getParser(fieldMetadataNode.get("name").asText());
                             abstractParser.parse(valueMap, json, jsonPathContext);
@@ -326,26 +362,26 @@ public class IndexServiceImpl implements IndexService {
                 Set<String> columnSet = new LinkedHashSet<>();
 
                 Map<String, Object> fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
-                if (fileValueMap!=null) {
+                if (fileValueMap != null) {
                     valueMap.putAll(fileValueMap);
                 }
 
                 valueMap.put(Constants.File.FILE_ATTS, columnSet);
                 updateDocument(valueMap);
 
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 logger.debug("problem in parser for parsing accession: {}!", accession, ex);
             }
         }
 
         private void addCollectionToHierarchy(Map<String, Object> valueMap, String accession) {
-            Object parent =valueMap.getOrDefault (Facets.COLLECTION, null);
+            Object parent = valueMap.getOrDefault(Facets.COLLECTION, null);
             //TODO: Start - Remove this when backend supports subcollections
             if (accession.equalsIgnoreCase("JCB") || accession.equalsIgnoreCase("BioImages-EMPIAR")) {
-                parent="BioImages";
+                parent = "BioImages";
             }
             //TODO: End - Remove this when backend supports subcollections
-            if (parent==null || StringUtils.isEmpty(parent.toString())) {
+            if (parent == null || StringUtils.isEmpty(parent.toString())) {
                 indexManager.unsetCollectionParent(accession);
             } else {
                 indexManager.setSubCollection(parent.toString(), accession);
@@ -357,13 +393,13 @@ public class IndexServiceImpl implements IndexService {
 
             //TODO: replace by classes if possible
             String value;
-            String prjName = (String)valueMap.get(Facets.COLLECTION);
+            String prjName = (String) valueMap.get(Facets.COLLECTION);
             //updateCollectionParents(valueMap);
             addFileAttributes(doc, (Set<String>) valueMap.get(Constants.File.FILE_ATTS));
-            for (String field: indexManager.getCollectionRelatedFields(prjName.toLowerCase())) {
+            for (String field : indexManager.getCollectionRelatedFields(prjName.toLowerCase())) {
                 JsonNode curNode = indexManager.getIndexEntryMap().get(field);
                 String fieldType = curNode.get(IndexEntryAttributes.FIELD_TYPE).asText();
-                try{
+                try {
                     switch (fieldType) {
                         case IndexEntryAttributes.FieldTypeValues.TOKENIZED_STRING:
                             value = String.valueOf(valueMap.get(field));
@@ -374,27 +410,28 @@ public class IndexServiceImpl implements IndexService {
                             value = String.valueOf(valueMap.get(field));
                             Field unTokenizeField = new Field(String.valueOf(field), value, TYPE_NOT_ANALYZED);
                             doc.add(unTokenizeField);
-                            if(curNode.has (IndexEntryAttributes.SORTABLE) && curNode.get(IndexEntryAttributes.SORTABLE).asBoolean(false))
-                                doc.add( new SortedDocValuesField(String.valueOf(field), new BytesRef( valueMap.get(field).toString())));
+                            if (curNode.has(IndexEntryAttributes.SORTABLE) && curNode.get(IndexEntryAttributes.SORTABLE).asBoolean(false))
+                                doc.add(new SortedDocValuesField(String.valueOf(field), new BytesRef(valueMap.get(field).toString())));
                             break;
                         case IndexEntryAttributes.FieldTypeValues.LONG:
-                            if (!valueMap.containsKey(field) || StringUtils.isEmpty(valueMap.get(field).toString()) ) break;
+                            if (!valueMap.containsKey(field) || StringUtils.isEmpty(valueMap.get(field).toString()))
+                                break;
                             doc.add(new SortedNumericDocValuesField(String.valueOf(field), (Long) valueMap.get(field)));
                             doc.add(new StoredField(String.valueOf(field), valueMap.get(field).toString()));
-                            doc.add( new LongPoint(String.valueOf(field), (Long) valueMap.get(field)  ));
+                            doc.add(new LongPoint(String.valueOf(field), (Long) valueMap.get(field)));
                             break;
                         case IndexEntryAttributes.FieldTypeValues.FACET:
-                            addFacet(valueMap.containsKey(field) && valueMap.get(field)!=null ?
+                            addFacet(valueMap.containsKey(field) && valueMap.get(field) != null ?
                                     String.valueOf(valueMap.get(field)) : null, field, doc, curNode);
                     }
-                }catch(Exception ex){
-                    logger.error("field name: {} doc accession: {}", field.toString(), String.valueOf(valueMap.get(Fields.ACCESSION)), ex);
+                } catch (Exception ex) {
+                    logger.error("field name: {} doc accession: {}", field, String.valueOf(valueMap.get(Fields.ACCESSION)), ex);
                 }
 
 
             }
 
-            Document facetedDocument = taxonomyManager.getFacetsConfig().build(indexManager.getFacetWriter() ,doc);
+            Document facetedDocument = taxonomyManager.getFacetsConfig().build(indexManager.getFacetWriter(), doc);
             writer.updateDocument(new Term(Fields.ID, valueMap.get(Fields.ACCESSION).toString()), facetedDocument);
 
         }
@@ -413,76 +450,31 @@ public class IndexServiceImpl implements IndexService {
             valueMap.put(Facets.PROJECT, StringUtils.join(parents,Facets.DELIMITER));
         }*/
 
-        private void addFileAttributes(Document doc, Set<String> columnAtts){
+        private void addFileAttributes(Document doc, Set<String> columnAtts) {
             StringBuilder allAtts = new StringBuilder("Name|Size|");
-            if(columnAtts==null)
+            if (columnAtts == null)
                 columnAtts = new HashSet<>();
-            for(String att:columnAtts)
+            for (String att : columnAtts)
                 allAtts.append(att).append("|");
-            doc.add(new StringField(Constants.File.FILE_ATTS, allAtts.toString(),Field.Store.YES));
+            doc.add(new StringField(Constants.File.FILE_ATTS, allAtts.toString(), Field.Store.YES));
         }
 
-        private void addFacet(String value, String fieldName, Document doc, JsonNode facetConfig){
-            if(value==null || value.isEmpty()){
-                if(fieldName.equalsIgnoreCase(Facets.FILE_TYPE) || fieldName.equalsIgnoreCase(Facets.LINK_TYPE)
+        private void addFacet(String value, String fieldName, Document doc, JsonNode facetConfig) {
+            if (value == null || value.isEmpty()) {
+                if (fieldName.equalsIgnoreCase(Facets.FILE_TYPE) || fieldName.equalsIgnoreCase(Facets.LINK_TYPE)
                         || (facetConfig.has(IndexEntryAttributes.FACET_TYPE) && facetConfig.get(IndexEntryAttributes.FACET_TYPE).asText().equalsIgnoreCase("boolean"))
                 )
                     return;
                 else
                     value = NA;
             }
-            for(String subVal: org.apache.commons.lang3.StringUtils.split(value, Facets.DELIMITER)) {
-                if(subVal.equalsIgnoreCase(NA) && facetConfig.has(IndexEntryAttributes.DEFAULT_VALUE)){
+            for (String subVal : org.apache.commons.lang3.StringUtils.split(value, Facets.DELIMITER)) {
+                if (subVal.equalsIgnoreCase(NA) && facetConfig.has(IndexEntryAttributes.DEFAULT_VALUE)) {
                     subVal = facetConfig.get(IndexEntryAttributes.DEFAULT_VALUE).textValue();
                 }
                 doc.add(new FacetField(fieldName, subVal.trim().toLowerCase()));
             }
         }
-    }
-
-    @Async
-    public void processFileForIndexing() {
-        logger.debug("Initializing File Queue for Indexing");
-        while (true) {
-            String filename = null;
-            String inputStudiesFilePath = null;
-            try {
-                filename = indexFileQueue.take();
-                logger.log(Level.INFO, "Started indexing {}. {} files left in the queue.", filename, indexFileQueue.size());
-                boolean removeFileDocuments = true;
-                if(indexManager.getIndexWriter()==null || !indexManager.getIndexWriter().isOpen()){
-                    logger.log(Level.INFO,"IndexWriter was closed trying to construct a new IndexWriter");
-                    indexManager.refreshIndexWriterAndWholeOtherIndices();
-                    Thread.sleep(30000);
-                    indexFileQueue.put(filename);
-                    continue;
-                }
-                if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default"))  {
-                    close();
-                    clearIndex(false);
-                    filename = Constants.STUDIES_JSON_FILE;
-                    removeFileDocuments = false;
-                }
-                inputStudiesFilePath = getCopiedSourceFile(filename);
-                indexAll(new FileInputStream(inputStudiesFilePath), removeFileDocuments);
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.log(Level.ERROR, e);
-            } finally {
-                if(closed.get())
-                    open();
-                try {
-                    Files.delete(Paths.get(inputStudiesFilePath));
-                } catch (Throwable e) {
-                    logger.error("Cannot delete {}", inputStudiesFilePath);
-                }
-            }
-            logger.log(Level.INFO, "Finished indexing {}", filename);
-        }
-    }
-
-    public BlockingQueue<String> getIndexFileQueue() {
-        return indexFileQueue;
     }
 
 }
