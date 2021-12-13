@@ -18,7 +18,7 @@ public class AccessParser extends AbstractParser{
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         String indexKey = indexEntry.get(Constants.IndexEntryAttributes.NAME).asText();
-        String[] jPaths = {"$.accessTags[?(@ =~ /[^{].*/i)]" , "$.accessTags[?(@.size() > 0)].name", "$.collections.accNo", "$.owner"};
+        String[] jPaths = {"$.accessTags[?(@ =~ /[^{].*/i)]" , "$.accessTags[?(@.size() > 0)].name", "$.collections..accNo", "$.owner"};
         Set resultData = new HashSet<>();
         for (String jp: jPaths) {
             try {
