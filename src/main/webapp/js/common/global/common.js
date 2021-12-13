@@ -39,6 +39,47 @@ $(function() {
         $('span.elixir-banner-description').text('ArrayExpress is an ELIXIR Core Data Resource');
     }
 
+    function updateMenuForCollection(data) {
+        var helpLink = $('#masthead nav ul.float-left li.active a');
+        var activeClass = '';
+        if (helpLink.attr('href')!='help') {
+            $('#masthead nav ul.float-left li').removeClass('active');
+            activeClass='active';
+        }
+        $('#masthead nav ul.float-left li').eq(1).after('<li class="'+activeClass+'"><a href="'
+            + (contextPath + '/'+ data.accno + '/' + 'studies')
+            + '" title="'+ data.title
+            +'">'+ (data.title.toLowerCase()=='bioimages' ? 'Browse' : data.title) +'</a></li>')
+    }
+
+    function showCollectionBanner(data) {
+        var templateSource = $('script#collection-banner-template').html();
+        var template = Handlebars.compile(templateSource);
+        var collectionObj={};
+        try {
+            collectionObj = {accno : data.accno , logo: contextPath + '/files/' + data.accno + '/' + data.section.files[0][0].path};
+        } catch(e){}
+        $(data.section.attributes).each(function () {
+            collectionObj[this.name.toLowerCase()] = this.value
+        })
+        var html = template(collectionObj);
+        if ($.inArray(collection.toLowerCase(), specialCollections)) {
+            $('#collection-banner').html(html);
+        }
+        // add collection search checkbox
+        $('#example').append('<label id="collection-search"'+ ( $.inArray(collection.toLowerCase(), specialCollections) ? 'style="display:none;"' : '')
+            +'><input id="search-in-collection" type="checkbox" />Search in '+collectionObj.title+' only</label>');
+        $('#search-in-collection').bind('change', function(){
+            $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');
+        });
+        $('#search-in-collection').click();
+
+        //fix breadcrumbs
+        $('ul.breadcrumbs').children().first().next().html('<a href="'+contextPath+'/'+collection+'/studies">'+collectionObj.title+'</a>')
+        return collectionObj;
+    }
+
+
     $.ajaxSetup({
         cache: true
     });
@@ -163,48 +204,8 @@ function showError(error) {
 }
 
 
-function showCollectionBanner(data) {
-    var templateSource = $('script#collection-banner-template').html();
-    var template = Handlebars.compile(templateSource);
-    var collectionObj={};
-    try {
-        collectionObj = {accno : data.accno , logo: contextPath + '/files/' + data.accno + '/' + data.section.files[0][0].path};
-    } catch(e){}
-    $(data.section.attributes).each(function () {
-        collectionObj[this.name.toLowerCase()] = this.value
-    })
-    var html = template(collectionObj);
-    if ($.inArray(collection.toLowerCase(), specialCollections)) {
-        $('#collection-banner').html(html);
-    }
-    // add collection search checkbox
-    $('#example').append('<label id="collection-search"'+ ( $.inArray(collection.toLowerCase(), specialCollections) ? 'style="display:none;"' : '')
-        +'><input id="search-in-collection" type="checkbox" />Search in '+collectionObj.title+' only</label>');
-    $('#search-in-collection').bind('change', function(){
-        $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');
-    });
-    $('#search-in-collection').click();
-
-    //fix breadcrumbs
-    $('ul.breadcrumbs').children().first().next().html('<a href="'+contextPath+'/'+collection+'/studies">'+collectionObj.title+'</a>')
-    return collectionObj;
-}
-
 function formatNumber(s) {
     return new Number(s).toLocaleString();
-}
-
-function updateMenuForCollection(data) {
-    var helpLink = $('#masthead nav ul.float-left li.active a');
-    var activeClass = '';
-    if (helpLink.attr('href')!='help') {
-        $('#masthead nav ul.float-left li').removeClass('active');
-        activeClass='active';
-    }
-    $('#masthead nav ul.float-left li').eq(1).after('<li class="'+activeClass+'"><a href="'
-            + (contextPath + '/'+ data.accno + '/' + 'studies')
-            + '" title="'+ data.title
-            +'">'+ (data.title.toLowerCase()=='bioimages' ? 'Browse' : data.title) +'</a></li>')
 }
 
 function getParams() {
