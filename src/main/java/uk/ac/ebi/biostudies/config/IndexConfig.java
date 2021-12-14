@@ -28,6 +28,9 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     @Value("${files.baseDirectory}")
     private String baseDirectory;
 
+    @Value("${files.submissionsDirectory}")
+    private String submissionsDirectory;
+
     @Value("${indexer.threadCount}")
     private int threadCount;
 
@@ -115,7 +118,7 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     }
 
     public String getFileRootDir() {
-        return baseDirectory + "submission";
+        return baseDirectory + submissionsDirectory;
     }
 
     public String getFtpDir() {
