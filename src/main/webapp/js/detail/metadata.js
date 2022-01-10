@@ -35,6 +35,11 @@ var Metadata = (function (_self) {
             data.section.accessTags = data.accessTags;
             var title = data.accno, releaseDate = '';
             if (data.attributes) { //v1
+                data.attributes.filter(function (v, i) {
+                    if(v.name.trim() == 'AttachTo')
+                        collection=v.value;
+                });
+                handleProjectSpecificUI();
                 title = data.attributes.filter(function (v, i) {
                     return v.name.trim() == 'Title';
                 });
