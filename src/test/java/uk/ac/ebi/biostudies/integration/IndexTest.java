@@ -59,7 +59,7 @@ public class IndexTest {
 
     @Test
     public void test2_defaultIndex() throws Exception {
-        doReturn("src/test/resources/updates/"+ Constants.STUDIES_JSON_FILE).when(indexConfigMock).getStudiesInputFile();
+        doReturn("src/test/resources/updates/"+ Constants.SUBMISSIONS_JSON).when(indexConfigMock).getStudiesInputFile();
         webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/reload/default");
         Thread.sleep(5000);
         assertTrue(webDriver.getPageSource().contains("default queued for indexing"));
@@ -67,7 +67,7 @@ public class IndexTest {
 
     @Test
     public void test3_updateDocument() throws Throwable{
-        doReturn("src/test/resources/updates/"+ Constants.STUDIES_JSON_FILE).when(indexConfigMock).getStudiesInputFile();
+        doReturn("src/test/resources/updates/"+ Constants.SUBMISSIONS_JSON).when(indexConfigMock).getStudiesInputFile();
         webDriver.navigate().to(integrationTestProperties.getBaseUrl(randomPort)+"api/v1/index/reload/smallJson.json");
         Thread.sleep(2000);
         Document noDoc = searchService.getDocumentByAccession("S-EPMC3343805", null);

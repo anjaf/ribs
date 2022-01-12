@@ -53,7 +53,7 @@
                 <img src="${contextPath}/images/collections/arrayexpress/search.svg"><br/> Browse
                 ArrayExpress</a></section>
             <section class="columns medium-3"><a
-                    style="color: #5E8CC0 !important; border: 0" href="fg/annotare">
+                    style="color: #5E8CC0 !important; border: 0" href="/fg/annotare">
                 <img width="50" src="${contextPath}/images/collections/arrayexpress/annotare-logo-64.svg"><br/> Submit an
                 Experiment
             </a></section>
