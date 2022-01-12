@@ -40,7 +40,7 @@ public class ReloadStudiesJob {
     public void doExecute() throws Exception {
         try {
             logger.info("Reloading index from scratch");
-            indexService.getIndexFileQueue().put(Constants.STUDIES_JSON_FILE);
+            indexService.getIndexFileQueue().put(Constants.SUBMISSIONS_JSON);
         } catch (Exception x) {
             logger.error("Error reloading index",x);
             throw new RuntimeException(x);
