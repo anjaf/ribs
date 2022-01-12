@@ -42,7 +42,7 @@
             <p class="justify">The BioStudies team is part of <a href="https://www.ebi.ac.uk/about/people/ugis-sarkans">Ugis
                 Sarkans'
                 team</a>.</p>
-            <p class="justify">The ArrayExpress colleciton and Annotare are maintained by <a
+            <p class="justify">The ArrayExpress collection and Annotare are maintained by <a
                     href="https://www.ebi.ac.uk/about/people/irene-papatheodorou">Irene Papatheodorou's team</a>.</p>
 
 
@@ -51,9 +51,6 @@
             <p>The BioStudies team would like to thank the following companies for their support through the offering
                 of free software licenses:</p>
             <ul>
-                <li><a href="http://www.jetbrains.com">JetBrains</a> for the most intelligent Java IDE - <a
-                        href="http://www.jetbrains.com/idea/index.html" target="_blank">IntelliJ IDEA</a>.
-                </li>
                 <li><a href="http://www.atlassian.com">Atlassian</a> for the <a
                         href="http://www.atlassian.com/software/bamboo/overview" target="_blank">Bamboo</a> - Continuous
                     Integration and Release Management tool.

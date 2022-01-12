@@ -241,7 +241,7 @@ public class IndexServiceImpl implements IndexService {
         String sourceLocation = indexConfig.getStudiesInputFile();
         if (isNotBlank(sourceLocation)) {
             if (jsonFileName != null && !jsonFileName.isEmpty()) {
-                sourceLocation = sourceLocation.replaceAll(STUDIES_JSON_FILE, jsonFileName);
+                sourceLocation = sourceLocation.replaceAll(SUBMISSIONS_JSON, jsonFileName);
             }
             File srcFile = new File(sourceLocation);
             logger.info("Making a local copy  of {} at {}", srcFile.getAbsolutePath(), destFile.getAbsolutePath());
@@ -272,10 +272,10 @@ public class IndexServiceImpl implements IndexService {
                     indexFileQueue.put(filename);
                     continue;
                 }
-                if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.STUDIES_JSON_FILE) || filename.equalsIgnoreCase("default")) {
+                if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.SUBMISSIONS_JSON) || filename.equalsIgnoreCase("default")) {
                     close();
                     clearIndex(false);
-                    filename = Constants.STUDIES_JSON_FILE;
+                    filename = Constants.SUBMISSIONS_JSON;
                     removeFileDocuments = false;
                 }
                 inputStudiesFilePath = getCopiedSourceFile(filename);
