@@ -1,44 +1,7 @@
 $(function() {
     const specialCollections = ['bioimages', 'arrayexpress'];
 
-    function handleBioImagesUI() {
-        $('.menu.float-left li').slice(1, 2).hide();
-        $('.menu.float-left li').slice(4, 5).hide();
-        $('#local-title').html('<h1><img src="' + contextPath + '/images/collections/bioimages/logo.png"></img></h1>');
-        $('#masthead').css("background-image","url("+contextPath +"/images/collections/bioimages/background.jpg)");
-        $('.masthead, #ebi_search .button, .pagination .current').css("background-color","rgb(0, 124, 130)");
-        $('.menu.float-left li:nth-child(1) a').attr('href','/bioimage-archive/');
-        $('.menu.float-left li:nth-child(3) a').attr('href','/bioimage-archive/submit');
-        $('.menu.float-left li:nth-child(4) a').attr('href', '/bioimage-archive/help');
-        ;
-        const menu = $('.menu.float-left li:nth-child(5)');
-        menu.before('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="About us" data-is-click="false">\n' +
-            '                            <a href="#" role="menuitem">About us</a>\n' +
-            '                            <ul class="menu submenu is-dropdown-submenu first-sub vertical" data-submenu="" role="menubar" style="">\n' +
-            '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/faq" role="menuitem">FAQs</a></li>\n' +
-            '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/project-developments/" role="menuitem">Project developments</a></li>\n' +
-            '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/case-studies/" role="menuitem">Case Studies</a></li>\n' +
-            '                            </ul>\n' +
-            '                        </li>');
-        new Foundation.DropdownMenu(menu.parent());
-        $('#query').attr('placeholder','Search BioImages');
-        $('.sample-query').first().text('brain');
-        $('.sample-query').first().next().text('capsid');
-        $('#elixir-banner').hide();
-    }
 
-    function handleArrayExpressUI() {
-        $('#local-title').html('<h1><img src="' + contextPath + '/images/collections/arrayexpress/ae-logo-64.svg"></img><span style="font-weight:lighter;padding-left: 4pt;vertical-align:bottom;">ArrayExpress</span></h1>');
-        $('#masthead').css("background-color","#5E8CC0");
-        $('#query').attr('placeholder','Search ArrayExpress');
-        $('.sample-query').first().text('E-MEXP-31');
-        $('.sample-query').first().next().text('cancer');
-        $('.menu.float-left li:contains("Home") a').attr('href',contextPath + '/arrayexpress');
-        $('.menu.float-left li:contains("Submit") a').attr('href','/fg/annotare');
-        $('.menu.float-left li:contains("Browse") a').attr('href',contextPath + '/arrayexpress/studies');
-        $('span.elixir-banner-name').text('This service');
-        $('span.elixir-banner-description').text('ArrayExpress is an ELIXIR Core Data Resource');
-    }
 
     function updateMenuForCollection(data) {
         var helpLink = $('#masthead nav ul.float-left li.active a');
@@ -85,11 +48,8 @@ $(function() {
         cache: true
     });
 
-    if (collection && collection.toLowerCase()=='bioimages') {
-        handleBioImagesUI();
-    } else if (collection && collection.toLowerCase()=='arrayexpress') {
-        handleArrayExpressUI();
-    }
+    handleProjectSpecificUI();
+
     $('#login-button').click(function () {
         showLoginForm();
     });
@@ -146,6 +106,53 @@ $(function() {
     ).focus(autoCompleteFixSet).blur(autoCompleteFixUnset).removeAttr('autocomplete');
     updateTitleFromBreadCrumbs();
 });
+
+function handleProjectSpecificUI(){
+    if (collection && collection.toLowerCase()=='bioimages') {
+        handleBioImagesUI();
+    } else if (collection && collection.toLowerCase()=='arrayexpress') {
+        handleArrayExpressUI();
+    }
+}
+
+function handleBioImagesUI() {
+    $('.menu.float-left li').slice(1, 2).hide();
+    $('.menu.float-left li').slice(4, 5).hide();
+    $('#local-title').html('<h1><img src="' + contextPath + '/images/collections/bioimages/logo.png"></img></h1>');
+    $('#masthead').css("background-image","url("+contextPath +"/images/collections/bioimages/background.jpg)");
+    $('.masthead, #ebi_search .button, .pagination .current').css("background-color","rgb(0, 124, 130)");
+    $('.menu.float-left li:nth-child(1) a').attr('href','/bioimage-archive/');
+    $('.menu.float-left li:nth-child(3) a').attr('href','/bioimage-archive/submit');
+    $('.menu.float-left li:nth-child(4) a').attr('href', '/bioimage-archive/help');
+    ;
+    const menu = $('.menu.float-left li:nth-child(5)');
+    menu.before('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="About us" data-is-click="false">\n' +
+        '                            <a href="#" role="menuitem">About us</a>\n' +
+        '                            <ul class="menu submenu is-dropdown-submenu first-sub vertical" data-submenu="" role="menubar" style="">\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/faq" role="menuitem">FAQs</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/project-developments/" role="menuitem">Project developments</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/case-studies/" role="menuitem">Case Studies</a></li>\n' +
+        '                            </ul>\n' +
+        '                        </li>');
+    new Foundation.DropdownMenu(menu.parent());
+    $('#query').attr('placeholder','Search BioImages');
+    $('.sample-query').first().text('brain');
+    $('.sample-query').first().next().text('capsid');
+    $('#elixir-banner').hide();
+}
+
+function handleArrayExpressUI() {
+    $('#local-title').html('<h1><img src="' + contextPath + '/images/collections/arrayexpress/ae-logo-64.svg"></img><span style="font-weight:lighter;padding-left: 4pt;vertical-align:bottom;">ArrayExpress</span></h1>');
+    $('#masthead').css("background-color","#5E8CC0");
+    $('#query').attr('placeholder','Search ArrayExpress');
+    $('.sample-query').first().text('E-MEXP-31');
+    $('.sample-query').first().next().text('cancer');
+    $('.menu.float-left li:contains("Home") a').attr('href',contextPath + '/arrayexpress');
+    $('.menu.float-left li:contains("Submit") a').attr('href','/fg/annotare');
+    $('.menu.float-left li:contains("Browse") a').attr('href',contextPath + '/arrayexpress/studies');
+    $('span.elixir-banner-name').text('This service');
+    $('span.elixir-banner-description').text('ArrayExpress is an ELIXIR Core Data Resource');
+}
 
 
 function updateTitleFromBreadCrumbs() {
