@@ -95,7 +95,7 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     }
 
     public String getStudiesInputFile() {
-        return baseDirectory + "updates/" + Constants.STUDIES_JSON_FILE;
+        return baseDirectory + "updates/" + Constants.SUBMISSIONS_JSON;
     }
 
     public String getDefaultField() {

@@ -53,15 +53,15 @@
                 <img src="${contextPath}/images/collections/arrayexpress/search.svg"><br/> Browse
                 ArrayExpress</a></section>
             <section class="columns medium-3"><a
-                    style="color: #5E8CC0 !important; border: 0" href="fg/annotare">
+                    style="color: #5E8CC0 !important; border: 0" href="/fg/annotare">
                 <img width="50" src="${contextPath}/images/collections/arrayexpress/annotare-logo-64.svg"><br/> Submit an
                 Experiment
             </a></section>
             <section class="columns medium-3">&nbsp;</section>
         </div>
         <section class="columns medium-4"><h4><i class="icon icon-generic" data-icon="L"></i> Links</h4>
-            <p>Information about how to search ArrayExpress, understand search results, how to submit data and FAQ can
-                be found in our <a href="https://www.ebi.ac.uk/arrayexpress/help/index.html">Help section</a>.</p>
+            <p>Information about how to search ArrayExpress can
+                be found in our <a href="${contextPath}/arrayexpress/help">Help section</a>.</p>
             <p>Find out more about the <a href="https://www.ebi.ac.uk/about/people/alvis-brazma">Functional Genomics
                 group</a>.</p></section>
         <section class="columns medium-4"><h4><i class="icon icon-functional" data-icon="t"></i> Tools and Access</h4>
@@ -69,9 +69,6 @@
             </p>
             <p><a href="http://www.bioconductor.org/packages/release/bioc/html/ArrayExpress.html">ArrayExpress
                 Bioconductor package</a>: an R package to access ArrayExpress and build data structures.</p>
-            <p><a href="https://www.ebi.ac.uk/arrayexpress/help/programmatic_access.html">Programmatic access</a>:
-                query and download data
-                using web services or JSON.</p>
             <p><a href="${contextPath}/help#download">FTP/Aspera access</a>: data can be downloaded
                 directly from our FTP site.</p></section>
         <section class="columns medium-4 last"><h4><i class="icon icon-generic" data-icon="L"></i> Related Projects</h4>
