@@ -92,6 +92,7 @@ public interface Constants {
 //        String JSONSIZE = "size";
         String FILE_ATTS = "FILEATTS_";
         String PATH = "path";
+        String FILE_PATH = "filePath";
         String FILENAME = "fileName";
         String SIZE = "Size";
         String SECTION = "Section";
