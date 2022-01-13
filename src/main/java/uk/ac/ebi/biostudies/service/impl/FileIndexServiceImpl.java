@@ -189,6 +189,9 @@ public class FileIndexServiceImpl implements FileIndexService {
         }
         JsonNode pathNode = fNode.get(Constants.File.PATH);
         path = pathNode == null || pathNode.asText().equalsIgnoreCase("null") ? null : pathNode.asText();
+        if (path==null && fNode.has(Constants.File.FILE_PATH)) {
+            path = fNode.get(Constants.File.FILE_PATH).asText();
+        }
         if (path==null && fNode.has(Constants.File.RELPATH)) {
             path = fNode.get(Constants.File.RELPATH).asText();
         }
