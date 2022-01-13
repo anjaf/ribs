@@ -84,7 +84,7 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
                     File file = new File(canonicalPath,filename);
                     if (!file.getCanonicalPath().startsWith(envIndependentCanonicalPath)) break;
                     if (!file.exists()) {
-                        logger.debug( "{0} not found ", file.getAbsolutePath());
+                        logger.debug( "{} not found ", file.getAbsolutePath());
                         file = new File(canonicalPath+"u/", filename );
                         logger.debug( "Trying ", file.getAbsolutePath());
                     }
