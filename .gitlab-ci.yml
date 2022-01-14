@@ -58,6 +58,17 @@ dev:
   only:
     - develop
 
+ribs-manual:
+  <<: *deploy-template
+  environment: dev
+  when: manual
+
+beta-manual:
+  <<: *deploy-template
+  environment: beta
+  when: manual
+
+
 build-docker:
   image: docker
   stage: build_docker

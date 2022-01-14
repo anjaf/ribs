@@ -95,6 +95,7 @@ public interface Constants {
         String FILE_PATH = "filePath";
         String FILENAME = "fileName";
         String SIZE = "Size";
+        String FILE_SIZE = "fileSize";
         String SECTION = "Section";
         String NAME = "Name";
         String TYPE = "type";
