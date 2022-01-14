@@ -1,8 +1,6 @@
 $(function() {
     const specialCollections = ['bioimages', 'arrayexpress'];
 
-
-
     function updateMenuForCollection(data) {
         var helpLink = $('#masthead nav ul.float-left li.active a');
         var activeClass = '';
@@ -14,6 +12,7 @@ $(function() {
             + (contextPath + '/'+ data.accno + '/' + 'studies')
             + '" title="'+ data.title
             +'">'+ (data.title.toLowerCase()=='bioimages' ? 'Browse' : data.title) +'</a></li>')
+
     }
 
     function showCollectionBanner(data) {
@@ -37,9 +36,9 @@ $(function() {
             $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');
         });
         $('#search-in-collection').click();
-
         //fix breadcrumbs
         $('ul.breadcrumbs').children().first().next().html('<a href="'+contextPath+'/'+collection+'/studies">'+collectionObj.title+'</a>')
+        updateTitleFromBreadCrumbs();
         return collectionObj;
     }
 
@@ -149,7 +148,7 @@ function handleArrayExpressUI() {
     $('.sample-query').first().next().text('cancer');
     $('.menu.float-left li:contains("Home") a').attr('href',contextPath + '/arrayexpress');
     $('.menu.float-left li:contains("Submit") a').attr('href','/fg/annotare');
-    $('.menu.float-left li:contains("Browse") a').attr('href',contextPath + '/arrayexpress/studies');
+    $('.menu.float-left li:contains("Browse") a').text('BioStudies').attr('href',contextPath);
     $('span.elixir-banner-name').text('This service');
     $('span.elixir-banner-description').text('ArrayExpress is an ELIXIR Core Data Resource');
 }
