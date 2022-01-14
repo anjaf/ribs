@@ -182,11 +182,19 @@ public class FileIndexServiceImpl implements FileIndexService {
         List<JsonNode> attributes;
         String value;
         Document doc = new Document();
+
         if (fNode.get(Constants.File.SIZE.toLowerCase()) != null) {
+            // parse format in pagetab and /extended endpoint
             size = Long.valueOf(fNode.get(Constants.File.SIZE.toLowerCase()).asText());
             doc.add(new SortedNumericDocValuesField(Constants.File.SIZE, size));
             doc.add(new StoredField(Constants.File.SIZE, size));
+        } else if (fNode.has(Constants.File.FILE_SIZE)) {
+            // parse format mongodb
+            size = Long.valueOf(fNode.get(Constants.File.FILE_SIZE).asText());
+            doc.add(new SortedNumericDocValuesField(Constants.File.SIZE, size));
+            doc.add(new StoredField(Constants.File.SIZE, size));
         }
+
         JsonNode pathNode = fNode.get(Constants.File.PATH);
         path = pathNode == null || pathNode.asText().equalsIgnoreCase("null") ? null : pathNode.asText();
         if (path==null && fNode.has(Constants.File.FILE_PATH)) {
