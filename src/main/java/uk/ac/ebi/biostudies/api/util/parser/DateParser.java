@@ -37,8 +37,8 @@ public class DateParser extends AbstractParser {
         if (submission.has(Constants.Fields.MODIFICATION_TIME)) {
             modificationTimeLong = Long.parseLong(submission.get(Constants.Fields.MODIFICATION_TIME).asText()) * 1000;
         } else if (submission.has(Constants.Fields.MODIFICATION_TIME_FULL)) {
-            if (submission.get(Constants.Fields.CREATION_TIME_FULL).isObject() && submission.get(Constants.Fields.CREATION_TIME_FULL).has("$date")) {
-                modificationTimeLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.CREATION_TIME_FULL).get("$date").textValue())).toEpochMilli();
+            if (submission.get(Constants.Fields.MODIFICATION_TIME_FULL).isObject() && submission.get(Constants.Fields.MODIFICATION_TIME_FULL).has("$date")) {
+                modificationTimeLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.MODIFICATION_TIME_FULL).get("$date").textValue())).toEpochMilli();
             } else {
                 modificationTimeLong = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.MODIFICATION_TIME_FULL).asText())).toEpochMilli();
             }
