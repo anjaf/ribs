@@ -25,8 +25,6 @@ public class PartialUpdater {
     @Autowired
     IndexService indexService;
     @Autowired
-    MongoDBService mongoDBService;
-    @Autowired
     SecurityConfig securityConfig;
 
     @Async
@@ -49,7 +47,6 @@ public class PartialUpdater {
                 return;
             }
             indexService.indexOne(submission, true);
-            mongoDBService.replaceOne(submission);
             LOGGER.debug("{} updated", acc);
         } catch (Exception ex) {
             LOGGER.error("Error parsing message {}", msg);
