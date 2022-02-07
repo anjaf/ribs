@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata: 
-  name: ui
+  name: $LABEL
 spec:
   replicas: $REPLICAS
   selector:
     matchLabels:
-      app: ui
+      app: $LABEL
   template:
     metadata:
       labels:
-        app: ui
+        app: $LABEL
     spec:
       securityContext:
         runAsUser: $RUN_AS_USER
@@ -18,7 +18,7 @@ spec:
       imagePullSecrets:
         - name: registry-credentials
       containers:
-      - name: ui
+      - name: $LABEL
         image: $DOCKER_IMAGE
         env:
         - name: proxy_host
@@ -58,11 +58,11 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: ui
+  name: $LABEL
 spec:
   # externalTrafficPolicy: Local
   selector:
-    app: ui
+    app: $LABEL
   ports:
     - port: 8080
       nodePort: $NODEPORT
