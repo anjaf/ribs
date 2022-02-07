@@ -43,7 +43,7 @@ spec:
         - name: nfs-volume
           mountPath: /nfs/biostudies
           subPath: $SUBPATH
-          readOnly: true
+          readOnly: $READONLY
       volumes:
         - name: config-volume
           configMap:
