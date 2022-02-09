@@ -112,7 +112,7 @@ public class RabbitMQStompService {
             } catch (Throwable throwable) {
                 LOGGER.error("Problem in parsing RabbitMQ message to JsonNode", throwable);
             }
-            LOGGER.info("Received update message:", headers.get(StompHeaders.MESSAGE_ID));
+            LOGGER.info("Received update message:", headers.get(StompHeaders.MESSAGE_ID), payload);
         }
 
         @Override

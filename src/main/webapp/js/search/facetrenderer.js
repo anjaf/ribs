@@ -33,7 +33,7 @@ var FacetRenderer = (function (_self) {
                 } else if (lbl.indexOf('BioImages')!=0) {
                     $('label span',this).first().text('BioStudies - '+lbl);
                 } else {
-                    $('label span',this).first().text('BioStudies - Other');
+                    $('label span',this).first().text('BioImages - Core');
                 }
             }).sort ( function(a,b) {
                 return $('label span',a).first().text().trim() > $('label span',b).text().trim() ? 1: -1

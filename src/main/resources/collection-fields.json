@@ -57,7 +57,7 @@
     { "name": "title", "title": "", "fieldType": "tokenized_string", "retrieved": true, "sortable": true, "analyzer": "ExperimentTextAnalyzer", "parser": "TitleParser"},
     { "name": "author", "title": "", "fieldType": "tokenized_string", "jsonPath": "$.section.subsections[?(@.type==\"Author\")].attributes[?(@.name==\"Name\")].value OR $.section.sections[?(@.type==\"Author\")].attributes[?(@.name==\"Name\")].value", "retrieved": true, "sortable": true, "analyzer": "AttributeFieldAnalyzer", "parser": "JPathListParser"},
     { "name": "content", "title": "", "fieldType": "tokenized_string", "expanded": true, "analyzer": "ExperimentTextAnalyzer", "parser": "ContentParser"},
-    { "name": "links", "title": "", "fieldType": "long", "jsonPath": "$..links..url OR $..links[?(@.extType=='link')].url", "retrieved": true, "sortable": true, "parser": "NodeCountingParser"},
+    { "name": "links", "title": "", "fieldType": "long", "jsonPath": "$..links.*[?(@.url)]", "retrieved": true, "sortable": true, "parser": "NodeCountingParser"},
     { "name": "files", "title": "", "fieldType": "long", "jsonPath": "$..files.*[?(@.type==\"file\")] OR $..files[?(@.extType=='file')].fileName", "retrieved": true, "sortable": true, "parser": "NodeCountingParser"},
     { "name": "release_date", "title": "", "fieldType": "untokenized_string", "retrieved": true, "sortable": true, "analyzer": "AttributeFieldAnalyzer", "parser": "DateParser"},
     { "name": "ctime", "title": "", "fieldType": "long", "sortable": true, "parser": "NullParser"},
