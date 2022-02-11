@@ -126,7 +126,7 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public void indexAll(InputStream inputStream, boolean removeFileDocuments) throws IOException {
-
+        rabbitMQStompService.stopWebSocket();
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -178,6 +178,7 @@ public class IndexServiceImpl implements IndexService {
         } catch (Throwable error) {
             logger.error("problem in parsing partial update", error);
         } finally {
+            rabbitMQStompService.startWebSocket();
             //logger.debug("Deleting temp file {}", inputStudiesFilePath);
             //Files.delete(Paths.get(inputStudiesFilePath));
         }
