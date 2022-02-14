@@ -119,9 +119,9 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     @Override
     public ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey) throws SubmissionNotAccessibleException {
         ObjectMapper mapper = new ObjectMapper();
-        IndexSearcher searcher = indexManager.getIndexSearcher();
+        IndexSearcher searcher = indexManager.getFileIndexSearcher();
         QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
-        IndexReader reader = indexManager.getIndexReader();
+        IndexReader reader = indexManager.getFileIndexReader();
         ObjectNode studyInfo = getStudyInfo(accession, secretKey);
         long totalFiles = studyInfo.get(Constants.Fields.FILES).asLong();
         if (studyInfo==null) return mapper.createObjectNode();
