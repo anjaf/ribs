@@ -80,7 +80,7 @@ public class RabbitMQStompService {
         stompHeaders.add(StompHeaderAccessor.STOMP_ACCEPT_VERSION_HEADER, "1.1,1.2");
         RabbitMQStompSessionHandler sessionHandler = new RabbitMQStompSessionHandler();
         stompClient.connect(url, new WebSocketHttpHeaders(), stompHeaders, sessionHandler);
-        LOGGER.debug("stomp client going to connect");
+        LOGGER.debug("Stomp client going to connect");
     }
 
     private class RabbitMQStompSessionHandler extends StompSessionHandlerAdapter {
@@ -95,9 +95,9 @@ public class RabbitMQStompService {
             if (submissionPartialQueue.indexOf("/queue/") < 0)
                 submissionPartialQueue = "/queue/" + submissionPartialQueue;
             stompSession = session;
-            LOGGER.debug("stomp connection: session:{} \t server:{}", connectedHeaders.get("session"), connectedHeaders.get("server"));
+            LOGGER.debug("Stomp connection: session:{} \t server:{}", connectedHeaders.get("session"), connectedHeaders.get("server"));
             session.subscribe(submissionPartialQueue, this);
-            LOGGER.debug("stomp client connected successfully! Queue name {}", submissionPartialQueue);
+            LOGGER.debug("Stomp client connected successfully! Queue name {}", submissionPartialQueue);
         }
 
         @Override
@@ -112,7 +112,7 @@ public class RabbitMQStompService {
             } catch (Throwable throwable) {
                 LOGGER.error("Problem in parsing RabbitMQ message to JsonNode", throwable);
             }
-            LOGGER.info("Received update message:", headers.get(StompHeaders.MESSAGE_ID));
+            LOGGER.info("Received update message:", headers.get(StompHeaders.MESSAGE_ID), payload);
         }
 
         @Override
@@ -120,7 +120,8 @@ public class RabbitMQStompService {
             LOGGER.error("Got an exception", exception);
             if (!session.isConnected()) {
                 try {
-                    Thread.sleep(3000);
+                    LOGGER.debug("Sleeping for 10s before trying to connect websocket");
+                    Thread.sleep(10000);
                     startWebSocket();
                 } catch (Exception e) {
                     LOGGER.error("Problem in reconnecting stomp", e);

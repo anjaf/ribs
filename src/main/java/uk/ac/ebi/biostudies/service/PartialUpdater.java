@@ -2,8 +2,10 @@ package uk.ac.ebi.biostudies.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpHost;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
@@ -35,7 +37,11 @@ public class PartialUpdater {
             JsonNode submission = null;
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader(UserSecurityService.X_SESSION_TOKEN, securityConfig.getPartialUpdateRestSecurityToken());
-            try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+            HttpClientBuilder clientBuilder = HttpClients.custom();
+            if(securityConfig.getHttpProxyHost()!=null && !securityConfig.getHttpProxyHost().isEmpty()) {
+                clientBuilder.setProxy(new HttpHost(securityConfig.getHttpProxyHost(), securityConfig.getGetHttpProxyPort()));
+            }
+            try (CloseableHttpResponse response = clientBuilder.build().execute(httpGet)) {
                 submission = new ObjectMapper().readTree(EntityUtils.toString(response.getEntity()));
             } catch (Exception exception) {
                 LOGGER.error("problem in sending http req to authentication server", exception);

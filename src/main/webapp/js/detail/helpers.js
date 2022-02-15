@@ -281,16 +281,26 @@ var Metadata = (function (_self) {
             var orgs = {};
             var subsections = study.subsections ? study.subsections : study.sections;
             if (!subsections) return '';
+
             // make an org map
-            $.each(subsections.filter( function(o) { return o.type && (o.type.toLowerCase()=='organization' || o.type.toLowerCase()=='organisation');}), function (i,o) {
-                var orgName = o.attributes ? o.attributes.filter(function (p) { return p.name.toLowerCase()=='name'}) : [{"value":""}];
+            $.each(subsections.filter( function(o) { return o.type && (o.type.toLowerCase()==='organization' || o.type.toLowerCase()==='organisation');}), function (i,o) {
                 orgs[o.accno ? o.accno : o.accNo] = o;
             });
 
             $.each(orgOrder, function(i,affRef) {
                 var data = Handlebars.createFrame(options.data);
-                data.first = i==0, data.last = i==(orgOrder.length-1), data.index = i, data.left = orgOrder.length-10;
+                data.first = i==0, data.last = i===(orgOrder.length-1), data.index = i, data.left = orgOrder.length-10;
                 ret += options.fn({affiliationNumber:i+1, affiliation:orgs[affRef]}, {data:data});
+                delete orgs[affRef];
+            });
+
+            //render orgs without authors
+            const len = Object.keys(orgs).length;
+            let i = 0;
+            $.each(orgs, function(key, obj) {
+                let data = Handlebars.createFrame(options.data);
+                data.first = (orgOrder.length===0 && i===0), data.last = (i===len-1), data.index = i, data.left = len-10;
+                ret += options.fn({affiliationNumber:orgOrder.length + (++i), affiliation:obj}, {data:data});
             });
             return ret;
         });
