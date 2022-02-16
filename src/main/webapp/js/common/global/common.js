@@ -4,7 +4,7 @@ $(function() {
     function updateMenuForCollection(data) {
         var helpLink = $('#masthead nav ul.float-left li.active a');
         var activeClass = '';
-        if (helpLink.attr('href')!='help') {
+        if (!helpLink.attr('href').toLowerCase().endsWith('help')) {
             $('#masthead nav ul.float-left li').removeClass('active');
             activeClass='active';
         }
