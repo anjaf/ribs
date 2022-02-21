@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: $LABEL
+spec:
+  replicas: $REPLICAS
+  selector:
+    matchLabels:
+      app: $LABEL
+  template:
+    metadata:
+      labels:
+        app: $LABEL
+    spec:
+      securityContext:
+        runAsUser: $RUN_AS_USER
+        runAsGroup: $RUN_AS_GROUP
+      imagePullSecrets:
+        - name: registry-credentials
+      containers:
+      - name: $LABEL
+        image: $DOCKER_IMAGE
+        env:
+        - name: proxy_host
+          value: "$PROXY_HOST"
+        - name: proxy_port
+          value: "$PROXY_PORT"
+        - name: http_proxy
+          value: "http://$PROXY_HOST:$PROXY_PORT"
+        - name: https_proxy
+          value: "http://$PROXY_HOST:$PROXY_PORT"
+        - name: HTTP_PROXY
+          value: "http://$PROXY_HOST:$PROXY_PORT"
+        - name: HTTPS_PROXY
+          value: "http://$PROXY_HOST:$PROXY_PORT"
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/application.properties
+          subPath: application.properties
+        - name: nfs-volume
+          mountPath: /nfs/biostudies
+          subPath: $SUBPATH
+          readOnly: true
+        - name: index-volume
+          mountPath: /nfs/ui
+          subPath: $UI_INDEX_PATH
+          readOnly: $READONLY
+      volumes:
+        - name: config-volume
+          configMap:
+            name: external-config
+        - name: nfs-volume
+          nfs:
+            server: $NFS_SERVER
+            path: $NFS_PATH
+  volumeClaimTemplates:
+    - metadata:
+        name: index-volume
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 30Gi
+        storageClassName: standard-nfs-production
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: $LABEL
+spec:
+  # externalTrafficPolicy: Local
+  selector:
+    app: $LABEL
+  ports:
+    - port: 8080
+      nodePort: $NODEPORT
+      name: http
+  type: NodePort

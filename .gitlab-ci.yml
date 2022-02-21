@@ -93,7 +93,7 @@ build-docker:
     - mv ./kubectl /usr/local/bin/kubectl
     - cd ci
     - cat "$APP_CONFIG" | kubectl apply -f -
-    - envsubst < deployment.tmpl | kubectl apply -f -
+    - envsubst < stateful-deploy.tmpl | kubectl apply -f -
 
 deploy:k8s:hx:
   extends: .deploy-k8s
