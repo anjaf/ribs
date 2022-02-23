@@ -170,6 +170,7 @@ public class IndexServiceImpl implements IndexService {
             executorService.awaitTermination(5, TimeUnit.MINUTES);
             indexManager.commitTaxonomy();
             indexManager.getIndexWriter().commit();
+            indexManager.getFileIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
             indexManager.refreshTaxonomyReader();
             logger.info("Indexing lasted {} seconds", (System.currentTimeMillis() - startTime) / 1000);
@@ -202,6 +203,7 @@ public class IndexServiceImpl implements IndexService {
             executorService.awaitTermination(5, TimeUnit.HOURS);
             indexManager.commitTaxonomy();
             indexManager.getIndexWriter().commit();
+            indexManager.getFileIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
             indexManager.refreshTaxonomyReader();
         } catch (InterruptedException e) {
@@ -220,7 +222,9 @@ public class IndexServiceImpl implements IndexService {
         parser.setSplitOnWhitespace(true);
         Query query = parser.parse(strquery);
         indexManager.getIndexWriter().deleteDocuments(query);
+        FileIndexServiceImpl.removeFileDocuments(indexManager.getFileIndexWriter(), accession);
         indexManager.getIndexWriter().commit();
+        indexManager.getFileIndexWriter().commit();
         indexManager.refreshIndexSearcherAndReader();
         searchService.clearStatsCache();
     }
@@ -228,9 +232,12 @@ public class IndexServiceImpl implements IndexService {
     @Override
     public void clearIndex(boolean commit) throws IOException {
         indexManager.getIndexWriter().deleteAll();
+        indexManager.getFileIndexWriter().deleteAll();
         indexManager.getIndexWriter().forceMergeDeletes();
+        indexManager.getFileIndexWriter().forceMergeDeletes();
         if (commit) {
             indexManager.getIndexWriter().commit();
+            indexManager.getFileIndexWriter().commit();
             indexManager.refreshIndexSearcherAndReader();
         }
         indexManager.resetTaxonomyWriter();
@@ -362,7 +369,8 @@ public class IndexServiceImpl implements IndexService {
                 }
                 Set<String> columnSet = new LinkedHashSet<>();
 
-                Map<String, Object> fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION), (String) valueMap.get(Fields.RELATIVE_PATH), json, writer, columnSet, removeFileDocuments);
+                Map<String, Object> fileValueMap = fileIndexService.indexSubmissionFiles((String) valueMap.get(Fields.ACCESSION),
+                        (String) valueMap.get(Fields.RELATIVE_PATH), json, indexManager.getFileIndexWriter(), columnSet, removeFileDocuments);
                 if (fileValueMap != null) {
                     valueMap.putAll(fileValueMap);
                 }

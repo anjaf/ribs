@@ -266,7 +266,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         return doc;
     }
 
-    private static void removeFileDocuments(IndexWriter writer, String deleteAccession) {
+    public static void removeFileDocuments(IndexWriter writer, String deleteAccession) {
         QueryParser parser = new QueryParser(Constants.File.OWNER, new KeywordAnalyzer());
         try {
             Query query = parser.parse(Constants.File.OWNER + ":" + deleteAccession);

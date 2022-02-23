@@ -70,11 +70,14 @@ public class IndexManager implements InitializingBean, DisposableBean {
     @Autowired
     RabbitMQStompService rabbitMQStompService;
     private IndexReader indexReader;
+    private IndexReader fileIndexReader;
     private IndexSearcher indexSearcher;
+    private IndexSearcher fileIndexSearcher;
     private IndexWriter indexWriter;
-    private Directory indexDirectory;
-    private IndexWriterConfig indexWriterConfig;
-    private SnapshotDeletionPolicy mainIndexSnapShot;
+    private IndexWriter fileIndexWriter;
+    private Directory indexDirectory, fileIndexDirectory;
+    private IndexWriterConfig indexWriterConfig, fileIndexWriterConfig;
+    private SnapshotDeletionPolicy mainIndexSnapShot, fileIndexSnapShot;
     private SnapshotDeletionPolicy efoIndexSnapShot;
     private Directory efoIndexDirectory;
     private IndexReader efoIndexReader;
@@ -142,6 +145,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
     public void commitIndices() {
         try {
             indexWriter.commit();
+            fileIndexWriter.commit();
             efoIndexWriter.commit();
             facetWriter.commit();
 
@@ -155,9 +159,11 @@ public class IndexManager implements InitializingBean, DisposableBean {
         try {
             rabbitMQStompService.stopWebSocket();
             indexReader.close();
+            fileIndexReader.close();
             efoIndexReader.close();
             facetReader.close();
             indexWriter.close();
+            fileIndexWriter.close();
             efoIndexWriter.close();
             facetWriter.close();
         } catch (Exception ex) {
@@ -166,7 +172,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
     }
 
     public void takeIndexSnapShotForBackUp() throws IOException {
-        IndexCommit mainSnapShot = null, facetSnapshot = null, efoSnapShot = null;
+        IndexCommit mainSnapShot = null, facetSnapshot = null, efoSnapShot = null, fileSnapShot = null;
         try {
             mainSnapShot = mainIndexSnapShot.snapshot();
             indexTransferer.copyIndexFromSnapShot(mainSnapShot.getFileNames(), indexConfig.getIndexDirectory(), indexConfig.getIndexBackupDirectory() + "/submission");
@@ -174,6 +180,8 @@ public class IndexManager implements InitializingBean, DisposableBean {
             indexTransferer.copyIndexFromSnapShot(facetSnapshot.getFileNames(), indexConfig.getFacetDirectory(), indexConfig.getIndexBackupDirectory() + "/taxonomy");
             efoSnapShot = efoIndexSnapShot.snapshot();
             indexTransferer.copyIndexFromSnapShot(efoSnapShot.getFileNames(), eFOConfig.getIndexLocation(), indexConfig.getIndexBackupDirectory() + "/efo");
+            fileSnapShot = fileIndexSnapShot.snapshot();
+            indexTransferer.copyIndexFromSnapShot(fileSnapShot.getFileNames(), indexConfig.getFileIndexDirectory(), indexConfig.getIndexBackupDirectory() + "/files");
 
         } catch (Exception ex) {
             logger.error("problem in taking snapshot from main index", ex);
@@ -186,6 +194,8 @@ public class IndexManager implements InitializingBean, DisposableBean {
                     facetWriter.getDeletionPolicy().release(facetSnapshot);
                 if (efoSnapShot != null)
                     efoIndexSnapShot.release(efoSnapShot);
+                if (fileSnapShot != null)
+                    fileIndexSnapShot.release(fileSnapShot);
             } catch (Exception ex) {
                 logger.error("problem in releasing snapshot lock", ex);
             }
@@ -197,6 +207,7 @@ public class IndexManager implements InitializingBean, DisposableBean {
             indexTransferer.copyIndexFromNetworkFileSystemToLocal(indexConfig.getIndexBackupDirectory() + "/submission", indexConfig.getIndexDirectory());
             indexTransferer.copyIndexFromNetworkFileSystemToLocal(indexConfig.getIndexBackupDirectory() + "/taxonomy", indexConfig.getFacetDirectory());
             indexTransferer.copyIndexFromNetworkFileSystemToLocal(indexConfig.getIndexBackupDirectory() + "/efo", eFOConfig.getIndexLocation());
+            indexTransferer.copyIndexFromNetworkFileSystemToLocal(indexConfig.getIndexBackupDirectory() + "/files", indexConfig.getFileIndexDirectory());
         } catch (Exception ex) {
             logger.fatal("problem in copying remote index to local file system, INDEX's STATE IS INVALID", ex);
             return false;
@@ -223,16 +234,27 @@ public class IndexManager implements InitializingBean, DisposableBean {
     private void openMainIndex() throws Throwable {
         String indexDir = indexConfig.getIndexDirectory();
         indexDirectory = FSDirectory.open(Paths.get(indexDir));
+        fileIndexDirectory = FSDirectory.open(Paths.get(indexConfig.getFileIndexDirectory()));
         indexWriterConfig = new IndexWriterConfig(analyzerManager.getPerFieldAnalyzerWrapper());
         indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+        fileIndexWriterConfig = new IndexWriterConfig(analyzerManager.getPerFieldAnalyzerWrapper());
+        fileIndexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
         mainIndexSnapShot = new SnapshotDeletionPolicy(new KeepOnlyLastCommitDeletionPolicy());
+        fileIndexSnapShot = new SnapshotDeletionPolicy(new KeepOnlyLastCommitDeletionPolicy());
         indexWriterConfig.setIndexDeletionPolicy(mainIndexSnapShot);
+        fileIndexWriterConfig.setIndexDeletionPolicy(fileIndexSnapShot);
         if (indexWriter == null || indexWriter.isOpen() == false)
             indexWriter = new IndexWriter(getIndexDirectory(), getIndexWriterConfig());
+        if (fileIndexWriter == null || fileIndexWriter.isOpen() == false)
+            fileIndexWriter = new IndexWriter(fileIndexDirectory, fileIndexWriterConfig);
         if (indexReader != null)
             indexReader.close();
+        if (fileIndexReader != null)
+            fileIndexReader.close();
         indexReader = DirectoryReader.open(indexWriter);
+        fileIndexReader = DirectoryReader.open(fileIndexWriter);
         indexSearcher = new IndexSearcher(indexReader);
+        fileIndexSearcher = new IndexSearcher(fileIndexReader);
     }
 
     private void openEfoIndex() throws Throwable {
@@ -290,8 +312,11 @@ public class IndexManager implements InitializingBean, DisposableBean {
 
         try {
             indexReader.close();
+            fileIndexReader.close();
             indexReader = DirectoryReader.open(indexWriter);
+            fileIndexReader = DirectoryReader.open(fileIndexWriter);
             indexSearcher = new IndexSearcher(indexReader);
+            fileIndexSearcher = new IndexSearcher(fileIndexReader);
             drillSideways = new DrillSideways(indexSearcher, taxonomyManager.getFacetsConfig(), facetReader);
         } catch (Exception ex) {
             logger.error("Problem in refreshing index", ex);
@@ -445,5 +470,17 @@ public class IndexManager implements InitializingBean, DisposableBean {
         if (exitCode != 0) {
             throw new Exception("Error running remote copying script");
         }
+    }
+
+    public IndexSearcher getFileIndexSearcher() {
+        return fileIndexSearcher;
+    }
+
+    public IndexWriter getFileIndexWriter() {
+        return fileIndexWriter;
+    }
+
+    public IndexReader getFileIndexReader() {
+        return fileIndexReader;
     }
 }
