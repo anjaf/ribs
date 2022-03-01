@@ -21,17 +21,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
+import uk.ac.ebi.biostudies.file.download.FIREDownloadFile;
 import uk.ac.ebi.biostudies.file.download.FilteredMageTabDownloadFile;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 import uk.ac.ebi.biostudies.file.download.RegularDownloadFile;
-import uk.ac.ebi.biostudies.service.FileDownloadService;
-import uk.ac.ebi.biostudies.service.SearchService;
-import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
-import uk.ac.ebi.biostudies.service.ZipDownloadService;
+import uk.ac.ebi.biostudies.service.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -65,12 +64,33 @@ public class FileDownloadServiceImpl implements FileDownloadService {
     @Autowired
     IndexConfig indexConfig;
 
-    public void sendFile(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @Autowired
+    FireService fireService;
+
+    @Autowired
+    FilePaginationService filePaginationService;
+
+    /**
+     * Returns true if the given match header matches the given value.
+     *
+     * @param matchHeader The match header.
+     * @param toMatch     The value to be matched.
+     * @return True if the given match header matches the given value.
+     */
+    private static boolean matches(String matchHeader, String toMatch) {
+        String[] matchValues = matchHeader.split("\\s*,\\s*");
+        Arrays.sort(matchValues);
+        return Arrays.binarySearch(matchValues, toMatch) > -1
+                || Arrays.binarySearch(matchValues, "*") > -1;
+    }
+
+    public void oldSendFile(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         request.setCharacterEncoding("UTF-8");
         IDownloadFile downloadFile = null;
         try {
             String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath() + "(/[a-zA-Z])?/files/", "").split("/");
+            //TODO: sanitise accession
             String accession = requestArgs[0];
             String key = request.getParameter("key");
 
@@ -86,11 +106,16 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             if (relativePath == null) {
                 throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
             }
+            String storageModeString = document.get(Constants.Fields.STORAGE_MODE);
+            Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(storageModeString.isBlank() ? "NFS" : storageModeString);
 
             downloadFile = getDownloadFileFromRequest(request, response, relativePath, key);
             if (null != downloadFile) {
                 if (downloadFile.isDirectory()) {
-                    zipDownloadService.sendZip(request, response, new String[]{ downloadFile.getPath().replace( indexConfig.getFileRootDir() + "/" + relativePath + "/Files/","")});
+                    zipDownloadService.sendZip(request, response,
+                            new String[]{
+                                    downloadFile.getPath().replace(indexConfig.getFileRootDir() + "/" + relativePath + "/Files/", "")
+                            }, storageMode);
                     return;
                 }
                 verifyFile(downloadFile, response);
@@ -106,8 +131,118 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         }
     }
 
+    public void sendFile(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        request.setCharacterEncoding("UTF-8");
+        IDownloadFile downloadFile = null;
+        try {
+            List<String> requestArgs = new ArrayList<>(Arrays.asList(
+                    request.getRequestURI().replaceAll(request.getContextPath() + "/files/", "")
+                            .split("/")));
+
+            String accession = requestArgs.remove(0);
+            String requestedFilePath = URLDecoder.decode(
+                    StringUtils.replace(StringUtils.join(requestArgs, '/'), "..", "")
+                    , StandardCharsets.UTF_8.toString());
+            String key = request.getParameter("key");
+            if ("null".equalsIgnoreCase(key)) {
+                key = null;
+            }
+
+            if (key != null &&
+                    (requestedFilePath.equalsIgnoreCase(accession + ".xml")
+                            || requestedFilePath.equalsIgnoreCase(accession + ".json")
+                            || requestedFilePath.equalsIgnoreCase(accession + ".pagetab.tsv"))) {
+                throw new SubmissionNotAccessibleException();
+            }
+
+            Document document = searchService.getDocumentByAccession(accession, key);
+            if (document == null) {
+                throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
+            }
+            String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
+            if (relativePath == null) {
+                throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
+            }
+            String storageModeString = document.get(Constants.Fields.STORAGE_MODE);
+            Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(storageModeString.isBlank() ? "NFS" : storageModeString);
+
+            downloadFile = getDownloadFile(accession, relativePath, requestedFilePath, storageMode);
+
+
+            // send zip if path is a folder
+            if (downloadFile.isDirectory()) {
+                zipDownloadService.sendZip(request, response, new String[]{requestedFilePath}, storageMode);
+                return;
+            }
+
+            //TODO: add magetabfilter
+
+            verifyFile(downloadFile, response);
+            sendRandomAccessFile(downloadFile, request, response);
+            logger.debug("Download of [{}] completed", downloadFile.getName());
+
+        } finally {
+            if (null != downloadFile) {
+                downloadFile.close();
+            }
+        }
+    }
+
+    private IDownloadFile getDownloadFile(String accession, String relativePath, String requestedFilePath, Constants.File.StorageMode storageMode) throws IOException, ParseException {
+        return storageMode == Constants.File.StorageMode.FIRE
+                ? getFireFile(accession, relativePath, requestedFilePath)
+                : getNFSFile(accession, relativePath, requestedFilePath)
+                ;
+    }
+
+    private IDownloadFile getNFSFile(String accession, String relativePath, String requestedFilePath) throws FileNotFoundException {
+
+        if (requestedFilePath.equalsIgnoreCase(accession + ".json")
+                || requestedFilePath.equalsIgnoreCase(accession + ".xml")
+                || requestedFilePath.equalsIgnoreCase(accession + ".pagetab.tsv")) {
+            return new RegularDownloadFile(Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + requestedFilePath));
+        }
+
+        Path downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + requestedFilePath);
+
+        //TODO: Remove this bad^∞ hack
+        //Hack start: override relative path if file is not found
+        if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
+            logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
+            downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + requestedFilePath);
+            logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
+        }
+        if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
+            downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + relativePath + "/" + requestedFilePath);
+            logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
+        }
+        if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) { // for file list
+            logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
+            downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + requestedFilePath);
+            logger.debug("Trying file list file {}", downloadFile.toFile().getAbsolutePath());
+        }
+        //Hack end
+        if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
+            logger.error("Could not find {}", downloadFile.toFile().getAbsolutePath());
+            throw new FileNotFoundException();
+        }
+
+        return new RegularDownloadFile(downloadFile);
+    }
+
+    private IDownloadFile getFireFile(String accession, String relativePath, String requestedFilePath) throws IOException, ParseException {
+
+        String path = relativePath+"/Files/"+requestedFilePath;
+        Document fileDocument = filePaginationService.getFileDocument(accession, requestedFilePath);
+        long size = fileDocument.getField(Constants.File.SIZE).numericValue().longValue();
+        boolean isDirectory = Boolean.parseBoolean(fileDocument.get(Constants.File.SIZE));
+        return new FIREDownloadFile( path, fireService.getFireObjectInputStreamByPath(path), size, isDirectory);
+    }
+
+
     private void verifyFile(IDownloadFile file, HttpServletResponse response)
-            throws FileNotFoundException, IOException {
+            throws IOException {
         // Check if file is actually supplied to the request URL.
         if (null == file) {
             // Do your thing if the file is not supplied to the request URL.
@@ -124,7 +259,6 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             throw new FileNotFoundException("Specified file [" + file.getPath() + "] does not exist in file system or is not a file");
         }
     }
-
 
     protected IDownloadFile getDownloadFileFromRequest(HttpServletRequest request, HttpServletResponse response,
                                                        String relativePath, String key) throws Exception {
@@ -143,35 +277,32 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                     , StandardCharsets.UTF_8.toString());
         }
 
-        if (key != null &&
-                (name.equalsIgnoreCase(accession + ".xml")
-                        || name.equalsIgnoreCase(accession + ".json")
-                        || name.equalsIgnoreCase(accession + ".pagetab.tsv"))) {
-            throw new SubmissionNotAccessibleException();
-        }
 
-        this.logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
+        logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
 
+        String path = null;
         if (name.equalsIgnoreCase(accession + ".json") || name.equalsIgnoreCase(accession + ".xml") || name.equalsIgnoreCase(accession + ".pagetab.tsv")) {
-            file = new RegularDownloadFile(Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + name));
+            path = relativePath + "/" + name;
+            file = new RegularDownloadFile(Paths.get(indexConfig.getFileRootDir(), path));
         } else {
-            Path downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/" + name);
+            path = relativePath + "/Files/" + name;
+            Path downloadFile = Paths.get(indexConfig.getFileRootDir(), path);
 
             //TODO: Remove this bad^∞ hack
             //Hack start: override relative path if file is not found
             if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                this.logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
+                logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
                 downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
-                this.logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
+                logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
             }
             if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
                 downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + relativePath + "/" + name);
-                this.logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
+                logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
             }
             if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) { // for file list
-                this.logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
+                logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
                 downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + name);
-                this.logger.debug("Trying file list file {}", downloadFile.toFile().getAbsolutePath());
+                logger.debug("Trying file list file {}", downloadFile.toFile().getAbsolutePath());
             }
             //Hack end
             if (Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
@@ -184,7 +315,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                     }
                 }
             } else {
-                this.logger.error("Could not find {}", downloadFile.toFile().getAbsolutePath());
+                logger.error("Could not find {}", downloadFile.toFile().getAbsolutePath());
                 throw new FileNotFoundException();
             }
         }
@@ -193,9 +324,8 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         return file;
     }
 
-
     private void sendRandomAccessFile(IDownloadFile downloadFile, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, FileNotFoundException {
+            throws IOException {
         // Prepare some variables. The ETag is an unique identifier of the file
         String fileName = downloadFile.getName();
         long length = downloadFile.getLength();
@@ -405,20 +535,6 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         return Arrays.binarySearch(acceptValues, toAccept) > -1
                 || Arrays.binarySearch(acceptValues, toAccept.replaceAll("/.*$", "/*")) > -1
                 || Arrays.binarySearch(acceptValues, "*/*") > -1;
-    }
-
-    /**
-     * Returns true if the given match header matches the given value.
-     *
-     * @param matchHeader The match header.
-     * @param toMatch     The value to be matched.
-     * @return True if the given match header matches the given value.
-     */
-    private static boolean matches(String matchHeader, String toMatch) {
-        String[] matchValues = matchHeader.split("\\s*,\\s*");
-        Arrays.sort(matchValues);
-        return Arrays.binarySearch(matchValues, toMatch) > -1
-                || Arrays.binarySearch(matchValues, "*") > -1;
     }
 
     /**

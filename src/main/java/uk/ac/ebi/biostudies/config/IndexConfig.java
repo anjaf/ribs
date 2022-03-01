@@ -22,7 +22,7 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     @Value("${index.directory}")
     private String indexDirectory;
 
-    @Value("${index.file-index}")
+    @Value("${index.fileIndexDirectory}")
     private String fileIndexDirectory;
 
     @Value("${index.facetDirectory}")

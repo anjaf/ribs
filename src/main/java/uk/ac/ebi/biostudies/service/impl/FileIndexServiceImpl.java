@@ -211,7 +211,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         if (path != null && name == null)
             name = path.contains("/") ? StringUtils.substringAfterLast(path, "/") : path;
         if (path != null) {
-            doc.add(new StringField(Constants.File.PATH, path.toLowerCase(), Field.Store.NO));
+            doc.add(new StringField(Constants.File.PATH, path, Field.Store.NO));
         }
         doc.add(new StoredField(Constants.File.PATH, path));
         doc.add(new SortedDocValuesField(Constants.File.PATH, new BytesRef(path)));

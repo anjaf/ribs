@@ -34,9 +34,9 @@ import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
 import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -58,8 +58,11 @@ import static uk.ac.ebi.biostudies.controller.Stats.STATS_ENDPOINT;
 public class SearchServiceImpl implements SearchService {
 
     private static final int MAX_PAGE_SIZE = 100;
-    private Logger logger = LogManager.getLogger(SearchServiceImpl.class.getName());
-
+    private static Cache<String, String> statsCache;
+    private static Query excludeCompound;
+    private static QueryParser parser;
+    private static Set<String> sectionsToFilter;
+    private final Logger logger = LogManager.getLogger(SearchServiceImpl.class.getName());
     @Autowired
     IndexConfig indexConfig;
     @Autowired
@@ -78,12 +81,8 @@ public class SearchServiceImpl implements SearchService {
     SecurityQueryBuilder securityQueryBuilder;
     @Autowired
     QueryService queryService;
-
-
-    private static Cache<String, String> statsCache;
-    private static Query excludeCompound;
-    private static QueryParser parser;
-    private static Set<String> sectionsToFilter;
+    @Autowired
+    FireService fireService;
 
     @PostConstruct
     void init() {
@@ -211,7 +210,7 @@ public class SearchServiceImpl implements SearchService {
             sortOrder = (Fields.ACCESSION.equalsIgnoreCase(sortBy) || Fields.TITLE.equalsIgnoreCase(sortBy) || Fields.AUTHOR.equalsIgnoreCase(sortBy))
                     ? SortOrder.ASCENDING : SortOrder.DESCENDING;
         }
-        boolean shouldReverse = (SortOrder.DESCENDING.equalsIgnoreCase(sortOrder) ? true : false);
+        boolean shouldReverse = (SortOrder.DESCENDING.equalsIgnoreCase(sortOrder));
         if (sortBy == null || RELEVANCE.equalsIgnoreCase(sortBy)) {
             shouldReverse = !shouldReverse;
         }
@@ -265,17 +264,30 @@ public class SearchServiceImpl implements SearchService {
         return response.toString();
     }
 
+    @Override
+    public InputStreamResource getStudyAsStream(String accession, String relativePath, boolean anonymise) throws IOException {
+        return getStudyAsStream(accession, relativePath, anonymise, Constants.File.StorageMode.NFS);
+    }
 
     @Override
-    public InputStreamResource getStudyAsStream(String accession, String relativePath, boolean anonymise)
+    public InputStreamResource getStudyAsStream(String accession, String relativePath, boolean anonymise, Constants.File.StorageMode storageMode)
             throws IOException {
-        File file = Paths.get(indexConfig.getFileRootDir(), relativePath, accession + ".json").toFile();
+
+        InputStream inputStream = null;
+        switch (storageMode) {
+            case FIRE:
+                inputStream = fireService.getFireObjectInputStreamByPath( relativePath + "/" + accession + ".json");
+                break;
+            default:
+                inputStream = new FileInputStream(Paths.get(indexConfig.getFileRootDir(), relativePath, accession + ".json").toFile());
+        }
+
         if (anonymise) {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode json = mapper.readTree(file);
+            JsonNode json = mapper.readTree(inputStream);
             JsonNode subSections = json.get("section").get("subsections");
             if (subSections.isArray()) {
-                Iterator<JsonNode> iterator = ((ArrayNode) subSections).iterator();
+                Iterator<JsonNode> iterator = subSections.iterator();
                 while (iterator.hasNext()) {
                     JsonNode node = iterator.next();
                     if (node.has("type") && sectionsToFilter.contains(node.get("type").textValue().toLowerCase())) {
@@ -283,10 +295,11 @@ public class SearchServiceImpl implements SearchService {
                     }
                 }
             }
-            return new InputStreamResource(new ByteArrayInputStream(mapper.writeValueAsBytes(json)));
-        } else {
-            return new InputStreamResource(new FileInputStream(file));
+            inputStream.close();
+            inputStream = new ByteArrayInputStream(mapper.writeValueAsBytes(json));
         }
+
+        return new InputStreamResource(inputStream);
     }
 
     @Override

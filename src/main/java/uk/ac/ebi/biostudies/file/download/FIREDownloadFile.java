@@ -19,50 +19,52 @@ package uk.ac.ebi.biostudies.file.download;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
-import java.nio.file.Path;
+import java.io.IOException;
+import java.io.InputStream;
 
-public final class RegularDownloadFile implements IDownloadFile {
-    private final Path path;
+public final class FIREDownloadFile implements IDownloadFile {
+    private final String path;
+    private final InputStream inputStream;
+    private final long size;
+    private final boolean isDirectory;
 
-    public RegularDownloadFile(Path path) {
+    public FIREDownloadFile(String path, InputStream inputStream, long size, boolean isDirectory) {
+        this.inputStream = inputStream;
         if (null == path) {
             throw new IllegalArgumentException("File cannot be null");
         }
         this.path = path;
-    }
-
-    private File getFile() {
-        return this.path.toFile();
+        this.size = size;
+        this.isDirectory = isDirectory;
     }
 
     public String getName() {
-        return getFile().getName();
+        return path;
     }
 
     public String getPath() {
-        return StringUtils.replace(path.toString(),"\\","/");
+        return StringUtils.replace(path.toString(), "\\", "/");
     }
 
     public long getLength() {
-        return getFile().length();
+        return size;
     }
 
     public long getLastModified() {
-        return getFile().lastModified();
+        return 0;
     }
 
     public boolean canDownload() {
-        return getFile().exists() && getFile().isFile() && getFile().canRead();
+        return true;
     }
 
     public boolean isDirectory() {
-        return getFile().exists() && getFile().isDirectory() && getFile().canRead();
+        return isDirectory;
     }
 
 
     public InputStream getInputStream() throws IOException {
-        return new FileInputStream(getFile());
+        return inputStream;
     }
 
     public void close() throws IOException {

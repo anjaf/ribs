@@ -51,13 +51,15 @@ public class FileDownload {
         String fileExtension = "sh";
         fileExtension = getFileExtension(os);
         List<String> fileNames = new ArrayList<>();
-        Document luceneDoc = getFilePaths(request,response, fileNames);
-        String relativeBaseDir = luceneDoc.get(Constants.Fields.RELATIVE_PATH);
-        String accession = luceneDoc.get(Constants.Fields.ACCESSION);
+        Document submissionDoc = getFilePaths(request,response, fileNames);
+        String relativeBaseDir = submissionDoc.get(Constants.Fields.RELATIVE_PATH);
+        String accession = submissionDoc.get(Constants.Fields.ACCESSION);
+        String storageModeString = submissionDoc.get(Constants.Fields.STORAGE_MODE);
+        Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(storageModeString.isBlank() ? "NFS" : storageModeString);
         dlType = dlType.replaceFirst("/", "");
         String[] files = request.getParameterMap().get("files");
         if(dlType.equalsIgnoreCase("zip"))
-            zipDownloadService.sendZip(request, response, files);
+            zipDownloadService.sendZip(request, response, files, storageMode);
         else if(dlType.equalsIgnoreCase("ftp") || dlType.equalsIgnoreCase("aspera")){
             response.setContentType("application/txt");
             response.addHeader("Content-Disposition", "attachment; filename="+accession+"-" + os+"-"+dlType+"."+fileExtension);
