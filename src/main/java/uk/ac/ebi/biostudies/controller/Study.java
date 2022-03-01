@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostudies.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -52,7 +53,7 @@ public class Study {
         accession = document.get(Constants.Fields.ACCESSION);
         String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
         String storageModeString = document.get(Constants.Fields.STORAGE_MODE);
-        Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(storageModeString.isBlank() ? "NFS" : storageModeString);
+        Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(StringUtils.isEmpty(storageModeString) ? "NFS" : storageModeString);
         InputStreamResource result;
         try {
             result = searchService.getStudyAsStream(accession.replace("..", ""), relativePath, seckey != null, storageMode);

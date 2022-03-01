@@ -264,10 +264,6 @@ public class SearchServiceImpl implements SearchService {
         return response.toString();
     }
 
-    @Override
-    public InputStreamResource getStudyAsStream(String accession, String relativePath, boolean anonymise) throws IOException {
-        return getStudyAsStream(accession, relativePath, anonymise, Constants.File.StorageMode.NFS);
-    }
 
     @Override
     public InputStreamResource getStudyAsStream(String accession, String relativePath, boolean anonymise, Constants.File.StorageMode storageMode)

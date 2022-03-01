@@ -19,7 +19,6 @@ public interface SearchService {
     String getFieldStats() throws Exception;
     void clearStatsCache();
     InputStreamResource getStudyAsStream(String accession, String relativePath, boolean anonymise, Constants.File.StorageMode storageMode) throws IOException;
-    InputStreamResource getStudyAsStream(String accession, String relativePath, boolean anonymise) throws IOException;
     ObjectNode getSimilarStudies(String accession, String secretKey) throws Exception;
     Document getDocumentByAccession(String accession, String secretKey) throws SubmissionNotAccessibleException;
     boolean isDocumentPresent(String accession);

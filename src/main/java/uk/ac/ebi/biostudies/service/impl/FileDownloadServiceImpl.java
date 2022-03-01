@@ -119,7 +119,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                 throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
             }
             String storageModeString = document.get(Constants.Fields.STORAGE_MODE);
-            Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(storageModeString.isBlank() ? "NFS" : storageModeString);
+            Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf( StringUtils.isEmpty(storageModeString) ? "NFS" : storageModeString);
 
             downloadFile = getDownloadFile(accession, relativePath, requestedFilePath, storageMode);
 

@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostudies.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -55,7 +56,7 @@ public class FileDownload {
         String relativeBaseDir = submissionDoc.get(Constants.Fields.RELATIVE_PATH);
         String accession = submissionDoc.get(Constants.Fields.ACCESSION);
         String storageModeString = submissionDoc.get(Constants.Fields.STORAGE_MODE);
-        Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(storageModeString.isBlank() ? "NFS" : storageModeString);
+        Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(StringUtils.isEmpty(storageModeString) ? "NFS" : storageModeString);
         dlType = dlType.replaceFirst("/", "");
         String[] files = request.getParameterMap().get("files");
         if(dlType.equalsIgnoreCase("zip"))
