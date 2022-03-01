@@ -1,7 +1,5 @@
 package uk.ac.ebi.biostudies.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
@@ -17,7 +15,7 @@ import uk.ac.ebi.biostudies.service.FilePaginationService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
-import java.io.*;
+import java.io.IOException;
 
 import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
 
@@ -26,18 +24,17 @@ import static uk.ac.ebi.biostudies.api.util.Constants.JSON_UNICODE_MEDIA_TYPE;
  * Created by awais on 14/02/2017.
  */
 @RestController
-@RequestMapping(value="/api/v1")
+@RequestMapping(value = "/api/v1")
 public class Study {
-
-    private Logger logger = LogManager.getLogger(Study.class.getName());
 
     @Autowired
     SearchService searchService;
     @Autowired
     FilePaginationService paginationService;
+    private final Logger logger = LogManager.getLogger(Study.class.getName());
 
     @RequestMapping(value = "/studies/{accession:.+}", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
-    public ResponseEntity<String> getStudy(@PathVariable("accession") String accession, @RequestParam(value="key", required=false) String seckey)  {
+    public ResponseEntity<String> getStudy(@PathVariable("accession") String accession, @RequestParam(value = "key", required = false) String seckey) {
         if ("null".equalsIgnoreCase(seckey)) {
             seckey = null;
         }
@@ -48,15 +45,17 @@ public class Study {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("{\"errorMessage\":\"Study not accessible\"}");
         }
-        if(document==null) {
+        if (document == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .contentType(MediaType.APPLICATION_JSON).body("{\"errorMessage\":\"Study not found\"}");
         }
         accession = document.get(Constants.Fields.ACCESSION);
         String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
+        String storageModeString = document.get(Constants.Fields.STORAGE_MODE);
+        Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(storageModeString.isBlank() ? "NFS" : storageModeString);
         InputStreamResource result;
         try {
-            result = searchService.getStudyAsStream(accession.replace("..",""), relativePath, seckey!=null);
+            result = searchService.getStudyAsStream(accession.replace("..", ""), relativePath, seckey != null, storageMode);
         } catch (IOException e) {
             logger.error(e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -68,16 +67,16 @@ public class Study {
 
     @RequestMapping(value = "/studies/{accession:.+}/similar", produces = {JSON_UNICODE_MEDIA_TYPE}, method = RequestMethod.GET)
     public ResponseEntity<String> getSimilarStudies(@PathVariable("accession") String accession,
-                                                    @RequestParam(value="key", required=false) String seckey)
-            throws  Exception {
+                                                    @RequestParam(value = "key", required = false) String seckey)
+            throws Exception {
         if ("null".equalsIgnoreCase(seckey)) {
             seckey = null;
         }
         try {
             Document document = searchService.getDocumentByAccession(accession, seckey);
-            if(document!=null) {
+            if (document != null) {
                 accession = document.get(Constants.Fields.ACCESSION);
-                ResponseEntity result =  new ResponseEntity(searchService.getSimilarStudies(accession.replace("..",""), seckey), HttpStatus.OK);
+                ResponseEntity result = new ResponseEntity(searchService.getSimilarStudies(accession.replace("..", ""), seckey), HttpStatus.OK);
                 return result;
             }
         } catch (SubmissionNotAccessibleException e) {
@@ -91,7 +90,7 @@ public class Study {
 
     @PublicRESTMethod
     @RequestMapping(value = "/studies/{accession:.+}/info", produces = JSON_UNICODE_MEDIA_TYPE, method = RequestMethod.GET)
-    public ResponseEntity<String> getStudyInfo(@PathVariable String accession, @RequestParam(value="key", required=false) String seckey){
+    public ResponseEntity<String> getStudyInfo(@PathVariable String accession, @RequestParam(value = "key", required = false) String seckey) {
         if ("null".equalsIgnoreCase(seckey)) {
             seckey = null;
         }
@@ -103,7 +102,6 @@ public class Study {
         }
 
     }
-
 
 
 }

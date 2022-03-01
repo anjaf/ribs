@@ -22,13 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
+import uk.ac.ebi.biostudies.file.download.IDownloadFile;
+import uk.ac.ebi.biostudies.service.FileDownloadService;
 import uk.ac.ebi.biostudies.service.FileIndexService;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -40,140 +39,8 @@ public class FileIndexServiceImpl implements FileIndexService {
     @Autowired
     IndexConfig indexConfig;
 
-
-    public Map<String, Object> indexSubmissionFiles(String accession, String relativePath, JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
-        Map<String, Object> valueMap = new HashMap<>();
-        AtomicLong counter = new AtomicLong();
-        List<String> columns = new ArrayList<>();
-        Set<String> sectionsWithFiles = new HashSet<>();
-        if (removeFileDocuments) {
-            removeFileDocuments(writer, accession);
-        }
-
-        // find files
-        List<JsonNode> filesParents = json.findParents("files").stream().filter(p -> p.get("files").size() > 0).collect(Collectors.toList());
-        if (filesParents != null) {
-            for (JsonNode parent : filesParents) {
-                if (parent == null) continue;
-                counter.set(indexFileList(accession, writer, counter.get(), columns, sectionsWithFiles, parent, parent));
-            }
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        //find file lists
-        List<JsonNode> subSections = json.findParents("attributes");
-        Map<String, JsonNode> parents = new HashMap<>();
-        for (JsonNode subSection : subSections) {
-            ArrayNode attributes = (ArrayNode) subSection.get("attributes");
-            for (JsonNode attribute : attributes) {
-                if (attribute.get("name").textValue().equalsIgnoreCase("file list")) {
-                    parents.put(attribute.get("value").textValue(), subSection);
-                }
-            }
-        }
-
-        subSections = json.findParents("fileList");
-        for (JsonNode subSection : subSections) {
-            JsonNode fileList = (JsonNode) subSection.get("fileList");
-            if (fileList!=null && fileList.has("fileName")) {
-                parents.put(fileList.get("fileName").textValue(), subSection);
-            }
-        }
-
-        parents.forEach((filename, jsonNode) -> {
-            if (jsonNode == null) return;
-            String libraryFilePath = indexConfig.getFileRootDir() + "/" + relativePath + "/Files/" + filename + (filename.toLowerCase().endsWith(".json") ? "" : ".json");
-            if (!Files.exists(Paths.get(libraryFilePath))) {
-                libraryFilePath = indexConfig.getFileRootDir() + "/" + relativePath + "/" + filename + (filename.toLowerCase().endsWith(".json") ? "" : ".json");
-            }
-            try {
-                counter.set(indexLibraryFile(accession, writer, counter.get(), columns, sectionsWithFiles, jsonNode, libraryFilePath));
-            } catch (IOException e) {
-                logger.error(e);
-            }
-        });
-
-
-        //put Section as the first column. Name and size would be prepended later
-        if (columns.contains("Section")) {
-            columns.remove("Section");
-            columns.add(0, "Section");
-        }
-        attributeColumns.addAll(columns);
-        if (sectionsWithFiles.size() != 0) {
-            valueMap.put(Constants.Fields.SECTIONS_WITH_FILES, String.join(" ", sectionsWithFiles));
-        }
-        valueMap.put(Constants.Fields.FILES, counter.longValue());
-
-        return valueMap;
-    }
-
-    private long indexFileList(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode nodeWithFiles) throws IOException {
-        for (JsonNode fNode : nodeWithFiles.get("files")) {
-            if (fNode.isArray()) {
-                for (JsonNode singleFile : fNode) {
-                    counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
-                }
-            } else if ( fNode.has("files") && fNode.get("files").isArray()) {
-                for (JsonNode singleFile : fNode.get("files")) {
-                    counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
-                }
-            } else if (fNode.has("extType") && fNode.get("extType").textValue().equalsIgnoreCase("filesTable")) {
-                for (JsonNode singleFile : fNode.get("files")) {
-                    counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
-                }
-            } else if (!parent.has("_class") || !parent.get("_class").textValue().endsWith("DocFileList")) {
-                counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, fNode);
-            }
-        }
-        return counter;
-    }
-
-    private long indexLibraryFile(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, String libraryFilePath) throws IOException {
-        try (InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(libraryFilePath), "UTF-8")) {
-            JsonFactory factory = new JsonFactory();
-            JsonParser parser = factory.createParser(inputStreamReader);
-            JsonToken token = parser.nextToken();
-            while (token!=null && !JsonToken.START_ARRAY.equals(token)) {
-                token = parser.nextToken();
-            }
-
-            ObjectMapper mapper = new ObjectMapper();
-            while (true) {
-                token = parser.nextToken();
-                if (!JsonToken.START_OBJECT.equals(token)) {
-                    break;
-                }
-                if (token == null) {
-                    break;
-                }
-
-                JsonNode singleFile = mapper.readTree(parser);
-                counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
-            }
-        }
-        return counter;
-    }
-
-
-    private long indexSingleFile(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode fNode) throws IOException {
-        Document doc = getFileDocument(accession, columns, fNode, parent);
-        writer.updateDocument(new Term(Constants.Fields.ID, accession + "-" + counter++), doc);
-        if (doc.get(Constants.File.SECTION) != null) {
-            IndexableField[] sectionFields = doc.getFields(Constants.File.SECTION);
-            //To take stored section field from lucene doc instead of indexedField for case sensivity difference in search and UI presentation
-            if (sectionFields.length > 0) {
-                for (IndexableField secField : sectionFields) {
-                    if (secField.fieldType().stored() && secField.stringValue() != null) {
-                        sectionsWithFiles.add(secField.stringValue());
-                        break;
-                    }
-                }
-            }
-        }
-        return counter;
-    }
+    @Autowired
+    FileDownloadService fileDownloadService;
 
     private static Document getFileDocument(String accession, List<String> attributeColumns, JsonNode fNode, JsonNode parent) {
         Long size;
@@ -197,10 +64,10 @@ public class FileIndexServiceImpl implements FileIndexService {
 
         JsonNode pathNode = fNode.get(Constants.File.PATH);
         path = pathNode == null || pathNode.asText().equalsIgnoreCase("null") ? null : pathNode.asText();
-        if (path==null && fNode.has(Constants.File.FILE_PATH)) {
+        if (path == null && fNode.has(Constants.File.FILE_PATH)) {
             path = fNode.get(Constants.File.FILE_PATH).asText();
         }
-        if (path==null && fNode.has(Constants.File.RELPATH)) {
+        if (path == null && fNode.has(Constants.File.RELPATH)) {
             path = fNode.get(Constants.File.RELPATH).asText();
         }
         pathNode = fNode.get(Constants.IndexEntryAttributes.NAME);
@@ -211,7 +78,7 @@ public class FileIndexServiceImpl implements FileIndexService {
         if (path != null && name == null)
             name = path.contains("/") ? StringUtils.substringAfterLast(path, "/") : path;
         if (path != null) {
-            doc.add(new StringField(Constants.File.PATH, path.toLowerCase(), Field.Store.NO));
+            doc.add(new StringField(Constants.File.PATH, path, Field.Store.NO));
         }
         doc.add(new StoredField(Constants.File.PATH, path));
         doc.add(new SortedDocValuesField(Constants.File.PATH, new BytesRef(path)));
@@ -225,7 +92,7 @@ public class FileIndexServiceImpl implements FileIndexService {
 
         doc.add(new StringField(Constants.File.TYPE, Constants.File.FILE, Field.Store.YES));
         doc.add(new StringField(Constants.File.IS_DIRECTORY,
-                String.valueOf(fNode.has(Constants.File.TYPE) ? fNode.get(Constants.File.TYPE).asText("file").equalsIgnoreCase("directory") : false ), Field.Store.YES));
+                String.valueOf(fNode.has(Constants.File.TYPE) ? fNode.get(Constants.File.TYPE).asText("file").equalsIgnoreCase("directory") : false), Field.Store.YES));
         doc.add(new StringField(Constants.File.OWNER, accession, Field.Store.YES));
 
         // add section field if file is not global
@@ -274,6 +141,142 @@ public class FileIndexServiceImpl implements FileIndexService {
         } catch (Exception e) {
             logger.error("Problem in deleting old files", e);
         }
+    }
+
+    public Map<String, Object> indexSubmissionFiles(String accession, String relativePath, JsonNode json, IndexWriter writer, Set<String> attributeColumns, boolean removeFileDocuments) throws IOException {
+        Map<String, Object> valueMap = new HashMap<>();
+        AtomicLong counter = new AtomicLong();
+        List<String> columns = new ArrayList<>();
+        Set<String> sectionsWithFiles = new HashSet<>();
+        if (removeFileDocuments) {
+            removeFileDocuments(writer, accession);
+        }
+
+        // find files
+        List<JsonNode> filesParents = json.findParents("files").stream().filter(p -> p.get("files").size() > 0).collect(Collectors.toList());
+        if (filesParents != null) {
+            for (JsonNode parent : filesParents) {
+                if (parent == null) continue;
+                counter.set(indexFileList(accession, writer, counter.get(), columns, sectionsWithFiles, parent, parent));
+            }
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        //find file lists
+        List<JsonNode> subSections = json.findParents("attributes");
+        Map<String, JsonNode> parents = new HashMap<>();
+        for (JsonNode subSection : subSections) {
+            ArrayNode attributes = (ArrayNode) subSection.get("attributes");
+            for (JsonNode attribute : attributes) {
+                if (attribute.get("name").textValue().equalsIgnoreCase("file list")) {
+                    parents.put(attribute.get("value").textValue(), subSection);
+                }
+            }
+        }
+
+        subSections = json.findParents("fileList");
+        for (JsonNode subSection : subSections) {
+            JsonNode fileList = (JsonNode) subSection.get("fileList");
+            if (fileList != null && fileList.has("fileName")) {
+                parents.put(fileList.get("fileName").textValue(), subSection);
+            }
+        }
+
+
+        parents.forEach((filename, jsonNode) -> {
+            if (jsonNode == null) return;
+            try {
+                Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(json.get(Constants.Fields.STORAGE_MODE).asText());
+                IDownloadFile fileList = fileDownloadService.getDownloadFile(accession, relativePath, filename + (filename.toLowerCase().endsWith(".json") ? "" : ".json"), storageMode);
+                if (fileList.getInputStream()==null) {
+                    fileList = fileDownloadService.getDownloadFile(accession, relativePath, "Files/"+ filename + (filename.toLowerCase().endsWith(".json") ? "" : ".json"), storageMode);
+                }
+                counter.set(indexLibraryFile(accession, writer, counter.get(), columns, sectionsWithFiles, jsonNode, fileList));
+
+            } catch (Exception e) {
+                logger.error(e);
+
+            }
+        });
+
+        //put Section as the first column. Name and size would be prepended later
+        if (columns.contains("Section")) {
+            columns.remove("Section");
+            columns.add(0, "Section");
+        }
+        attributeColumns.addAll(columns);
+        if (sectionsWithFiles.size() != 0) {
+            valueMap.put(Constants.Fields.SECTIONS_WITH_FILES, String.join(" ", sectionsWithFiles));
+        }
+        valueMap.put(Constants.Fields.FILES, counter.longValue());
+
+        return valueMap;
+    }
+
+    private long indexFileList(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode nodeWithFiles) throws IOException {
+        for (JsonNode fNode : nodeWithFiles.get("files")) {
+            if (fNode.isArray()) {
+                for (JsonNode singleFile : fNode) {
+                    counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
+                }
+            } else if (fNode.has("files") && fNode.get("files").isArray()) {
+                for (JsonNode singleFile : fNode.get("files")) {
+                    counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
+                }
+            } else if (fNode.has("extType") && fNode.get("extType").textValue().equalsIgnoreCase("filesTable")) {
+                for (JsonNode singleFile : fNode.get("files")) {
+                    counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
+                }
+            } else if (!parent.has("_class") || !parent.get("_class").textValue().endsWith("DocFileList")) {
+                counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, fNode);
+            }
+        }
+        return counter;
+    }
+
+    private long indexLibraryFile(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, IDownloadFile libraryFile) throws IOException {
+        try (InputStreamReader inputStreamReader = new InputStreamReader(libraryFile.getInputStream(), "UTF-8")) {
+            JsonFactory factory = new JsonFactory();
+            JsonParser parser = factory.createParser(inputStreamReader);
+            JsonToken token = parser.nextToken();
+            while (token != null && !JsonToken.START_ARRAY.equals(token)) {
+                token = parser.nextToken();
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            while (true) {
+                token = parser.nextToken();
+                if (!JsonToken.START_OBJECT.equals(token)) {
+                    break;
+                }
+                if (token == null) {
+                    break;
+                }
+
+                JsonNode singleFile = mapper.readTree(parser);
+                counter = indexSingleFile(accession, writer, counter, columns, sectionsWithFiles, parent, singleFile);
+            }
+        }
+        return counter;
+    }
+
+    private long indexSingleFile(String accession, IndexWriter writer, long counter, List<String> columns, Set<String> sectionsWithFiles, JsonNode parent, JsonNode fNode) throws IOException {
+        Document doc = getFileDocument(accession, columns, fNode, parent);
+        writer.updateDocument(new Term(Constants.Fields.ID, accession + "-" + counter++), doc);
+        if (doc.get(Constants.File.SECTION) != null) {
+            IndexableField[] sectionFields = doc.getFields(Constants.File.SECTION);
+            //To take stored section field from lucene doc instead of indexedField for case sensivity difference in search and UI presentation
+            if (sectionFields.length > 0) {
+                for (IndexableField secField : sectionFields) {
+                    if (secField.fieldType().stored() && secField.stringValue() != null) {
+                        sectionsWithFiles.add(secField.stringValue());
+                        break;
+                    }
+                }
+            }
+        }
+        return counter;
     }
 
 }
