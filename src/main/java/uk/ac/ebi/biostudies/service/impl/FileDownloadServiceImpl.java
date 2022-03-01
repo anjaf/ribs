@@ -17,6 +17,7 @@
 
 package uk.ac.ebi.biostudies.service.impl;
 
+import com.amazonaws.services.s3.model.S3Object;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,53 +85,6 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                 || Arrays.binarySearch(matchValues, "*") > -1;
     }
 
-    public void oldSendFile(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-        request.setCharacterEncoding("UTF-8");
-        IDownloadFile downloadFile = null;
-        try {
-            String[] requestArgs = request.getRequestURI().replaceAll(request.getContextPath() + "(/[a-zA-Z])?/files/", "").split("/");
-            //TODO: sanitise accession
-            String accession = requestArgs[0];
-            String key = request.getParameter("key");
-
-            if ("null".equalsIgnoreCase(key)) {
-                key = null;
-            }
-
-            Document document = searchService.getDocumentByAccession(accession, key);
-            if (document == null) {
-                throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
-            }
-            String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
-            if (relativePath == null) {
-                throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
-            }
-            String storageModeString = document.get(Constants.Fields.STORAGE_MODE);
-            Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(storageModeString.isBlank() ? "NFS" : storageModeString);
-
-            downloadFile = getDownloadFileFromRequest(request, response, relativePath, key);
-            if (null != downloadFile) {
-                if (downloadFile.isDirectory()) {
-                    zipDownloadService.sendZip(request, response,
-                            new String[]{
-                                    downloadFile.getPath().replace(indexConfig.getFileRootDir() + "/" + relativePath + "/Files/", "")
-                            }, storageMode);
-                    return;
-                }
-                verifyFile(downloadFile, response);
-                sendRandomAccessFile(downloadFile, request, response);
-                logger.debug("Download of [{}] completed", downloadFile.getName());
-            } else {
-                throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
-            }
-        } finally {
-            if (null != downloadFile) {
-                downloadFile.close();
-            }
-        }
-    }
-
     public void sendFile(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         request.setCharacterEncoding("UTF-8");
@@ -189,7 +143,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         }
     }
 
-    private IDownloadFile getDownloadFile(String accession, String relativePath, String requestedFilePath, Constants.File.StorageMode storageMode) throws IOException, ParseException {
+    public IDownloadFile getDownloadFile(String accession, String relativePath, String requestedFilePath, Constants.File.StorageMode storageMode) throws IOException, ParseException {
         return storageMode == Constants.File.StorageMode.FIRE
                 ? getFireFile(accession, relativePath, requestedFilePath)
                 : getNFSFile(accession, relativePath, requestedFilePath)
@@ -231,13 +185,24 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         return new RegularDownloadFile(downloadFile);
     }
 
-    private IDownloadFile getFireFile(String accession, String relativePath, String requestedFilePath) throws IOException, ParseException {
+    private IDownloadFile getFireFile(String accession, String relativePath, String requestedFilePath) throws FileNotFoundException {
 
-        String path = relativePath+"/Files/"+requestedFilePath;
-        Document fileDocument = filePaginationService.getFileDocument(accession, requestedFilePath);
-        long size = fileDocument.getField(Constants.File.SIZE).numericValue().longValue();
-        boolean isDirectory = Boolean.parseBoolean(fileDocument.get(Constants.File.SIZE));
-        return new FIREDownloadFile( path, fireService.getFireObjectInputStreamByPath(path), size, isDirectory);
+        String path = relativePath + "/Files/" + requestedFilePath;
+
+        S3Object fireObject = null;
+        try {
+            fireObject = fireService.getFireObjectByPath(path);
+        } catch (Exception e) {
+            try {
+                fireObject = fireService.getFireObjectByPath(requestedFilePath);
+            } catch (Exception ex) {
+                throw new FileNotFoundException(ex.getMessage());
+            }
+        }
+        return new FIREDownloadFile(path,
+                fireObject.getObjectContent(),
+                fireObject.getObjectMetadata().getContentLength(),
+                fireObject.getObjectMetadata().getContentType().equalsIgnoreCase("application/x-directory"));
     }
 
 

@@ -115,15 +115,14 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         return node;
     }
 
-    @Override
-    public Document getFileDocument(String accession, String path) throws ParseException, IOException {
+    private Document getFileDocument(String accession, String path) throws ParseException, IOException {
         IndexSearcher searcher = indexManager.getFileIndexSearcher();
         BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
         QueryParser keywordParser = new QueryParser(Constants.File.NAME, new KeywordAnalyzer());
         queryBuilder.add(keywordParser.parse(Constants.File.OWNER + ":" + accession), BooleanClause.Occur.MUST);
         queryBuilder.add(keywordParser.parse(Constants.File.PATH + ":" + StudyUtils.escape(path)), BooleanClause.Occur.MUST);
         TopDocs hits = searcher.search(queryBuilder.build(), Integer.MAX_VALUE);
-        return searcher.getIndexReader().document(hits.scoreDocs[0].doc);
+        return hits.totalHits.value>0 ? searcher.getIndexReader().document(hits.scoreDocs[0].doc) : null;
     }
 
     @Override

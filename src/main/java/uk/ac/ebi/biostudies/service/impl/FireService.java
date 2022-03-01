@@ -3,6 +3,7 @@ package uk.ac.ebi.biostudies.service.impl;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +42,12 @@ public class FireService {
             LOGGER.error(exception);
             return null;
         }
+    }
+
+    public S3Object getFireObjectByPath(String path) throws FileNotFoundException {
+        String bucketName = fireConfig.getBucketName();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, path);
+        return s3.getObject(getObjectRequest);
     }
 
     public S3ObjectInputStream getFireObjectInputStreamByPath(String path) throws FileNotFoundException {
