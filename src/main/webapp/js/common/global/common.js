@@ -122,21 +122,36 @@ function handleBioImagesUI() {
     $('.masthead, #ebi_search .button, .pagination .current').css("background-color","rgb(0, 124, 130)");
     $('.menu.float-left li:nth-child(1) a').attr('href','/bioimage-archive/');
     $('.menu.float-left li:nth-child(3) a').attr('href','/bioimage-archive/submit');
-    $('.menu.float-left li:nth-child(4) a').attr('href', '/bioimage-archive/help');
-    ;
+    //$('.menu.float-left li:nth-child(4) a').attr('href', '/bioimage-archive/help');
+
+    const helpmenu = $('.menu.float-left li:nth-child(4)');
     const menu = $('.menu.float-left li:nth-child(5)');
+    helpmenu.replaceWith('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="Help" data-is-click="false">\n' +
+        '                            <a href="#" role="menuitem">Help</a>\n' +
+        '                            <ul class="menu submenu is-dropdown-submenu first-sub vertical" data-submenu="" role="menubar" style="">\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-faq" role="menuitem">FAQs</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-search/" role="menuitem">Searching the archive</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-download/" role="menuitem">Downloading data</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-submission-form/" role="menuitem">Submission form reference</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-file-list/" role="menuitem">Submission File List guide</a></li>\n' +
+        '                            </ul>\n' +
+        '                        </li>');
+
+    ;
+    ;
     menu.before('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="About us" data-is-click="false">\n' +
         '                            <a href="#" role="menuitem">About us</a>\n' +
         '                            <ul class="menu submenu is-dropdown-submenu first-sub vertical" data-submenu="" role="menubar" style="">\n' +
-        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/faq" role="menuitem">FAQs</a></li>\n' +
         '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/project-developments/" role="menuitem">Project developments</a></li>\n' +
         '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/case-studies/" role="menuitem">Case Studies</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/contact-us" role="menuitem">Contact us</a></li>\n' +
         '                            </ul>\n' +
         '                        </li>');
+        ;
     new Foundation.DropdownMenu(menu.parent());
     $('#query').attr('placeholder','Search BioImages');
     $('.sample-query').first().text('brain');
-    $('.sample-query').first().next().text('capsid');
+    $('.sample-query').first().next().text('microscopy');
     $('#elixir-banner').hide();
 }
 
