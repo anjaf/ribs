@@ -158,7 +158,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             return new RegularDownloadFile(Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + requestedFilePath));
         }
 
-        Path downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + requestedFilePath);
+        Path downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/" + requestedFilePath);
 
         //TODO: Remove this bad^∞ hack
         //Hack start: override relative path if file is not found
