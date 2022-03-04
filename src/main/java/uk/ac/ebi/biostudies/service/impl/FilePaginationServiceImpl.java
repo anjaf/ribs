@@ -35,6 +35,7 @@ import java.util.*;
 @Service
 public class FilePaginationServiceImpl implements FilePaginationService {
 
+    private final Logger logger = LogManager.getLogger(FilePaginationServiceImpl.class.getName());
     @Autowired
     IndexManager indexManager;
     @Autowired
@@ -45,13 +46,12 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     IndexConfig indexConfig;
     @Autowired
     Thumbnails thumbnails;
-    private Logger logger = LogManager.getLogger(FilePaginationServiceImpl.class.getName());
 
     public ObjectNode getStudyInfo(String accession, String secretKey) throws SubmissionNotAccessibleException {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode studyInfo = mapper.createObjectNode();
 
-        String orderedArray[] = {"Name", "Size"};
+        String[] orderedArray = {"Name", "Size"};
         ArrayNode fileColumnAttributes = mapper.createArrayNode();
         Document doc = searchService.getDocumentByAccession(accession, secretKey);
         if (doc == null) return studyInfo;
@@ -59,7 +59,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         String relativePath = doc.get(Constants.Fields.RELATIVE_PATH);
         String attFiles = doc.get(Constants.File.FILE_ATTS);
         if (attFiles == null) return studyInfo;
-        String allAtts[] = attFiles.split("\\|");
+        String[] allAtts = attFiles.split("\\|");
         Set<String> headerSet = new HashSet<>(Arrays.asList(orderedArray));
         List<String> orderedList = new ArrayList<>(Arrays.asList(orderedArray));
         for (String att : allAtts) {
@@ -122,7 +122,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         queryBuilder.add(keywordParser.parse(Constants.File.OWNER + ":" + accession), BooleanClause.Occur.MUST);
         queryBuilder.add(keywordParser.parse(Constants.File.PATH + ":" + StudyUtils.escape(path)), BooleanClause.Occur.MUST);
         TopDocs hits = searcher.search(queryBuilder.build(), Integer.MAX_VALUE);
-        return hits.totalHits.value>0 ? searcher.getIndexReader().document(hits.scoreDocs[0].doc) : null;
+        return hits.totalHits.value > 0 ? searcher.getIndexReader().document(hits.scoreDocs[0].doc) : null;
     }
 
     @Override
@@ -140,8 +140,8 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             List<DataTableColumnInfo> searchedColumns = new ArrayList<>();
             for (DataTableColumnInfo ftInfo : dataTableUiResult.values()) {
                 if (ftInfo.getDir() != null && !ftInfo.getName().equalsIgnoreCase("x")) {
-                    allSortedFields.add(ftInfo.getName().equalsIgnoreCase("size") ? new SortedNumericSortField(ftInfo.getName(), SortField.Type.LONG, ftInfo.getDir().equalsIgnoreCase("desc") ? true : false)
-                            : new SortField(ftInfo.getName(), SortField.Type.STRING, ftInfo.getDir().equalsIgnoreCase("desc") ? true : false));
+                    allSortedFields.add(ftInfo.getName().equalsIgnoreCase("size") ? new SortedNumericSortField(ftInfo.getName(), SortField.Type.LONG, ftInfo.getDir().equalsIgnoreCase("desc"))
+                            : new SortField(ftInfo.getName(), SortField.Type.STRING, ftInfo.getDir().equalsIgnoreCase("desc")));
                 }
                 if (ftInfo.getSearchValue() != null && !ftInfo.getSearchValue().isEmpty()) {
                     searchedColumns.add(ftInfo);
@@ -259,7 +259,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             QueryParser parser = new QueryParser(info.getName(), new KeywordAnalyzer());
             parser.setAllowLeadingWildcard(true);
             try {
-                Query query = parser.parse(StudyUtils.escape(modifySearchText(info.getSearchValue())));
+                Query query = parser.parse(StudyUtils.escape((info.getName().equalsIgnoreCase("section") ? info.getSearchValue().toLowerCase() : modifySearchText(info.getSearchValue()))));
                 logicQueryBuilder.add(query, BooleanClause.Occur.MUST);
             } catch (ParseException e) {
                 logger.debug("problem in search term {}", info.getSearchValue(), e);
@@ -297,8 +297,6 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     }
 
     private boolean hasUnescapedDoubleQuote(String search) {
-        if (search.replaceAll("\\Q\\\"\\E", "").contains("\""))
-            return true;
-        return false;
+        return search.replaceAll("\\Q\\\"\\E", "").contains("\"");
     }
 }
