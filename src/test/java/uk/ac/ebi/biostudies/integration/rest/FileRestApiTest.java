@@ -68,7 +68,8 @@ public class FileRestApiTest {
      * https://wwwdev.ebi.ac.uk/biostudies/api/v1/studies/ACCESSION
      */
     public void getStudyFromRestAPI() throws Exception {
-        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(ACCESSION + ".json").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(ACCESSION + ".json").openStream()))
+                .when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.any());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         String result = testRestTemplate.getForObject(baseUrl + "api/v1/studies/" + ACCESSION, String.class);
         ObjectMapper mapper = new ObjectMapper();
@@ -93,7 +94,7 @@ public class FileRestApiTest {
         if ((pathToFile.charAt(0) == '\\' || pathToFile.charAt(0) == '/') && pathToFile.charAt(2) == ':')
             pathToFile = pathToFile.substring(1);
         doReturn(pathToFile).when(indexConfigMock).getFileRootDir();
-        InputStreamResource myFileStream = searchServiceImpl.getStudyAsStream(ACCESSION, "", true);
+        InputStreamResource myFileStream = searchServiceImpl.getStudyAsStream(ACCESSION, "", true, Constants.File.StorageMode.NFS);
         ReadContext jsonPathContext = JsonPath.parse(myFileStream.getInputStream());
         JSONArray authors = jsonPathContext.read("$.section.subsections[?(@.type==\"Author\")].attributes[?(@.name==\"Name\")].value");
         JSONArray organizations = jsonPathContext.read("$.section.subsections[?(@.type==\"Organization\")].attributes[?(@.name==\"Name\")].value");
@@ -106,7 +107,8 @@ public class FileRestApiTest {
      * https://wwwdev.ebi.ac.uk/biostudies/api/v1/studies/ACCESSION/info
      */
     public void getFileInfoRestApiPublicAccess() throws Exception {
-        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(ACCESSION + ".json").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(ACCESSION + ".json").openStream()))
+                .when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.any());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         String result = testRestTemplate.getForObject(baseUrl + "api/v1/studies/" + ACCESSION + "/info", String.class);
         ObjectMapper mapper = new ObjectMapper();

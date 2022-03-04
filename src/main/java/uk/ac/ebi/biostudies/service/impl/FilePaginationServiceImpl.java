@@ -35,6 +35,7 @@ import java.util.*;
 @Service
 public class FilePaginationServiceImpl implements FilePaginationService {
 
+    private final Logger logger = LogManager.getLogger(FilePaginationServiceImpl.class.getName());
     @Autowired
     IndexManager indexManager;
     @Autowired
@@ -45,7 +46,6 @@ public class FilePaginationServiceImpl implements FilePaginationService {
     IndexConfig indexConfig;
     @Autowired
     Thumbnails thumbnails;
-    private final Logger logger = LogManager.getLogger(FilePaginationServiceImpl.class.getName());
 
     public ObjectNode getStudyInfo(String accession, String secretKey) throws SubmissionNotAccessibleException {
         ObjectMapper mapper = new ObjectMapper();
@@ -115,12 +115,22 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         return node;
     }
 
+    private Document getFileDocument(String accession, String path) throws ParseException, IOException {
+        IndexSearcher searcher = indexManager.getFileIndexSearcher();
+        BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
+        QueryParser keywordParser = new QueryParser(Constants.File.NAME, new KeywordAnalyzer());
+        queryBuilder.add(keywordParser.parse(Constants.File.OWNER + ":" + accession), BooleanClause.Occur.MUST);
+        queryBuilder.add(keywordParser.parse(Constants.File.PATH + ":" + StudyUtils.escape(path)), BooleanClause.Occur.MUST);
+        TopDocs hits = searcher.search(queryBuilder.build(), Integer.MAX_VALUE);
+        return hits.totalHits.value > 0 ? searcher.getIndexReader().document(hits.scoreDocs[0].doc) : null;
+    }
+
     @Override
     public ObjectNode getFileList(String accession, int start, int pageSize, String search, int draw, boolean metadata, Map<Integer, DataTableColumnInfo> dataTableUiResult, String secretKey) throws SubmissionNotAccessibleException {
         ObjectMapper mapper = new ObjectMapper();
-        IndexSearcher searcher = indexManager.getIndexSearcher();
+        IndexSearcher searcher = indexManager.getFileIndexSearcher();
         QueryParser parser = new QueryParser(Constants.Fields.ACCESSION, new KeywordAnalyzer());
-        IndexReader reader = indexManager.getIndexReader();
+        IndexReader reader = indexManager.getFileIndexReader();
         ObjectNode studyInfo = getStudyInfo(accession, secretKey);
         long totalFiles = studyInfo.get(Constants.Fields.FILES).asLong();
         if (studyInfo == null) return mapper.createObjectNode();

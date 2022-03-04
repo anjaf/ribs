@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostudies.integration;
 
-import org.junit.*;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
@@ -22,7 +23,6 @@ import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.integration.utils.IntegrationTestProperties;
 import uk.ac.ebi.biostudies.service.SearchService;
 
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
@@ -37,27 +37,22 @@ import static org.mockito.Mockito.doReturn;
 
 public class DetailTest {
 
+    private static WebDriver webDriver = IntegrationTestSuite.webDriver;
     @Autowired
     IntegrationTestProperties integrationTestProperties;
-
     @LocalServerPort
     int randomPort;
-
-    private static WebDriver webDriver = IntegrationTestSuite.webDriver;
-
+    @SpyBean
+    UserSecurityService userSecurityServiceMock;
     @SpyBean
     private SearchService searchServiceMock;
-
     @SpyBean
     private IndexConfig indexConfigMock;
 
-    @SpyBean
-    UserSecurityService userSecurityServiceMock;
-
-
     //@Test
     public void testFileCount() throws Exception {
-        doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock)
+                .getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.any());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "studies/S-EPMC3372839");
         int expectedFileCount = 1;
@@ -85,7 +80,8 @@ public class DetailTest {
 
     //@Test
     public void testLinkCount() throws Throwable {
-        doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource("S-EPMC3372839").openStream())).when(searchServiceMock)
+                .getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.any());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "studies/S-EPMC3372839");
         int expectedLinkCount = 1;
@@ -115,7 +111,8 @@ public class DetailTest {
     public void testTitle() throws Throwable {
         String accession = "S-EPMC6160819";
         String file = accession + ".json";
-        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(file).openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(file).openStream())).when(searchServiceMock)
+                .getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.any());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "studies?query=" + accession);
         WebDriverWait wait = new WebDriverWait(webDriver, 20);
@@ -167,7 +164,8 @@ public class DetailTest {
     public void testMultipleAffiliations() throws IOException {
         String accession = "S-EPMC6160819";
         String file = accession + ".json";
-        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(file).openStream())).when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean());
+        doReturn(new InputStreamResource(getClass().getClassLoader().getResource(file).openStream()))
+                .when(searchServiceMock).getStudyAsStream(Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.any());
         String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
         webDriver.get(baseUrl + "studies/" + accession);
         WebDriverWait wait = new WebDriverWait(webDriver, 50);

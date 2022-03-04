@@ -22,6 +22,9 @@ public class IndexConfig implements InitializingBean, DisposableBean {
     @Value("${index.directory}")
     private String indexDirectory;
 
+    @Value("${index.fileIndexDirectory}")
+    private String fileIndexDirectory;
+
     @Value("${index.facetDirectory}")
     private String facetDirectory;
 
@@ -156,5 +159,9 @@ public class IndexConfig implements InitializingBean, DisposableBean {
 
     public boolean isApiEnabled() {
         return apiEnabled;
+    }
+
+    public String getFileIndexDirectory() {
+        return fileIndexDirectory;
     }
 }
