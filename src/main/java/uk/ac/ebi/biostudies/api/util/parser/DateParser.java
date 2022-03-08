@@ -19,7 +19,7 @@ public class DateParser extends AbstractParser {
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        long releaseDateLong = 0L;
+        long releaseDateLong = Long.MAX_VALUE;
         long creationDateLong = 0L;
         long modificationTimeLong = 0L;
 
@@ -63,18 +63,15 @@ public class DateParser extends AbstractParser {
                 }
             } else if (!submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("-1") && !submission.get(Constants.Fields.RELEASE_TIME_FULL).asText().equals("null")) {
                 Instant instant = Instant.from(DateTimeFormatter.ISO_INSTANT.parse(submission.get(Constants.Fields.RELEASE_TIME_FULL).asText()));
-                releaseDateLong = (instant.getEpochSecond() < 0) ? 0 : instant.toEpochMilli();
+                releaseDateLong = instant.toEpochMilli();
             } else if (String.valueOf(valueMap.get(Constants.Fields.ACCESS)).contains(PUBLIC)) {
                 releaseDateLong = (long) valueMap.get(Constants.Fields.MODIFICATION_TIME);
             }
         }
 
-        if (releaseDateLong == 0L && !String.valueOf(valueMap.get(Constants.Fields.ACCESS)).contains(PUBLIC)) {
-            releaseDateLong = Long.MAX_VALUE;
-        }
         valueMap.put(Constants.Fields.RELEASE_TIME, releaseDateLong);
         valueMap.put(RELEASE_DATE, simpleDateFormat.format(DateTools.round(releaseDateLong, DateTools.Resolution.DAY)));
-        valueMap.put(Constants.Facets.RELEASED_YEAR_FACET, (releaseDateLong == Long.MAX_VALUE || releaseDateLong == 0) ? NA : DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
+        valueMap.put(Constants.Facets.RELEASED_YEAR_FACET, (releaseDateLong == Long.MAX_VALUE) ? NA : DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
         return "";
     }
 }
