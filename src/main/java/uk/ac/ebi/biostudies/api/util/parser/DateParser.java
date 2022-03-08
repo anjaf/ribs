@@ -2,6 +2,8 @@ package uk.ac.ebi.biostudies.api.util.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.ReadContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.DateTools;
 import uk.ac.ebi.biostudies.api.util.Constants;
 
@@ -10,16 +12,16 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-import static uk.ac.ebi.biostudies.api.util.Constants.NA;
 import static uk.ac.ebi.biostudies.api.util.Constants.PUBLIC;
 import static uk.ac.ebi.biostudies.api.util.Constants.RELEASE_DATE;
 
 public class DateParser extends AbstractParser {
+    private static final Logger logger = LogManager.getLogger(DateParser.class.getName());
 
     @Override
     public String parse(Map<String, Object> valueMap, JsonNode submission, ReadContext jsonPathContext) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        long releaseDateLong = Long.MAX_VALUE;
+        Long releaseDateLong = null;
         long creationDateLong = 0L;
         long modificationTimeLong = 0L;
 
@@ -69,9 +71,13 @@ public class DateParser extends AbstractParser {
             }
         }
 
+        if (releaseDateLong==null) {
+            releaseDateLong = creationDateLong;
+            logger.error("Cannot find release date. {} ", valueMap);
+        }
         valueMap.put(Constants.Fields.RELEASE_TIME, releaseDateLong);
         valueMap.put(RELEASE_DATE, simpleDateFormat.format(DateTools.round(releaseDateLong, DateTools.Resolution.DAY)));
-        valueMap.put(Constants.Facets.RELEASED_YEAR_FACET, (releaseDateLong == Long.MAX_VALUE) ? NA : DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
+        valueMap.put(Constants.Facets.RELEASED_YEAR_FACET, DateTools.timeToString(releaseDateLong, DateTools.Resolution.YEAR));
         return "";
     }
 }
