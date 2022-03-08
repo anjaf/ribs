@@ -39,7 +39,8 @@ var Metadata = (function (_self) {
                     if(v.name.trim() == 'AttachTo')
                         collection=v.value;
                 });
-                handleProjectSpecificUI();
+                if (location.href.toLowerCase().indexOf(collection.toLowerCase())<0)
+                    handleProjectSpecificUI();
                 title = data.attributes.filter(function (v, i) {
                     return v.name.trim() == 'Title';
                 });
