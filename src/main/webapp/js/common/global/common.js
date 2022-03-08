@@ -159,7 +159,7 @@ function handleArrayExpressUI() {
     $('.sample-query').first().text('E-MEXP-31');
     $('.sample-query').first().next().text('cancer');
     $('.menu.float-left li:contains("Home") a').attr('href',contextPath + '/arrayexpress');
-    $('.menu.float-left li:contains("Browse") a').text('ArrayExpress').attr('href',contextPath + '/arrayexpress');
+    $('.menu.float-left li:contains("Browse") a').text('ArrayExpress').attr('href',contextPath + '/arrayexpress/studies');
     $('.menu.float-left li:contains("Submit") a').attr('href','/fg/annotare');
     $('.menu.float-left li:contains("Home")').after('<li role="none"><a href="'+ contextPath + '" role="menuitem">BioStudies</a></li>');
     $('span.elixir-banner-name').text('This service');
