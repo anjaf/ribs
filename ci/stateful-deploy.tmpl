@@ -3,6 +3,7 @@ kind: StatefulSet
 metadata:
   name: $LABEL
 spec:
+  serviceName: $LABEL
   replicas: $REPLICAS
   selector:
     matchLabels:
@@ -46,8 +47,6 @@ spec:
           readOnly: true
         - name: index-volume
           mountPath: /nfs/ui
-          subPath: $UI_INDEX_PATH
-          readOnly: $READONLY
       volumes:
         - name: config-volume
           configMap:
@@ -56,6 +55,10 @@ spec:
           nfs:
             server: $NFS_SERVER
             path: $NFS_PATH
+        - name: index-volume
+          persistentVolumeClaim:
+            claimName: index-volume
+
   volumeClaimTemplates:
     - metadata:
         name: index-volume
