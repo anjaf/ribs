@@ -2,17 +2,19 @@ $(function() {
     const specialCollections = ['bioimages', 'arrayexpress'];
 
     function updateMenuForCollection(data) {
+        return
         var helpLink = $('#masthead nav ul.float-left li.active a');
         var activeClass = '';
-        if (helpLink.attr('href')!='help') {
+        if (helpLink.length && !helpLink.attr('href').toLowerCase().endsWith('help')) {
             $('#masthead nav ul.float-left li').removeClass('active');
             activeClass='active';
         }
-        $('#masthead nav ul.float-left li').eq(1).after('<li class="'+activeClass+'"><a href="'
-            + (contextPath + '/'+ data.accno + '/' + 'studies')
-            + '" title="'+ data.title
-            +'">'+ (data.title.toLowerCase()=='bioimages' ? 'Browse' : data.title) +'</a></li>')
-
+        if ($.inArray(collection.toLowerCase(), specialCollections)<=0) {
+            $('#masthead nav ul.float-left li').eq(1).after('<li class="' + activeClass + '"><a href="'
+                + (contextPath + '/' + data.accno + '/' + 'studies')
+                + '" title="' + data.title
+                + '">' + ($.inArray(data.title.toLowerCase(), specialCollections) >= 0 ? 'Browse' : data.title) + '</a></li>');
+        }
     }
 
     function showCollectionBanner(data) {
@@ -26,11 +28,11 @@ $(function() {
             collectionObj[this.name.toLowerCase()] = this.value
         })
         var html = template(collectionObj);
-        if ($.inArray(collection.toLowerCase(), specialCollections)) {
+        if ($.inArray(collection.toLowerCase(), specialCollections) < 0) {
             $('#collection-banner').html(html);
         }
         // add collection search checkbox
-        $('#example').append('<label id="collection-search"'+ ( $.inArray(collection.toLowerCase(), specialCollections) ? 'style="display:none;"' : '')
+        $('#example').append('<label id="collection-search"'+ ( $.inArray(collection.toLowerCase(), specialCollections)<=0 ? 'style="display:none;"' : '')
             +'><input id="search-in-collection" type="checkbox" />Search in '+collectionObj.title+' only</label>');
         $('#search-in-collection').bind('change', function(){
             $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');
@@ -115,28 +117,38 @@ function handleProjectSpecificUI(){
 }
 
 function handleBioImagesUI() {
-    $('.menu.float-left li').slice(1, 2).hide();
-    $('.menu.float-left li').slice(4, 5).hide();
     $('#local-title').html('<h1><img src="' + contextPath + '/images/collections/bioimages/logo.png"></img></h1>');
     $('#masthead').css("background-image","url("+contextPath +"/images/collections/bioimages/background.jpg)");
     $('.masthead, #ebi_search .button, .pagination .current').css("background-color","rgb(0, 124, 130)");
-    $('.menu.float-left li:nth-child(1) a').attr('href','/bioimage-archive/');
-    $('.menu.float-left li:nth-child(3) a').attr('href','/bioimage-archive/submit');
-    $('.menu.float-left li:nth-child(4) a').attr('href', '/bioimage-archive/help');
-    ;
-    const menu = $('.menu.float-left li:nth-child(5)');
-    menu.before('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="About us" data-is-click="false">\n' +
-        '                            <a href="#" role="menuitem">About us</a>\n' +
+    $('.menu.float-left li a:contains("Home")').attr('href','/bioimage-archive/');
+    $('.menu.float-left li a:contains("Browse")').attr('href','/biostudies/BioImages/studies');
+    $('.menu.float-left li a:contains("Submit")').attr('href','/bioimage-archive/submit');
+    const helpmenu = $('.menu.float-left li:contains("Help")');
+    const newhelpmenu = $('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="Help" data-is-click="false">\n' +
+        '                            <a href="#" role="menuitem">Help</a>\n' +
         '                            <ul class="menu submenu is-dropdown-submenu first-sub vertical" data-submenu="" role="menubar" style="">\n' +
-        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/faq" role="menuitem">FAQs</a></li>\n' +
-        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/project-developments/" role="menuitem">Project developments</a></li>\n' +
-        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/case-studies/" role="menuitem">Case Studies</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-faq" role="menuitem">FAQs</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-search/" role="menuitem">Searching the archive</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-download/" role="menuitem">Downloading data</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-submission-form/" role="menuitem">Submission form reference</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/help-file-list/" role="menuitem">Submission File List guide</a></li>\n' +
         '                            </ul>\n' +
         '                        </li>');
-    new Foundation.DropdownMenu(menu.parent());
+    helpmenu.replaceWith(newhelpmenu);
+    const about = $('.menu.float-left li:contains("About")')
+    const newaboutmenu = $('<li role="none" class="is-dropdown-submenu-parent opens-right" aria-haspopup="true" aria-label="About us" data-is-click="false">\n' +
+        '                            <a href="#" role="menuitem">About us</a>\n' +
+        '                            <ul class="menu submenu is-dropdown-submenu first-sub vertical" data-submenu="" role="menubar" style="">\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/project-developments/" role="menuitem">Project developments</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/case-studies/" role="menuitem">Case Studies</a></li>\n' +
+        '                                <li role="none" class="is-submenu-item is-dropdown-submenu-item"><a href="/bioimage-archive/contact-us" role="menuitem">Contact us</a></li>\n' +
+        '                            </ul>\n' +
+        '                        </li>');
+    about.replaceWith(newaboutmenu);
+    new Foundation.DropdownMenu(newhelpmenu.parent());
     $('#query').attr('placeholder','Search BioImages');
     $('.sample-query').first().text('brain');
-    $('.sample-query').first().next().text('capsid');
+    $('.sample-query').first().next().text('microscopy');
     $('#elixir-banner').hide();
 }
 
@@ -147,8 +159,9 @@ function handleArrayExpressUI() {
     $('.sample-query').first().text('E-MEXP-31');
     $('.sample-query').first().next().text('cancer');
     $('.menu.float-left li:contains("Home") a').attr('href',contextPath + '/arrayexpress');
+    $('.menu.float-left li:contains("Browse") a').text('ArrayExpress').attr('href',contextPath + '/arrayexpress/studies');
     $('.menu.float-left li:contains("Submit") a').attr('href','/fg/annotare');
-    $('.menu.float-left li:contains("Browse") a').text('BioStudies').attr('href',contextPath);
+    $('.menu.float-left li:contains("Home")').after('<li role="none"><a href="'+ contextPath + '" role="menuitem">BioStudies</a></li>');
     $('span.elixir-banner-name').text('This service');
     $('span.elixir-banner-description').text('ArrayExpress is an ELIXIR Core Data Resource');
 }

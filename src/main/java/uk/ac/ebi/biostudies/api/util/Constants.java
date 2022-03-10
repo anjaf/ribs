@@ -84,6 +84,7 @@ public interface Constants {
         String RELEASE_TIME_FULL = "releaseTime";
         String MODIFICATION_TIME_FULL ="modificationTime";
         String CREATION_TIME_FULL = "creationTime";
+        String STORAGE_MODE = "storageMode";
     }
 
     interface File{
@@ -109,6 +110,11 @@ public interface Constants {
         String DATA = "data";
         String IS_DIRECTORY = "isDirectory";
         String RELPATH = "relPath";
+
+        enum StorageMode {
+            NFS,
+            FIRE
+        }
     }
 
     interface OS{
