@@ -75,7 +75,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             node.put("title", att);
             node.put("visible", true);
             node.put("searchable", !att.equalsIgnoreCase("size"));
-            node.put("data", att.replaceAll("[\\[\\]\\(\\)\\s]", "_"));
+            node.put("data", att.replaceAll("[\\[\\]\\(\\)\\s]", "_").replaceAll("\\.","\\\\."));
             node.put("defaultContent", "");
             fileColumnAttributes.add(node);
             if (counter++ == 1 && thumbnails.hasThumbnails(accession, relativePath)) {
