@@ -1,8 +1,9 @@
 apiVersion: apps/v1
-kind: Deployment
-metadata: 
+kind: StatefulSet
+metadata:
   name: $LABEL
 spec:
+  serviceName: $LABEL
   replicas: $REPLICAS
   selector:
     matchLabels:
@@ -44,10 +45,12 @@ spec:
           mountPath: /nfs/biostudies
           subPath: $SUBPATH
           readOnly: true
-        - name: index-volume
-          mountPath: /nfs/ui
+        - name: index-snapshot-volume
+          mountPath: /nfs/ui/snapshot
           subPath: $UI_INDEX_PATH
           readOnly: $READONLY
+        - name: index-volume
+          mountPath: /nfs/ui/index
       volumes:
         - name: config-volume
           configMap:
@@ -56,10 +59,24 @@ spec:
           nfs:
             server: $NFS_SERVER
             path: $NFS_PATH
-        - name: index-volume
+        - name: index-snapshot-volume
           nfs:
             server: $NFS_SERVER
             path: $NFS_PATH
+        - name: index-volume
+          persistentVolumeClaim:
+            claimName: index-volume
+
+  volumeClaimTemplates:
+    - metadata:
+        name: index-volume
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 30Gi
+        storageClassName: standard-nfs-production
 
 ---
 
