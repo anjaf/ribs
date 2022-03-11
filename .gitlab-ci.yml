@@ -94,6 +94,7 @@ build-docker:
     - cd ci
     - cat "$APP_CONFIG" | kubectl apply -f -
     - envsubst < deployment.tmpl | kubectl apply -f -
+    - kubectl rollout restart statefulset "$LABEL" -n "$NAMESPACE"
 
 deploy:k8s:hx:
   extends: .deploy-k8s

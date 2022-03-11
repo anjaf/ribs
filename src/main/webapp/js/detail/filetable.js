@@ -167,7 +167,6 @@ var FileTable = (function (_self) {
     }
 
     function handleFileTableColumns(columns, acc, params, isDetailPage) {
-
         if (!isDetailPage) {
             $('#file-list').addClass('bigtable');
         }
@@ -182,6 +181,7 @@ var FileTable = (function (_self) {
                 return '<div class="file-check-box"><input title="Select file" type="checkbox" data-name="' + row.path + '"></input></div>';;
             }
         });
+
         // add section rendering
         if (isDetailPage) {
             var sectionColumn = columns.filter(function(c) {return c.name=='Section';});
@@ -243,8 +243,8 @@ var FileTable = (function (_self) {
                 },
                 {
                     targets: '_all',
-                    render:  function (data, type, row) {
-                        return linkify(data);
+                    render:  function (data, type, row, meta) {
+                        return data ? linkify(data) : '';
                     }
                 }
             ],
@@ -784,6 +784,7 @@ var FileTable = (function (_self) {
     }
 
     function linkify(text) {
+        if (text===undefined) { return '';}
         text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
         // re from https://blog.mattheworiordan.com/post/13174566389/url-regular-expression-for-links-with-or-without
         var reURL = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/g;
