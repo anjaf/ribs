@@ -414,7 +414,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         String disposition = (inline || contentType.startsWith("image")) ? "inline" : "attachment";
 
         // Initialize response.
-        response.reset();
+        //response.reset();
         response.setBufferSize(TRANSFER_BUFFER_SIZE);
         response.setHeader("Content-Disposition", disposition + ";filename=\"" + fileName + "\"");
         response.setHeader("Accept-Ranges", "bytes");

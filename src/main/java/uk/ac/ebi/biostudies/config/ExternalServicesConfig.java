@@ -21,6 +21,9 @@ public class ExternalServicesConfig {
     @Value("${analytics.code}")
     private String analyticsCode;
 
+    @Value("${access.control.allow.origin}")
+    private String accessControlAllowOrigin;
+
     public String getdataClaimingUrl() {
         return dataClaimingUrl;
     }
@@ -33,5 +36,7 @@ public class ExternalServicesConfig {
         return gitCommitIdAbbrev;
     }
 
-
+    public String getAccessControlAllowOrigin() {
+        return accessControlAllowOrigin;
+    }
 }
