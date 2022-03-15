@@ -21,6 +21,12 @@ spec:
       containers:
       - name: $LABEL
         image: $DOCKER_IMAGE
+        readinessProbe:
+         httpGet:
+           path: /
+           port: 8080
+         initialDelaySeconds: 30
+         periodSeconds: 10
         env:
         - name: proxy_host
           value: "$PROXY_HOST"
