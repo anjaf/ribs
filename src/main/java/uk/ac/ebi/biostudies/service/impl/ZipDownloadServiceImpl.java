@@ -71,9 +71,9 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
 
         try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(response.getOutputStream()))) {
             if (storageMode == Constants.File.StorageMode.FIRE)
-                sendNFSZip(key, relativePath, rootFolder, files, zos);
-            else
                 sendFireZip(key, relativePath, rootFolder, files, zos);
+            else
+                sendNFSZip(key, relativePath, rootFolder, files, zos);
         } catch (Exception e) {
             e.printStackTrace();
         }
