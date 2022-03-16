@@ -35,7 +35,7 @@ public class MvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**");
         registry.addMapping("/files/**").allowedOrigins(externalServicesConfig.getAccessControlAllowOrigin().split(","))
-                .allowedMethods("GET");
+                .allowedMethods("GET","POST");
     }
 
     @Override
