@@ -21,6 +21,7 @@ import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
 import uk.ac.ebi.biostudies.auth.Session;
+import uk.ac.ebi.biostudies.auth.User;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.efo.Autocompletion;
@@ -134,7 +135,8 @@ public class SearchServiceImpl implements SearchService {
             sort = new Sort(sortField, new SortedNumericSortField(Fields.MODIFICATION_TIME, SortField.Type.LONG, shouldReverse));
 
         try {
-            pageSize = Math.min(pageSize, MAX_PAGE_SIZE);
+            User currentUser = Session.getCurrentUser();
+            pageSize = Math.min(pageSize, currentUser!=null && currentUser.isSuperUser() ? Integer.MAX_VALUE : MAX_PAGE_SIZE);
             int searchResultsSize = Math.min(page * pageSize, Integer.MAX_VALUE);
             TopDocs hits = searcher.search(query, searchResultsSize, sort);
             long totalHits = hits.totalHits != null ? hits.totalHits.value : 0;
