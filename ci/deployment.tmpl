@@ -23,10 +23,11 @@ spec:
         image: $DOCKER_IMAGE
         readinessProbe:
          httpGet:
-           path: /
+           path: /biostudies
            port: 8080
-         initialDelaySeconds: 30
-         periodSeconds: 10
+           scheme: HTTP
+         initialDelaySeconds: 10
+         periodSeconds: 2
         env:
         - name: proxy_host
           value: "$PROXY_HOST"
