@@ -6,6 +6,7 @@ package uk.ac.ebi.biostudies.config;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardHost;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -27,10 +28,14 @@ import org.springframework.web.servlet.config.annotation.*;
 @PropertySource("classpath:scheduler.properties")
 public class MvcConfig implements WebMvcConfigurer {
 
+    @Autowired
+    ExternalServicesConfig externalServicesConfig;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**");
+        registry.addMapping("/files/**").allowedOrigins(externalServicesConfig.getAccessControlAllowOrigin().split(","))
+                .allowedMethods("GET");
     }
 
     @Override
