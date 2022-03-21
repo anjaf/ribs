@@ -24,9 +24,8 @@ spec:
         readinessProbe:
          httpGet:
            path: /biostudies
-           port: 30080
-           scheme: HTTP
-         initialDelaySeconds: 10
+           port: 8080
+         initialDelaySeconds: 60
          periodSeconds: 2
         env:
         - name: proxy_host
