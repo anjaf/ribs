@@ -23,7 +23,7 @@ spec:
         image: $DOCKER_IMAGE
         readinessProbe:
          httpGet:
-           path: /biostudies
+           path: $CONTEXT_PATH
            port: 8080
          initialDelaySeconds: 60
          periodSeconds: 2
