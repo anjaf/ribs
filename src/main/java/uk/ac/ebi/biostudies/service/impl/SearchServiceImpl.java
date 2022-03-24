@@ -347,11 +347,13 @@ public class SearchServiceImpl implements SearchService {
         Query similarityQuery = securityQueryBuilder.applySecurity(likeQuery, null);
         TopDocs mltDocs = indexManager.getIndexSearcher().search(similarityQuery, maxHits);
         ArrayNode similarStudies = mapper.createArrayNode();
-        for (int i = 1; i < mltDocs.scoreDocs.length; i++) {
+        for (int i = 0; i < mltDocs.scoreDocs.length; i++) {
             ObjectNode study = mapper.createObjectNode();
             study.set(Fields.ACCESSION, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Fields.ACCESSION)));
             study.set(Fields.TITLE, mapper.valueToTree(indexManager.getIndexReader().document(mltDocs.scoreDocs[i].doc).get(Fields.TITLE)));
-            similarStudies.add(study);
+            if (!study.get(Fields.ACCESSION).asText().equalsIgnoreCase(accession)) {
+                similarStudies.add(study);
+            }
         }
 
         if (mltDocs.totalHits.value > 1) {
