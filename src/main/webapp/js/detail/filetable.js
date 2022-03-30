@@ -14,7 +14,7 @@ var FileTable = (function (_self) {
             success: function(response){
                 if (isDetailPage) {
                     handleSecretKey(response.seckey, params.key);
-                    handleModificationDate(response.modified);
+                    handleDateMetadata(response.released, response.modified);
                     if (response.isPublic) handleFTPLink(response.ftpLink);
                 }
                 if (!response.files || response.files==0) {
@@ -98,9 +98,13 @@ var FileTable = (function (_self) {
         $('#ftp-link').show();
     }
 
-    function handleModificationDate(t) {
-        if (!t) return;
-        $('.release-date').append('&nbsp; ' + String.fromCharCode(0x25AA)+' &nbsp; Modified: '+ getDateFromEpochTime(t));
+    function handleDateMetadata(released, modified) {
+        $('.release-date').text( released ? 'Release Date: ' + getDateFromEpochTime(released) : '')
+        if (!released || released > Date.now()) {
+            $('.release-date').append('&nbsp; <i class="fa fa-lock" aria-hidden="true"></i>');
+        }
+        if (!modified) return;
+        $('.release-date').append('&nbsp; ' + String.fromCharCode(0x25AA)+' &nbsp; Modified: '+ getDateFromEpochTime(modified));
     }
 
     function handleSecretKey(key, paramKey) {

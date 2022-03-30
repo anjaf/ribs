@@ -89,6 +89,12 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         studyInfo.put("ftpLink", indexConfig.getFtpDir() + doc.get(Constants.Fields.RELATIVE_PATH));
         studyInfo.put("isPublic", (" " + doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public "));
         studyInfo.put(Constants.Fields.RELATIVE_PATH, relativePath);
+        try {
+            studyInfo.put("released", Long.parseLong(doc.get(Constants.Fields.RELEASE_TIME)));
+        } catch (Throwable error) {
+            logger.error("Invalid release date for {}: {} ", accession, doc.get(Constants.Fields.RELEASE_TIME));
+        }
+
         setPrivateData(studyInfo, doc);
         try {
             if (sectionsWithFiles != null) {
@@ -279,7 +285,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             try {
                 studyInfo.put("modified", Long.parseLong(doc.get(Constants.Fields.MODIFICATION_TIME)));
             } catch (Throwable error) {
-                //do nothing
+               logger.error("Invalid modification date for {}: {} ", doc.get(Constants.Fields.ACCESSION), doc.get(Constants.Fields.MODIFICATION_TIME));
             }
         }
 
