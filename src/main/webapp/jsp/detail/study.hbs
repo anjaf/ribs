@@ -10,17 +10,7 @@
         <meta itemprop="url" content="${contextPath}/studies/{{accno}}" />
         {{/if}}
         <div id="release-date-download">
-                    <span class="release-date">
-                        {{#if releaseDate}}
-                            Release Date: <span  id="orcid-publication-year">{{formatDateString releaseDate}}</span>
-                        {{else}}
-                            {{#ifCond accessTags 'contains' 'Public' }}
-
-                            {{else}}
-                                <i class="fa fa-lock" aria-hidden="true"></i> Private
-                            {{/ifCond}}
-                        {{/if}}
-                    </span>
+                    <span class="release-date" id="orcid-publication-year"></span>
             <div id="download-source"><a
                 href="${contextPath}/files/{{accno}}/{{accno}}.json{{keyString}}" target="_blank"
                    title="Download Study as JSON" class="source-icon source-icon-json"
