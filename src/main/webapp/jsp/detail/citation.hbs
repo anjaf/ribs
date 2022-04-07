@@ -7,21 +7,21 @@
         <tr>
             <td class="type">APA</td><!-- https://owl.english.purdue.edu/owl/resource/560/10/ -->
             <td id="citation-apa" class="value">
-                {{#each authors}}{{#ifCond @index '>=' 1}}, {{/ifCond}}{{#if @last}}& {{/if}}{{this}}{{/each}}
+                {{#each authors}}{{#ifCond @index '>=' 1}}{{#if @last}} & {{else}}, {{/if}}{{/ifCond}}{{this}}{{/each}}
                 ({{issued}}). {{title}}. <i>BioStudies</i>, {{id}}. Retrieved from {{URL}}
             </td>
         </tr>
         <tr>
             <td class="type">MLA</td><!-- https://owl.english.purdue.edu/owl/resource/747/08/ -->
             <td id="citation-harvard1" class="value">
-                {{#each authors}}{{#ifCond @index '>=' 1}}, {{/ifCond}}{{#if @last}}and {{/if}}{{this}}{{/each}}.
+                {{#each authors}}{{#ifCond @index '>=' 1}}{{#if @last}} and {{else}}, {{/if}}{{/ifCond}}{{this}}{{/each}}.
                 "{{title}}." <i>BioStudies</i>, {{id}}, {{issued}}, {{URL}}. Accessed {{today}}.
             </td>
         </tr>
         <tr>
             <td class="type">BibTex</td><!--https://nennius.wordpress.com/2013/11/27/using-bibtex-for-dataset-citation/-->
             <td id="bibtex" class="value code-inline">@misc&#123;{{code}},
-   author = &#123;{{#each authors}}{{#ifCond @index '>=' 1}}, {{/ifCond}}{{#if @last}}and {{/if}}{{this}}{{/each}}&#125;,
+   author = &#123;{{#each authors}}{{#ifCond @index '>=' 1}}{{#if @last}} and {{else}}, {{/if}}{{/ifCond}}{{this}}{{/each}}&#125;,
    title = &#123;&#123;{{title}}&#125;&#125;
    year = &#123;{{issued}}&#125;
    howpublished= &#123;\url&#123;{{URL}}&#125;&#125;

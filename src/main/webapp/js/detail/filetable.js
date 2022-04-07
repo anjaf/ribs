@@ -99,12 +99,12 @@ var FileTable = (function (_self) {
     }
 
     function handleDateMetadata(released, modified) {
-        $('.release-date').text( released ? 'Release Date: ' + getDateFromEpochTime(released) : '')
+        $('#orcid-publication-year').text( getDateFromEpochTime(released))
         if (!released || released > Date.now()) {
-            $('.release-date').append('&nbsp; <i class="fa fa-lock" aria-hidden="true"></i>');
+            $('#release-date').append('&nbsp; <i class="fa fa-lock" aria-hidden="true"></i>');
         }
         if (!modified) return;
-        $('.release-date').append('&nbsp; ' + String.fromCharCode(0x25AA)+' &nbsp; Modified: '+ getDateFromEpochTime(modified));
+        $('#modification-date').append('&nbsp; ' + String.fromCharCode(0x25AA)+' &nbsp; Modified: '+ getDateFromEpochTime(modified));
     }
 
     function handleSecretKey(key, paramKey) {
