@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.file.download.FIREDownloadFile;
-import uk.ac.ebi.biostudies.file.download.FilteredMageTabDownloadFile;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 import uk.ac.ebi.biostudies.file.download.RegularDownloadFile;
 import uk.ac.ebi.biostudies.service.*;
@@ -119,7 +118,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                 throw new FileNotFoundException("File does not exist or user does not have the rights to download it.");
             }
             String storageModeString = document.get(Constants.Fields.STORAGE_MODE);
-            Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf( StringUtils.isEmpty(storageModeString) ? "NFS" : storageModeString);
+            Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(StringUtils.isEmpty(storageModeString) ? "NFS" : storageModeString);
 
             downloadFile = getDownloadFile(accession, relativePath, requestedFilePath, storageMode);
 
@@ -192,11 +191,15 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         S3Object fireObject = null;
         try {
             fireObject = fireService.getFireObjectByPath(path);
-        } catch (Exception e) {
+        } catch (Exception ex1) {
             try {
-                fireObject = fireService.getFireObjectByPath(requestedFilePath);
-            } catch (Exception ex) {
-                throw new FileNotFoundException(ex.getMessage());
+                fireObject = fireService.getFireObjectByPath( relativePath + "/" + requestedFilePath);
+            } catch (Exception ex2) {
+                try {
+                    fireObject = fireService.getFireObjectByPath(requestedFilePath);
+                } catch (Exception ex3) {
+                    throw new FileNotFoundException(ex3.getMessage());
+                }
             }
         }
         return new FIREDownloadFile(path,
@@ -223,70 +226,6 @@ public class FileDownloadServiceImpl implements FileDownloadService {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             throw new FileNotFoundException("Specified file [" + file.getPath() + "] does not exist in file system or is not a file");
         }
-    }
-
-    protected IDownloadFile getDownloadFileFromRequest(HttpServletRequest request, HttpServletResponse response,
-                                                       String relativePath, String key) throws Exception {
-        String accession = "";
-        String name = "";
-        IDownloadFile file = null;
-
-        List<String> requestArgs = new ArrayList<>(Arrays.asList(
-                request.getRequestURI().replaceAll(request.getContextPath() + "/files/", "").split("/")));
-        if (requestArgs.size() == 1) { // name only passed
-            name = requestArgs.get(0);
-        } else if (requestArgs.size() > 1) { // accession/name passed
-            accession = requestArgs.remove(0);
-            name = URLDecoder.decode(
-                    StringUtils.replace(StringUtils.join(requestArgs, '/'), "..", "")
-                    , StandardCharsets.UTF_8.toString());
-        }
-
-
-        logger.info("Requested download of [" + name + "], path [" + relativePath + "]");
-
-        String path = null;
-        if (name.equalsIgnoreCase(accession + ".json") || name.equalsIgnoreCase(accession + ".xml") || name.equalsIgnoreCase(accession + ".pagetab.tsv")) {
-            path = relativePath + "/" + name;
-            file = new RegularDownloadFile(Paths.get(indexConfig.getFileRootDir(), path));
-        } else {
-            path = relativePath + "/Files/" + name;
-            Path downloadFile = Paths.get(indexConfig.getFileRootDir(), path);
-
-            //TODO: Remove this bad^∞ hack
-            //Hack start: override relative path if file is not found
-            if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
-                downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + name);
-                logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
-            }
-            if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/Files/u/" + relativePath + "/" + name);
-                logger.debug("Trying {}", downloadFile.toFile().getAbsolutePath());
-            }
-            if (!Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) { // for file list
-                logger.debug("{} not found ", downloadFile.toFile().getAbsolutePath());
-                downloadFile = Paths.get(indexConfig.getFileRootDir(), relativePath + "/" + name);
-                logger.debug("Trying file list file {}", downloadFile.toFile().getAbsolutePath());
-            }
-            //Hack end
-            if (Files.exists(downloadFile, LinkOption.NOFOLLOW_LINKS)) {
-                file = new RegularDownloadFile(downloadFile);
-                if (key != null) {
-                    FilteredMageTabDownloadFile filteredMageTabDownloadFile =
-                            new FilteredMageTabDownloadFile(downloadFile.toFile());
-                    if (filteredMageTabDownloadFile.isSupported()) {
-                        file = filteredMageTabDownloadFile;
-                    }
-                }
-            } else {
-                logger.error("Could not find {}", downloadFile.toFile().getAbsolutePath());
-                throw new FileNotFoundException();
-            }
-        }
-
-
-        return file;
     }
 
     private void sendRandomAccessFile(IDownloadFile downloadFile, HttpServletRequest request, HttpServletResponse response)
