@@ -115,27 +115,7 @@ public class FileRestApiTest {
         JsonNode responseJSON = mapper.readTree(result);
         assertNotNull(responseJSON);
         assertEquals(1, responseJSON.findValue("files").asInt());
-        assertEquals(ACCESSION, responseJSON.findValue("seckey").asText());
-    }
-
-    @Test
-    /**
-     * https://wwwdev.ebi.ac.uk/biostudies/api/v1/studies/ACCESSION/info
-     */
-    public void getFileInfoRestApiPrivateAccess() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        Document privateLuceneDoc = new Document();
-        privateLuceneDoc.add(new StringField(Constants.Fields.ACCESS, "test1", Field.Store.YES));
-        privateLuceneDoc.add(new StringField(Constants.Fields.ACCESSION, ACCESSION, Field.Store.YES));
-        privateLuceneDoc.add(new StringField(Constants.File.FILE_ATTS, "A|B", Field.Store.YES));
-        privateLuceneDoc.add(new StringField(Constants.Fields.SECRET_KEY, "test12345", Field.Store.YES));
-
-        doReturn(privateLuceneDoc).when(searchServiceMock).getDocumentByAccession(Mockito.anyString(), Mockito.any());
-        String baseUrl = integrationTestProperties.getBaseUrl(randomPort);
-        String result = testRestTemplate.getForObject(baseUrl + "api/v1/studies/" + ACCESSION + "/info", String.class);
-        JsonNode responseJSON = mapper.readTree(result);
-        assertNotNull(responseJSON);
-        assertEquals("test12345", responseJSON.findValue("seckey").asText());
+        assertFalse(responseJSON.has("seckey"));
     }
 
     @Test

@@ -91,7 +91,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         studyInfo.put(Constants.Fields.RELATIVE_PATH, relativePath);
 
         setDates(studyInfo, doc);
-        setPrivateData(studyInfo, doc);
+        setPrivateData(studyInfo, doc, secretKey);
 
         try {
             if (sectionsWithFiles != null) {
@@ -285,9 +285,11 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         return logicQueryBuilder.build();
     }
 
-    private void setPrivateData(ObjectNode studyInfo, Document doc) {
+    private void setPrivateData(ObjectNode studyInfo, Document doc, String secretKey) {
         User currentUser = Session.getCurrentUser();
-        if (studyInfo.has("released") && studyInfo.get("released").asLong() < new Date().getTime() && currentUser != null) {
+        if (studyInfo.has("released") && studyInfo.get("released").asLong() < new Date().getTime() && currentUser != null
+            || (doc.get("seckey").equals(secretKey) )
+        ) {
             IndexableField key = doc.getField(Constants.Fields.SECRET_KEY);
             if (key != null) {
                 studyInfo.put(Constants.Fields.SECRET_KEY, key.stringValue());
