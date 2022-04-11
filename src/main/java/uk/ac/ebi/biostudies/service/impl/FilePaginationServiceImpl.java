@@ -89,13 +89,10 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         studyInfo.put("ftpLink", indexConfig.getFtpDir() + doc.get(Constants.Fields.RELATIVE_PATH));
         studyInfo.put("isPublic", (" " + doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public "));
         studyInfo.put(Constants.Fields.RELATIVE_PATH, relativePath);
-        try {
-            studyInfo.put("released", Long.parseLong(doc.get(Constants.Fields.RELEASE_TIME)));
-        } catch (Throwable error) {
-            logger.error("Invalid release date for {}: {} ", accession, doc.get(Constants.Fields.RELEASE_TIME));
-        }
 
-        setPrivateData(studyInfo, doc);
+        setDates(studyInfo, doc);
+        setPrivateData(studyInfo, doc, secretKey);
+
         try {
             if (sectionsWithFiles != null) {
                 studyInfo.set("sections", mapper.readTree("[\"" +
@@ -107,6 +104,20 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             studyInfo.put("sections", "[]");
         }
         return studyInfo;
+    }
+
+    private void setDates(ObjectNode studyInfo, Document doc) {
+        try {
+            studyInfo.put("released", Long.parseLong(doc.get(Constants.Fields.RELEASE_TIME)));
+        } catch (Throwable error) {
+            logger.error("Invalid release date for {}: {} ", doc.get(Constants.Fields.ACCESSION), doc.get(Constants.Fields.RELEASE_TIME));
+        }
+
+        try {
+            studyInfo.put("modified", Long.parseLong(doc.get(Constants.Fields.MODIFICATION_TIME)));
+        } catch (Throwable error) {
+            logger.error("Invalid modification date for {}: {} ", doc.get(Constants.Fields.ACCESSION), doc.get(Constants.Fields.MODIFICATION_TIME));
+        }
     }
 
     private ObjectNode getThumbnailHeader(ObjectMapper mapper) {
@@ -274,21 +285,16 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         return logicQueryBuilder.build();
     }
 
-    private void setPrivateData(ObjectNode studyInfo, Document doc) {
+    private void setPrivateData(ObjectNode studyInfo, Document doc, String secretKey) {
         User currentUser = Session.getCurrentUser();
-        if (!(doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public ")
-                || (currentUser != null && currentUser.isSuperUser())) {
+        if (studyInfo.has("released") && studyInfo.get("released").asLong() < new Date().getTime() && currentUser != null
+            || (doc.get("seckey").equals(secretKey) )
+        ) {
             IndexableField key = doc.getField(Constants.Fields.SECRET_KEY);
             if (key != null) {
                 studyInfo.put(Constants.Fields.SECRET_KEY, key.stringValue());
             }
-            try {
-                studyInfo.put("modified", Long.parseLong(doc.get(Constants.Fields.MODIFICATION_TIME)));
-            } catch (Throwable error) {
-               logger.error("Invalid modification date for {}: {} ", doc.get(Constants.Fields.ACCESSION), doc.get(Constants.Fields.MODIFICATION_TIME));
-            }
         }
-
     }
 
     private void generateDownloadAllFilePaths(TopDocs hits, ArrayNode filePaths, IndexReader reader) {
