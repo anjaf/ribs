@@ -6,6 +6,7 @@ import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
+import org.springframework.context.annotation.Lazy;
 import uk.ac.ebi.biostudies.config.IndexManager;
 
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.Map;
  */
 public class BioStudiesQueryParser extends MultiFieldQueryParser {
 
+    @Lazy
     private static IndexManager indexManager;
 
     public BioStudiesQueryParser(String[] fields, Analyzer analyzer, IndexManager indexManager) {

@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,11 @@ public class Ontology implements InitializingBean, DisposableBean {
     private final Logger logger = LogManager.getLogger(Ontology.class.getName());
 
     private IEFO efo;
-    @Autowired
+    @Autowired @Lazy
     private EFOExpansionLookupIndex efoExpansionLookupIndex;
-    @Autowired
+    @Autowired @Lazy
     private EFOConfig efoConfig;
-    @Autowired
+    @Autowired @Lazy
     Autocompletion autocompletion;
 
 //    private EFOExpansionLookupIndex lookupIndex;

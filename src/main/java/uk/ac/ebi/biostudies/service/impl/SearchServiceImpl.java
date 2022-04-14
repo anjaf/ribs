@@ -15,6 +15,7 @@ import org.apache.lucene.queries.mlt.MoreLikeThis;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
@@ -64,25 +65,25 @@ public class SearchServiceImpl implements SearchService {
     private static QueryParser parser;
     private static Set<String> sectionsToFilter;
     private final Logger logger = LogManager.getLogger(SearchServiceImpl.class.getName());
-    @Autowired
+    @Autowired @Lazy
     IndexConfig indexConfig;
-    @Autowired
+    @Autowired @Lazy
     IndexManager indexManager;
-    @Autowired
+    @Autowired @Lazy
     EFOQueryExpander efoQueryExpander;
-    @Autowired
+    @Autowired @Lazy
     EFOExpandedHighlighter efoExpandedHighlighter;
-    @Autowired
+    @Autowired @Lazy
     Autocompletion autocompletion;
-    @Autowired
+    @Autowired @Lazy
     FacetService facetService;
-    @Autowired
+    @Autowired @Lazy
     AnalyzerManager analyzerManager;
-    @Autowired
+    @Autowired @Lazy
     SecurityQueryBuilder securityQueryBuilder;
-    @Autowired
+    @Autowired @Lazy
     QueryService queryService;
-    @Autowired
+    @Autowired @Lazy
     FireService fireService;
 
     @PostConstruct

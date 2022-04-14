@@ -70,24 +70,23 @@ public class IndexServiceImpl implements IndexService {
     }
 
     private final Logger logger = LogManager.getLogger(IndexServiceImpl.class.getName());
-    @Autowired
+    @Autowired @Lazy
     IndexConfig indexConfig;
-    @Autowired
+    @Autowired @Lazy
     IndexManager indexManager;
-    @Autowired
+    @Autowired @Lazy
     FileIndexService fileIndexService;
-    @Autowired
+    @Autowired @Lazy
     SearchService searchService;
-    @Autowired
+    @Autowired @Lazy
     TaxonomyManager taxonomyManager;
-    @Autowired
+    @Autowired @Lazy
     FacetService facetService;
-    @Autowired
+    @Autowired @Lazy
     ParserManager parserManager;
-    @Autowired
-    @Lazy
+    @Autowired @Lazy
     RabbitMQStompService rabbitMQStompService;
-    @Autowired
+    @Autowired @Lazy
     private Environment env;
 
     @Override
