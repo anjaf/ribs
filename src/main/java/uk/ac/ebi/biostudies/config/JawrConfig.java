@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostudies.config;
 
+
 import net.jawr.web.servlet.JawrSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

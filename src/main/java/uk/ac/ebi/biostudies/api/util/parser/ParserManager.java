@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.config.IndexManager;
@@ -11,7 +12,7 @@ import uk.ac.ebi.biostudies.config.IndexManager;
 import java.util.HashMap;
 import java.util.Map;
 
-import static uk.ac.ebi.biostudies.api.util.Constants.*;
+import static uk.ac.ebi.biostudies.api.util.Constants.IndexEntryAttributes;
 
 @Component
 @Scope("singleton")
@@ -20,7 +21,7 @@ public class ParserManager {
     private Map<String, AbstractParser>  parserPool;
     private Logger logger = LogManager.getLogger(ParserManager.class.getName());
 
-    @Autowired
+    @Lazy @Autowired
     IndexManager indexManager;
 
     public void init(Map<String, JsonNode> fieldMap){

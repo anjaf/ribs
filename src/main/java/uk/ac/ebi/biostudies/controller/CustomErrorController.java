@@ -27,8 +27,8 @@ public class CustomErrorController implements ErrorController {
         return "error";
     }
 
-    @Override
+    /*@Override
     public String getErrorPath() {
         return "error";
-    }
+    }*/
 }

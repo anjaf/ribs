@@ -10,6 +10,7 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.config.EFOConfig;
@@ -29,9 +30,9 @@ public class EFOExpansionLookupIndex {
     private Logger logger = LogManager.getLogger(EFOExpansionLookupIndex.class.getName());
 
 
-    @Autowired
+    @Autowired @Lazy
     IndexManager indexManager;
-    @Autowired
+    @Autowired @Lazy
     EFOConfig efoConfig;
 
 
