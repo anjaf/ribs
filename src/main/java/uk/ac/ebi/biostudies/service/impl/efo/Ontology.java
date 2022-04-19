@@ -5,20 +5,17 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.biostudies.efo.EFOLoader;
-import uk.ac.ebi.biostudies.efo.EFONode;
-import uk.ac.ebi.biostudies.efo.IEFO;
-import uk.ac.ebi.biostudies.efo.*;
 import uk.ac.ebi.biostudies.config.EFOConfig;
+import uk.ac.ebi.biostudies.efo.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -31,11 +28,11 @@ public class Ontology implements InitializingBean, DisposableBean {
     private final Logger logger = LogManager.getLogger(Ontology.class.getName());
 
     private IEFO efo;
-    @Autowired @Lazy
+    @Autowired
     private EFOExpansionLookupIndex efoExpansionLookupIndex;
-    @Autowired @Lazy
+    @Autowired
     private EFOConfig efoConfig;
-    @Autowired @Lazy
+    @Autowired
     Autocompletion autocompletion;
 
 //    private EFOExpansionLookupIndex lookupIndex;
