@@ -30,9 +30,9 @@ public class EFOExpansionLookupIndex {
     private Logger logger = LogManager.getLogger(EFOExpansionLookupIndex.class.getName());
 
 
-    @Autowired @Lazy
+    @Autowired
     IndexManager indexManager;
-    @Autowired @Lazy
+    @Autowired
     EFOConfig efoConfig;
 
 

@@ -14,7 +14,6 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import uk.ac.ebi.biostudies.api.util.BioStudiesQueryParser;
@@ -31,27 +30,30 @@ import uk.ac.ebi.biostudies.service.QueryService;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class QueryServiceImpl implements QueryService {
 
-    private Logger logger = LogManager.getLogger(QueryServiceImpl.class.getName());
+    private final Logger logger = LogManager.getLogger(QueryServiceImpl.class.getName());
 
 
-    @Autowired @Lazy
+    @Autowired
     IndexConfig indexConfig;
-    @Autowired @Lazy
+    @Autowired
     IndexManager indexManager;
-    @Autowired @Lazy
+    @Autowired
     EFOQueryExpander efoQueryExpander;
-    @Autowired @Lazy
+    @Autowired
     AnalyzerManager analyzerManager;
-    @Autowired @Lazy
+    @Autowired
     SecurityQueryBuilder securityQueryBuilder;
-    @Autowired @Lazy
+    @Autowired
     FacetService facetService;
-    @Autowired @Lazy
+    @Autowired
     TaxonomyManager taxonomyManager;
 
     private static Query typeFilterQuery;

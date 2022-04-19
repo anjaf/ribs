@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
@@ -55,7 +56,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
     private static final String MULTIPART_BOUNDARY = "MULTIPART_BYTERANGES";
 
-    @Autowired
+    @Autowired @Lazy
     SearchService searchService;
 
     @Autowired
