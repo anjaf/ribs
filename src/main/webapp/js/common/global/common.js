@@ -2,18 +2,13 @@ $(function() {
     const specialCollections = ['bioimages', 'arrayexpress'];
 
     function updateMenuForCollection(data) {
-        return
-        var helpLink = $('#masthead nav ul.float-left li.active a');
-        var activeClass = '';
-        if (helpLink.length && !helpLink.attr('href').toLowerCase().endsWith('help')) {
+        if ($.inArray(collection.toLowerCase(), specialCollections)<0 &&
+            $('#masthead nav ul.menu li.active a').text().toLowerCase()==='browse') {
             $('#masthead nav ul.float-left li').removeClass('active');
-            activeClass='active';
-        }
-        if ($.inArray(collection.toLowerCase(), specialCollections)<=0) {
-            $('#masthead nav ul.float-left li').eq(1).after('<li class="' + activeClass + '"><a href="'
+            $('#masthead nav ul.float-left li').eq(1).after('<li class="active"><a href="'
                 + (contextPath + '/' + data.accno + '/' + 'studies')
                 + '" title="' + data.title
-                + '">' + ($.inArray(data.title.toLowerCase(), specialCollections) >= 0 ? 'Browse' : data.title) + '</a></li>');
+                + '">' + data.title + '</a></li>');
         }
     }
 
@@ -32,7 +27,7 @@ $(function() {
             $('#collection-banner').html(html);
         }
         // add collection search checkbox
-        $('#example').append('<label id="collection-search"'+ ( $.inArray(collection.toLowerCase(), specialCollections)<=0 ? 'style="display:none;"' : '')
+        $('#example').append('<label id="collection-search"'+ ( $.inArray(collection.toLowerCase(), specialCollections)>=0 ? 'style="display:none;"' : '')
             +'><input id="search-in-collection" type="checkbox" />Search in '+collectionObj.title+' only</label>');
         $('#search-in-collection').bind('change', function(){
             $('#ebi_search').attr('action', ($(this).is(':checked')) ? contextPath+'/'+data.accno+'/studies' : contextPath+'/studies');

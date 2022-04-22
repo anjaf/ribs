@@ -15,6 +15,10 @@ var FacetRenderer = (function (_self) {
                     var ul = $('#facet_facet\\.collection');
                     handleBioImagesFacets(ul);
                 }
+                if (collection && collection.toLowerCase()!='public' && collection.toLowerCase()!='bioimages') {
+                    $('#facet_facet\\.collection').prev().hide();
+                    $('#facet_facet\\.collection').hide();
+                }
             }).fail(function (error) {
                 showError(error);
             }).done( function (data) {
