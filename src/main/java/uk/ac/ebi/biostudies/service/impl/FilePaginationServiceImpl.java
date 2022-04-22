@@ -287,7 +287,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
 
     private void setPrivateData(ObjectNode studyInfo, Document doc, String secretKey) {
         User currentUser = Session.getCurrentUser();
-        if (studyInfo.has("released") && studyInfo.get("released").asLong() < new Date().getTime() && currentUser != null
+        if (studyInfo.has("released") && studyInfo.get("released").asLong() > new Date().getTime() && currentUser != null
             || (doc.get("seckey").equals(secretKey) )
         ) {
             IndexableField key = doc.getField(Constants.Fields.SECRET_KEY);

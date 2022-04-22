@@ -269,6 +269,7 @@ public class IndexServiceImpl implements IndexService {
             String filename = null;
             String inputStudiesFilePath = null;
             try {
+                logger.debug("Waiting for index file");
                 filename = indexFileQueue.take();
                 logger.log(Level.INFO, "Started indexing {}. {} files left in the queue.", filename, indexFileQueue.size());
                 boolean removeFileDocuments = true;
