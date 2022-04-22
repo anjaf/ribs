@@ -31,11 +31,27 @@ public class MvcConfig implements WebMvcConfigurer {
     @Autowired
     ExternalServicesConfig externalServicesConfig;
 
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
+
+        properties.setLocation(new ClassPathResource("scheduler.properties"));
+        properties.setIgnoreResourceNotFound(false);
+
+        return properties;
+    }
+
+    private static void customize(Context context) {
+        ((StandardHost) context.getParent()).setErrorReportValveClass(CustomErrorReportValve.class.getCanonicalName());
+        context.getParent().getPipeline().addValve(new CustomErrorReportValve());
+
+    }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**");
         registry.addMapping("/files/**").allowedOrigins(externalServicesConfig.getAccessControlAllowOrigin().split(","))
-                .allowedMethods("GET","POST");
+                .allowedMethods("GET", "POST");
     }
 
     @Override
@@ -43,62 +59,6 @@ public class MvcConfig implements WebMvcConfigurer {
         AntPathMatcher matcher = new AntPathMatcher();
         matcher.setCaseSensitive(false);
         configurer.setPathMatcher(matcher);
-    }
-
-
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("arrayexpress").setViewName("arrayexpress");
-        registry.addViewController("arrayexpress/").setViewName("arrayexpress");
-
-        registry.addRedirectViewController("/{collection:.+}/studies/EMPIAR-{id:.+}", "https://www.ebi.ac.uk/empiar/{id}/");
-        registry.addRedirectViewController("/studies/EMPIAR-{id:.+}", "https://www.ebi.ac.uk/empiar/{id}/");
-        registry.addViewController("/").setViewName("index");
-        registry.addViewController("/about").setViewName("about");
-        registry.addViewController("/about/*").setViewName("about");
-        registry.addViewController("/help").setViewName("help");
-        registry.addViewController("/help/").setViewName("help");
-        registry.addViewController("/studies/help").setViewName("help");
-        registry.addViewController("/studies/help/").setViewName("help");
-        registry.addViewController("/{collection:.+}/help").setViewName("help");
-        registry.addViewController("/{collection:.+}/help/").setViewName("help");
-        registry.addViewController("/{collection:.+}/.+/help").setViewName("help");
-        registry.addViewController("/{collection:.+}/.+/help/").setViewName("help");
-        registry.addViewController("/submit").setViewName("submit");
-        registry.addViewController("/submit/*").setViewName("submit");
-
-        registry.addViewController("/collections").setViewName("collections");
-        registry.addViewController("/collections/").setViewName("collections");
-        registry.addViewController("/studies").setViewName("search");
-        registry.addViewController("/studies/*").setViewName("search");
-        registry.addViewController("/studies/{accession:.+}").setViewName("detail");
-        registry.addViewController("/studies/{accession:.+}/").setViewName("detail");
-        registry.addViewController("/studies/{accession:.+}/files").setViewName("files");
-        registry.addViewController("/studies/{accession:.+}/files/").setViewName("files");
-
-        registry.addViewController("/{collection:.+}/studies").setViewName("search");
-        registry.addViewController("/{collection:.+}/studies/").setViewName("search");
-
-        registry.addViewController("/{collection:.+}/studies/{accession:.+}").setViewName("detail");
-        registry.addViewController("/{collection:.+}/studies/{accession:.+}/").setViewName("detail");
-
-        registry.addViewController("/{collection:.+}/studies/{accession:.+}/files").setViewName("files");
-        registry.addViewController("/{collection:.+}/studies/{accession:.+}/files/").setViewName("files");
-
-        registry.addViewController("/studies/{accession:.+}/sdrf").setViewName("sdrf");
-        registry.addViewController("/studies/{accession:.+}/sdrf/").setViewName("sdrf");
-        registry.addViewController("/{collection:.+}/studies/{accession:.+}/sdrf").setViewName("sdrf");
-        registry.addViewController("/{collection:.+}/studies/{accession:.+}/sdrf/").setViewName("sdrf");
-
-        registry.addViewController("/studies/{accession:.+}/csv").setViewName("csv");
-        registry.addViewController("/studies/{accession:.+}/csv").setViewName("csv");
-        registry.addViewController("/{collection:.+}/studies/{accession:.+}/csv").setViewName("csv");
-        registry.addViewController("/{collection:.+}/studies/{accession:.+}/csv/").setViewName("csv");
-
-        registry.addViewController("{accession:.+}").setViewName("detail");
-        registry.addViewController("{accession:.+}/").setViewName("detail");
-
-        registry.addViewController("arrayexpress-in-biostudies").setViewName("arrayexpress-in-biostudies");
     }
 
     @Override
@@ -112,25 +72,9 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-        PropertySourcesPlaceholderConfigurer properties = new PropertySourcesPlaceholderConfigurer();
-
-        properties.setLocation(new ClassPathResource("scheduler.properties"));
-        properties.setIgnoreResourceNotFound(false);
-
-        return properties;
-    }
-
-    @Bean
     public WebServerFactoryCustomizer<TomcatServletWebServerFactory> containerCustomizer() {
         return factory -> {
             factory.addContextCustomizers(MvcConfig::customize);
         };
-    }
-
-    private static void customize(Context context) {
-        ((StandardHost) context.getParent()).setErrorReportValveClass(CustomErrorReportValve.class.getCanonicalName());
-        context.getParent().getPipeline().addValve(new CustomErrorReportValve());
-
     }
 }
