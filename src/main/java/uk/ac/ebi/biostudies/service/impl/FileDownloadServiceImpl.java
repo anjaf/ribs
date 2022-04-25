@@ -125,7 +125,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
 
             // send zip if path is a folder
-            if (downloadFile.isDirectory()) {
+            if (downloadFile.isDirectory() && storageMode== Constants.File.StorageMode.NFS) {
                 zipDownloadService.sendZip(request, response, new String[]{requestedFilePath}, storageMode);
                 return;
             }
@@ -190,6 +190,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         String path = relativePath + "/Files/" + requestedFilePath;
 
         S3Object fireObject = null;
+        boolean isDirectory = false;
         try {
             fireObject = fireService.getFireObjectByPath(path);
         } catch (Exception ex1) {
@@ -199,14 +200,19 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                 try {
                     fireObject = fireService.getFireObjectByPath(requestedFilePath);
                 } catch (Exception ex3) {
-                    throw new FileNotFoundException(ex3.getMessage());
+                    try {
+                        fireObject = fireService.getFireObjectByPath(path+".zip");
+                        isDirectory = true;
+                    } catch (Exception ex4) {
+                        throw new FileNotFoundException(ex3.getMessage());
+                    }
                 }
             }
         }
         return new FIREDownloadFile(path,
                 fireObject.getObjectContent(),
                 fireObject.getObjectMetadata().getContentLength(),
-                fireObject.getObjectMetadata().getContentType().equalsIgnoreCase("application/x-directory"));
+                isDirectory);
     }
 
 

@@ -39,7 +39,7 @@ public final class FIREDownloadFile implements IDownloadFile {
     }
 
     public String getName() {
-        return path;
+        return  path.substring(path.lastIndexOf("/")+1) + (isDirectory ? ".zip" : "");
     }
 
     public String getPath() {
