@@ -36,6 +36,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,21 +80,22 @@ public class Thumbnails implements InitializingBean, DisposableBean {
         FileDeleteStrategy.FORCE.delete(new File(getThumbnailsFolder()));
     }
 
-    public void sendThumbnail(HttpServletResponse response, String relativePath, String name) throws IOException {
+    public void sendThumbnail(HttpServletResponse response, String relativePath, InputStream fileInputStream, String name) throws IOException {
         String fileType = FilenameUtils.getExtension(name).toLowerCase();
-        File preExistThumbnail=null;
+        File existingThumbnail=null;
         if(fileType.equalsIgnoreCase("zip") || fileType.equalsIgnoreCase("tif")) {
-            preExistThumbnail = new File(indexConfig.getFileRootDir() + "/" + relativePath + "/Thumbnails/" + name + ".thumbnail.png");
+            existingThumbnail = new File(indexConfig.getFileRootDir() + "/" + relativePath + "/Thumbnails/" + name + ".thumbnail.png");
         }
-        if (preExistThumbnail==null || !preExistThumbnail.exists()){
-            preExistThumbnail = new File(getThumbnailsFolder() + "/" + relativePath + "/" + name + ".thumbnail.png");
+        if (existingThumbnail==null || !existingThumbnail.exists()){
+            existingThumbnail = new File(getThumbnailsFolder() + "/" + relativePath + "/" + name + ".thumbnail.png");
         }
 
-        if (!preExistThumbnail.exists() && !fileType.equalsIgnoreCase("zip")) {
-            createThumbnail(indexConfig.getFileRootDir() + "/"+ relativePath+"/Files/"+name, preExistThumbnail);
+        if (existingThumbnail==null || (!existingThumbnail.exists() && !fileType.equalsIgnoreCase("zip"))) {
+            logger.debug("Creating thumbnail [{}] for file type {}", existingThumbnail.getAbsolutePath(), fileType);
+            createThumbnail(fileInputStream, fileType, existingThumbnail);
         }
-        if(preExistThumbnail.exists()) {
-            FileInputStream in = new FileInputStream(preExistThumbnail);
+        if(existingThumbnail.exists()) {
+            FileInputStream in = new FileInputStream(existingThumbnail);
             try {
                 IOUtils.copy(in, response.getOutputStream());
             } finally {
@@ -103,11 +105,10 @@ public class Thumbnails implements InitializingBean, DisposableBean {
         }
     }
 
-    private void createPlaceholderThumbnail(String sourceFilePath, File thumbnailFile) throws IOException {
-        synchronized (sourceFilePath) {
+    private void createPlaceholderThumbnail(String fileType, File thumbnailFile) throws IOException {
+        synchronized (thumbnailFile.getAbsolutePath()) {
             thumbnailFile.getParentFile().mkdirs();
             //Using extension to decide on the class as mime-types are different across *nix/Windows
-            String fileType = FilenameUtils.getExtension(sourceFilePath).toLowerCase();
             logger.debug("Creating placeholder thumbnail [{}] for file type {}", thumbnailFile.getAbsolutePath(), fileType);
             int imageWidth=50, imageHeight = 65;
             BufferedImage image = new BufferedImage(imageWidth,imageHeight, BufferedImage.TYPE_INT_RGB);
@@ -122,19 +123,17 @@ public class Thumbnails implements InitializingBean, DisposableBean {
             ImageIOUtil.writeImage(image, thumbnailFile.getAbsolutePath(), 96);
         }
     }
-    private void createThumbnail(String sourceFilePath, File thumbnailFile) throws IOException {
-        synchronized (sourceFilePath) {
+    private void createThumbnail(InputStream fileInputStream, String fileType, File thumbnailFile) throws IOException {
+        synchronized (thumbnailFile.getAbsolutePath()) {
             thumbnailFile.getParentFile().mkdirs();
             //Using extension to decide on the class as mime-types are different across *nix/Windows
-            String fileType = FilenameUtils.getExtension(sourceFilePath).toLowerCase();
-            logger.debug("Creating thumbnail [{}] for file type {}", thumbnailFile.getAbsolutePath(), fileType);
             if (thumbnailGenerators.containsKey(fileType)) {
                 try {
-                    thumbnailGenerators.get(fileType).generateThumbnail(sourceFilePath, thumbnailFile);
+                    thumbnailGenerators.get(fileType).generateThumbnail(fileInputStream, thumbnailFile);
                 } catch (Throwable err) {
                     logger.debug("Error creating thumbnail: ", err.getMessage());
                     logger.debug("Will try to create placeholder now");
-                    createPlaceholderThumbnail(sourceFilePath, thumbnailFile);
+                    createPlaceholderThumbnail(fileType, thumbnailFile);
                 }
             } else {
                 logger.debug("Invalid file type for creating thumbnail: {}", fileType);

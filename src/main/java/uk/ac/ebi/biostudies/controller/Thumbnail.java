@@ -1,14 +1,17 @@
 package uk.ac.ebi.biostudies.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 import uk.ac.ebi.biostudies.api.util.Constants;
-import uk.ac.ebi.biostudies.api.util.StudyUtils;
 import uk.ac.ebi.biostudies.file.Thumbnails;
+import uk.ac.ebi.biostudies.file.download.IDownloadFile;
+import uk.ac.ebi.biostudies.service.FileDownloadService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 
@@ -31,7 +34,8 @@ public class Thumbnail {
     Thumbnails thumbnails;
     @Autowired
     SearchService searchService;
-
+    @Autowired
+    FileDownloadService fileDownloadService;
 
     /**
      * TODO UI should pass correct related path to the server, in the previous version It calculated from xml sax transformations but in current version ui has this data in json
@@ -39,7 +43,7 @@ public class Thumbnail {
      * @param accession
      */
     @RequestMapping(value = "/{accession}/**", method = RequestMethod.GET)
-    public void getThumbnail(HttpServletResponse response, HttpServletRequest request, @PathVariable String accession, @RequestParam(value="key", required=false) String key) {
+    public void getThumbnail(HttpServletResponse response, HttpServletRequest request, @PathVariable String accession, @RequestParam(value="key", required=false) String key) throws ParseException {
         String name = request.getAttribute( HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE ).toString();
         String prefix = "/thumbnail/"+accession+"/";
         name = name.substring(name.indexOf(prefix)+prefix.length());
@@ -59,7 +63,11 @@ public class Thumbnail {
                 return;
             }
             String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
-            thumbnails.sendThumbnail(response, relativePath, name);
+            String storageModeString = document.get(Constants.Fields.STORAGE_MODE);
+            Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(StringUtils.isEmpty(storageModeString) ? "NFS" : storageModeString);
+
+            IDownloadFile downloadFile = fileDownloadService.getDownloadFile(accession, relativePath, name, storageMode);
+            thumbnails.sendThumbnail(response, relativePath, downloadFile.getInputStream(), name);
         } catch (IOException e) {
             logger.error("problem in creating thumbnail ", e);
         }

@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class PDFThumbnail implements IThumbnail {
 
@@ -37,10 +38,10 @@ public class PDFThumbnail implements IThumbnail {
     }
 
     @Override
-    public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException {
+    public void generateThumbnail(InputStream inputStream, File thumbnailFile) throws IOException {
         PDDocument pdf = null;
         try {
-            pdf = PDDocument.load(new File(sourceFilePath));
+            pdf = PDDocument.load(inputStream);
             PDFRenderer pdfRenderer = new PDFRenderer(pdf);
             BufferedImage image = pdfRenderer.renderImageWithDPI (BufferedImage.TYPE_INT_RGB, 96);
             float inverseAspectRatio = ((float) image.getHeight()) / image.getWidth();
