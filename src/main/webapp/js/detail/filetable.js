@@ -740,17 +740,14 @@ var FileTable = (function (_self) {
 
     function handleThumbnails(key) {
         var imgFormats = ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm'];
-        var isZip = false;
-        if(filesTable.column('Thumbnail')) {
-            isZip = true;
-        }
-        if(isZip)
+        var hasPrerenderedThumbnails = filesTable.column('Thumbnail:name').length;
+        if(hasPrerenderedThumbnails)
             imgFormats.splice(1,0,'zip');
         $(filesTable.column(1).nodes()).each(function () {
             var path = encodeURI($('input',$(this).prev()).data('name')).replaceAll('#','%23');
             $('a',this).addClass('overflow-name-column');
             $('a',this).attr('title',$(this).text());
-            if (!isZip && $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
+            if (!hasPrerenderedThumbnails && $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
                 var tnButton = $('<a href="#" aria-label="thumbnail" class="thumbnail-icon" ' +
                     'data-thumbnail="'+window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'">' +
                     '<i class="far fa-image"></i></a>');
