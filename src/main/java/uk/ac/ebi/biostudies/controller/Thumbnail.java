@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.file.Thumbnails;
-import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 import uk.ac.ebi.biostudies.service.FileDownloadService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
@@ -65,9 +64,7 @@ public class Thumbnail {
             String relativePath = document.get(Constants.Fields.RELATIVE_PATH);
             String storageModeString = document.get(Constants.Fields.STORAGE_MODE);
             Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(StringUtils.isEmpty(storageModeString) ? "NFS" : storageModeString);
-
-            IDownloadFile downloadFile = fileDownloadService.getDownloadFile(accession, relativePath, name, storageMode);
-            thumbnails.sendThumbnail(response, relativePath, downloadFile.getInputStream(), name);
+            thumbnails.sendThumbnail(response, accession, relativePath, name, storageMode);
         } catch (IOException e) {
             logger.error("problem in creating thumbnail ", e);
         }

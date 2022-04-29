@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -143,7 +142,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         }
     }
 
-    public IDownloadFile getDownloadFile(String accession, String relativePath, String requestedFilePath, Constants.File.StorageMode storageMode) throws IOException, ParseException {
+    public IDownloadFile getDownloadFile(String accession, String relativePath, String requestedFilePath, Constants.File.StorageMode storageMode) throws FileNotFoundException {
         return storageMode == Constants.File.StorageMode.FIRE
                 ? getFireFile(accession, relativePath, requestedFilePath)
                 : getNFSFile(accession, relativePath, requestedFilePath)

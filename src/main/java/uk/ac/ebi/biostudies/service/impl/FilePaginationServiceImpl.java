@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
@@ -58,6 +59,9 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         accession = doc.get(Constants.Fields.ACCESSION);
         String relativePath = doc.get(Constants.Fields.RELATIVE_PATH);
         String attFiles = doc.get(Constants.File.FILE_ATTS);
+        String storageModeString = doc.get(Constants.Fields.STORAGE_MODE);
+        Constants.File.StorageMode storageMode = Constants.File.StorageMode.valueOf(StringUtils.isEmpty(storageModeString) ? "NFS" : storageModeString);
+
         if (attFiles == null) return studyInfo;
         String[] allAtts = attFiles.split("\\|");
         Set<String> headerSet = new HashSet<>(Arrays.asList(orderedArray));
@@ -78,7 +82,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             node.put("data", att.replaceAll("[\\[\\]\\(\\)\\s]", "_").replaceAll("\\.","\\\\."));
             node.put("defaultContent", "");
             fileColumnAttributes.add(node);
-            if (counter++ == 1 && thumbnails.hasThumbnails(accession, relativePath)) {
+            if (counter++ == 1 && thumbnails.hasThumbnails(accession, relativePath, storageMode)) {
                 fileColumnAttributes.add(getThumbnailHeader(mapper));
             }
         }

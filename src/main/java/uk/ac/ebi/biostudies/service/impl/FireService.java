@@ -89,4 +89,15 @@ public class FireService {
         }
         return allFileResult;
     }
+
+    public boolean isValidFolder(String path) {
+        boolean isFolder = false;
+        try {
+            ObjectListing objectListing = s3.listObjects(fireConfig.getBucketName(), path);
+            isFolder = objectListing.getMaxKeys() > 0;
+        } finally {
+
+        }
+        return  isFolder;
+    }
 }
