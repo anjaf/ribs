@@ -82,7 +82,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
             node.put("data", att.replaceAll("[\\[\\]\\(\\)\\s]", "_").replaceAll("\\.","\\\\."));
             node.put("defaultContent", "");
             fileColumnAttributes.add(node);
-            if (counter++ == 1 && thumbnails.hasThumbnails(accession, relativePath, storageMode)) {
+            if (counter++ == 1 && thumbnails.hasThumbnailsFolder(accession, relativePath, storageMode)) {
                 fileColumnAttributes.add(getThumbnailHeader(mapper));
             }
         }
