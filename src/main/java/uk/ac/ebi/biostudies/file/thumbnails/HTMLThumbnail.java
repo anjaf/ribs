@@ -18,7 +18,7 @@
 package uk.ac.ebi.biostudies.file.thumbnails;
 
 import com.twelvemonkeys.image.ResampleOp;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
 import javax.swing.*;
@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public class HTMLThumbnail implements IThumbnail{
@@ -40,8 +41,8 @@ public class HTMLThumbnail implements IThumbnail{
         return supportedTypes;
     }
     @Override
-    public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException{
-        String html = FileUtils.readFileToString(new File(sourceFilePath), StandardCharsets.UTF_8);
+    public void generateThumbnail(InputStream inputStream, File thumbnailFile) throws IOException{
+        String html = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         JEditorPane jep = new JEditorPane("text/html", html) {
             @Override
             public boolean getScrollableTracksViewportWidth()
@@ -56,5 +57,6 @@ public class HTMLThumbnail implements IThumbnail{
         BufferedImageOp resampler = new ResampleOp(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, ResampleOp.FILTER_LANCZOS);
         BufferedImage output = resampler.filter(image, null);
         ImageIOUtil.writeImage(output, thumbnailFile.getAbsolutePath(), 96);
+        inputStream.close();
     }
 }

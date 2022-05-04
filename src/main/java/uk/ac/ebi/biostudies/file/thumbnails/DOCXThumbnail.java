@@ -25,10 +25,7 @@ import org.apache.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class DOCXThumbnail implements IThumbnail{
 
@@ -40,13 +37,12 @@ public class DOCXThumbnail implements IThumbnail{
     }
 
     @Override
-    public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException{
+    public void generateThumbnail(InputStream inputStream, File thumbnailFile) throws IOException{
         String tempPDFFilePath = thumbnailFile.getAbsolutePath() + ".pdf";
-        FileInputStream in = new FileInputStream(sourceFilePath);
         FileOutputStream out = new FileOutputStream(tempPDFFilePath);
-        XWPFDocument wordDoc = new XWPFDocument(in);
+        XWPFDocument wordDoc = new XWPFDocument(inputStream);
         PdfConverter.getInstance().convert(wordDoc, out, PdfOptions.create());
-        in.close();
+        inputStream.close();
         out.close();
         PDFRenderer pdfRenderer = new PDFRenderer(PDDocument.load(  new File(tempPDFFilePath)));
         BufferedImage image = pdfRenderer.renderImageWithDPI (BufferedImage.TYPE_INT_RGB, 96);

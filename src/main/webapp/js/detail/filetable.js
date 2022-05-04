@@ -239,7 +239,7 @@ var FileTable = (function (_self) {
                         return '<a class="overflow-name-column' + (data.indexOf('.sdrf.txt')>0 ? ' sdrf-file'  : '')+ ' target="_blank" style="max-width: 500px;" title="'
                             + data
                             + '" href="'
-                            + window.contextPath +'/files/'+acc+'/' +encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
+                            + window.contextPath +'/files/'+acc+'/' + encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
                             + (params.key ? '?key='+params.key : '')
                             + '">'
                             + data +'</a>';
@@ -740,17 +740,14 @@ var FileTable = (function (_self) {
 
     function handleThumbnails(key) {
         var imgFormats = ['bmp','jpg','wbmp','jpeg','png','gif','tif','tiff','pdf','docx','txt','csv','html','htm'];
-        var isZip = false;
-        if(filesTable.column('Thumbnail')) {
-            isZip = true;
-        }
-        if(isZip)
+        var hasPrerenderedThumbnails = filesTable.column('Thumbnail:name').length;
+        if(hasPrerenderedThumbnails)
             imgFormats.splice(1,0,'zip');
         $(filesTable.column(1).nodes()).each(function () {
             var path = encodeURI($('input',$(this).prev()).data('name')).replaceAll('#','%23');
             $('a',this).addClass('overflow-name-column');
             $('a',this).attr('title',$(this).text());
-            if ( $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
+            if (!hasPrerenderedThumbnails && $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
                 var tnButton = $('<a href="#" aria-label="thumbnail" class="thumbnail-icon" ' +
                     'data-thumbnail="'+window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'">' +
                     '<i class="far fa-image"></i></a>');
