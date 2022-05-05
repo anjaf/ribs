@@ -104,6 +104,7 @@ public class Thumbnails implements InitializingBean, DisposableBean {
                             (byte) 0xd0, 0x2f, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, (byte) 0xae, 0x42, 0x60,
                             (byte) 0x82};
                     cachedThumbnail.getParentFile().mkdirs();
+                    logger.debug("Creating empty thumbnail " + cachedThumbnail.getAbsolutePath());
                     try (var outputStream = new FileOutputStream(cachedThumbnail.getAbsolutePath())) {
                         IOUtils.write(transparentPNG, outputStream);
                     }
