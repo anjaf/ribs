@@ -12,6 +12,7 @@ import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.file.download.FilteredMageTabDownloadFile;
 import uk.ac.ebi.biostudies.file.download.FilteredMageTabDownloadStream;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
+import uk.ac.ebi.biostudies.service.FileDownloadService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 import uk.ac.ebi.biostudies.service.ZipDownloadService;
@@ -22,7 +23,6 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Stack;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -37,6 +37,8 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
     IndexConfig indexConfig;
     @Autowired
     FireService fireService;
+    @Autowired
+    FileDownloadService fileDownloadService;
 
     @Override
     public void sendZip(HttpServletRequest request, HttpServletResponse response, String[] files, Constants.File.StorageMode storageMode) throws Exception {
@@ -71,7 +73,7 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
 
         try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(response.getOutputStream()))) {
             if (storageMode == Constants.File.StorageMode.FIRE)
-                sendFireZip(key, relativePath, rootFolder, files, zos);
+                sendFireZip(accession, key, relativePath, rootFolder, files, zos);
             else
                 sendNFSZip(key, relativePath, rootFolder, files, zos);
         } catch (Exception e) {
@@ -79,18 +81,18 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
         }
     }
 
-    private void sendFireZip(String key, String relativePath, String rootFolder, String[] files, ZipOutputStream zos) throws Exception {
+    private void sendFireZip(String accession, String key, String relativePath, String rootFolder, String[] files, ZipOutputStream zos) throws Exception {
 
         byte[] buffer = new byte[4 * IDownloadFile.KB];
         String canonicalPath = relativePath + "/Files/";
         InputStream zipInputStream = null;
-        Stack<String> fileStack = fireService.getAllDirectoryContent(Arrays.asList(files).stream().map(path -> canonicalPath + path).collect(Collectors.toList()));
-        while (!fileStack.empty()) {
-            final String fileName = StringUtils.replace(fileStack.pop(), "..", ".");
-            zipInputStream = fireService.getFireObjectInputStreamByPath(fileName);
+        for (String fileEntry: files) {
+            final String fileName = StringUtils.replace(fileEntry, "..", ".");
+            IDownloadFile fireFile = fileDownloadService.getDownloadFile(accession, relativePath, fileName, Constants.File.StorageMode.FIRE);
+            zipInputStream = fireFile.getInputStream();
             try {
                 String curFileName = fileName.replaceAll(canonicalPath, "");
-                ZipEntry entry = new ZipEntry(curFileName);
+                ZipEntry entry = new ZipEntry( curFileName + (fireFile.isDirectory() ? ".zip" : ""));
                 zos.putNextEntry(entry);
                 if (key != null) {
                     FilteredMageTabDownloadStream filteredMageTabDownloadStream =
