@@ -56,7 +56,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
     private static final String MULTIPART_BOUNDARY = "MULTIPART_BYTERANGES";
 
-    @Autowired @Lazy
+    @Autowired
     SearchService searchService;
 
     @Autowired

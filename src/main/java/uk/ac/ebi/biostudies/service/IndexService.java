@@ -12,7 +12,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by ehsan on 27/02/2017.
  */
-public interface IndexService extends InitializingBean, DisposableBean {
+public interface IndexService extends DisposableBean {
     @Async
     void indexAll(InputStream inputStream, boolean removeFileDocuments) throws IOException;
 
@@ -27,11 +27,5 @@ public interface IndexService extends InitializingBean, DisposableBean {
 
     void processFileForIndexing();
 
-    boolean isClosed();
 
-    void close();
-
-    void open();
-
-    void webSocketWatchDog();
 }

@@ -20,11 +20,8 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.analyzer.AttributeFieldAnalyzer;
@@ -42,7 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -60,7 +56,6 @@ public class IndexServiceImpl implements IndexService {
 
     public static final FieldType TYPE_NOT_ANALYZED = new FieldType();
     private static final BlockingQueue<String> indexFileQueue = new LinkedBlockingQueue<>();
-    private static final AtomicBoolean closed = new AtomicBoolean(false);
     public static AtomicInteger ActiveExecutorService = new AtomicInteger(0);
 
     static {
@@ -75,6 +70,8 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     IndexManager indexManager;
     @Autowired
+    IndexManagementService indexManagementService;
+    @Autowired
     FileIndexService fileIndexService;
     @Autowired
     SearchService searchService;
@@ -84,48 +81,14 @@ public class IndexServiceImpl implements IndexService {
     FacetService facetService;
     @Autowired
     ParserManager parserManager;
-    @Autowired @Lazy
-    RabbitMQStompService rabbitMQStompService;
-    @Autowired
-    private Environment env;
+//    @Autowired @Lazy
+//    RabbitMQStompService rabbitMQStompService;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-    }
 
-    @Override
-    public synchronized boolean isClosed() {
-        return closed.get();
-    }
-
-    @Override
-    @Scheduled(fixedDelayString = "${schedule.stomp.isalive:300000}", initialDelay = 600000)
-    public void webSocketWatchDog() {
-        if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false) || rabbitMQStompService.isSessionConnected() || isClosed())
-            return;
-        open();
-        logger.info("Failed Websocket Connection recovered by watchDog!");
-    }
-
-    @Override
-    public synchronized void close() {
-        if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false))
-            return;
-        rabbitMQStompService.stopWebSocket();
-        closed.set(true);
-    }
-
-    @Override
-    public synchronized void open() {
-        if (!env.getProperty("spring.rabbitmq.stomp.enable", Boolean.class, false))
-            return;
-        rabbitMQStompService.startWebSocket();
-        closed.set(false);
-    }
 
     @Override
     public void indexAll(InputStream inputStream, boolean removeFileDocuments) throws IOException {
-        rabbitMQStompService.stopWebSocket();
+//        indexManagementService.close();
         Long startTime = System.currentTimeMillis();
         ExecutorService executorService = new ThreadPoolExecutor(indexConfig.getThreadCount(), indexConfig.getThreadCount(),
                 60, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(indexConfig.getQueueSize()), new ThreadPoolExecutor.CallerRunsPolicy());
@@ -178,7 +141,7 @@ public class IndexServiceImpl implements IndexService {
         } catch (Throwable error) {
             logger.error("problem in parsing partial update", error);
         } finally {
-            rabbitMQStompService.startWebSocket();
+//            indexManagementService.open();
             //logger.debug("Deleting temp file {}", inputStudiesFilePath);
             //Files.delete(Paths.get(inputStudiesFilePath));
         }
@@ -275,12 +238,13 @@ public class IndexServiceImpl implements IndexService {
                 if (indexManager.getIndexWriter() == null || !indexManager.getIndexWriter().isOpen()) {
                     logger.log(Level.INFO, "IndexWriter was closed trying to construct a new IndexWriter");
                     indexManager.refreshIndexWriterAndWholeOtherIndices();
+                    indexManagementService.openEfoIndexAndLoadOntology();
                     Thread.sleep(30000);
                     indexFileQueue.put(filename);
                     continue;
                 }
                 if (filename == null || filename.isEmpty() || filename.equalsIgnoreCase(Constants.SUBMISSIONS_JSON) || filename.equalsIgnoreCase("default")) {
-                    close();
+                    indexManagementService.closeWebsocket();
                     clearIndex(false);
                     filename = Constants.SUBMISSIONS_JSON;
                     removeFileDocuments = false;
@@ -291,8 +255,7 @@ public class IndexServiceImpl implements IndexService {
                 e.printStackTrace();
                 logger.log(Level.ERROR, e);
             } finally {
-                if (closed.get())
-                    open();
+                indexManagementService.openWebsocket();
                 try {
                     Files.delete(Paths.get(inputStudiesFilePath));
                 } catch (Throwable e) {
