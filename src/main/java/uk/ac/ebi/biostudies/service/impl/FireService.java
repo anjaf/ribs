@@ -27,7 +27,7 @@ public class FireService {
     @Autowired
     AmazonS3 s3;
 
-    private final Logger LOGGER = LogManager.getLogger(FireService.class);
+    private final Logger logger = LogManager.getLogger(FireService.class);
 
 
     public StringWriter getFireObjectStringContentByPath(String bucketName, String path) {
@@ -39,7 +39,7 @@ public class FireService {
             IOUtils.copy(inputStream, stringWriter, StandardCharsets.UTF_8);
             return stringWriter;
         } catch (Exception exception) {
-            LOGGER.error(exception);
+            logger.error(exception);
             return null;
         }
     }
@@ -57,7 +57,7 @@ public class FireService {
             S3ObjectInputStream inputStream = s3.getObject(getObjectRequest).getObjectContent();
             return inputStream;
         } catch (Exception exception) {
-            LOGGER.error(exception);
+            logger.error(exception);
             if (exception.getMessage() != null && exception.getMessage().contains("Not Found"))
                 throw new FileNotFoundException(exception.getMessage());
             return null;
@@ -85,8 +85,19 @@ public class FireService {
                 } while (objectListing.isTruncated());
             }
         } catch (Exception exception) {
-            LOGGER.error(exception);
+            logger.error(exception);
         }
         return allFileResult;
+    }
+
+    public boolean isValidFolder(String path) {
+        boolean isFolder = false;
+        try {
+            ObjectListing objectListing = s3.listObjects(fireConfig.getBucketName(), path);
+            isFolder = objectListing.getMaxKeys() > 0;
+        } catch (Exception e) {
+
+        }
+        return  isFolder;
     }
 }

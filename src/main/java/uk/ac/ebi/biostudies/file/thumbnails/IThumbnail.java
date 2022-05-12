@@ -19,10 +19,11 @@ package uk.ac.ebi.biostudies.file.thumbnails;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public interface IThumbnail {
     public static final int THUMBNAIL_WIDTH = 200;
     public static final int THUMBNAIL_HEIGHT = 260;
-    void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException;
+    void generateThumbnail(InputStream sourceFilePath, File thumbnailFile) throws IOException;
     String[] getSupportedTypes();
 }

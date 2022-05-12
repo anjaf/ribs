@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class ImageThumbnail implements IThumbnail{
 
@@ -34,9 +35,8 @@ public class ImageThumbnail implements IThumbnail{
     }
 
     @Override
-    public void generateThumbnail(String sourceFilePath, File thumbnailFile) throws IOException{
-        File sourceFile = new File(sourceFilePath);
-        BufferedImage input = ImageIO.read(sourceFile);
+    public void generateThumbnail(InputStream inputStream, File thumbnailFile) throws IOException{
+        BufferedImage input = ImageIO.read(inputStream);
         float height = (float) input.getHeight(), width = (float) input.getWidth();
         if (width > THUMBNAIL_WIDTH || height>THUMBNAIL_WIDTH) {
             float inverseAspectRatio = height / width;

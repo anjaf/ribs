@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -125,7 +124,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
 
             // send zip if path is a folder
-            if (downloadFile.isDirectory()) {
+            if (downloadFile.isDirectory() && storageMode== Constants.File.StorageMode.NFS) {
                 zipDownloadService.sendZip(request, response, new String[]{requestedFilePath}, storageMode);
                 return;
             }
@@ -134,7 +133,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
             verifyFile(downloadFile, response);
             sendRandomAccessFile(downloadFile, request, response);
-            logger.debug("Download of [{}] completed", downloadFile.getName());
+            logger.debug("Download of [{}] completed - {}", downloadFile.getName(), request.getMethod());
 
         } finally {
             if (null != downloadFile) {
@@ -143,7 +142,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         }
     }
 
-    public IDownloadFile getDownloadFile(String accession, String relativePath, String requestedFilePath, Constants.File.StorageMode storageMode) throws IOException, ParseException {
+    public IDownloadFile getDownloadFile(String accession, String relativePath, String requestedFilePath, Constants.File.StorageMode storageMode) throws FileNotFoundException {
         return storageMode == Constants.File.StorageMode.FIRE
                 ? getFireFile(accession, relativePath, requestedFilePath)
                 : getNFSFile(accession, relativePath, requestedFilePath)
@@ -190,6 +189,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         String path = relativePath + "/Files/" + requestedFilePath;
 
         S3Object fireObject = null;
+        boolean isDirectory = false;
         try {
             fireObject = fireService.getFireObjectByPath(path);
         } catch (Exception ex1) {
@@ -199,14 +199,19 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                 try {
                     fireObject = fireService.getFireObjectByPath(requestedFilePath);
                 } catch (Exception ex3) {
-                    throw new FileNotFoundException(ex3.getMessage());
+                    try {
+                        fireObject = fireService.getFireObjectByPath(path+".zip");
+                        isDirectory = true;
+                    } catch (Exception ex4) {
+                        throw new FileNotFoundException(ex3.getMessage());
+                    }
                 }
             }
         }
         return new FIREDownloadFile(path,
                 fireObject.getObjectContent(),
                 fireObject.getObjectMetadata().getContentLength(),
-                fireObject.getObjectMetadata().getContentType().equalsIgnoreCase("application/x-directory"));
+                isDirectory);
     }
 
 
@@ -361,8 +366,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         response.setHeader("ETag", eTag);
         response.setDateHeader("Last-Modified", lastModified);
 
-
-        // Send requested file (part(s)) to client ------------------------------------------------
+         // Send requested file (part(s)) to client ------------------------------------------------
 
         try (InputStream input = downloadFile.getInputStream();
              ServletOutputStream output = response.getOutputStream()) {
@@ -375,6 +379,9 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                 //response.setHeader("Content-Range", "bytes " + full.start + "-" + full.end + "/" + full.total);
                 response.setHeader("Content-Length", String.valueOf(full.length));
 
+                if (request.getMethod().equalsIgnoreCase("HEAD")) {
+                    return;
+                }
 
                 // Copy full range.
                 copy(input, output, full.start, full.length);
@@ -392,11 +399,17 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
 
                 // Copy single part range.
+                if (request.getMethod().equalsIgnoreCase("HEAD")) {
+                    return;
+                }
                 copy(input, output, r.start, r.length);
                 logger.info("Single range download of [{}] completed, sent [{}] bytes", fileName, r.length);
 
 
             } else {
+                if (request.getMethod().equalsIgnoreCase("HEAD")) {
+                    return;
+                }
 
                 // Return multiple parts of file
                 response.setContentType("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
