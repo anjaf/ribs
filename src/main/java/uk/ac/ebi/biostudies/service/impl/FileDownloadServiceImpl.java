@@ -133,7 +133,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
             verifyFile(downloadFile, response);
             sendRandomAccessFile(downloadFile, request, response);
-            logger.debug("Download of [{}] completed", downloadFile.getName());
+            logger.debug("Download of [{}] completed - {}", downloadFile.getName(), request.getMethod());
 
         } finally {
             if (null != downloadFile) {
@@ -366,10 +366,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         response.setHeader("ETag", eTag);
         response.setDateHeader("Last-Modified", lastModified);
 
-        if (request.getMethod().equalsIgnoreCase("HEAD")) {
-            return;
-        }
-        // Send requested file (part(s)) to client ------------------------------------------------
+         // Send requested file (part(s)) to client ------------------------------------------------
 
         try (InputStream input = downloadFile.getInputStream();
              ServletOutputStream output = response.getOutputStream()) {
@@ -382,6 +379,9 @@ public class FileDownloadServiceImpl implements FileDownloadService {
                 //response.setHeader("Content-Range", "bytes " + full.start + "-" + full.end + "/" + full.total);
                 response.setHeader("Content-Length", String.valueOf(full.length));
 
+                if (request.getMethod().equalsIgnoreCase("HEAD")) {
+                    return;
+                }
 
                 // Copy full range.
                 copy(input, output, full.start, full.length);
@@ -399,11 +399,17 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
 
                 // Copy single part range.
+                if (request.getMethod().equalsIgnoreCase("HEAD")) {
+                    return;
+                }
                 copy(input, output, r.start, r.length);
                 logger.info("Single range download of [{}] completed, sent [{}] bytes", fileName, r.length);
 
 
             } else {
+                if (request.getMethod().equalsIgnoreCase("HEAD")) {
+                    return;
+                }
 
                 // Return multiple parts of file
                 response.setContentType("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
