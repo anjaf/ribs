@@ -71,7 +71,7 @@ public class FileDownload {
 
     }
 
-    @RequestMapping(value = "/files/**", method = RequestMethod.GET)
+    @RequestMapping(value = "/files/**", method = {RequestMethod.GET, RequestMethod.HEAD})
     public void getSingleFile(HttpServletRequest request, HttpServletResponse response) throws Exception, SubmissionNotAccessibleException {
         fileDownloadService.sendFile(request, response);
     }

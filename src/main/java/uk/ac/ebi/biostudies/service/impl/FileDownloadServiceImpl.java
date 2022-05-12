@@ -366,7 +366,9 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         response.setHeader("ETag", eTag);
         response.setDateHeader("Last-Modified", lastModified);
 
-
+        if (request.getMethod().equalsIgnoreCase("HEAD")) {
+            return;
+        }
         // Send requested file (part(s)) to client ------------------------------------------------
 
         try (InputStream input = downloadFile.getInputStream();
