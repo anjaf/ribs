@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,36 +26,21 @@ import static uk.ac.ebi.biostudies.api.util.Constants.STRING_UNICODE_MEDIA_TYPE;
 @SuppressWarnings("Duplicates")
 @RestController
 @RequestMapping(value = "/api/v1")
-public class Index implements InitializingBean {
+public class Index {
 
-    private Logger logger = LogManager.getLogger(Index.class.getName());
     @Autowired
     IndexService indexService;
-
     @Autowired
     IndexManager indexManager;
-
     @Autowired
     IndexManagementService indexManagementService;
-
     @Autowired
     SearchService searchService;
-
     @Autowired
     UpdateOntologyJob updateOntologyJob;
-
     @Autowired
     IndexConfig indexConfig;
-
-    @Override
-    public void afterPropertiesSet() {
-        logger.debug("Initializing IndexManagerService");
-        indexManager.refreshIndexWriterAndWholeOtherIndices();
-        if (indexConfig.isApiEnabled()) indexService.processFileForIndexing();
-        indexManagementService.openWebsocket();
-    }
-
-
+    private Logger logger = LogManager.getLogger(Index.class.getName());
 
     /**
      * Method handling HTTP GET requests. The returned object will be sent
