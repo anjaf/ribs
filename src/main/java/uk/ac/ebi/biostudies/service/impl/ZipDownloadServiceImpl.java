@@ -12,7 +12,6 @@ import uk.ac.ebi.biostudies.config.IndexConfig;
 import uk.ac.ebi.biostudies.file.download.FilteredMageTabDownloadFile;
 import uk.ac.ebi.biostudies.file.download.FilteredMageTabDownloadStream;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
-import uk.ac.ebi.biostudies.service.FileDownloadService;
 import uk.ac.ebi.biostudies.service.SearchService;
 import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
 import uk.ac.ebi.biostudies.service.ZipDownloadService;
@@ -37,8 +36,6 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
     IndexConfig indexConfig;
     @Autowired
     FireService fireService;
-    @Autowired
-    FileDownloadService fileDownloadService;
 
     @Override
     public void sendZip(HttpServletRequest request, HttpServletResponse response, String[] files, Constants.File.StorageMode storageMode) throws Exception {
@@ -86,13 +83,13 @@ public class ZipDownloadServiceImpl implements ZipDownloadService {
         byte[] buffer = new byte[4 * IDownloadFile.KB];
         String canonicalPath = relativePath + "/Files/";
         InputStream zipInputStream = null;
-        for (String fileEntry: files) {
+        for (String fileEntry : files) {
             final String fileName = StringUtils.replace(fileEntry, "..", ".");
-            IDownloadFile fireFile = fileDownloadService.getDownloadFile(accession, relativePath, fileName, Constants.File.StorageMode.FIRE);
+            IDownloadFile fireFile = fireService.getFireFile(relativePath, fileName);
             zipInputStream = fireFile.getInputStream();
             try {
                 String curFileName = fileName.replaceAll(canonicalPath, "");
-                ZipEntry entry = new ZipEntry( curFileName + (fireFile.isDirectory() ? ".zip" : ""));
+                ZipEntry entry = new ZipEntry(curFileName + (fireFile.isDirectory() ? ".zip" : ""));
                 zos.putNextEntry(entry);
                 if (key != null) {
                     FilteredMageTabDownloadStream filteredMageTabDownloadStream =
