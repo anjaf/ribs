@@ -16,20 +16,15 @@ import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.api.util.SnapshotAwareDirectoryTaxonomyWriter;
 import uk.ac.ebi.biostudies.api.util.analyzer.AnalyzerManager;
 import uk.ac.ebi.biostudies.api.util.analyzer.LowercaseAnalyzer;
 import uk.ac.ebi.biostudies.api.util.parser.ParserManager;
-import uk.ac.ebi.biostudies.service.IndexService;
-import uk.ac.ebi.biostudies.service.RabbitMQStompService;
 import uk.ac.ebi.biostudies.service.impl.IndexTransferer;
-import uk.ac.ebi.biostudies.service.impl.efo.Ontology;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,7 +39,7 @@ import java.util.concurrent.Executors;
  */
 @Component
 @Scope("singleton")
-public class IndexManager implements InitializingBean, DisposableBean {
+public class IndexManager implements DisposableBean {
 
     private final Logger logger = LogManager.getLogger(IndexManager.class.getName());
     private final Map<String, JsonNode> indexEntryMap = new LinkedHashMap<>();
@@ -56,19 +51,13 @@ public class IndexManager implements InitializingBean, DisposableBean {
     @Autowired
     EFOConfig eFOConfig;
     @Autowired
-    Ontology ontology;
-    @Autowired
     TaxonomyManager taxonomyManager;
     @Autowired
     AnalyzerManager analyzerManager;
     @Autowired
-    IndexService indexService;
-    @Autowired
     ParserManager parserManager;
     @Autowired
     IndexTransferer indexTransferer;
-    @Autowired
-    RabbitMQStompService rabbitMQStompService;
     private IndexReader indexReader;
     private IndexReader fileIndexReader;
     private IndexSearcher indexSearcher;
@@ -89,13 +78,6 @@ public class IndexManager implements InitializingBean, DisposableBean {
     private SnapshotAwareDirectoryTaxonomyWriter facetWriter;
     private TaxonomyReader facetReader;
     private Directory taxoDirectory;
-
-    @Override
-    public void afterPropertiesSet() {
-        logger.debug("Initializing IndexManager");
-        refreshIndexWriterAndWholeOtherIndices();
-        if (indexConfig.isApiEnabled()) indexService.processFileForIndexing();
-    }
 
     public void refreshIndexWriterAndWholeOtherIndices() {
         InputStream indexJsonFile = this.getClass().getClassLoader().getResourceAsStream("collection-fields.json");
@@ -128,7 +110,6 @@ public class IndexManager implements InitializingBean, DisposableBean {
 
     public void openIndicesWritersAndSearchers() {
         try {
-            rabbitMQStompService.startWebSocket();
             openMainIndex();
             openEfoIndex();
             openFacetIndex();
@@ -157,7 +138,6 @@ public class IndexManager implements InitializingBean, DisposableBean {
 
     public void closeIndices() {
         try {
-            rabbitMQStompService.stopWebSocket();
             indexReader.close();
             fileIndexReader.close();
             efoIndexReader.close();
@@ -257,22 +237,14 @@ public class IndexManager implements InitializingBean, DisposableBean {
         fileIndexSearcher = new IndexSearcher(fileIndexReader);
     }
 
-    private void openEfoIndex() throws Throwable {
+    public void openEfoIndex() throws Throwable {
         IndexWriterConfig efoIndexWriterConfig = new IndexWriterConfig(new LowercaseAnalyzer());
         efoIndexSnapShot = new SnapshotDeletionPolicy(new KeepOnlyLastCommitDeletionPolicy());
         efoIndexWriterConfig.setIndexDeletionPolicy(efoIndexSnapShot);
         efoIndexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-        efoIndexDirectory = FSDirectory.open(Paths.get(eFOConfig.getIndexLocation()));
+        setEfoIndexDirectory(FSDirectory.open(Paths.get(eFOConfig.getIndexLocation())));
         if (efoIndexWriter == null || efoIndexWriter.isOpen() == false)
-            efoIndexWriter = new IndexWriter(efoIndexDirectory, efoIndexWriterConfig);
-        if (!DirectoryReader.indexExists(efoIndexDirectory)) {
-            try (InputStream resourceInputStream = (new ClassPathResource(eFOConfig.getLocalOwlFilename())).getInputStream()) {
-                ontology.update(resourceInputStream);
-                logger.info("EFO loading completed");
-            } catch (Exception ex) {
-                logger.error("EFO file not found", ex);
-            }
-        }
+            efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
         if (efoIndexReader != null)
             efoIndexReader.close();
         efoIndexReader = DirectoryReader.open(efoIndexWriter);
@@ -280,18 +252,6 @@ public class IndexManager implements InitializingBean, DisposableBean {
 
     }
 
-
-    private void loadEFO(IndexWriterConfig efoIndexWriterConfig) throws Exception {
-        if (!DirectoryReader.indexExists(efoIndexDirectory)) {
-            try (InputStream resourceInputStream = (new ClassPathResource(eFOConfig.getLocalOwlFilename())).getInputStream()) {
-                efoIndexWriter = new IndexWriter(getEfoIndexDirectory(), efoIndexWriterConfig);
-                ontology.update(resourceInputStream);
-                logger.info("EFO loading completed");
-            } catch (Exception ex) {
-                logger.error("EFO file not found", ex);
-            }
-        }
-    }
 
     public void destroy() {
 
@@ -396,6 +356,10 @@ public class IndexManager implements InitializingBean, DisposableBean {
 
     public Directory getEfoIndexDirectory() {
         return efoIndexDirectory;
+    }
+
+    public void setEfoIndexDirectory(Directory efoIndexDirectory) {
+        this.efoIndexDirectory = efoIndexDirectory;
     }
 
     public IndexReader getEfoIndexReader() {

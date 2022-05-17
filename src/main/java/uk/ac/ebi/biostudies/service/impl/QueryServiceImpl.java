@@ -25,7 +25,6 @@ import uk.ac.ebi.biostudies.config.IndexManager;
 import uk.ac.ebi.biostudies.config.TaxonomyManager;
 import uk.ac.ebi.biostudies.efo.EFOExpansionTerms;
 import uk.ac.ebi.biostudies.efo.EFOQueryExpander;
-import uk.ac.ebi.biostudies.service.FacetService;
 import uk.ac.ebi.biostudies.service.QueryService;
 
 import javax.annotation.PostConstruct;
@@ -38,9 +37,8 @@ import java.util.Map;
 @Service
 public class QueryServiceImpl implements QueryService {
 
+    private static Query typeFilterQuery;
     private final Logger logger = LogManager.getLogger(QueryServiceImpl.class.getName());
-
-
     @Autowired
     IndexConfig indexConfig;
     @Autowired
@@ -52,15 +50,10 @@ public class QueryServiceImpl implements QueryService {
     @Autowired
     SecurityQueryBuilder securityQueryBuilder;
     @Autowired
-    FacetService facetService;
-    @Autowired
     TaxonomyManager taxonomyManager;
 
-    private static Query typeFilterQuery;
-
-
     @PostConstruct
-    void init(){
+    void init() {
         QueryParser parser = new QueryParser(Constants.Fields.TYPE, new AttributeFieldAnalyzer());
         parser.setSplitOnWhitespace(true);
         try {
@@ -91,19 +84,19 @@ public class QueryServiceImpl implements QueryService {
             }
             expandedQuery = (expandedQuery == null ? queryEFOExpansionTermsPair.getKey() : expandedQuery);
 
-            if (!queryString.toLowerCase().contains("type:")){
-                if (selectedFields!=null && !selectedFields.has("type")) {
+            if (!queryString.toLowerCase().contains("type:")) {
+                if (selectedFields != null && !selectedFields.has("type")) {
                     expandedQuery = applyTypeFilter(expandedQuery);
                 }
             }
 
-            if(!StringUtils.isEmpty(collectionName) && !collectionName.equalsIgnoreCase(Constants.PUBLIC)) {
+            if (!StringUtils.isEmpty(collectionName) && !collectionName.equalsIgnoreCase(Constants.PUBLIC)) {
                 expandedQuery = applyCollectionFilter(expandedQuery, collectionName.toLowerCase());
             }
             Query queryAfterSecurity = securityQueryBuilder.applySecurity(expandedQuery);
-            logger.trace("Lucene query: {}",queryAfterSecurity.toString());
-            finalQuery =  new MutablePair<>(queryAfterSecurity, queryEFOExpansionTermsPair.getValue());
-        } catch (Throwable ex){
+            logger.trace("Lucene query: {}", queryAfterSecurity.toString());
+            finalQuery = new MutablePair<>(queryAfterSecurity, queryEFOExpansionTermsPair.getValue());
+        } catch (Throwable ex) {
             logger.error(ex);
         }
         return finalQuery;
@@ -113,17 +106,17 @@ public class QueryServiceImpl implements QueryService {
         BooleanQuery.Builder excludeBuilder = new BooleanQuery.Builder();
         excludeBuilder.add(originalQuery, BooleanClause.Occur.MUST);
         excludeBuilder.add(typeFilterQuery, BooleanClause.Occur.MUST_NOT);
-        return  excludeBuilder.build();
+        return excludeBuilder.build();
     }
 
-    public Query applyCollectionFilter(Query query, String prjName){
+    public Query applyCollectionFilter(Query query, String prjName) {
         Map<JsonNode, List<String>> hm = new HashMap<JsonNode, List<String>>();
         List<String> collections = Lists.newArrayList(prjName);
         if (indexManager.getSubCollectionMap().containsKey(prjName)) {
             collections.addAll(indexManager.getSubCollectionMap().get(prjName));
         }
         hm.put(taxonomyManager.PROJECT_FACET, collections);
-        return facetService.addFacetDrillDownFilters(query, hm);
+        return FacetServiceImpl.addFacetDrillDownFilters(taxonomyManager.getFacetsConfig(), query, hm);
     }
 
     public Pair<Query, EFOExpansionTerms> expandQuery(Query query) throws IOException {
@@ -131,24 +124,23 @@ public class QueryServiceImpl implements QueryService {
         return efoQueryExpander.expand(queryInfo, query);
     }
 
-    private Query applySelectedFields(ObjectNode selectedFields, Query query, QueryParser queryParser){
+    private Query applySelectedFields(ObjectNode selectedFields, Query query, QueryParser queryParser) {
         Iterator<String> fieldNamesIterator = selectedFields.fieldNames();
         String fieldName = "";
         String fieldValue = "";
         BooleanQuery.Builder fieldQueryBuilder = new BooleanQuery.Builder();
         fieldQueryBuilder.add(query, BooleanClause.Occur.MUST);
-        while(fieldNamesIterator.hasNext()) {
+        while (fieldNamesIterator.hasNext()) {
             try {
                 fieldName = fieldNamesIterator.next();
-                if (fieldName == null|| fieldName.isEmpty() || fieldName.equalsIgnoreCase("query"))
+                if (fieldName == null || fieldName.isEmpty() || fieldName.equalsIgnoreCase("query"))
                     continue;
                 fieldValue = selectedFields.get(fieldName).textValue();
-                if(fieldValue==null || fieldValue.isEmpty())
+                if (fieldValue == null || fieldValue.isEmpty())
                     continue;
-                Query fieldQuery = queryParser.parse(fieldName+":"+fieldValue);
+                Query fieldQuery = queryParser.parse(fieldName + ":" + fieldValue);
                 fieldQueryBuilder.add(fieldQuery, BooleanClause.Occur.MUST);
-            }
-            catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error("field {} value {} has problem for lucene queryparser", fieldName, fieldValue, ex);
             }
         }

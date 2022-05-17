@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class BioStudiesQueryParser extends MultiFieldQueryParser {
 
-    @Lazy
+
     private static IndexManager indexManager;
 
     public BioStudiesQueryParser(String[] fields, Analyzer analyzer, IndexManager indexManager) {
