@@ -12,6 +12,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.config.FireConfig;
+import uk.ac.ebi.biostudies.file.download.FIREDownloadFile;
+import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 
 import java.io.FileNotFoundException;
 import java.io.StringWriter;
@@ -22,12 +24,41 @@ import java.util.stream.Collectors;
 
 @Service
 public class FireService {
+    private final Logger logger = LogManager.getLogger(FireService.class);
     @Autowired
     FireConfig fireConfig;
     @Autowired
     AmazonS3 s3;
 
-    private final Logger logger = LogManager.getLogger(FireService.class);
+    public IDownloadFile getFireFile(String relativePath, String requestedFilePath) throws FileNotFoundException {
+
+        String path = relativePath + "/Files/" + requestedFilePath;
+
+        S3Object fireObject = null;
+        boolean isDirectory = false;
+        try {
+            fireObject = getFireObjectByPath(path);
+        } catch (Exception ex1) {
+            try {
+                fireObject = getFireObjectByPath(relativePath + "/" + requestedFilePath);
+            } catch (Exception ex2) {
+                try {
+                    fireObject = getFireObjectByPath(requestedFilePath);
+                } catch (Exception ex3) {
+                    try {
+                        fireObject = getFireObjectByPath(path + ".zip");
+                        isDirectory = true;
+                    } catch (Exception ex4) {
+                        throw new FileNotFoundException(ex3.getMessage());
+                    }
+                }
+            }
+        }
+        return new FIREDownloadFile(path,
+                fireObject.getObjectContent(),
+                fireObject.getObjectMetadata().getContentLength(),
+                isDirectory);
+    }
 
 
     public StringWriter getFireObjectStringContentByPath(String bucketName, String path) {
@@ -98,6 +129,6 @@ public class FireService {
         } catch (Exception e) {
 
         }
-        return  isFolder;
+        return isFolder;
     }
 }

@@ -12,7 +12,7 @@
 <c:set var="pathname" value="${requestScope['javax.servlet.forward.request_uri']}"/>
 <c:set var="pagename" value="${fn:replace(pageContext.request.requestURI,pageContext.request.contextPath,'')}"/>
 <c:set var="announce"><spring:eval expression="@announcementConfig.isEnabled()"/></c:set>
-<c:set var="collection" value="${requestScope['org.springframework.web.servlet.HandlerMapping.uriTemplateVariables']['collection']}"/>
+<c:set var="collection" value="${pageContext.request.getAttribute('collection')}"/>
 <c:if test="${pathname.toLowerCase().endsWith('/arrayexpress') || pathname.toLowerCase().endsWith('/arrayexpress/')}">
     <c:set var="collection" value="arrayexpress"></c:set>
 </c:if>

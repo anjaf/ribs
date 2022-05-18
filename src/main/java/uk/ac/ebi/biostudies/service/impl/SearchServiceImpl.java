@@ -15,7 +15,6 @@ import org.apache.lucene.queries.mlt.MoreLikeThis;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
@@ -65,25 +64,25 @@ public class SearchServiceImpl implements SearchService {
     private static QueryParser parser;
     private static Set<String> sectionsToFilter;
     private final Logger logger = LogManager.getLogger(SearchServiceImpl.class.getName());
-    @Autowired @Lazy
+    @Autowired
     IndexConfig indexConfig;
-    @Autowired @Lazy
+    @Autowired
     IndexManager indexManager;
-    @Autowired @Lazy
+    @Autowired
     EFOQueryExpander efoQueryExpander;
-    @Autowired @Lazy
+    @Autowired
     EFOExpandedHighlighter efoExpandedHighlighter;
-    @Autowired @Lazy
+    @Autowired
     Autocompletion autocompletion;
-    @Autowired @Lazy
+    @Autowired
     FacetService facetService;
-    @Autowired @Lazy
+    @Autowired
     AnalyzerManager analyzerManager;
-    @Autowired @Lazy
+    @Autowired
     SecurityQueryBuilder securityQueryBuilder;
-    @Autowired @Lazy
+    @Autowired
     QueryService queryService;
-    @Autowired @Lazy
+    @Autowired
     FireService fireService;
 
     @PostConstruct
@@ -137,7 +136,7 @@ public class SearchServiceImpl implements SearchService {
 
         try {
             User currentUser = Session.getCurrentUser();
-            pageSize = Math.min(pageSize, currentUser!=null && currentUser.isSuperUser() ? Integer.MAX_VALUE : MAX_PAGE_SIZE);
+            pageSize = Math.min(pageSize, currentUser != null && currentUser.isSuperUser() ? Integer.MAX_VALUE : MAX_PAGE_SIZE);
             int searchResultsSize = Math.min(page * pageSize, Integer.MAX_VALUE);
             TopDocs hits = searcher.search(query, searchResultsSize, sort);
             long totalHits = hits.totalHits != null ? hits.totalHits.value : 0;
@@ -275,7 +274,7 @@ public class SearchServiceImpl implements SearchService {
         InputStream inputStream = null;
         switch (storageMode) {
             case FIRE:
-                inputStream = fireService.getFireObjectInputStreamByPath( relativePath + "/" + accession + ".json");
+                inputStream = fireService.getFireObjectInputStreamByPath(relativePath + "/" + accession + ".json");
                 break;
             default:
                 inputStream = new FileInputStream(Paths.get(indexConfig.getFileRootDir(), relativePath, accession + ".json").toFile());

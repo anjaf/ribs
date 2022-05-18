@@ -17,20 +17,20 @@
 
 package uk.ac.ebi.biostudies.service.impl;
 
-import com.amazonaws.services.s3.model.S3Object;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.biostudies.api.util.Constants;
 import uk.ac.ebi.biostudies.config.IndexConfig;
-import uk.ac.ebi.biostudies.file.download.FIREDownloadFile;
 import uk.ac.ebi.biostudies.file.download.IDownloadFile;
 import uk.ac.ebi.biostudies.file.download.RegularDownloadFile;
-import uk.ac.ebi.biostudies.service.*;
+import uk.ac.ebi.biostudies.service.FileDownloadService;
+import uk.ac.ebi.biostudies.service.SearchService;
+import uk.ac.ebi.biostudies.service.SubmissionNotAccessibleException;
+import uk.ac.ebi.biostudies.service.ZipDownloadService;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +55,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
     private static final String MULTIPART_BOUNDARY = "MULTIPART_BYTERANGES";
 
-    @Autowired @Lazy
+    @Autowired
     SearchService searchService;
 
     @Autowired
@@ -67,8 +67,6 @@ public class FileDownloadServiceImpl implements FileDownloadService {
     @Autowired
     FireService fireService;
 
-    @Autowired
-    FilePaginationService filePaginationService;
 
     /**
      * Returns true if the given match header matches the given value.
@@ -124,7 +122,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
 
             // send zip if path is a folder
-            if (downloadFile.isDirectory() && storageMode== Constants.File.StorageMode.NFS) {
+            if (downloadFile.isDirectory() && storageMode == Constants.File.StorageMode.NFS) {
                 zipDownloadService.sendZip(request, response, new String[]{requestedFilePath}, storageMode);
                 return;
             }
@@ -144,7 +142,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
     public IDownloadFile getDownloadFile(String accession, String relativePath, String requestedFilePath, Constants.File.StorageMode storageMode) throws FileNotFoundException {
         return storageMode == Constants.File.StorageMode.FIRE
-                ? getFireFile(accession, relativePath, requestedFilePath)
+                ? fireService.getFireFile(relativePath, requestedFilePath)
                 : getNFSFile(accession, relativePath, requestedFilePath)
                 ;
     }
@@ -183,37 +181,6 @@ public class FileDownloadServiceImpl implements FileDownloadService {
 
         return new RegularDownloadFile(downloadFile);
     }
-
-    private IDownloadFile getFireFile(String accession, String relativePath, String requestedFilePath) throws FileNotFoundException {
-
-        String path = relativePath + "/Files/" + requestedFilePath;
-
-        S3Object fireObject = null;
-        boolean isDirectory = false;
-        try {
-            fireObject = fireService.getFireObjectByPath(path);
-        } catch (Exception ex1) {
-            try {
-                fireObject = fireService.getFireObjectByPath( relativePath + "/" + requestedFilePath);
-            } catch (Exception ex2) {
-                try {
-                    fireObject = fireService.getFireObjectByPath(requestedFilePath);
-                } catch (Exception ex3) {
-                    try {
-                        fireObject = fireService.getFireObjectByPath(path+".zip");
-                        isDirectory = true;
-                    } catch (Exception ex4) {
-                        throw new FileNotFoundException(ex3.getMessage());
-                    }
-                }
-            }
-        }
-        return new FIREDownloadFile(path,
-                fireObject.getObjectContent(),
-                fireObject.getObjectMetadata().getContentLength(),
-                isDirectory);
-    }
-
 
     private void verifyFile(IDownloadFile file, HttpServletResponse response)
             throws IOException {
@@ -366,7 +333,7 @@ public class FileDownloadServiceImpl implements FileDownloadService {
         response.setHeader("ETag", eTag);
         response.setDateHeader("Last-Modified", lastModified);
 
-         // Send requested file (part(s)) to client ------------------------------------------------
+        // Send requested file (part(s)) to client ------------------------------------------------
 
         try (InputStream input = downloadFile.getInputStream();
              ServletOutputStream output = response.getOutputStream()) {

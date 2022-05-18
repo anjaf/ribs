@@ -199,6 +199,9 @@ var FileTable = (function (_self) {
         } else {
             columns = columns.filter(function(c) {return c.name!='Section';});
         }
+        // remove md5
+        columns = columns.filter(function(c) {return c.name.toLowerCase()!='md5';})
+
         // add thumbnail rendering
         var thumbnailColumn = columns.filter(function(c) {
             return c.title=='Thumbnail';
@@ -236,12 +239,13 @@ var FileTable = (function (_self) {
                 {
                     targets: 1,
                     render: function (data, type, row) {
-                        return '<a class="overflow-name-column' + (data.indexOf('.sdrf.txt')>0 ? ' sdrf-file'  : '')+ ' target="_blank" style="max-width: 500px;" title="'
-                            + data
+                        return '<a class="overflow-name-column' + (data.indexOf('.sdrf.txt')>0 ? ' sdrf-file'  : '')
+                            + '"' + (row.md5 ? (' data-md5="' + row.md5 +'"') : '')
+                            + ' title="' + data
                             + '" href="'
                             + window.contextPath +'/files/'+acc+'/' + encodeURI(row.path).replaceAll('#','%23').replaceAll("+", "%2B").replaceAll("=", "%3D").replaceAll("@", "%40").replaceAll("$", "%24")
                             + (params.key ? '?key='+params.key : '')
-                            + '">'
+                            + '" target="_blank" style="max-width: 500px;">'
                             + data +'</a>';
                     }
                 },
@@ -745,8 +749,9 @@ var FileTable = (function (_self) {
             imgFormats.splice(1,0,'zip');
         $(filesTable.column(1).nodes()).each(function () {
             var path = encodeURI($('input',$(this).prev()).data('name')).replaceAll('#','%23');
-            $('a',this).addClass('overflow-name-column');
-            $('a',this).attr('title',$(this).text());
+            var link = $('a',this);
+            link.addClass('overflow-name-column');
+            link.attr('title',title);
             if (!hasPrerenderedThumbnails && $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
                 var tnButton = $('<a href="#" aria-label="thumbnail" class="thumbnail-icon" ' +
                     'data-thumbnail="'+window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'">' +

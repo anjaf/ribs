@@ -30,8 +30,6 @@ public class RabbitMQStompService {
     @Autowired
     SecurityConfig securityConfig;
     @Autowired
-    IndexService indexService;
-    @Autowired
     @Lazy
     PartialUpdater partialUpdater;
     @Autowired
@@ -49,9 +47,6 @@ public class RabbitMQStompService {
                 stompSession.disconnect();
     }
 
-    public void setIndexService(IndexService indexService) {
-        this.indexService = indexService;
-    }
 
     public void startWebSocket() {
         if (stompSession == null || !stompSession.isConnected())
