@@ -751,7 +751,7 @@ var FileTable = (function (_self) {
             var path = encodeURI($('input',$(this).prev()).data('name')).replaceAll('#','%23');
             var link = $('a',this);
             link.addClass('overflow-name-column');
-            link.attr('title',title);
+            link.attr('title',$(this).text());
             if (!hasPrerenderedThumbnails && $.inArray(path.toLowerCase().substring(path.lastIndexOf('.')+1), imgFormats) >=0 ) {
                 var tnButton = $('<a href="#" aria-label="thumbnail" class="thumbnail-icon" ' +
                     'data-thumbnail="'+window.contextPath+'/thumbnail/'+ $('#accession').text()+'/'+path+'">' +
