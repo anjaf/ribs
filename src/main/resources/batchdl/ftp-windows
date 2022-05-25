@@ -1,4 +1,4 @@
-; Run this file in bash with this command:  ftp -i -s:./ftp-windows.sh
+; Run this file in cmd shell with this command:  ftp -i -s:./<filename>
 open ftp.ebi.ac.uk
 anonymous
 youremail@domain.com

@@ -12,20 +12,21 @@ var FileTable = (function (_self) {
         $.ajax({url: contextPath + '/api/v1/studies/' + acc + '/info',
             data:params,
             success: function(response){
+                var hasZippedFolders = response.hasZippedFolders || false;
                 if (isDetailPage) {
                     handleSecretKey(response.seckey, params.key);
                     handleDateMetadata(response.released, response.modified);
                     if (response.isPublic) handleFTPLink(response.ftpLink);
                 }
-                if (!response.files || response.files==0) {
+                if (!response.files || response.files===0) {
                     $('#file-list-container').parent().remove();
                     return;
                 }
-                handleFileTableColumns(response.columns, acc, params, isDetailPage);
-                handleFileDownloadSelection(acc,params.key, response.relPath);
+                handleFileTableColumns(response.columns, acc, params, isDetailPage, hasZippedFolders);
+                handleFileDownloadSelection(acc,params.key, response.relPath, hasZippedFolders);
                 handleAdvancedSearch(columnDefinitions);
                 if (isDetailPage) {
-                    handleSectionButtons(acc, params, response.sections, response.relPath);
+                    handleSectionButtons(acc, params, response.sections, response.relPath, hasZippedFolders);
                     handleFileListButtons(acc, params.key);
                 }
                 FileTable.getFilesTable().columns.adjust();
@@ -170,7 +171,7 @@ var FileTable = (function (_self) {
 
     }
 
-    function handleFileTableColumns(columns, acc, params, isDetailPage) {
+    function handleFileTableColumns(columns, acc, params, isDetailPage, hasZippedFolders) {
         if (!isDetailPage) {
             $('#file-list').addClass('bigtable');
         }
@@ -182,7 +183,7 @@ var FileTable = (function (_self) {
             visible: true,
             orderable: false,
             render: function (data, type, row) {
-                return '<div class="file-check-box"><input title="Select file" type="checkbox" data-name="' + row.path + '"></input></div>';;
+                return '<div class="file-check-box"><input title="Select file" type="checkbox" data-name="' + row.path + (row.type==='directory' && hasZippedFolders ? '.zip' : '') + '" ></input></div>';;
             }
         });
 
@@ -358,7 +359,7 @@ var FileTable = (function (_self) {
         handleThumbnails(params.key);
     }
 
-    function handleSectionButtons(acc,params, sections, relPath) {
+    function handleSectionButtons(acc,params, sections, relPath, hasZippedFolders) {
         // add file filter button for section
         $(sections).each(function (i,divId) {
             var column = 'columns['+filesTable.column(':contains(Section)').index()+']';
@@ -370,7 +371,7 @@ var FileTable = (function (_self) {
                 var bar = $('#' + $.escapeSelector(divId) + ' > .bs-attribute > .section-title-bar');
                 bar.append($('<span/>').addClass('bs-section-files-text').html(data.recordsFiltered + (data.recordsFiltered > 1 ? ' files' : ' file')))
                 addFileFilterButton(divId, bar);
-                addFileDownloadButton(acc,divId, bar, params.key, relPath);
+                addFileDownloadButton(acc,divId, bar, params.key, relPath, hasZippedFolders);
             });
 
         });
@@ -391,7 +392,7 @@ var FileTable = (function (_self) {
         bar.append(button);
     }
 
-    function addFileDownloadButton(acc, divId, bar, key, relPath) {
+    function addFileDownloadButton(acc, divId, bar, key, relPath, hasZippedFolders) {
         var button = $('<a class="section-button" data-files-id="' + divId + '">' +
             '<i class="fa fa-cloud-download-alt"></i> Download </a>');
         // handle clicks on file download in section
@@ -409,7 +410,7 @@ var FileTable = (function (_self) {
                 },
                 function (response) {
                     var filelist = response.data.map( function (v) {
-                       return v.path
+                       return v.path + (hasZippedFolders && v.type==='directory' ? '.zip' : '');
                     });
                     createDownloadDialog(key, relPath, new Set(filelist));
                 })
@@ -465,7 +466,7 @@ var FileTable = (function (_self) {
         });
     }
 
-    function handleFileDownloadSelection(acc,key,relativePath) {
+    function handleFileDownloadSelection(acc,key,relativePath, hasZippedFolders) {
         // add select all checkbox
         $(filesTable.columns(0).header()).html('<input id="select-all-files" title="Select all files" type="checkbox"/>' +
             '<span style="display: none">Select all files</span>');
@@ -483,7 +484,7 @@ var FileTable = (function (_self) {
                     }),
                     function (response) {
                         for (var i=0; i< response.data.length; i++) {
-                            selectedFiles.add(response.data[i].path);
+                            selectedFiles.add(response.data[i].path + (hasZippedFolders && response.data[i].type==='directory' ? '.zip' : ''));
                         }
                         updateSelectedFiles();
                     }
@@ -508,7 +509,7 @@ var FileTable = (function (_self) {
                     },
                 function (response) {
                     var filelist = response.data.map( function (v) {
-                        return v.path
+                        return v.path + (hasZippedFolders && v.type==='directory' ? '.zip' : '')
                     });
                     createDownloadDialog(key, relativePath, new Set(filelist));
                 });
