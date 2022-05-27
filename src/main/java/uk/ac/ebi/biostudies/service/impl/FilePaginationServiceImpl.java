@@ -93,6 +93,7 @@ public class FilePaginationServiceImpl implements FilePaginationService {
         studyInfo.put("ftpLink", indexConfig.getFtpDir() + doc.get(Constants.Fields.RELATIVE_PATH));
         studyInfo.put("isPublic", (" " + doc.get(Constants.Fields.ACCESS) + " ").toLowerCase().contains(" public "));
         studyInfo.put(Constants.Fields.RELATIVE_PATH, relativePath);
+        studyInfo.put("hasZippedFolders",storageMode == Constants.File.StorageMode.FIRE);
 
         setDates(studyInfo, doc);
         setPrivateData(studyInfo, doc, secretKey);

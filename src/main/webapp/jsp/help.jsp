@@ -2,10 +2,6 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://jawr.net/tags" prefix="jwr" %>
-
-<c:set var="contextPath" value="${pageContext.request.contextPath}" />
-<c:set var="collection" value="${requestScope['org.springframework.web.servlet.HandlerMapping.uriTemplateVariables']['collection']}"/>
-
 <t:generic>
     <jsp:attribute name="head">
         <jwr:script src="/js/help.min.js"/>
