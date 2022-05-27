@@ -28,8 +28,9 @@ public class View {
             "/{collection}/.+/help",
             "/{collection}/.+/help/"
     })
-    public ModelAndView help() throws Exception {
+    public ModelAndView help(@PathVariable(required = false) String collection) throws Exception {
         var mav = new ModelAndView();
+        mav.addObject("collection", collection);
         mav.setViewName("help");
         return mav;
     }
